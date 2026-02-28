@@ -45,3 +45,5 @@ prisma/*.db-journal
 
 # Auto-generated
 schema.gql
+
+/generated/prisma

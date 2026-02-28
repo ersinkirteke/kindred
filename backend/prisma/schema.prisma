@@ -1,0 +1,156 @@
+// Prisma schema for Kindred backend
+// Database: PostgreSQL 15+
+// ORM: Prisma 7.x
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Enums
+enum DifficultyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum ImageStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+}
+
+enum Platform {
+  IOS
+  ANDROID
+}
+
+// User model - authenticated via Clerk
+model User {
+  id           String   @id @default(cuid())
+  clerkId      String   @unique
+  email        String   @unique
+  displayName  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  bookmarks     Bookmark[]
+  deviceTokens  DeviceToken[]
+
+  @@index([email])
+}
+
+// Recipe model - scraped from X/Instagram
+model Recipe {
+  id          String          @id @default(cuid())
+  name        String
+  description String?
+
+  // Time and servings
+  prepTime    Int             // minutes
+  cookTime    Int?            // minutes
+  servings    Int?
+
+  // Nutritional info (AI-estimated via Gemini)
+  calories    Int?
+  protein     Float?
+  carbs       Float?
+  fat         Float?
+
+  // Difficulty and tags
+  difficulty  DifficultyLevel @default(BEGINNER)
+  dietaryTags String[]        // ['vegan', 'gluten-free', 'keto', 'halal', etc.]
+
+  // AI-generated hero image
+  imageUrl    String?
+  imageStatus ImageStatus     @default(PENDING)
+
+  // Scraping metadata
+  scrapedFrom String          // 'x' | 'instagram' | 'curated'
+  sourceId    String?         @unique // for deduplication
+  scrapedAt   DateTime        @default(now())
+  location    String          // city-level granularity
+
+  // Engagement metrics
+  engagementLoves     Int     @default(0)
+  engagementBookmarks Int     @default(0)
+  engagementViews     Int     @default(0)
+  isViral             Boolean @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ingredients Ingredient[]
+  steps       RecipeStep[]
+  bookmarkedBy Bookmark[]
+
+  @@index([location])
+  @@index([scrapedAt])
+  @@index([isViral])
+  @@index([scrapedFrom])
+}
+
+// Ingredient model - normalized structure
+model Ingredient {
+  id         String @id @default(cuid())
+  recipeId   String
+  recipe     Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  // Normalized ingredient data
+  name       String // normalized (e.g., "chicken breast")
+  quantity   String // "2"
+  unit       String // "cups"
+  orderIndex Int    // display order
+
+  @@index([recipeId])
+}
+
+// RecipeStep model - AI-parsed structured steps
+model RecipeStep {
+  id           String  @id @default(cuid())
+  recipeId     String
+  recipe       Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  orderIndex   Int     // step order
+  text         String  // step instruction
+  duration     Int?    // seconds (optional)
+  techniqueTag String? // e.g., "sauté", "bake", "rest"
+
+  @@index([recipeId])
+}
+
+// DeviceToken model - push notification registration
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token     String   @unique
+  platform  Platform
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// Bookmark model - user's saved recipes
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  recipeId  String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recipeId])
+  @@index([userId])
+  @@index([recipeId])
+}
