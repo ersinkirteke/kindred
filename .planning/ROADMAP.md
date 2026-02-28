@@ -45,7 +45,14 @@ Kindred is a mobile app that discovers viral recipes trending in your neighborho
 4. App continues to function with cached content when scraping sources are unavailable
 5. Push notification infrastructure sends test notifications to registered devices
 
-**Plans:** TBD
+**Plans:** 5 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — NestJS scaffold, Prisma schema, Docker, GraphQL API
+- [ ] 01-02-PLAN.md — Clerk authentication, session persistence, webhook user sync
+- [ ] 01-03-PLAN.md — Recipe scraping pipeline (X API + Gemini parser) with fallback strategy
+- [ ] 01-04-PLAN.md — AI hero image generation (Imagen 4 Fast) + Cloudflare R2 storage
+- [ ] 01-05-PLAN.md — Push notifications (FCM/APNs) + GitHub Actions CI/CD
 
 ---
 
@@ -234,7 +241,7 @@ Kindred is a mobile app that discovers viral recipes trending in your neighborho
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/? | Not started | - |
+| 1. Foundation | 0/5 | Planned | - |
 | 2. Feed Engine | 0/? | Not started | - |
 | 3. Voice Core | 0/? | Not started | - |
 | 4. iOS App (Primary Features) | 0/? | Not started | - |
@@ -265,9 +272,9 @@ Kindred is a mobile app that discovers viral recipes trending in your neighborho
 - ElevenLabs API for voice cloning (cost: ~$0.01-0.03/recipe)
 - Gemini 3 Flash for vision (fridge scan ~85-90% accuracy, receipt ~95%+)
 - Instagram/X scraping via Apify/Browse AI (build abstraction layer - scraping is fragile)
-- Backend decision: Firebase OR Supabase (to be finalized in Phase 1)
+- Backend: Custom NestJS with PostgreSQL + Prisma (decided in Phase 1 planning)
 
 ---
 
 *Roadmap created: 2026-02-28*
-*Next step: `/gsd:plan-phase 1`*
+*Phase 1 planned: 2026-02-28*
