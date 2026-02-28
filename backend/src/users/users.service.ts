@@ -41,4 +41,28 @@ export class UsersService {
       },
     });
   }
+
+  /**
+   * Upsert user from Clerk webhook.
+   * Creates user if not exists, updates email/displayName if exists.
+   * Used for both user.created and user.updated events.
+   */
+  async upsertFromClerk(
+    clerkId: string,
+    email: string,
+    displayName?: string,
+  ) {
+    return this.prisma.user.upsert({
+      where: { clerkId },
+      update: {
+        email,
+        displayName,
+      },
+      create: {
+        clerkId,
+        email,
+        displayName,
+      },
+    });
+  }
 }
