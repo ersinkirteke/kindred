@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 
 import { ConfigModule } from './config/config.module';
@@ -10,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { RecipesModule } from './recipes/recipes.module';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
+import { ScrapingModule } from './scraping/scraping.module';
 
 @Module({
   imports: [
@@ -29,6 +31,9 @@ import { HealthModule } from './health/health.module';
       context: ({ req }) => ({ req }), // Pass request to resolvers for auth
     }),
 
+    // Scheduled tasks
+    ScheduleModule.forRoot(),
+
     // Rate limiting (60 requests per minute by default)
     ThrottlerModule.forRoot([
       {
@@ -47,6 +52,7 @@ import { HealthModule } from './health/health.module';
     RecipesModule,
     UsersModule,
     HealthModule,
+    ScrapingModule,
   ],
 })
 export class AppModule {}

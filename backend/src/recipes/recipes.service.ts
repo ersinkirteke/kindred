@@ -68,4 +68,34 @@ export class RecipesService {
       take: 10,
     });
   }
+
+  /**
+   * Count cached recipes for a location
+   * Used by fallback logic to determine if cached data exists
+   */
+  async countByLocation(location: string): Promise<number> {
+    return this.prisma.recipe.count({
+      where: { location },
+    });
+  }
+
+  /**
+   * Find most recent recipes for a location
+   * Used when scraping fails but cached data exists (INFR-04)
+   */
+  async findRecent(location: string, limit: number = 20) {
+    return this.prisma.recipe.findMany({
+      where: { location },
+      include: {
+        ingredients: {
+          orderBy: { orderIndex: 'asc' },
+        },
+        steps: {
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+      orderBy: { scrapedAt: 'desc' },
+      take: limit,
+    });
+  }
 }

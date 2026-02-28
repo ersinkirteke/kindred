@@ -5,10 +5,13 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { XApiService } from './x-api.service';
 import { InstagramService } from './instagram.service';
 import { RecipeParserService } from './recipe-parser.service';
+import { ScrapingService } from './scraping.service';
+import { ScrapingScheduler } from './scraping.scheduler';
 
 /**
  * Scraping module for automated recipe discovery
  * Orchestrates X API, Instagram (placeholder), and AI parsing
+ * Runs scheduled scraping 4 times per day
  */
 @Module({
   imports: [
@@ -20,12 +23,15 @@ import { RecipeParserService } from './recipe-parser.service';
     XApiService,
     InstagramService,
     RecipeParserService,
-    // ScrapingService and ScrapingScheduler will be added in Task 2
+    ScrapingService,
+    ScrapingScheduler,
   ],
   exports: [
     XApiService,
     InstagramService,
     RecipeParserService,
+    ScrapingService,
+    ScrapingScheduler,
   ],
 })
 export class ScrapingModule {}
