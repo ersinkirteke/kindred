@@ -1,10 +1,48 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { join } from 'path';
+
+import { ConfigModule } from './config/config.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { RecipesModule } from './recipes/recipes.module';
+import { UsersModule } from './users/users.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    // Global configuration with environment validation
+    ConfigModule,
+
+    // GraphQL API with code-first schema
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'schema.gql'),
+      playground: true, // Enable GraphQL Playground in development
+      sortSchema: true,
+      path: '/v1/graphql', // Versioned endpoint
+      subscriptions: {
+        'graphql-ws': true, // Enable WebSocket subscriptions for real-time features
+      },
+      context: ({ req }) => ({ req }), // Pass request to resolvers for auth
+    }),
+
+    // Rate limiting (60 requests per minute by default)
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 60 seconds
+        limit: 100, // 100 requests
+      },
+    ]),
+
+    // Global Prisma module
+    PrismaModule,
+
+    // Feature modules
+    RecipesModule,
+    UsersModule,
+    HealthModule,
+  ],
 })
 export class AppModule {}
