@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
-current_phase: Pre-planning
-current_plan: None
-status: planning
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-02-28T21:24:43.260Z"
+current_phase: 01-foundation
+current_plan: 04
+status: in-progress
+stopped_at: Completed 01-03-PLAN.md
+last_updated: "2026-02-28T21:24:44Z"
 progress:
-  total_phases: 1
+  total_phases: 10
   completed_phases: 0
   total_plans: 5
   completed_plans: 2
@@ -19,7 +19,7 @@ progress:
 
 **Last Updated:** 2026-02-28
 **Current Phase:** 01-foundation
-**Current Plan:** 03 of 5
+**Current Plan:** 04 of 5
 **Status:** In Progress
 
 ---
@@ -28,14 +28,14 @@ progress:
 
 **Core Value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
 
-**Current Focus:** Phase 1 (Foundation) in progress. Backend foundation and authentication complete. Next: Recipe scraping pipeline.
+**Current Focus:** Phase 1 (Foundation) in progress. Backend foundation and recipe scraping pipeline complete. Next: AI image generation.
 
 ---
 
 ## Current Position
 
 **Phase:** 01-foundation
-**Plan:** 03 of 5
+**Plan:** 04 of 5
 **Status:** In Progress
 **Progress:** [████░░░░░░] 40% (2/5 plans complete in current phase, 0/10 phases complete)
 
@@ -59,6 +59,7 @@ progress:
 |------------|----------|-------|-------|-----------|
 | 01-01      | 19 min   | 3     | 38    | 2026-02-28 |
 | 01-02      | 4 min    | 2     | 10    | 2026-02-28 |
+| 01-03      | 5 min    | 2     | 16    | 2026-02-28 |
 
 ---
 
@@ -79,10 +80,14 @@ progress:
 12. **Clerk for OAuth:** Handles Google/Apple OAuth with refresh token rotation, eliminating need for custom OAuth implementation (01-02)
 13. **Svix webhook verification:** Prevents unauthorized user creation by validating webhook signatures (01-02)
 14. **Non-global auth guard:** ClerkAuthGuard applied per-resolver for guest browsing support - AUTH-01 (01-02)
+15. **Gemini 2.0 Flash for recipe parsing:** Fast, cost-effective model (~$0.001/recipe) with JSON response mode for structured extraction (01-03)
+16. **Instagram placeholder pattern:** Stub service allows X API pipeline to work immediately, Instagram added later without refactoring (01-03)
+17. **City -> Country -> Global fallback:** INFR-04 graceful degradation - expands radius when hyperlocal scraping fails (01-03)
+18. **4x/day scheduled scraping:** Balances freshness with API costs, covers US peak hours (8AM, 12PM, 6PM, 9PM UTC) (01-03)
 
 ### Open Questions
 1. ~~Backend choice: Firebase vs Supabase~~ RESOLVED: Custom NestJS backend (01-01)
-2. Scraping strategy: Apify vs Browse AI vs building custom scraper with fallback
+2. ~~Scraping strategy: Apify vs Browse AI vs building custom scraper with fallback~~ RESOLVED: Custom X API integration with Instagram placeholder (01-03)
 3. Voice quality: 30s sample vs 60s sample for ElevenLabs cloning
 4. iOS min version: iOS 17.0 confirmed (SwiftData requirement)
 5. Android min SDK: 26 confirmed (~98% device coverage)
@@ -96,18 +101,19 @@ None
 ## Session Continuity
 
 ### What Just Happened
-- Completed Plan 01-02: Clerk Authentication
-- Implemented Clerk JWT authentication with AuthService and ClerkAuthGuard
-- Created webhook controller with svix signature verification for user sync
-- Protected GraphQL queries (me, myBookmarks) with @UseGuards(ClerkAuthGuard)
-- Added upsertFromClerk method to UsersService for idempotent user creation/updates
-- Created 2 commits (auth guard/service, webhook controller)
-- Duration: 4 minutes, 10 files created/modified
+- Completed Plan 01-03: Recipe Scraping Pipeline
+- Built X API v2 client with rate limiting and graceful error handling
+- Created Instagram placeholder service for future Partner API integration
+- Implemented Gemini 2.0 Flash recipe parser with structured extraction
+- Built scraping orchestrator with fetch -> parse -> dedupe -> store pipeline
+- Added scheduler with 4x/day cron jobs (8AM, 12PM, 6PM, 9PM UTC)
+- Implemented city -> country -> global fallback strategy (INFR-04)
+- Created 2 commits (X API/parsers, orchestrator/scheduler)
+- Duration: 5 minutes, 16 files created/modified
 
 ### What's Next
-1. Plan 01-03: Recipe Scraping Pipeline (X API integration, Instagram scraping, normalization)
-2. Plan 01-04: AI Image Generation (Imagen 4 Fast, Cloudflare R2 upload)
-3. Plan 01-05: Push Notifications (Firebase Cloud Messaging, APNs, device token management)
+1. Plan 01-04: AI Image Generation (Imagen 4 Fast, Cloudflare R2 upload)
+2. Plan 01-05: Push Notifications (Firebase Cloud Messaging, APNs, device token management)
 
 ### Context for Next Session
 - **Mode:** Interactive (user approval required for roadmap and plans)
@@ -120,10 +126,10 @@ None
 
 ### Last Session
 - **Date:** 2026-02-28
-- **Duration:** 4 minutes
-- **Stopped at:** Completed 01-02-PLAN.md
-- **Next action:** Execute Plan 01-03 (Recipe Scraping Pipeline)
+- **Duration:** 5 minutes
+- **Stopped at:** Completed 01-03-PLAN.md
+- **Next action:** Execute Plan 01-04 (AI Image Generation)
 
 ---
 
-*State updated: 2026-02-28T21:23:12Z after completing Plan 01-02*
+*State updated: 2026-02-28T21:24:44Z after completing Plan 01-03*

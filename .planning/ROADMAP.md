@@ -48,9 +48,9 @@ Kindred is a mobile app that discovers viral recipes trending in your neighborho
 **Plans:** 5 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — NestJS scaffold, Prisma schema, Docker, GraphQL API
+- [x] 01-01-PLAN.md — NestJS scaffold, Prisma schema, Docker, GraphQL API
 - [ ] 01-02-PLAN.md — Clerk authentication, session persistence, webhook user sync
-- [ ] 01-03-PLAN.md — Recipe scraping pipeline (X API + Gemini parser) with fallback strategy
+- [x] 01-03-PLAN.md — Recipe scraping pipeline (X API + Gemini parser) with fallback strategy
 - [ ] 01-04-PLAN.md — AI hero image generation (Imagen 4 Fast) + Cloudflare R2 storage
 - [ ] 01-05-PLAN.md — Push notifications (FCM/APNs) + GitHub Actions CI/CD
 
@@ -241,7 +241,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/5 | Planned | - |
+| 1. Foundation | 2/5 | In Progress | - |
 | 2. Feed Engine | 0/? | Not started | - |
 | 3. Voice Core | 0/? | Not started | - |
 | 4. iOS App (Primary Features) | 0/? | Not started | - |
