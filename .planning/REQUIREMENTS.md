@@ -13,7 +13,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **AUTH-02**: User can sign up / sign in via Google OAuth (one-tap)
 - [ ] **AUTH-03**: User can sign up / sign in via Apple Sign In
 - [ ] **AUTH-04**: Guest user is prompted to create account when attempting to save, bookmark, or use voice features
-- [ ] **AUTH-05**: User session persists across app restarts
+- [x] **AUTH-05**: User session persists across app restarts
 
 ### Hyperlocal Feed
 
@@ -137,7 +137,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-02 | Phase 4, Phase 9 | Pending |
 | AUTH-03 | Phase 4, Phase 9 | Pending |
 | AUTH-04 | Phase 4, Phase 9 | Pending |
-| AUTH-05 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Complete |
 | FEED-01 | Phase 2, Phase 9 | Pending |
 | FEED-02 | Phase 2, Phase 9 | Pending |
 | FEED-03 | Phase 2, Phase 9 | Pending |
