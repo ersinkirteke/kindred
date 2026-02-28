@@ -12,6 +12,7 @@ import { RecipesModule } from './recipes/recipes.module';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
 import { ScrapingModule } from './scraping/scraping.module';
+import { PushModule } from './push/push.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { ScrapingModule } from './scraping/scraping.module';
     UsersModule,
     HealthModule,
     ScrapingModule,
+    PushModule,
   ],
 })
 export class AppModule {}
