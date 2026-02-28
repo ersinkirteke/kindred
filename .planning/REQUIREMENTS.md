@@ -87,10 +87,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **INFR-01**: Backend API serves both iOS and Android with shared data models
 - [x] **INFR-02**: Recipe scraping pipeline discovers trending recipes from Instagram/X by location
-- [ ] **INFR-03**: AI image generation pipeline creates hero images for each scraped recipe
+- [x] **INFR-03**: AI image generation pipeline creates hero images for each scraped recipe
 - [x] **INFR-04**: App functions with degraded experience when scraping sources are unavailable (cached/curated fallback)
 - [ ] **INFR-05**: Voice profiles and audio cached locally for offline narration of previously played recipes
-- [ ] **INFR-06**: Push notification infrastructure for expiry alerts and engagement nudges
+- [x] **INFR-06**: Push notification infrastructure for expiry alerts and engagement nudges
 
 ## v2 Requirements
 
@@ -187,10 +187,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ONBR-04 | Phase 4, Phase 9 | Pending |
 | INFR-01 | Phase 1 | Complete |
 | INFR-02 | Phase 1 | Complete |
-| INFR-03 | Phase 1 | Pending |
+| INFR-03 | Phase 1 | Complete |
 | INFR-04 | Phase 1 | Complete |
 | INFR-05 | Backend (shared) | Pending |
-| INFR-06 | Phase 1 | Pending |
+| INFR-06 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 46 total
