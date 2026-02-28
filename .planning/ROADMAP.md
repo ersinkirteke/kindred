@@ -72,7 +72,12 @@ Plans:
 6. User can manually change location to explore other areas
 7. Feed displays cached recipes with offline indicator when network unavailable
 
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — PostGIS geospatial support, CuisineType/MealType enums, Mapbox geocoding service
+- [ ] 02-02-PLAN.md — Velocity scorer, AI cuisine/meal tagging, scraping pipeline geocoding integration
+- [ ] 02-03-PLAN.md — Feed GraphQL API with geo-radius queries, cursor pagination, filters, offline cache headers
 
 ---
 
