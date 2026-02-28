@@ -6,6 +6,7 @@ import { join } from 'path';
 
 import { ConfigModule } from './config/config.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
 import { RecipesModule } from './recipes/recipes.module';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
@@ -38,6 +39,9 @@ import { HealthModule } from './health/health.module';
 
     // Global Prisma module
     PrismaModule,
+
+    // Authentication module
+    AuthModule,
 
     // Feature modules
     RecipesModule,
