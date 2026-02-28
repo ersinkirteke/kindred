@@ -133,13 +133,72 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| — | — | Pending |
+| AUTH-01 | Phase 4, Phase 9 | Pending |
+| AUTH-02 | Phase 4, Phase 9 | Pending |
+| AUTH-03 | Phase 4, Phase 9 | Pending |
+| AUTH-04 | Phase 4, Phase 9 | Pending |
+| AUTH-05 | Phase 1 | Pending |
+| FEED-01 | Phase 2, Phase 9 | Pending |
+| FEED-02 | Phase 2, Phase 9 | Pending |
+| FEED-03 | Phase 2, Phase 9 | Pending |
+| FEED-04 | Phase 4, Phase 9 | Pending |
+| FEED-05 | Phase 4, Phase 9 | Pending |
+| FEED-06 | Phase 2, Phase 9 | Pending |
+| FEED-07 | Phase 2, Phase 9 | Pending |
+| FEED-08 | Phase 2, Phase 9 | Pending |
+| FEED-09 | Phase 2, Phase 9 | Pending |
+| VOICE-01 | Phase 3, Phase 9 | Pending |
+| VOICE-02 | Phase 3, Phase 9 | Pending |
+| VOICE-03 | Phase 3, Phase 9 | Pending |
+| VOICE-04 | Phase 3, Phase 9 | Pending |
+| VOICE-05 | Phase 3, Phase 9 | Pending |
+| VOICE-06 | Phase 3, Phase 9 | Pending |
+| VOICE-07 | Phase 3, Phase 9 | Pending |
+| PNTR-01 | Phase 5, Phase 10 | Pending |
+| PNTR-02 | Phase 5, Phase 10 | Pending |
+| PNTR-03 | Phase 5, Phase 10 | Pending |
+| PNTR-04 | Phase 5, Phase 10 | Pending |
+| PNTR-05 | Phase 5, Phase 10 | Pending |
+| PNTR-06 | Phase 5, Phase 10 | Pending |
+| PNTR-07 | Phase 5, Phase 10 | Pending |
+| PRSN-01 | Phase 6, Phase 10 | Pending |
+| PRSN-02 | Phase 6, Phase 10 | Pending |
+| PRSN-03 | Phase 6, Phase 10 | Pending |
+| PRSN-04 | Phase 6, Phase 10 | Pending |
+| PRSN-05 | Phase 6, Phase 10 | Pending |
+| PRSN-06 | Phase 6, Phase 10 | Pending |
+| PRSN-07 | Phase 6, Phase 10 | Pending |
+| MNTZ-01 | Phase 8, Phase 10 | Pending |
+| MNTZ-02 | Phase 8, Phase 10 | Pending |
+| MNTZ-03 | Phase 8, Phase 10 | Pending |
+| MNTZ-04 | Phase 8, Phase 10 | Pending |
+| MNTZ-05 | Phase 8, Phase 10 | Pending |
+| ACCS-01 | Phase 7, Phase 10 | Pending |
+| ACCS-02 | Phase 7, Phase 10 | Pending |
+| ACCS-03 | Phase 7, Phase 10 | Pending |
+| ACCS-04 | Phase 7, Phase 10 | Pending |
+| ACCS-05 | Phase 7, Phase 10 | Pending |
+| ACCS-06 | Phase 7, Phase 10 | Pending |
+| ACCS-07 | Phase 7, Phase 10 | Pending |
+| ACCS-08 | Phase 7, Phase 10 | Pending |
+| ONBR-01 | Phase 4, Phase 9 | Pending |
+| ONBR-02 | Phase 4, Phase 9 | Pending |
+| ONBR-03 | Phase 4, Phase 9 | Pending |
+| ONBR-04 | Phase 4, Phase 9 | Pending |
+| INFR-01 | Phase 1 | Pending |
+| INFR-02 | Phase 1 | Pending |
+| INFR-03 | Phase 1 | Pending |
+| INFR-04 | Phase 1 | Pending |
+| INFR-05 | Backend (shared) | Pending |
+| INFR-06 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 46 total
-- Mapped to phases: 0
-- Unmapped: 46 ⚠️
+- Mapped to phases: 46
+- Unmapped: 0 ✓
+
+**Note:** Some requirements appear in multiple phases because they must be implemented on both iOS (Phases 4-8) and Android (Phases 9-10). Backend requirements (Phase 1-3) are shared across both platforms.
 
 ---
 *Requirements defined: 2026-02-28*
-*Last updated: 2026-02-28 after initial definition*
+*Last updated: 2026-02-28 after roadmap creation*
