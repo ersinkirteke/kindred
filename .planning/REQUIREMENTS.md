@@ -85,7 +85,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Backend & Infrastructure
 
-- [ ] **INFR-01**: Backend API serves both iOS and Android with shared data models
+- [x] **INFR-01**: Backend API serves both iOS and Android with shared data models
 - [ ] **INFR-02**: Recipe scraping pipeline discovers trending recipes from Instagram/X by location
 - [ ] **INFR-03**: AI image generation pipeline creates hero images for each scraped recipe
 - [ ] **INFR-04**: App functions with degraded experience when scraping sources are unavailable (cached/curated fallback)
@@ -185,7 +185,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ONBR-02 | Phase 4, Phase 9 | Pending |
 | ONBR-03 | Phase 4, Phase 9 | Pending |
 | ONBR-04 | Phase 4, Phase 9 | Pending |
-| INFR-01 | Phase 1 | Pending |
+| INFR-01 | Phase 1 | Complete |
 | INFR-02 | Phase 1 | Pending |
 | INFR-03 | Phase 1 | Pending |
 | INFR-04 | Phase 1 | Pending |
