@@ -4,6 +4,7 @@ import { XApiService } from './x-api.service';
 import { InstagramService } from './instagram.service';
 import { RecipeParserService } from './recipe-parser.service';
 import { RawScrapedPost } from './dto/scraped-recipe.dto';
+import { ImageGenerationProcessor } from '../images/image-generation.processor';
 
 interface ScrapingResult {
   newRecipes: number;
@@ -13,7 +14,7 @@ interface ScrapingResult {
 
 /**
  * Orchestrates the recipe scraping pipeline
- * Fetch -> Parse -> Deduplicate -> Store
+ * Fetch -> Parse -> Deduplicate -> Store -> Queue Image Generation
  */
 @Injectable()
 export class ScrapingService {
@@ -25,6 +26,7 @@ export class ScrapingService {
     private readonly instagramService: InstagramService,
     private readonly recipeParser: RecipeParserService,
     private readonly prisma: PrismaService,
+    private readonly imageProcessor: ImageGenerationProcessor,
   ) {
     // Engagement count threshold for viral flag (configurable)
     this.viralThreshold = 1000;
@@ -97,7 +99,7 @@ export class ScrapingService {
           // 4. Store in database
           const isViral = post.engagementCount >= this.viralThreshold;
 
-          await this.prisma.recipe.create({
+          const createdRecipe = await this.prisma.recipe.create({
             data: {
               // Recipe metadata
               name: parsedRecipe.name,
@@ -119,7 +121,7 @@ export class ScrapingService {
               sourceId: post.sourceId,
               location: city,
               scrapedAt: new Date(),
-              imageStatus: 'PENDING', // Plan 04 will generate images
+              imageStatus: 'PENDING', // Will be updated by image processor
 
               // Engagement
               isViral,
@@ -146,6 +148,13 @@ export class ScrapingService {
                 })),
               },
             },
+          });
+
+          // 5. Queue background image generation (non-blocking)
+          this.imageProcessor.enqueue({
+            recipeId: createdRecipe.id,
+            recipeName: createdRecipe.name,
+            ingredients: parsedRecipe.ingredients.map((i) => i.name),
           });
 
           result.newRecipes++;

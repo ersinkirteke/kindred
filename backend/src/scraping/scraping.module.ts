@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
+import { ImagesModule } from '../images/images.module';
 import { XApiService } from './x-api.service';
 import { InstagramService } from './instagram.service';
 import { RecipeParserService } from './recipe-parser.service';
@@ -10,7 +11,7 @@ import { ScrapingScheduler } from './scraping.scheduler';
 
 /**
  * Scraping module for automated recipe discovery
- * Orchestrates X API, Instagram (placeholder), and AI parsing
+ * Orchestrates X API, Instagram (placeholder), AI parsing, and image generation
  * Runs scheduled scraping 4 times per day
  */
 @Module({
@@ -18,6 +19,7 @@ import { ScrapingScheduler } from './scraping.scheduler';
     ScheduleModule.forRoot(),
     ConfigModule,
     PrismaModule,
+    ImagesModule,
   ],
   providers: [
     XApiService,

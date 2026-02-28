@@ -12,6 +12,7 @@ import { RecipesModule } from './recipes/recipes.module';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
 import { ScrapingModule } from './scraping/scraping.module';
+import { ImagesModule } from './images/images.module';
 import { PushModule } from './push/push.module';
 
 @Module({
@@ -54,6 +55,7 @@ import { PushModule } from './push/push.module';
     UsersModule,
     HealthModule,
     ScrapingModule,
+    ImagesModule,
     PushModule,
   ],
 })
