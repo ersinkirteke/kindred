@@ -1,19 +1,7 @@
 import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
+import { VoiceStatus } from '@prisma/client';
 
-/**
- * VoiceStatus enum for GraphQL
- *
- * Tracks the lifecycle of a voice cloning operation.
- */
-export enum VoiceStatus {
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  READY = 'READY',
-  FAILED = 'FAILED',
-  DELETED = 'DELETED',
-}
-
-// Register enum for GraphQL schema
+// Register Prisma enum for GraphQL schema
 registerEnumType(VoiceStatus, {
   name: 'VoiceStatus',
   description: 'Voice profile cloning status',
