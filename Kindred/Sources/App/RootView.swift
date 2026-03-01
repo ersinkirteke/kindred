@@ -32,7 +32,7 @@ struct RootView: View {
             .tag(AppReducer.Tab.me)
         }
         .tint(.kindredAccent)
-        .toolbarBackground(.kindredCardSurface, for: .tabBar)
+        .toolbarBackground(Color.kindredCardSurface, for: .tabBar)
         .toolbarBackground(.visible, for: .tabBar)
     }
 }

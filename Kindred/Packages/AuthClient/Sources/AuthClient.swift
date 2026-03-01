@@ -2,12 +2,13 @@ import Foundation
 import ClerkKit
 
 /// Clerk SDK wrapper for authentication
+@MainActor
 public final class ClerkAuthClient {
     public init() {}
 
     /// Get current JWT token (nil if not authenticated)
     public func getToken() async -> String? {
-        try? await Clerk.shared.session?.getToken()?.jwt
+        try? await Clerk.shared.session?.getToken()
     }
 
     /// Check if user is authenticated

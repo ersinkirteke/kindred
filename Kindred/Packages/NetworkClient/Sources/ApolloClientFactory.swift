@@ -4,15 +4,14 @@ import ApolloSQLite
 import Foundation
 
 /// Factory for creating configured ApolloClient instances with SQLite cache and authentication
-public final class ApolloClientFactory {
+public final class ApolloClientFactory: Sendable {
     /// Create an ApolloClient configured with:
     /// - SQLite offline cache
     /// - Authentication interceptor for JWT injection
-    /// - Retry and error handling interceptors
     ///
     /// - Parameter tokenProvider: Async closure that returns JWT token (nil if guest)
     /// - Returns: Configured ApolloClient instance
-    public static func create(tokenProvider: @escaping () async -> String?) -> ApolloClient {
+    public static func create(tokenProvider: @escaping @Sendable () async -> String?) -> ApolloClient {
         // 1. SQLite cache for offline-first data persistence
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let sqliteFileURL = documentsURL.appendingPathComponent("kindred_apollo_cache.sqlite")
@@ -21,8 +20,7 @@ public final class ApolloClientFactory {
         let store = ApolloStore(cache: sqliteCache)
 
         // 2. Custom interceptor provider with auth interceptor
-        let interceptorProvider = CustomInterceptorProvider(
-            store: store,
+        let interceptorProvider = KindredInterceptorProvider(
             tokenProvider: tokenProvider
         )
 
@@ -30,7 +28,9 @@ public final class ApolloClientFactory {
         // TODO: Make URL configurable per environment (dev/staging/prod)
         let url = URL(string: "https://api.kindred.app/graphql")!
         let transport = RequestChainNetworkTransport(
+            urlSession: URLSession.shared,
             interceptorProvider: interceptorProvider,
+            store: store,
             endpointURL: url
         )
 
@@ -38,26 +38,20 @@ public final class ApolloClientFactory {
     }
 }
 
-/// Custom interceptor provider that injects AuthInterceptor into the request chain
-private class CustomInterceptorProvider: DefaultInterceptorProvider {
-    private let tokenProvider: () async -> String?
+/// Custom interceptor provider that adds AuthInterceptor to HTTP interceptors
+public struct KindredInterceptorProvider: InterceptorProvider, Sendable {
+    private let tokenProvider: @Sendable () async -> String?
 
-    init(store: ApolloStore, tokenProvider: @escaping () async -> String?) {
+    public init(tokenProvider: @escaping @Sendable () async -> String?) {
         self.tokenProvider = tokenProvider
-        super.init(store: store)
     }
 
-    override func interceptors<Operation>(
+    public func httpInterceptors<Operation: GraphQLOperation>(
         for operation: Operation
-    ) -> [any ApolloInterceptor] where Operation: GraphQLOperation {
-        var interceptors = super.interceptors(for: operation)
-
-        // Insert auth interceptor before network fetch
-        // Order: Cache read -> Auth -> Network -> Parse -> Cache write
-        if let networkFetchIndex = interceptors.firstIndex(where: { $0 is NetworkFetchInterceptor }) {
-            interceptors.insert(AuthInterceptor(tokenProvider: tokenProvider), at: networkFetchIndex)
-        }
-
-        return interceptors
+    ) -> [any HTTPInterceptor] {
+        [
+            AuthInterceptor(tokenProvider: tokenProvider),
+            ResponseCodeInterceptor()
+        ]
     }
 }

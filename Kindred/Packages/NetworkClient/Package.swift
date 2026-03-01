@@ -13,7 +13,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apollographql/apollo-ios", from: "2.0.6"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
-        .package(path: "./Sources/Schema"),
+        .package(path: "../KindredAPI"),
     ],
     targets: [
         .target(
@@ -22,7 +22,7 @@ let package = Package(
                 .product(name: "Apollo", package: "apollo-ios"),
                 .product(name: "ApolloSQLite", package: "apollo-ios"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
-                .product(name: "KindredAPI", package: "Schema"),
+                .product(name: "KindredAPI", package: "KindredAPI"),
             ]
         ),
     ]

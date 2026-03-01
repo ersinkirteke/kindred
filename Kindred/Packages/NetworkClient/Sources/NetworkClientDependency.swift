@@ -22,11 +22,12 @@ private enum ApolloClientKey: DependencyKey {
 
     static let testValue: ApolloClient = {
         // Test client with in-memory cache
-        let cache = InMemoryNormalizedCache()
-        let store = ApolloStore(cache: cache)
+        let store = ApolloStore(cache: InMemoryNormalizedCache())
         let url = URL(string: "https://test.kindred.app/graphql")!
         let transport = RequestChainNetworkTransport(
-            interceptorProvider: DefaultInterceptorProvider(store: store),
+            urlSession: URLSession.shared,
+            interceptorProvider: DefaultInterceptorProvider.shared,
+            store: store,
             endpointURL: url
         )
         return ApolloClient(networkTransport: transport, store: store)
