@@ -29,12 +29,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Voice Narrator
 
-- [ ] **VOICE-01**: User can upload a 30-60 second voice clip of a loved one during onboarding or from profile
-- [ ] **VOICE-02**: App clones the uploaded voice using ElevenLabs API and stores the voice profile
+- [x] **VOICE-01**: User can upload a 30-60 second voice clip of a loved one during onboarding or from profile
+- [x] **VOICE-02**: App clones the uploaded voice using ElevenLabs API and stores the voice profile
 - [ ] **VOICE-03**: User can listen to any recipe's instructions narrated in their cloned voice
 - [ ] **VOICE-04**: Voice narration streams in real-time with play/pause/seek controls (64dp play button)
-- [ ] **VOICE-05**: Voice narration displays the speaker's name prominently during playback
-- [ ] **VOICE-06**: Free tier users get 1 voice slot; Pro users get unlimited voice slots
+- [x] **VOICE-05**: Voice narration displays the speaker's name prominently during playback
+- [x] **VOICE-06**: Free tier users get 1 voice slot; Pro users get unlimited voice slots
 - [ ] **VOICE-07**: User can re-record or replace their voice clip to improve quality
 
 ### Smart Pantry
@@ -147,12 +147,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FEED-07 | Phase 2, Phase 9 | Complete |
 | FEED-08 | Phase 2, Phase 9 | Complete |
 | FEED-09 | Phase 2, Phase 9 | Complete |
-| VOICE-01 | Phase 3, Phase 9 | Pending |
-| VOICE-02 | Phase 3, Phase 9 | Pending |
+| VOICE-01 | Phase 3, Phase 9 | Complete |
+| VOICE-02 | Phase 3, Phase 9 | Complete |
 | VOICE-03 | Phase 3, Phase 9 | Pending |
 | VOICE-04 | Phase 3, Phase 9 | Pending |
-| VOICE-05 | Phase 3, Phase 9 | Pending |
-| VOICE-06 | Phase 3, Phase 9 | Pending |
+| VOICE-05 | Phase 3, Phase 9 | Complete |
+| VOICE-06 | Phase 3, Phase 9 | Complete |
 | VOICE-07 | Phase 3, Phase 9 | Pending |
 | PNTR-01 | Phase 5, Phase 10 | Pending |
 | PNTR-02 | Phase 5, Phase 10 | Pending |

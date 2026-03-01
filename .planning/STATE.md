@@ -2,25 +2,25 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
-current_phase: 02
-current_plan: Not started
-status: completed
-stopped_at: Phase 3 execution blocked - executor agents hitting context limits on plan 03-01
-last_updated: "2026-03-01T12:05:02.189Z"
+current_phase: 03
+current_plan: 01
+status: in_progress
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-01T12:12:07.307Z"
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 11
-  completed_plans: 8
-  percent: 100
+  completed_plans: 9
+  percent: 82
 ---
 
 # Project State: Kindred
 
 **Last Updated:** 2026-03-01
-**Current Phase:** 02
-**Current Plan:** Not started
-**Status:** Milestone complete
+**Current Phase:** 03
+**Current Plan:** 1 of 3
+**Status:** In progress
 
 ---
 
@@ -28,16 +28,16 @@ progress:
 
 **Core Value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
 
-**Current Focus:** Phase 2 (Feed Engine) complete. All 7 feed requirements delivered. PostGIS spatial queries, velocity ranking, and offline-first GraphQL API operational.
+**Current Focus:** Phase 3 (Voice Core) in progress. Voice foundation complete with VoiceProfile schema, ElevenLabs API client, and R2 voice sample storage. Next: voice upload and narration.
 
 ---
 
 ## Current Position
 
-**Phase:** 02-feed-engine
-**Plan:** 3 of 3
-**Status:** Complete
-**Progress:** [██████████] 100% (8/8 plans complete)
+**Phase:** 03-voice-core
+**Plan:** 1 of 3
+**Status:** In progress
+**Progress:** [████████░░] 82% (9/11 plans complete)
 
 ---
 
@@ -45,8 +45,8 @@ progress:
 
 ### Velocity
 - **Phases completed:** 2
-- **Plans completed:** 8
-- **Average plans per phase:** 4 (Phase 1: 5 plans, Phase 2: 3 plans)
+- **Plans completed:** 9
+- **Average plans per phase:** 4.5 (Phase 1: 5 plans, Phase 2: 3 plans, Phase 3: 1 plan so far)
 - **Estimated completion:** TBD
 
 ### Quality
@@ -65,6 +65,8 @@ progress:
 | 02-01      | 5 min    | 2     | 9     | 2026-03-01 |
 | 02-02      | 8 min    | 2     | 7     | 2026-03-01 |
 | 02-03      | 4 min    | 2     | 8     | 2026-03-01 |
+| 03-01      | 4 min    | 2     | 8     | 2026-03-01 |
+| Phase 03 P01 | 4 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -112,6 +114,10 @@ progress:
 41. **Expanded radius fallback (city -> country -> global):** Feed never returns empty per user requirement - progressively expands from 10mi -> 50mi -> 500mi -> global (02-03)
 42. **Progressive filter relaxation:** When filters produce zero results, drop dietaryTags first, then mealTypes, then cuisineTypes - improves UX by showing partial matches (02-03)
 43. **Cache-Control with stale-while-revalidate:** 5 min fresh (max-age=300), 24 hour stale (stale-while-revalidate=86400) for offline-first mobile clients with pull-to-refresh (02-03)
+44. **VoiceStatus lifecycle:** PENDING → PROCESSING → READY → FAILED → DELETED provides clear state tracking for async voice cloning operations (03-01)
+45. **GraphQL security for voice profiles:** VoiceProfileDto excludes internal fields (elevenLabsVoiceId, audioSampleUrl, consent data) to prevent leaking sensitive data to clients (03-01)
+46. **Graceful ElevenLabs initialization:** Following Mapbox/Firebase pattern, service logs warning when ELEVENLABS_API_KEY missing instead of crashing - enables local dev without API credentials (03-01)
+47. **eleven_flash_v2_5 model for TTS:** Ultra-low latency model (~75ms) with stability=0.5, similarity_boost=0.75 for real-time voice narration streaming (03-01)
 
 ### Open Questions
 1. ~~Backend choice: Firebase vs Supabase~~ RESOLVED: Custom NestJS backend (01-01)
@@ -129,25 +135,24 @@ None
 ## Session Continuity
 
 ### What Just Happened
-- Completed Plan 02-03: Feed GraphQL API (PostGIS Geo-Radius Queries)
-- Created RecipeCard, RecipeConnection, FeedFiltersInput DTOs for feed API
-- Implemented FeedService with PostGIS ST_DWithin spatial queries
-- 5-10 mile radius filtering with keyset pagination (velocityScore + id cursor)
-- Expanded radius fallback: 10mi -> 50mi (city) -> 500mi (country) -> global
-- Progressive filter relaxation for zero-result queries (dietaryTags -> mealTypes -> cuisineTypes)
-- Created FeedResolver with feed, cityName, searchCities GraphQL queries
-- Cache-Control headers: max-age=300, stale-while-revalidate=86400 for offline-first
-- ETag generation for conditional requests (bandwidth savings)
-- Query complexity estimation for DoS prevention
-- Registered FeedModule in AppModule
-- Created 02-03-SUMMARY.md with full documentation and self-check
-- Updated STATE.md and ROADMAP.md with 02-03 progress
+- Completed Plan 03-01: Voice Foundation
+- Added VoiceStatus enum with lifecycle states (PENDING → PROCESSING → READY → FAILED → DELETED)
+- Created VoiceProfile Prisma model with status tracking, speaker metadata, and consent fields
+- Added voiceProfiles relation to User model
+- Created VoiceModule and registered in AppModule
+- Created GraphQL DTOs (VoiceProfileDto excludes internal fields, UploadVoiceInput requires consentGiven)
+- Implemented ElevenLabsService with cloneVoice, deleteVoice, generateSpeechStream, getVoice methods
+- Extended R2StorageService with uploadVoiceSample and deleteVoiceSample methods
+- Graceful initialization when ELEVENLABS_API_KEY missing (log warning, don't crash)
+- Added ELEVENLABS_API_KEY to .env.example
+- Created 03-01-SUMMARY.md with full documentation and self-check
+- Updated STATE.md and ROADMAP.md with 03-01 progress
 - Duration: 4 minutes
-- **Phase 2 (Feed Engine): COMPLETE (3/3 plans done)**
+- **Phase 3 (Voice Core): 1/3 plans complete**
 
 ### What's Next
-1. Phase 2 complete - all 7 feed requirements delivered (FEED-01 through FEED-09)
-2. Next phase: Phase 3 (Voice Core) or Phase 4 (iOS App)
+1. Plan 03-02: Voice upload GraphQL resolver with multipart file handling
+2. Plan 03-03: Voice narration with TTS streaming
 
 ### Context for Next Session
 - **Mode:** Interactive (user approval required for roadmap and plans)
@@ -161,8 +166,8 @@ None
 ### Last Session
 - **Date:** 2026-03-01
 - **Duration:** 4 minutes
-- **Stopped at:** Phase 3 execution blocked - executor agents hitting context limits on plan 03-01
-- **Next action:** Begin Phase 3 (Voice Core) or Phase 4 (iOS App)
+- **Stopped at:** Completed 03-01-PLAN.md
+- **Next action:** Continue Phase 3 with plan 03-02 (Voice Upload) or 03-03 (Voice Narration)
 
 ---
 
