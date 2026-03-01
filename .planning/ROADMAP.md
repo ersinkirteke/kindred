@@ -7,7 +7,8 @@
 ## Milestones
 
 - ✅ **v1.5 Backend & AI Pipeline** — Phases 1-3 (shipped 2026-03-01)
-- 📋 **Next milestone** — TBD (iOS app, pantry, personalization, accessibility, monetization, Android)
+- 🚧 **v2.0 iOS App** — Phases 4-10 (in progress)
+- 📋 **v2.1 Pantry & Android** — TBD
 
 ## Phases
 
@@ -23,52 +24,129 @@
 
 </details>
 
-### 📋 Next Milestone (Planned)
+### 🚧 v2.0 iOS App (In Progress)
 
-- [ ] **Phase 4: iOS App (Primary Features)** — Feed, recipe detail, voice player
-- [ ] **Phase 5: Smart Pantry (iOS)** — Camera scan, receipt OCR, inventory management
-- [ ] **Phase 6: Personalization Engine** — Culinary DNA, dietary filtering
-- [ ] **Phase 7: Accessibility & Polish (iOS)** — WCAG AAA compliance, onboarding refinement
-- [ ] **Phase 8: Monetization** — Free tier ads, Pro tier subscription
-- [ ] **Phase 9: Android App (Core Parity)** — Feed, recipe detail, voice player
-- [ ] **Phase 10: Android Pantry & Full Parity** — Complete feature set on Android
+**Milestone Goal:** Put Kindred in users' hands — the full iOS experience with feed, voice playback, personalization, accessibility, and monetization.
 
-### Phase Details
+- [ ] **Phase 4: Foundation & Architecture** - SwiftUI + TCA structure, Apollo iOS GraphQL client, theme system
+- [ ] **Phase 5: Guest Browsing & Feed** - Guest mode, swipe cards, recipe discovery, location-based feed
+- [ ] **Phase 6: Dietary Filtering & Personalization** - Dietary preferences, Culinary DNA learning from implicit feedback
+- [ ] **Phase 7: Voice Playback & Streaming** - Voice narration streaming, background audio, offline caching
+- [ ] **Phase 8: Authentication & Onboarding** - Google/Apple OAuth, guest-to-account conversion, sub-90s onboarding
+- [ ] **Phase 9: Monetization & Voice Tiers** - Free tier with ads, Pro subscription, StoreKit 2, voice slot enforcement
+- [ ] **Phase 10: Accessibility & Polish** - WCAG AAA audit, VoiceOver polish, Dynamic Type testing, production readiness
 
-#### Phase 4: iOS App (Primary Features)
-**Goal:** iOS users can browse feed, view recipe details, and cook with voice narration
-**Depends on:** Phase 2, Phase 3
-**Plans:** TBD
+## Phase Details
 
-#### Phase 5: Smart Pantry (iOS)
-**Goal:** iOS users can scan fridge/receipts, manage digital pantry, and receive expiry alerts
-**Depends on:** Phase 4
-**Plans:** TBD
+### Phase 4: Foundation & Architecture
+**Goal**: Establish iOS app architecture and core infrastructure for all features
+**Depends on**: Phase 3 (backend voice cloning complete)
+**Requirements**: None (infrastructure only)
+**Success Criteria** (what must be TRUE):
+  1. App launches with SwiftUI + TCA project structure and modular Swift Package Manager setup
+  2. Apollo iOS GraphQL client successfully authenticates with backend using Clerk JWT tokens
+  3. Shared UI theme (cream/terracotta palette, typography, 56dp button components) is applied app-wide
+  4. Navigation structure (4-tab bottom nav: Feed, Scan, Pantry, Me) is functional
+**Plans**: TBD
 
-#### Phase 6: Personalization Engine
-**Goal:** Feed adapts to user preferences through dietary settings and learned taste profile
-**Depends on:** Phase 4
-**Plans:** TBD
+Plans:
+- [ ] 04-01: TBD
+- [ ] 04-02: TBD
+- [ ] 04-03: TBD
 
-#### Phase 7: Accessibility & Polish (iOS)
-**Goal:** iOS app meets WCAG AAA standards and is fully usable by 75+ year-old users
-**Depends on:** Phase 4, Phase 5
-**Plans:** TBD
+### Phase 5: Guest Browsing & Feed
+**Goal**: Users can browse viral recipes and explore the feed without creating an account
+**Depends on**: Phase 4
+**Requirements**: AUTH-01, FEED-01, FEED-02, FEED-03, FEED-04, FEED-05, FEED-06, FEED-08, ACCS-01, ACCS-04
+**Success Criteria** (what must be TRUE):
+  1. Guest user sees viral recipes trending within 5-10 miles of their location with AI hero images, prep time, calories, VIRAL badges
+  2. User can swipe left to skip and swipe right to bookmark recipe cards OR use Listen/Watch/Skip buttons (56dp touch targets)
+  3. User can view recipe details (ingredients, instructions) in maximum 2 taps from feed
+  4. User's location displays as city badge at top of feed and can be manually changed to explore other areas
+  5. Feed loads cached content when offline with clear offline indicator
+**Plans**: TBD
 
-#### Phase 8: Monetization
-**Goal:** Free tier with ads and Pro subscription tier are operational with App Store billing
-**Depends on:** Phase 7
-**Plans:** TBD
+Plans:
+- [ ] 05-01: TBD
+- [ ] 05-02: TBD
+- [ ] 05-03: TBD
 
-#### Phase 9: Android App (Core Parity)
-**Goal:** Android users can browse feed, view recipes, and cook with voice narration
-**Depends on:** Phase 1, Phase 2, Phase 3
-**Plans:** TBD
+### Phase 6: Dietary Filtering & Personalization
+**Goal**: Feed adapts to user dietary preferences and learns taste from implicit feedback
+**Depends on**: Phase 5
+**Requirements**: FEED-07, PERS-01, PERS-02, PERS-03
+**Success Criteria** (what must be TRUE):
+  1. User can filter recipes by dietary preference (vegan, keto, halal, allergies) with filters persisting across sessions
+  2. App learns user taste from skips and bookmarks via Culinary DNA (after 50+ interactions)
+  3. Feed ranking adapts over time based on Culinary DNA profile (similar cuisines surface more, disliked patterns surface less)
+**Plans**: TBD
 
-#### Phase 10: Android Pantry & Full Parity
-**Goal:** Android achieves 100% feature parity with iOS including pantry and personalization
-**Depends on:** Phase 9
-**Plans:** TBD
+Plans:
+- [ ] 06-01: TBD
+- [ ] 06-02: TBD
+
+### Phase 7: Voice Playback & Streaming
+**Goal**: Users listen to recipe narrations in cloned voices with full audio playback controls
+**Depends on**: Phase 5
+**Requirements**: VOICE-01, VOICE-02, VOICE-03, VOICE-04, VOICE-05, VOICE-06, ACCS-02, ACCS-03
+**Success Criteria** (what must be TRUE):
+  1. User can listen to any recipe's instructions narrated in their cloned voice with streaming playback from Cloudflare R2
+  2. Voice narration displays play/pause/seek controls (64dp play button, 18sp+ text labels) with speaker name prominently shown
+  3. Voice playback continues in background with lock screen controls (play/pause, seek, Now Playing info)
+  4. Voice profiles cache locally for offline narration playback (downloaded audio files persist)
+  5. VoiceOver users can navigate audio controls with meaningful labels and hints
+**Plans**: TBD
+
+Plans:
+- [ ] 07-01: TBD
+- [ ] 07-02: TBD
+- [ ] 07-03: TBD
+
+### Phase 8: Authentication & Onboarding
+**Goal**: Users complete onboarding in under 90 seconds and seamlessly convert from guest to account
+**Depends on**: Phase 5, Phase 7
+**Requirements**: AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06
+**Success Criteria** (what must be TRUE):
+  1. User can sign in with Google OAuth or Apple Sign In via one-tap authentication
+  2. Guest user is prompted to create account when saving, bookmarking, or using voice features with frictionless conversion
+  3. Guest session state (browsed recipes, dietary preferences, bookmarks) persists through account conversion (no data loss)
+  4. New user completes onboarding flow in under 90 seconds (welcome → dietary prefs → location → optional voice upload → start)
+**Plans**: TBD
+
+Plans:
+- [ ] 08-01: TBD
+- [ ] 08-02: TBD
+
+### Phase 9: Monetization & Voice Tiers
+**Goal**: Free and Pro tiers operational with App Store billing and voice slot enforcement
+**Depends on**: Phase 8
+**Requirements**: MONET-01, MONET-02, MONET-03, MONET-04, VOICE-07
+**Success Criteria** (what must be TRUE):
+  1. Free tier displays AdMob ads in non-intrusive placements (between recipe cards, not during voice playback)
+  2. User can subscribe to Pro ($9.99/mo) via StoreKit 2 App Store billing with subscription status syncing to backend
+  3. Pro tier removes all ads and unlocks unlimited voice slots (Free tier has 1 voice slot)
+  4. Subscription status persists across app restarts and device changes via JWS verification
+**Plans**: TBD
+
+Plans:
+- [ ] 09-01: TBD
+- [ ] 09-02: TBD
+
+### Phase 10: Accessibility & Polish
+**Goal**: App meets WCAG AAA standards and is production-ready for App Store submission
+**Depends on**: Phase 4, Phase 5, Phase 6, Phase 7, Phase 8, Phase 9
+**Requirements**: ACCS-05
+**Success Criteria** (what must be TRUE):
+  1. All screens pass WCAG AAA color contrast audit (7:1 ratio for body text, 4.5:1 for large text)
+  2. VoiceOver navigation works correctly on all screens with meaningful labels and reading order
+  3. All text scales correctly with Dynamic Type at accessibility sizes (AX1-AX5) without layout breaking
+  4. App handles offline mode gracefully with cached content and clear indicators across all features
+  5. App passes App Store review requirements (privacy labels, ATT consent, metadata complete)
+**Plans**: TBD
+
+Plans:
+- [ ] 10-01: TBD
+- [ ] 10-02: TBD
 
 ---
 
@@ -79,31 +157,40 @@
 | 1. Foundation | v1.5 | 5/5 | Complete | 2026-02-28 |
 | 2. Feed Engine | v1.5 | 3/3 | Complete | 2026-03-01 |
 | 3. Voice Core | v1.5 | 3/3 | Complete | 2026-03-01 |
-| 4. iOS App | TBD | 0/? | Not started | - |
-| 5. Smart Pantry | TBD | 0/? | Not started | - |
-| 6. Personalization | TBD | 0/? | Not started | - |
-| 7. Accessibility | TBD | 0/? | Not started | - |
-| 8. Monetization | TBD | 0/? | Not started | - |
-| 9. Android Core | TBD | 0/? | Not started | - |
-| 10. Android Full | TBD | 0/? | Not started | - |
+| 4. Foundation & Architecture | v2.0 | 0/? | Not started | - |
+| 5. Guest Browsing & Feed | v2.0 | 0/? | Not started | - |
+| 6. Dietary Filtering & Personalization | v2.0 | 0/? | Not started | - |
+| 7. Voice Playback & Streaming | v2.0 | 0/? | Not started | - |
+| 8. Authentication & Onboarding | v2.0 | 0/? | Not started | - |
+| 9. Monetization & Voice Tiers | v2.0 | 0/? | Not started | - |
+| 10. Accessibility & Polish | v2.0 | 0/? | Not started | - |
 
 ---
 
 ## Notes
 
+**v2.0 iOS App Strategy:**
+- Phase 4-10 deliver complete iOS experience (7 phases, 33 requirements)
+- Accessibility integrated throughout (ACCS-01-04 in Phases 5, 7) + final audit (Phase 10)
+- Guest browsing enables immediate value delivery (no forced signup)
+- Onboarding deferred until Phase 8 (users experience product before converting)
+- Monetization comes after core features proven (Phase 9)
+- Backend/API/AI pipeline 100% ready from v1.5 (GraphQL, voice cloning, feed engine)
+
 **Platform Strategy:**
-- iOS ships first (Phases 4-8)
-- Android begins after iOS core (shared backend ready from v1.5)
-- Android Phases 9-10 run in parallel with iOS Phases 5-8
-- Both platforms share: Backend API, voice generation, image generation, scraping pipeline, authentication
+- iOS ships first (v2.0 milestone: Phases 4-10)
+- Android fast-follow in v2.x milestone (4-6 weeks after iOS)
+- Backend is 100% shared between platforms (validated in v1.5)
 
 **Critical Dependencies:**
-- ElevenLabs API for voice cloning (cost: ~$0.01-0.03/recipe)
-- Gemini 3 Flash for vision (fridge scan ~85-90% accuracy, receipt ~95%+)
-- Instagram/X scraping via X API + Gemini parser (abstraction layer built)
-- Backend: Custom NestJS with PostgreSQL + Prisma (validated in v1.5)
+- SwiftUI + TCA 1.x architecture (iOS 17.0+ minimum per Clerk SDK requirement)
+- Apollo iOS 2.0.6 for GraphQL (SQLite cache, offline-first)
+- AVFoundation for voice streaming (AVPlayer, background audio session)
+- StoreKit 2 for subscriptions (JWS validation, Transaction.updates monitoring)
+- ElevenLabs voice cloning from v1.5 backend (~$0.01-0.03/recipe)
 
 ---
 
 *Roadmap created: 2026-02-28*
 *v1.5 shipped: 2026-03-01*
+*v2.0 iOS App roadmap: 2026-03-01*

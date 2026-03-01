@@ -101,45 +101,52 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| AUTH-06 | — | Pending |
-| FEED-01 | — | Pending |
-| FEED-02 | — | Pending |
-| FEED-03 | — | Pending |
-| FEED-04 | — | Pending |
-| FEED-05 | — | Pending |
-| FEED-06 | — | Pending |
-| FEED-07 | — | Pending |
-| FEED-08 | — | Pending |
-| VOICE-01 | — | Pending |
-| VOICE-02 | — | Pending |
-| VOICE-03 | — | Pending |
-| VOICE-04 | — | Pending |
-| VOICE-05 | — | Pending |
-| VOICE-06 | — | Pending |
-| VOICE-07 | — | Pending |
-| PERS-01 | — | Pending |
-| PERS-02 | — | Pending |
-| PERS-03 | — | Pending |
-| ACCS-01 | — | Pending |
-| ACCS-02 | — | Pending |
-| ACCS-03 | — | Pending |
-| ACCS-04 | — | Pending |
-| ACCS-05 | — | Pending |
-| MONET-01 | — | Pending |
-| MONET-02 | — | Pending |
-| MONET-03 | — | Pending |
-| MONET-04 | — | Pending |
+| AUTH-01 | Phase 5 | Pending |
+| AUTH-02 | Phase 8 | Pending |
+| AUTH-03 | Phase 8 | Pending |
+| AUTH-04 | Phase 8 | Pending |
+| AUTH-05 | Phase 8 | Pending |
+| AUTH-06 | Phase 8 | Pending |
+| FEED-01 | Phase 5 | Pending |
+| FEED-02 | Phase 5 | Pending |
+| FEED-03 | Phase 5 | Pending |
+| FEED-04 | Phase 5 | Pending |
+| FEED-05 | Phase 5 | Pending |
+| FEED-06 | Phase 5 | Pending |
+| FEED-07 | Phase 6 | Pending |
+| FEED-08 | Phase 5 | Pending |
+| VOICE-01 | Phase 7 | Pending |
+| VOICE-02 | Phase 7 | Pending |
+| VOICE-03 | Phase 7 | Pending |
+| VOICE-04 | Phase 7 | Pending |
+| VOICE-05 | Phase 7 | Pending |
+| VOICE-06 | Phase 7 | Pending |
+| VOICE-07 | Phase 9 | Pending |
+| PERS-01 | Phase 6 | Pending |
+| PERS-02 | Phase 6 | Pending |
+| PERS-03 | Phase 6 | Pending |
+| ACCS-01 | Phase 5 | Pending (baked in) |
+| ACCS-02 | Phase 7 | Pending (baked in) |
+| ACCS-03 | Phase 7 | Pending (baked in) |
+| ACCS-04 | Phase 5 | Pending (baked in) |
+| ACCS-05 | Phase 10 | Pending |
+| MONET-01 | Phase 9 | Pending |
+| MONET-02 | Phase 9 | Pending |
+| MONET-03 | Phase 9 | Pending |
+| MONET-04 | Phase 9 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 33 total
-- Mapped to phases: 0
-- Unmapped: 33
+- Mapped to phases: 33
+- Unmapped: 0
+- Infrastructure phase (Phase 4): 0 requirements (foundation only)
+- Requirements distributed: Phase 5 (8), Phase 6 (4), Phase 7 (6), Phase 8 (5), Phase 9 (5), Phase 10 (1), Accessibility baked in (4)
+
+**Notes:**
+- ACCS-01, ACCS-02, ACCS-03, ACCS-04 are integrated into phases 5 and 7 (not deferred to Phase 10)
+- Phase 4 is infrastructure only (no functional requirements)
+- Phase 10 focuses on ACCS-05 (color contrast) audit and final polish
 
 ---
 *Requirements defined: 2026-03-01*
-*Last updated: 2026-03-01 after initial definition*
+*Last updated: 2026-03-01 after v2.0 roadmap creation*
