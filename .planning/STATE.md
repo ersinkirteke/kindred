@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 current_phase: 02
-current_plan: 01
-status: in_progress
-stopped_at: Completed plan 02-01
-last_updated: "2026-03-01T08:43:32.278Z"
+current_plan: 02
+status: executing
+stopped_at: Completed plan 02-02
+last_updated: "2026-03-01T08:56:21.041Z"
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 8
-  completed_plans: 6
-  percent: 75
+  completed_plans: 7
+  percent: 88
 ---
 
 # Project State: Kindred
@@ -35,9 +35,9 @@ progress:
 ## Current Position
 
 **Phase:** 02-feed-engine
-**Plan:** 01 of 3
+**Plan:** 02 of 3
 **Status:** In Progress
-**Progress:** [████████░░] 75% (6/8 plans complete)
+**Progress:** [█████████░] 88% (7/8 plans complete)
 
 ---
 
@@ -45,8 +45,8 @@ progress:
 
 ### Velocity
 - **Phases completed:** 1
-- **Plans completed:** 6
-- **Average plans per phase:** 5 (Phase 1: 5 plans, Phase 2: 1/3 in progress)
+- **Plans completed:** 7
+- **Average plans per phase:** 5 (Phase 1: 5 plans, Phase 2: 2/3 in progress)
 - **Estimated completion:** TBD
 
 ### Quality
@@ -63,9 +63,11 @@ progress:
 | 01-04      | TBD      | TBD   | 4     | 2026-02-28 |
 | 01-05      | 4 min    | 2     | 12    | 2026-02-28 |
 | 02-01      | 5 min    | 2     | 9     | 2026-03-01 |
+| 02-02      | 8 min    | 2     | 7     | 2026-03-01 |
 
 ---
 | Phase 01-foundation P04 | 6 | 2 tasks | 8 files |
+| Phase 02-feed-engine P02 | 8 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -103,6 +105,11 @@ progress:
 31. **CityLocation geocoding cache:** DB cache prevents redundant Mapbox API calls (~99% hit rate saves ~$1,825/year) (02-01)
 32. **Graceful Mapbox degradation:** Local dev works without MAPBOX_ACCESS_TOKEN - service logs warning instead of crashing (02-01)
 33. **Fine-grained cuisine classification:** 29 CuisineType values (28 cuisines + OTHER) per user locked decision enables precise feed filtering (02-01)
+34. **Velocity scoring formula:** (engagement/hour) * (1 + e^(-age/24)) with viral threshold = 10/hour - combines raw engagement with exponential time decay (02-02)
+35. **Velocity-based viral detection:** Replaces hardcoded threshold=1000 - engagement per hour in local area determines VIRAL status (02-02)
+36. **AI cuisine/meal tagging:** Gemini parser extracts cuisineType (29 categories) and mealType (7 categories) - AI tagging enables feed filtering without manual categorization (02-02)
+37. **Views weighted at 0.3x:** Passive engagement (views) weighted lower than active engagement (loves) for velocity calculation (02-02)
+38. **Geocode city once per scrape:** Apply lat/lng to all recipes from same city - prevents N API calls when scraping N recipes (02-02)
 
 ### Open Questions
 1. ~~Backend choice: Firebase vs Supabase~~ RESOLVED: Custom NestJS backend (01-01)
@@ -120,20 +127,21 @@ None
 ## Session Continuity
 
 ### What Just Happened
-- Completed Plan 02-01: PostGIS Geospatial Foundation
-- Enabled PostGIS extension with spatial GIST index for Recipe lat/lng
-- Added CuisineType enum (29 values) and MealType enum (7 values)
-- Added latitude, longitude, cuisineType, mealType, velocityScore fields to Recipe
-- Created CityLocation model for geocoding cache
-- Implemented Mapbox geocoding service with DB caching (geocodeCity, reverseGeocode, searchCities)
-- Created 02-01-SUMMARY.md with full documentation and self-check
-- Updated STATE.md and ROADMAP.md with 02-01 progress
-- Duration: 5 minutes
-- **Phase 2 (Feed Engine): 1/3 plans complete**
+- Completed Plan 02-02: Feed Ranking Algorithm (Velocity Scoring + AI Tagging)
+- Created VelocityScorer utility with TDD (13 tests passing)
+- Velocity formula: (engagement/hour) * (1 + e^(-age/24)) with viral threshold = 10/hour
+- Extended ParsedRecipe DTO with cuisineType and mealType fields
+- Gemini parser now extracts cuisine (29 categories) and meal type (7 categories)
+- Integrated geocoding in scraping pipeline (geocode city once, apply to all recipes)
+- Replaced hardcoded viralThreshold=1000 with velocity-based viral detection
+- Added recalculateVelocityScores() method for batch velocity updates
+- Created 02-02-SUMMARY.md with full documentation and self-check
+- Updated STATE.md and ROADMAP.md with 02-02 progress
+- Duration: 8 minutes
+- **Phase 2 (Feed Engine): 2/3 plans complete**
 
 ### What's Next
-1. Plan 02-02: Feed ranking algorithm using velocityScore and spatial proximity
-2. Plan 02-03: AI tagging for cuisineType/mealType during scraping, geocode existing recipes
+1. Plan 02-03: Feed query resolver with PostGIS spatial queries, velocityScore sorting, and cuisine/meal filtering
 
 ### Context for Next Session
 - **Mode:** Interactive (user approval required for roadmap and plans)
@@ -146,10 +154,10 @@ None
 
 ### Last Session
 - **Date:** 2026-03-01
-- **Duration:** 5 minutes
-- **Stopped at:** Completed plan 02-01
-- **Next action:** Begin Plan 02-02 (Feed ranking algorithm)
+- **Duration:** 8 minutes
+- **Stopped at:** Completed plan 02-02
+- **Next action:** Begin Plan 02-03 (Feed query resolver)
 
 ---
 
-*State updated: 2026-03-01T08:42:04Z after completing Plan 02-01*
+*State updated: 2026-03-01T08:56:21Z after completing Plan 02-02*
