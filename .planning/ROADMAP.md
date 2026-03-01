@@ -96,7 +96,12 @@ Plans:
 5. Free tier users can store 1 voice; Pro users can store unlimited voices
 6. User can re-record voice sample if quality is unsatisfactory
 
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — VoiceProfile schema, ElevenLabs API client, R2 voice storage
+- [ ] 03-02-PLAN.md — Voice upload pipeline, background cloning, tier enforcement, voice management
+- [ ] 03-03-PLAN.md — Narration service (Gemini rewrite + ElevenLabs streaming TTS)
 
 ---
 
