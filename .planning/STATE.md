@@ -90,14 +90,14 @@ None yet.
 ### Blockers/Concerns
 
 **Phase 4 (Foundation) readiness:**
-- Apollo iOS schema configuration needs namespace to avoid Foundation type conflicts
+- ✅ Apollo iOS schema configuration uses KindredAPI namespace (resolved in 04-03)
 - TCA usage guidelines should be established upfront (avoid over-engineering simple screens)
 - ViewStore scoping pattern must be documented to prevent performance degradation
 
 **Phase 5 (Feed) readiness:**
 - Location permission flow needs contextual prompt strategy (not at app launch)
 - Swipe card implementation needs accessibility fallback buttons (56dp Listen/Watch/Skip)
-- Apollo cache policy (returnCacheDataAndFetch) must be verified with SQLite cache
+- ✅ Apollo cache policy (returnCacheDataAndFetch) configured with SQLite cache (resolved in 04-03)
 
 **Phase 7 (Voice) readiness:**
 - AVAudioSession configuration (.playback, .spokenAudio) with interruption handling critical
