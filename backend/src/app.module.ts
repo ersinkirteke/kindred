@@ -15,6 +15,7 @@ import { ScrapingModule } from './scraping/scraping.module';
 import { ImagesModule } from './images/images.module';
 import { PushModule } from './push/push.module';
 import { GeocodingModule } from './geocoding/geocoding.module';
+import { FeedModule } from './feed/feed.module';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { GeocodingModule } from './geocoding/geocoding.module';
       subscriptions: {
         'graphql-ws': true, // Enable WebSocket subscriptions for real-time features
       },
-      context: ({ req }) => ({ req }), // Pass request to resolvers for auth
+      context: ({ req, res }) => ({ req, res }), // Pass request and response to resolvers
     }),
 
     // Scheduled tasks
@@ -59,6 +60,7 @@ import { GeocodingModule } from './geocoding/geocoding.module';
     ImagesModule,
     PushModule,
     GeocodingModule,
+    FeedModule,
   ],
 })
 export class AppModule {}
