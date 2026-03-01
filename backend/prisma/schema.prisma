@@ -4,10 +4,12 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
+  extensions = [postgis(schema: "public")]
 }
 
 // Enums
@@ -27,6 +29,48 @@ enum ImageStatus {
 enum Platform {
   IOS
   ANDROID
+}
+
+enum CuisineType {
+  ITALIAN
+  MEXICAN
+  CHINESE
+  JAPANESE
+  SICHUAN
+  CANTONESE
+  INDIAN
+  THAI
+  KOREAN
+  VIETNAMESE
+  MEDITERRANEAN
+  FRENCH
+  SPANISH
+  GREEK
+  MIDDLE_EASTERN
+  LEBANESE
+  TURKISH
+  MOROCCAN
+  ETHIOPIAN
+  AMERICAN
+  SOUTHERN
+  TEX_MEX
+  BRAZILIAN
+  PERUVIAN
+  CARIBBEAN
+  BRITISH
+  GERMAN
+  FUSION
+  OTHER
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+  DESSERT
+  APPETIZER
+  DRINK
 }
 
 // User model - authenticated via Clerk
@@ -66,6 +110,10 @@ model Recipe {
   difficulty  DifficultyLevel @default(BEGINNER)
   dietaryTags String[]        // ['vegan', 'gluten-free', 'keto', 'halal', etc.]
 
+  // Cuisine and meal classification (AI-tagged during scraping)
+  cuisineType CuisineType     @default(OTHER)
+  mealType    MealType        @default(DINNER)
+
   // AI-generated hero image
   imageUrl    String?
   imageStatus ImageStatus     @default(PENDING)
@@ -76,11 +124,16 @@ model Recipe {
   scrapedAt   DateTime        @default(now())
   location    String          // city-level granularity
 
+  // Geospatial data (geocoded from location field)
+  latitude    Float?
+  longitude   Float?
+
   // Engagement metrics
   engagementLoves     Int     @default(0)
   engagementBookmarks Int     @default(0)
   engagementViews     Int     @default(0)
   isViral             Boolean @default(false)
+  velocityScore       Float   @default(0) // cached engagement velocity
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -94,6 +147,9 @@ model Recipe {
   @@index([scrapedAt])
   @@index([isViral])
   @@index([scrapedFrom])
+  @@index([cuisineType])
+  @@index([mealType])
+  @@index([velocityScore])
 }
 
 // Ingredient model - normalized structure
@@ -153,4 +209,15 @@ model Bookmark {
   @@unique([userId, recipeId])
   @@index([userId])
   @@index([recipeId])
+}
+
+// CityLocation model - geocoding cache to minimize Mapbox API calls
+model CityLocation {
+  id        String   @id @default(cuid())
+  cityName  String   @unique
+  latitude  Float
+  longitude Float
+  country   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
