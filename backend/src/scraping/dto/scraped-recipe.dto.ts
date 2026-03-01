@@ -34,4 +34,6 @@ export interface ParsedRecipe {
   carbs?: number; // grams
   fat?: number; // grams
   difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  cuisineType: string; // One of CuisineType enum values
+  mealType: string; // One of MealType enum values
 }
