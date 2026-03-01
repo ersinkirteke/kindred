@@ -73,6 +73,14 @@ enum MealType {
   DRINK
 }
 
+enum VoiceStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+  DELETED
+}
+
 // User model - authenticated via Clerk
 model User {
   id           String   @id @default(cuid())
@@ -85,6 +93,7 @@ model User {
   // Relations
   bookmarks     Bookmark[]
   deviceTokens  DeviceToken[]
+  voiceProfiles VoiceProfile[]
 
   @@index([email])
 }
@@ -220,4 +229,26 @@ model CityLocation {
   country   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// VoiceProfile model - user's cloned voice for narration
+model VoiceProfile {
+  id                 String      @id @default(cuid())
+  userId             String
+  user               User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status             VoiceStatus @default(PENDING)
+  elevenLabsVoiceId  String?     // populated after cloning completes
+  audioSampleUrl     String      // R2 URL for voice sample backup
+
+  speakerName        String      // e.g., "Mom", "Nonna Maria"
+  relationship       String      // e.g., "Mother", "Grandmother"
+
+  consentedAt        DateTime?   // legal compliance timestamp
+  consentIpAddress   String?     // IP when consent given
+
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  @@index([userId, status])
 }
