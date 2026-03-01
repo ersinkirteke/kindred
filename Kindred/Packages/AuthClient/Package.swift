@@ -17,7 +17,7 @@ let package = Package(
         .target(
             name: "AuthClient",
             dependencies: [
-                .product(name: "ClerkSDK", package: "clerk-ios"),
+                .product(name: "ClerkKit", package: "clerk-ios"),
             ]
         ),
     ]

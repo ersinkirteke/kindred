@@ -1,0 +1,25 @@
+{
+  "schemaNamespace": "KindredAPI",
+  "input": {
+    "operationSearchPaths": [
+      "Packages/NetworkClient/Sources/GraphQL/**/*.graphql"
+    ],
+    "schemaSearchPaths": [
+      "../backend/schema.gql"
+    ]
+  },
+  "output": {
+    "testMocks": {
+      "none": {}
+    },
+    "schemaTypes": {
+      "path": "Packages/NetworkClient/Sources/Schema",
+      "moduleType": {
+        "swiftPackage": {}
+      }
+    },
+    "operations": {
+      "inSchemaModule": {}
+    }
+  }
+}
