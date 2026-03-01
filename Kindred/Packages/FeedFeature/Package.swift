@@ -13,6 +13,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.0.0"),
         .package(name: "DesignSystem", path: "../DesignSystem"),
+        .package(name: "NetworkClient", path: "../NetworkClient"),
+        .package(name: "KindredAPI", path: "../KindredAPI"),
     ],
     targets: [
         .target(
@@ -20,6 +22,8 @@ let package = Package(
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 "DesignSystem",
+                "NetworkClient",
+                .product(name: "KindredAPI", package: "KindredAPI"),
             ]
         ),
     ]
