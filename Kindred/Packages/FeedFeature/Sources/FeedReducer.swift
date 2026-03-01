@@ -5,14 +5,15 @@ import Foundation
 public struct FeedReducer {
     @ObservableState
     public struct State: Equatable {
-        // Placeholder — populated in Phase 5
-        public var isLoading = false
+        public var isLoading = true
+        public var location: String = "Istanbul" // Default per locked decision when location denied
 
         public init() {}
     }
 
     public enum Action {
         case onAppear
+        case locationChanged(String)
     }
 
     public init() {}
@@ -21,6 +22,11 @@ public struct FeedReducer {
         Reduce { state, action in
             switch action {
             case .onAppear:
+                // Placeholder - actual data loading in Phase 5
+                return .none
+
+            case .locationChanged(let newLocation):
+                state.location = newLocation
                 return .none
             }
         }

@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import DesignSystem
 import FeedFeature
 import ProfileFeature
 import SwiftUI
@@ -30,6 +31,8 @@ struct RootView: View {
             }
             .tag(AppReducer.Tab.me)
         }
-        .tint(.orange) // Placeholder until DesignSystem wired in Plan 02
+        .tint(.kindredAccent)
+        .toolbarBackground(.kindredCardSurface, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
     }
 }
