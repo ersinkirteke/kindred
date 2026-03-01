@@ -252,3 +252,13 @@ model VoiceProfile {
 
   @@index([userId, status])
 }
+
+// NarrationScript model - cache for Gemini conversational rewriting
+model NarrationScript {
+  id                 String   @id @default(cuid())
+  recipeId           String   @unique // one cached narration per recipe (voice-independent)
+  conversationalText String   // Gemini-rewritten narration text
+  generatedAt        DateTime @default(now())
+
+  @@index([recipeId])
+}
