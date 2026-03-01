@@ -27,6 +27,7 @@
     "@google-ai/generativelanguage": "^3.7.0",
     "@google-cloud/aiplatform": "^6.4.0",
     "@google/generative-ai": "^0.24.1",
+    "@mapbox/mapbox-sdk": "^0.16.2",
     "@nestjs/apollo": "^13.2.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",

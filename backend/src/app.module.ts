@@ -14,6 +14,7 @@ import { HealthModule } from './health/health.module';
 import { ScrapingModule } from './scraping/scraping.module';
 import { ImagesModule } from './images/images.module';
 import { PushModule } from './push/push.module';
+import { GeocodingModule } from './geocoding/geocoding.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { PushModule } from './push/push.module';
     ScrapingModule,
     ImagesModule,
     PushModule,
+    GeocodingModule,
   ],
 })
 export class AppModule {}
