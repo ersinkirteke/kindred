@@ -18,10 +18,10 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 
 ### Feed & Discovery
 
-- [ ] **FEED-01**: User sees viral recipes trending within 5-10 miles of their location
-- [ ] **FEED-02**: Each recipe card displays AI hero image, recipe name, prep time, calories, loves count, and VIRAL badge
-- [ ] **FEED-03**: User can swipe left to skip and swipe right to bookmark recipe cards
-- [ ] **FEED-04**: User can tap Listen/Watch/Skip buttons as swipe alternatives
+- [x] **FEED-01**: User sees viral recipes trending within 5-10 miles of their location
+- [x] **FEED-02**: Each recipe card displays AI hero image, recipe name, prep time, calories, loves count, and VIRAL badge
+- [x] **FEED-03**: User can swipe left to skip and swipe right to bookmark recipe cards
+- [x] **FEED-04**: User can tap Listen/Watch/Skip buttons as swipe alternatives
 - [ ] **FEED-05**: User's location is shown as a city badge at the top of the feed
 - [ ] **FEED-06**: User can manually change their location to explore other areas
 - [ ] **FEED-07**: User can filter recipes by dietary preference (vegan, keto, halal, allergies)
@@ -45,7 +45,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 
 ### Accessibility
 
-- [ ] **ACCS-01**: All interactive elements have minimum 56dp touch targets (WCAG AAA)
+- [x] **ACCS-01**: All interactive elements have minimum 56dp touch targets (WCAG AAA)
 - [ ] **ACCS-02**: All body text is minimum 18sp with Dynamic Type support
 - [ ] **ACCS-03**: Full VoiceOver support with meaningful labels on all custom controls and gestures
 - [x] **ACCS-04**: Navigation depth is maximum 3 levels from any screen
@@ -107,10 +107,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-04 | Phase 8 | Pending |
 | AUTH-05 | Phase 8 | Pending |
 | AUTH-06 | Phase 8 | Pending |
-| FEED-01 | Phase 5 | Pending |
-| FEED-02 | Phase 5 | Pending |
-| FEED-03 | Phase 5 | Pending |
-| FEED-04 | Phase 5 | Pending |
+| FEED-01 | Phase 5 | Complete |
+| FEED-02 | Phase 5 | Complete |
+| FEED-03 | Phase 5 | Complete |
+| FEED-04 | Phase 5 | Complete |
 | FEED-05 | Phase 5 | Pending |
 | FEED-06 | Phase 5 | Pending |
 | FEED-07 | Phase 6 | Pending |
