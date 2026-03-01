@@ -11,60 +11,44 @@ public struct FeedView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack {
-                Color.kindredBackground
-                    .ignoresSafeArea()
-
-                VStack(spacing: 0) {
-                    // Offline banner
-                    if store.isOffline {
-                        offlineBanner
+            feedContent
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        locationPill
                     }
-
-                    // New recipes banner
-                    if store.hasNewRecipes {
-                        newRecipesBanner
-                    }
-
-                    // Main content
-                    contentView
                 }
-            }
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    locationPill
+                .sheet(isPresented: $store.showLocationPicker) {
+                    LocationPickerView(store: store)
                 }
-            }
-            .refreshable {
-                await store.send(.refreshFeed).finish()
-            }
-            .onShake {
-                store.send(.undoLastSwipe)
-            }
-            .sheet(isPresented: $store.showLocationPicker) {
-                LocationPickerView(store: store)
-            }
-            .navigationDestination(item: $store.scope(state: \.recipeDetail, action: \.recipeDetail)) { detailStore in
-                RecipeDetailView(store: detailStore)
-            }
+                .navigationDestination(item: $store.scope(state: \.recipeDetail, action: \.recipeDetail)) { detailStore in
+                    RecipeDetailView(store: detailStore)
+                }
         }
         .onAppear {
             store.send(.onAppear)
         }
-        .onChange(of: store.cardStack) { _, newStack in
-            // Post VoiceOver announcement on card transitions
-            if !newStack.isEmpty {
-                let currentIndex = 1
-                let total = newStack.count
-                let recipeName = newStack.first?.name ?? ""
-                let announcement = "Recipe \(currentIndex) of \(total), \(recipeName)"
-                UIAccessibility.post(notification: .announcement, argument: announcement)
+    }
+
+    private var feedContent: some View {
+        ZStack {
+            Color.kindredBackground
+                .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                if store.isOffline {
+                    offlineBanner
+                }
+                if store.hasNewRecipes {
+                    newRecipesBanner
+                }
+                contentView
             }
         }
-        .onChange(of: store.location) { _, newLocation in
-            // Post VoiceOver notification on location change
-            let announcement = "Now showing recipes near \(newLocation)"
-            UIAccessibility.post(notification: .announcement, argument: announcement)
+        .refreshable {
+            await store.send(.refreshFeed).finish()
+        }
+        .onShake {
+            store.send(.undoLastSwipe)
         }
     }
 
