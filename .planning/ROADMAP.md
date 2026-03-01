@@ -51,7 +51,7 @@
 
 Plans:
 - [x] 04-01-PLAN.md — Xcode project + SPM modules + TCA root navigation (✓ 2026-03-01, 12 min)
-- [ ] 04-02-PLAN.md — Design system (colors, typography, reusable components)
+- [x] 04-02-PLAN.md — Design system (colors, typography, reusable components) (✓ 2026-03-01, 13 min)
 - [ ] 04-03-PLAN.md — Apollo GraphQL client + Clerk auth + Kingfisher config
 - [ ] 04-04-PLAN.md — App shell (splash, welcome card, themed tabs, visual verification)
 
