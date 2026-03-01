@@ -1,0 +1,26 @@
+// swift-tools-version: 5.10
+import PackageDescription
+
+let package = Package(
+    name: "FeedFeature",
+    platforms: [.iOS(.v17)],
+    products: [
+        .library(
+            name: "FeedFeature",
+            targets: ["FeedFeature"]
+        ),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.0.0"),
+        .package(name: "DesignSystem", path: "../DesignSystem"),
+    ],
+    targets: [
+        .target(
+            name: "FeedFeature",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                "DesignSystem",
+            ]
+        ),
+    ]
+)
