@@ -65,12 +65,13 @@ Plans:
   3. User can view recipe details (ingredients, instructions) in maximum 2 taps from feed
   4. User's location displays as city badge at top of feed and can be manually changed to explore other areas
   5. Feed loads cached content when offline with clear offline indicator
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
+- [ ] 05-01-PLAN.md — Guest session infrastructure, location/network TCA dependencies, domain types
+- [ ] 05-02-PLAN.md — Swipe card stack, FeedReducer, RecipeCardView, action buttons, accessibility
+- [ ] 05-03-PLAN.md — Recipe detail view with parallax hero, ingredients checklist, step timeline
+- [ ] 05-04-PLAN.md — Location picker, feed-to-detail navigation, Me tab badge, visual verification
 
 ### Phase 6: Dietary Filtering & Personalization
 **Goal**: Feed adapts to user dietary preferences and learns taste from implicit feedback
