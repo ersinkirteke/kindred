@@ -46,13 +46,14 @@
   1. App launches with SwiftUI + TCA project structure and modular Swift Package Manager setup
   2. Apollo iOS GraphQL client successfully authenticates with backend using Clerk JWT tokens
   3. Shared UI theme (cream/terracotta palette, typography, 56dp button components) is applied app-wide
-  4. Navigation structure (4-tab bottom nav: Feed, Scan, Pantry, Me) is functional
-**Plans**: TBD
+  4. Navigation structure (2-tab bottom nav: Feed, Me) is functional
+**Plans**: 4 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
-- [ ] 04-03: TBD
+- [ ] 04-01-PLAN.md — Xcode project + SPM modules + TCA root navigation
+- [ ] 04-02-PLAN.md — Design system (colors, typography, reusable components)
+- [ ] 04-03-PLAN.md — Apollo GraphQL client + Clerk auth + Kingfisher config
+- [ ] 04-04-PLAN.md — App shell (splash, welcome card, themed tabs, visual verification)
 
 ### Phase 5: Guest Browsing & Feed
 **Goal**: Users can browse viral recipes and explore the feed without creating an account
@@ -157,7 +158,7 @@ Plans:
 | 1. Foundation | v1.5 | 5/5 | Complete | 2026-02-28 |
 | 2. Feed Engine | v1.5 | 3/3 | Complete | 2026-03-01 |
 | 3. Voice Core | v1.5 | 3/3 | Complete | 2026-03-01 |
-| 4. Foundation & Architecture | v2.0 | 0/? | Not started | - |
+| 4. Foundation & Architecture | v2.0 | 0/4 | Planned | - |
 | 5. Guest Browsing & Feed | v2.0 | 0/? | Not started | - |
 | 6. Dietary Filtering & Personalization | v2.0 | 0/? | Not started | - |
 | 7. Voice Playback & Streaming | v2.0 | 0/? | Not started | - |
