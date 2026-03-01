@@ -4,6 +4,7 @@ import SwiftUI
 
 public struct FeedView: View {
     @Bindable var store: StoreOf<FeedReducer>
+    @Namespace private var heroNamespace
 
     public init(store: StoreOf<FeedReducer>) {
         self.store = store
@@ -41,6 +42,13 @@ public struct FeedView: View {
             .onShake {
                 store.send(.undoLastSwipe)
             }
+            .sheet(isPresented: $store.showLocationPicker) {
+                LocationPickerView(store: store)
+            }
+            .navigationDestination(item: $store.scope(state: \.recipeDetail, action: \.recipeDetail)) { detailStore in
+                RecipeDetailView(store: detailStore)
+                    .navigationTransition(.zoom(sourceID: store.cardStack.first?.id ?? "", in: heroNamespace))
+            }
         }
         .onAppear {
             store.send(.onAppear)
@@ -75,9 +83,7 @@ public struct FeedView: View {
             )
         } else if store.cardStack.isEmpty {
             EndOfStackCard {
-                // Location picker will be implemented in Plan 04
-                // For now, just reload with same location
-                store.send(.changeLocation(store.location))
+                store.send(.toggleLocationPicker)
             }
         } else {
             mainFeedView
@@ -102,9 +108,9 @@ public struct FeedView: View {
                     store.send(.swipeCard(recipeId, direction))
                 },
                 onTap: { recipeId in
-                    // Recipe detail navigation will be implemented in Plan 04
-                    // For now, no action
-                }
+                    store.send(.openRecipeDetail(recipeId))
+                },
+                heroNamespace: heroNamespace
             )
             .padding(.horizontal, KindredSpacing.md)
 
@@ -223,7 +229,7 @@ public struct FeedView: View {
                 .fill(Color.kindredCardSurface)
         )
         .onTapGesture {
-            // Location picker will be implemented in Plan 04
+            store.send(.toggleLocationPicker)
         }
         .accessibilityLabel("Location: \(store.location)")
         .accessibilityHint("Tap to change location")

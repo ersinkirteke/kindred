@@ -21,6 +21,8 @@ public struct FeedReducer {
         public var currentPage: Int = 0
         public var hasMorePages = true
         public var bookmarkCount = 0
+        public var showLocationPicker = false
+        @Presents public var recipeDetail: RecipeDetailReducer.State?
 
         public init() {}
     }
@@ -39,6 +41,10 @@ public struct FeedReducer {
         case silentRefreshCompleted(Result<[RecipeCard], Error>)
         case acknowledgeNewRecipes
         case bookmarkCountLoaded(Int)
+        case toggleLocationPicker
+        case dismissLocationPicker
+        case openRecipeDetail(String)
+        case recipeDetail(PresentationAction<RecipeDetailReducer.Action>)
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -52,6 +58,10 @@ public struct FeedReducer {
                 return true
             case (.acknowledgeNewRecipes, .acknowledgeNewRecipes):
                 return true
+            case (.toggleLocationPicker, .toggleLocationPicker):
+                return true
+            case (.dismissLocationPicker, .dismissLocationPicker):
+                return true
             case let (.swipeCard(id1, dir1), .swipeCard(id2, dir2)):
                 return id1 == id2 && dir1 == dir2
             case let (.changeLocation(loc1), .changeLocation(loc2)):
@@ -60,6 +70,8 @@ public struct FeedReducer {
                 return c1 == c2
             case let (.bookmarkCountLoaded(c1), .bookmarkCountLoaded(c2)):
                 return c1 == c2
+            case let (.openRecipeDetail(id1), .openRecipeDetail(id2)):
+                return id1 == id2
             case let (.recipesLoaded(r1), .recipesLoaded(r2)):
                 return areResultsEqual(r1, r2)
             case let (.moreRecipesLoaded(r1), .moreRecipesLoaded(r2)):
@@ -68,6 +80,8 @@ public struct FeedReducer {
                 return areResultsEqual(r1, r2)
             case let (.silentRefreshCompleted(r1), .silentRefreshCompleted(r2)):
                 return areResultsEqual(r1, r2)
+            case let (.recipeDetail(p1), .recipeDetail(p2)):
+                return p1 == p2
             default:
                 return false
             }
@@ -386,7 +400,27 @@ public struct FeedReducer {
             case let .bookmarkCountLoaded(count):
                 state.bookmarkCount = count
                 return .none
+
+            case .toggleLocationPicker:
+                state.showLocationPicker.toggle()
+                return .none
+
+            case .dismissLocationPicker:
+                state.showLocationPicker = false
+                return .none
+
+            case let .openRecipeDetail(recipeId):
+                // Create RecipeDetailReducer.State and present it
+                state.recipeDetail = RecipeDetailReducer.State(recipeId: recipeId)
+                return .none
+
+            case .recipeDetail:
+                // Child navigation actions handled by composition
+                return .none
             }
+        }
+        .ifLet(\.$recipeDetail, action: \.recipeDetail) {
+            RecipeDetailReducer()
         }
     }
 }

@@ -41,6 +41,6 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Kindred uses your location to show recipes from local restaurants near you.</string>
+	<string>Kindred uses your location to show trending recipes near you.</string>
 </dict>
 </plist>

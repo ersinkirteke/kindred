@@ -5,6 +5,7 @@ struct SwipeCardStack: View {
     let cards: [RecipeCard]
     let onSwipe: (String, SwipeDirection) -> Void
     let onTap: (String) -> Void
+    let heroNamespace: Namespace.ID
 
     var body: some View {
         ZStack {
@@ -24,6 +25,7 @@ struct SwipeCardStack: View {
                 .offset(y: offsetForCard(at: index))
                 .zIndex(Double(cards.count - index))
                 .allowsHitTesting(index == 0) // Only top card is interactive
+                .matchedTransitionSource(id: card.id, in: heroNamespace)
                 .id(card.id)
             }
         }
