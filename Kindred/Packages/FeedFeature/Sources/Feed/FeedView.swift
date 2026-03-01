@@ -72,13 +72,10 @@ public struct FeedView: View {
     private var contentView: some View {
         if store.isLoading {
             loadingView
-        } else if let error = store.error {
-            ErrorStateView.networkError(
-                message: error,
-                retryAction: {
-                    store.send(.onAppear)
-                }
-            )
+        } else if store.error != nil {
+            ErrorStateView.networkError {
+                store.send(.onAppear)
+            }
         } else if store.cardStack.isEmpty {
             EndOfStackCard {
                 store.send(.toggleLocationPicker)
