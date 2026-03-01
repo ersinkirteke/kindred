@@ -1,4 +1,6 @@
 import ComposableArchitecture
+import FeedFeature
+import SwiftData
 import SwiftUI
 
 @main
@@ -30,5 +32,6 @@ struct KindredApp: App {
                 }
             }
         }
+        .modelContainer(for: [GuestBookmark.self, GuestSkip.self])
     }
 }
