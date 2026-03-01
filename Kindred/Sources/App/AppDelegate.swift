@@ -1,14 +1,19 @@
 import UIKit
+import Kingfisher
 
-/// AppDelegate stub for Firebase and Kingfisher cache configuration
-/// Will be populated in Phase 04 Plan 03
+/// AppDelegate for Firebase and Kingfisher cache configuration
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        // Firebase configuration will be added in Plan 03
-        // Kingfisher cache setup will be added in Plan 03
+        // Configure Kingfisher cache limits to prevent memory pressure on older devices
+        let cache = ImageCache.default
+        cache.memoryStorage.config.totalCostLimit = 100 * 1024 * 1024 // 100MB memory
+        cache.memoryStorage.config.countLimit = 50 // 50 images in memory
+        cache.diskStorage.config.sizeLimit = 500 * 1024 * 1024 // 500MB disk
+
+        // TODO: Firebase configuration will be added when analytics is needed
         return true
     }
 }

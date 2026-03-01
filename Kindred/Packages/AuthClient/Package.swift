@@ -12,12 +12,14 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/clerk/clerk-ios", from: "1.0.0"),
+        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
     ],
     targets: [
         .target(
             name: "AuthClient",
             dependencies: [
                 .product(name: "ClerkKit", package: "clerk-ios"),
+                .product(name: "Dependencies", package: "swift-dependencies"),
             ]
         ),
     ]
