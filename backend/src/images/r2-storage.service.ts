@@ -97,4 +97,62 @@ export class R2StorageService {
       throw new Error(`R2 deletion failed: ${error.message}`);
     }
   }
+
+  /**
+   * Upload a voice sample to R2 storage
+   *
+   * Stores audio files for voice cloning backup and compliance.
+   *
+   * @param userId - User ID for key generation
+   * @param audioBuffer - Binary audio data (MP3)
+   * @returns Public CDN URL for the uploaded voice sample
+   * @throws Error if upload fails
+   */
+  async uploadVoiceSample(userId: string, audioBuffer: Buffer): Promise<string> {
+    const key = `voice-samples/${userId}/${Date.now()}.mp3`;
+
+    try {
+      const command: PutObjectCommandInput = {
+        Bucket: this.bucketName,
+        Key: key,
+        Body: audioBuffer,
+        ContentType: 'audio/mpeg',
+      };
+
+      await this.s3Client.send(new PutObjectCommand(command));
+
+      const publicUrl = `${this.publicUrl}/${key}`;
+      this.logger.log(`Voice sample uploaded successfully: ${key} -> ${publicUrl}`);
+
+      return publicUrl;
+    } catch (error) {
+      this.logger.error(`Failed to upload voice sample to R2: ${key}`, error);
+      throw new Error(`R2 voice sample upload failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Delete a voice sample from R2 storage
+   *
+   * Used for cleanup when user deletes their voice profile.
+   *
+   * @param url - Public URL of the voice sample
+   */
+  async deleteVoiceSample(url: string): Promise<void> {
+    try {
+      // Extract key from URL (e.g., "https://cdn.example.com/voice-samples/user123/123456.mp3" -> "voice-samples/user123/123456.mp3")
+      const key = url.replace(`${this.publicUrl}/`, '');
+
+      const command: DeleteObjectCommandInput = {
+        Bucket: this.bucketName,
+        Key: key,
+      };
+
+      await this.s3Client.send(new DeleteObjectCommand(command));
+      this.logger.log(`Voice sample deleted successfully: ${key}`);
+    } catch (error) {
+      // Swallow errors if file already deleted
+      this.logger.warn(`Failed to delete voice sample (may already be deleted): ${url}`, error);
+    }
+  }
 }

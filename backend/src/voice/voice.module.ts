@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ImagesModule } from '../images/images.module';
+import { ElevenLabsService } from './elevenlabs.service';
 
 /**
  * VoiceModule
@@ -7,7 +9,8 @@ import { Module } from '@nestjs/common';
  * Uses ElevenLabs API for voice cloning and TTS streaming.
  */
 @Module({
-  providers: [],
-  exports: [],
+  imports: [ImagesModule],
+  providers: [ElevenLabsService],
+  exports: [ElevenLabsService],
 })
 export class VoiceModule {}
