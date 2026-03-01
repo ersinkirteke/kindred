@@ -17,14 +17,14 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Hyperlocal Feed
 
-- [ ] **FEED-01**: User sees viral recipes trending within a 5-10 mile radius of their location
+- [x] **FEED-01**: User sees viral recipes trending within a 5-10 mile radius of their location
 - [ ] **FEED-02**: Each recipe card displays AI-generated hero image, recipe name, prep time, calories, and "loves this week" count
 - [ ] **FEED-03**: Trending recipes display a "VIRAL" badge based on local engagement metrics
 - [ ] **FEED-04**: User can swipe left to skip a recipe or swipe right to bookmark it
 - [ ] **FEED-05**: User can tap Listen, Watch (placeholder for v2 video), or Skip buttons as alternative to swiping
 - [ ] **FEED-06**: User can filter recipes by category (cuisine type, meal type, dietary tags)
-- [ ] **FEED-07**: User's location is shown at the top of the feed (city badge)
-- [ ] **FEED-08**: User can manually change their location to explore other areas
+- [x] **FEED-07**: User's location is shown at the top of the feed (city badge)
+- [x] **FEED-08**: User can manually change their location to explore other areas
 - [ ] **FEED-09**: Feed loads cached content when offline with clear offline indicator
 
 ### Voice Narrator
@@ -138,14 +138,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-03 | Phase 4, Phase 9 | Pending |
 | AUTH-04 | Phase 4, Phase 9 | Pending |
 | AUTH-05 | Phase 1 | Complete |
-| FEED-01 | Phase 2, Phase 9 | Pending |
+| FEED-01 | Phase 2, Phase 9 | Complete |
 | FEED-02 | Phase 2, Phase 9 | Pending |
 | FEED-03 | Phase 2, Phase 9 | Pending |
 | FEED-04 | Phase 4, Phase 9 | Pending |
 | FEED-05 | Phase 4, Phase 9 | Pending |
 | FEED-06 | Phase 2, Phase 9 | Pending |
-| FEED-07 | Phase 2, Phase 9 | Pending |
-| FEED-08 | Phase 2, Phase 9 | Pending |
+| FEED-07 | Phase 2, Phase 9 | Complete |
+| FEED-08 | Phase 2, Phase 9 | Complete |
 | FEED-09 | Phase 2, Phase 9 | Pending |
 | VOICE-01 | Phase 3, Phase 9 | Pending |
 | VOICE-02 | Phase 3, Phase 9 | Pending |

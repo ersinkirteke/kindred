@@ -2,25 +2,25 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
-current_phase: 01
-current_plan: Not started
-status: completed
-stopped_at: Phase 2 context gathered
-last_updated: "2026-02-28T22:30:25.011Z"
+current_phase: 02
+current_plan: 01
+status: in_progress
+stopped_at: Completed plan 02-01
+last_updated: "2026-03-01T08:43:32.278Z"
 progress:
   total_phases: 2
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_plans: 8
+  completed_plans: 6
+  percent: 75
 ---
 
 # Project State: Kindred
 
-**Last Updated:** 2026-02-28
-**Current Phase:** 01
-**Current Plan:** Not started
-**Status:** Milestone complete
+**Last Updated:** 2026-03-01
+**Current Phase:** 02
+**Current Plan:** 01
+**Status:** In Progress
 
 ---
 
@@ -28,25 +28,25 @@ progress:
 
 **Core Value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
 
-**Current Focus:** Phase 1 (Foundation) in progress. Backend foundation and recipe scraping pipeline complete. Next: AI image generation.
+**Current Focus:** Phase 2 (Feed Engine) in progress. PostGIS geospatial foundation complete. Next: Feed ranking algorithm.
 
 ---
 
 ## Current Position
 
-**Phase:** 01-foundation
-**Plan:** 05 of 5
+**Phase:** 02-feed-engine
+**Plan:** 01 of 3
 **Status:** In Progress
-**Progress:** [██████████] 100% (5/5 plans complete in current phase, 0/10 phases complete)
+**Progress:** [████████░░] 75% (6/8 plans complete)
 
 ---
 
 ## Performance Metrics
 
 ### Velocity
-- **Phases completed:** 0
-- **Plans completed:** 5
-- **Average plans per phase:** 5 (Phase 1 complete)
+- **Phases completed:** 1
+- **Plans completed:** 6
+- **Average plans per phase:** 5 (Phase 1: 5 plans, Phase 2: 1/3 in progress)
 - **Estimated completion:** TBD
 
 ### Quality
@@ -62,6 +62,7 @@ progress:
 | 01-03      | 5 min    | 2     | 16    | 2026-02-28 |
 | 01-04      | TBD      | TBD   | 4     | 2026-02-28 |
 | 01-05      | 4 min    | 2     | 12    | 2026-02-28 |
+| 02-01      | 5 min    | 2     | 9     | 2026-03-01 |
 
 ---
 | Phase 01-foundation P04 | 6 | 2 tasks | 8 files |
@@ -97,6 +98,11 @@ progress:
 26. **Platform-specific push payloads:** iOS requires APNs headers, Android requires FCM channel - separate construction ensures compatibility (01-05)
 27. **GitHub Actions CI/CD:** Native GitHub integration for lint, type-check, build, and Docker image verification (01-05)
 28. **Placeholder deployment commands:** Hosting platform choice deferred for scraping workload analysis - pipeline ready for Railway/Fly.io/Cloud Run (01-05)
+29. **PostGIS spatial indexing:** GIST index on ST_MakePoint(longitude, latitude) enables performant 5-10 mile radius queries (02-01)
+30. **Mapbox coordinate handling:** [lng, lat] order validated with ±90/±180 bounds - critical for spatial query correctness (02-01)
+31. **CityLocation geocoding cache:** DB cache prevents redundant Mapbox API calls (~99% hit rate saves ~$1,825/year) (02-01)
+32. **Graceful Mapbox degradation:** Local dev works without MAPBOX_ACCESS_TOKEN - service logs warning instead of crashing (02-01)
+33. **Fine-grained cuisine classification:** 29 CuisineType values (28 cuisines + OTHER) per user locked decision enables precise feed filtering (02-01)
 
 ### Open Questions
 1. ~~Backend choice: Firebase vs Supabase~~ RESOLVED: Custom NestJS backend (01-01)
@@ -114,19 +120,20 @@ None
 ## Session Continuity
 
 ### What Just Happened
-- Documented Plan 01-04: AI Image Generation (work was previously completed)
-- Verified Imagen 4 Fast integration with flat lay editorial prompts
-- Confirmed Cloudflare R2 storage with S3-compatible uploads and CDN URLs
-- Verified background image processor with 10 images/min rate limiting
-- Confirmed non-blocking integration with scraping pipeline
-- Created 01-04-SUMMARY.md with full documentation and self-check
-- Updated STATE.md with 01-04 decisions and metrics
-- Duration: 6 minutes
-- **Phase 1 (Foundation) complete: 5/5 plans done (01-04 documented, 01-05 previously completed)**
+- Completed Plan 02-01: PostGIS Geospatial Foundation
+- Enabled PostGIS extension with spatial GIST index for Recipe lat/lng
+- Added CuisineType enum (29 values) and MealType enum (7 values)
+- Added latitude, longitude, cuisineType, mealType, velocityScore fields to Recipe
+- Created CityLocation model for geocoding cache
+- Implemented Mapbox geocoding service with DB caching (geocodeCity, reverseGeocode, searchCities)
+- Created 02-01-SUMMARY.md with full documentation and self-check
+- Updated STATE.md and ROADMAP.md with 02-01 progress
+- Duration: 5 minutes
+- **Phase 2 (Feed Engine): 1/3 plans complete**
 
 ### What's Next
-1. Phase 1 (Foundation) complete - ready for Phase 2 (Feed Engine)
-2. Next phase will focus on feed algorithm, personalization, and engagement tracking
+1. Plan 02-02: Feed ranking algorithm using velocityScore and spatial proximity
+2. Plan 02-03: AI tagging for cuisineType/mealType during scraping, geocode existing recipes
 
 ### Context for Next Session
 - **Mode:** Interactive (user approval required for roadmap and plans)
@@ -138,11 +145,11 @@ None
 - **Legal constraint:** Voice cloning consent framework required before launch (Tennessee ELVIS Act, California AB 1836)
 
 ### Last Session
-- **Date:** 2026-02-28
-- **Duration:** 4 minutes
-- **Stopped at:** Phase 2 context gathered
-- **Next action:** Phase 1 complete - begin Phase 2 (Feed Engine)
+- **Date:** 2026-03-01
+- **Duration:** 5 minutes
+- **Stopped at:** Completed plan 02-01
+- **Next action:** Begin Plan 02-02 (Feed ranking algorithm)
 
 ---
 
-*State updated: 2026-02-28T21:39:00Z after completing Plan 01-05 (Phase 1 complete)*
+*State updated: 2026-03-01T08:42:04Z after completing Plan 02-01*
