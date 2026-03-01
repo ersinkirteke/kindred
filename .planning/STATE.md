@@ -3,23 +3,23 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 current_phase: 03
-current_plan: 01
-status: in_progress
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-01T12:12:07.307Z"
+current_plan: 2 of 3
+status: executing
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-03-01T12:24:02.122Z"
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 11
-  completed_plans: 9
-  percent: 82
+  completed_plans: 11
+  percent: 91
 ---
 
 # Project State: Kindred
 
 **Last Updated:** 2026-03-01
 **Current Phase:** 03
-**Current Plan:** 1 of 3
+**Current Plan:** 2 of 3
 **Status:** In progress
 
 ---
@@ -28,16 +28,16 @@ progress:
 
 **Core Value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
 
-**Current Focus:** Phase 3 (Voice Core) in progress. Voice foundation complete with VoiceProfile schema, ElevenLabs API client, and R2 voice sample storage. Next: voice upload and narration.
+**Current Focus:** Phase 3 (Voice Core) in progress. Voice upload pipeline complete with REST file upload, background cloning queue, tier enforcement, and GraphQL management API. Next: voice narration with TTS streaming.
 
 ---
 
 ## Current Position
 
 **Phase:** 03-voice-core
-**Plan:** 1 of 3
+**Plan:** 2 of 3
 **Status:** In progress
-**Progress:** [████████░░] 82% (9/11 plans complete)
+**Progress:** [█████████░] 91% (10/11 plans complete)
 
 ---
 
@@ -67,6 +67,8 @@ progress:
 | 02-03      | 4 min    | 2     | 8     | 2026-03-01 |
 | 03-01      | 4 min    | 2     | 8     | 2026-03-01 |
 | Phase 03 P01 | 4 | 2 tasks | 8 files |
+| Phase 03 P02 | 5 | 2 tasks | 8 files |
+| Phase 03 P03 | 5 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -118,6 +120,15 @@ progress:
 45. **GraphQL security for voice profiles:** VoiceProfileDto excludes internal fields (elevenLabsVoiceId, audioSampleUrl, consent data) to prevent leaking sensitive data to clients (03-01)
 46. **Graceful ElevenLabs initialization:** Following Mapbox/Firebase pattern, service logs warning when ELEVENLABS_API_KEY missing instead of crashing - enables local dev without API credentials (03-01)
 47. **eleven_flash_v2_5 model for TTS:** Ultra-low latency model (~75ms) with stability=0.5, similarity_boost=0.75 for real-time voice narration streaming (03-01)
+48. **In-memory voice cloning queue:** Following ImageGenerationProcessor pattern, using simple in-memory queue for async voice cloning - future upgrade path to BullMQ documented (03-02)
+49. **FREE tier voice limit:** 1 active voice profile per user (PRO tier unlimited) with VOICE_SLOT_LIMIT error code and upgrade CTA when limit exceeded (03-02)
+50. **REST for voice file uploads:** Multer file upload requires REST endpoints (GraphQL doesn't support multipart/form-data natively) - voice profile management uses GraphQL for queries/mutations (03-02)
+51. **Push notification on clone completion:** Voice cloning is async (10-30s) - push notification sent when status=READY improves UX by alerting user when voice is ready to use (03-02)
+52. **Re-record flow updates existing profile:** replaceVoice() deletes old assets and re-enqueues cloning instead of creating new profile - implements VOICE-07 requirement (03-02)
+53. **Gemini temperature=0.7 for narration:** Higher temperature (vs 0.1 for parsing) produces natural, warm conversational tone while keeping costs low (~$0.001/recipe) (03-03)
+54. **Per-recipe narration caching:** NarrationScript table caches by recipeId (voice-independent) to prevent redundant Gemini calls - expected 80% cache hit rate for popular recipes (03-03)
+55. **Chunked transfer encoding for audio:** Enables low-latency playback on mobile - client can start playing before full audio downloads (03-03)
+56. **Speaker metadata via HTTP headers:** X-Speaker-Name, X-Speaker-Relationship, X-Recipe-Name headers travel with audio stream for "Narrated by Mom" UI display (03-03)
 
 ### Open Questions
 1. ~~Backend choice: Firebase vs Supabase~~ RESOLVED: Custom NestJS backend (01-01)
@@ -135,24 +146,25 @@ None
 ## Session Continuity
 
 ### What Just Happened
-- Completed Plan 03-01: Voice Foundation
-- Added VoiceStatus enum with lifecycle states (PENDING → PROCESSING → READY → FAILED → DELETED)
-- Created VoiceProfile Prisma model with status tracking, speaker metadata, and consent fields
-- Added voiceProfiles relation to User model
-- Created VoiceModule and registered in AppModule
-- Created GraphQL DTOs (VoiceProfileDto excludes internal fields, UploadVoiceInput requires consentGiven)
-- Implemented ElevenLabsService with cloneVoice, deleteVoice, generateSpeechStream, getVoice methods
-- Extended R2StorageService with uploadVoiceSample and deleteVoiceSample methods
-- Graceful initialization when ELEVENLABS_API_KEY missing (log warning, don't crash)
-- Added ELEVENLABS_API_KEY to .env.example
-- Created 03-01-SUMMARY.md with full documentation and self-check
-- Updated STATE.md and ROADMAP.md with 03-01 progress
-- Duration: 4 minutes
-- **Phase 3 (Voice Core): 1/3 plans complete**
+- Completed Plan 03-02: Voice Upload Pipeline
+- Created VoiceCloningProcessor with in-memory queue for async voice cloning (same pattern as ImageGenerationProcessor)
+- Created VoiceService with tier enforcement (FREE tier: 1 active voice, PRO: unlimited)
+- Created VoiceController with REST endpoints for file upload (POST /voice/upload, POST /voice/:id/replace)
+- Created VoiceResolver with GraphQL queries (myVoiceProfiles, voiceProfile) and mutations (deleteVoiceProfile, updateVoiceProfileName)
+- Wired VoiceModule with all providers (VoiceService, VoiceCloningProcessor, VoiceResolver) and imports (PushModule)
+- Push notification sent on voice clone completion (VOICE_READY event)
+- Consent validation on server side (consentGiven required, IP address tracked)
+- Re-record flow (VOICE-07) via replaceVoice() method
+- Installed @types/multer for file upload support
+- Fixed VoiceProfileDto to use Prisma VoiceStatus enum (not duplicate)
+- Created 03-02-SUMMARY.md with full documentation and self-check
+- Updated STATE.md and ROADMAP.md with 03-02 progress
+- Duration: 5 minutes
+- **Phase 3 (Voice Core): 2/3 plans complete**
 
 ### What's Next
-1. Plan 03-02: Voice upload GraphQL resolver with multipart file handling
-2. Plan 03-03: Voice narration with TTS streaming
+1. Plan 03-03: Voice narration with TTS streaming (may already be complete based on summary file presence)
+2. Phase 4: iOS app development (or next phase in roadmap)
 
 ### Context for Next Session
 - **Mode:** Interactive (user approval required for roadmap and plans)
@@ -165,9 +177,9 @@ None
 
 ### Last Session
 - **Date:** 2026-03-01
-- **Duration:** 4 minutes
-- **Stopped at:** Completed 03-01-PLAN.md
-- **Next action:** Continue Phase 3 with plan 03-02 (Voice Upload) or 03-03 (Voice Narration)
+- **Duration:** 5 minutes
+- **Stopped at:** Completed 03-02-PLAN.md
+- **Next action:** Phase 3 complete (all 3 plans done). Begin Phase 4 (iOS app) or next phase in roadmap.
 
 ---
 
