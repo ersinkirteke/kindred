@@ -33,29 +33,44 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - ✓ Free tier users get 1 voice slot; Pro users get unlimited voice slots — v1.5
 - ✓ User can re-record or replace their voice clip to improve quality — v1.5
 
+## Current Milestone: v2.0 iOS App
+
+**Goal:** Put Kindred in users' hands — the full iOS experience with feed, voice playback, personalization, accessibility, and monetization.
+
+**Target features:**
+- Guest browsing + Google/Apple OAuth + guest-to-account conversion
+- Swipe card feed + bookmarks + Listen/Watch/Skip buttons
+- Onboarding flow (under 90 seconds)
+- Voice playback with streaming narration
+- Culinary DNA personalization (learns from skips/bookmarks)
+- Dietary preference filtering (vegan, keto, halal, allergies)
+- WCAG AAA accessibility (56dp touch targets, 18sp+ text, VoiceOver)
+- Free/Pro tiers with App Store billing
+- Offline voice caching
+
 ### Active
 
-- [ ] Guest browsing without account (iOS + Android)
+- [ ] Guest browsing without account (iOS)
 - [ ] Google OAuth and Apple Sign In (one-tap)
 - [ ] Guest-to-account conversion on save/bookmark/voice
 - [ ] Swipe left to skip, swipe right to bookmark recipe cards
 - [ ] Listen/Watch/Skip buttons as swipe alternatives
 - [ ] Onboarding flow completable in under 90 seconds
-- [ ] Fridge photo scanning to identify ingredients (Gemini 3 Flash)
-- [ ] Supermarket receipt scanning to populate digital pantry
-- [ ] Food expiry tracking with push notification alerts
 - [ ] Culinary DNA personalization (learns from skips/bookmarks)
 - [ ] Dietary preference filtering (vegan, keto, halal, allergies)
-- [ ] WCAG AAA accessibility (56dp touch targets, 18sp+ text, VoiceOver/TalkBack)
-- [ ] Free tier with ads, Pro tier ($9.99/mo) via App Store/Play billing
+- [ ] WCAG AAA accessibility (56dp touch targets, 18sp+ text, VoiceOver)
+- [ ] Free tier with ads, Pro tier ($9.99/mo) via App Store billing
 - [ ] Voice profiles cached locally for offline narration
-- [ ] Android full feature parity with iOS
 
 ### Out of Scope
 
 - AI cooking video generation (Veo) — deferred to v2 due to $4.50-9.00/user/month cost, 30-120s latency, and cooking safety concerns
 - Social features (sharing, following) — deferred, not core to emotional utility
-- Instacart/UberEats "Order Ingredients" integration — deferred to v2, requires partnership deals
+- Fridge photo scanning to identify ingredients (Gemini 3 Flash) — deferred to v2.1, pantry milestone
+- Supermarket receipt scanning to populate digital pantry — deferred to v2.1, pantry milestone
+- Food expiry tracking with push notification alerts — deferred to v2.1, pantry milestone
+- Android full feature parity with iOS — deferred to v2.x, after iOS validated
+- Instacart/UberEats "Order Ingredients" integration — deferred to v2+, requires partnership deals
 - Real-time chat or community features — high complexity, not core to value proposition
 - Web app — mobile-first, native only for v1
 - Cross-platform framework (Flutter/React Native) — native iOS + Android for best UX and accessibility
@@ -112,4 +127,4 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 | Per-recipe narration caching | NarrationScript table caches Gemini output — expected 80% hit rate | ✓ Good |
 
 ---
-*Last updated: 2026-03-01 after v1.5 milestone*
+*Last updated: 2026-03-01 after v2.0 milestone started*
