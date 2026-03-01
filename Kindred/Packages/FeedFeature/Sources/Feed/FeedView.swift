@@ -17,7 +17,12 @@ public struct FeedView: View {
                         locationPill
                     }
                 }
-                .sheet(isPresented: $store.showLocationPicker) {
+                .sheet(isPresented: Binding(
+                    get: { store.showLocationPicker },
+                    set: { newValue in
+                        if !newValue { store.send(.dismissLocationPicker) }
+                    }
+                )) {
                     LocationPickerView(store: store)
                 }
                 .navigationDestination(item: $store.scope(state: \.recipeDetail, action: \.recipeDetail)) { detailStore in
