@@ -23,7 +23,8 @@ let package = Package(
                 .product(name: "ApolloSQLite", package: "apollo-ios"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
                 .product(name: "KindredAPI", package: "KindredAPI"),
-            ]
+            ],
+            exclude: ["Schema/Package.swift"]
         ),
     ]
 )

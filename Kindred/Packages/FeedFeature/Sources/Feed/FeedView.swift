@@ -4,7 +4,6 @@ import SwiftUI
 
 public struct FeedView: View {
     @Bindable var store: StoreOf<FeedReducer>
-    @Namespace private var heroNamespace
 
     public init(store: StoreOf<FeedReducer>) {
         self.store = store
@@ -47,7 +46,6 @@ public struct FeedView: View {
             }
             .navigationDestination(item: $store.scope(state: \.recipeDetail, action: \.recipeDetail)) { detailStore in
                 RecipeDetailView(store: detailStore)
-                    .navigationTransition(.zoom(sourceID: store.cardStack.first?.id ?? "", in: heroNamespace))
             }
         }
         .onAppear {
@@ -109,8 +107,7 @@ public struct FeedView: View {
                 },
                 onTap: { recipeId in
                     store.send(.openRecipeDetail(recipeId))
-                },
-                heroNamespace: heroNamespace
+                }
             )
             .padding(.horizontal, KindredSpacing.md)
 
@@ -124,25 +121,31 @@ public struct FeedView: View {
     private var actionButtons: some View {
         HStack(spacing: KindredSpacing.lg) {
             // Skip button
-            KindredButton(
-                icon: "xmark",
-                style: .secondary,
-                size: .large
-            ) {
+            Button {
                 if let topCard = store.cardStack.first {
                     store.send(.swipeCard(topCard.id, .left))
                 }
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundColor(.kindredAccent)
+                    .frame(width: 56, height: 56)
+                    .background(Color.kindredCardSurface)
+                    .clipShape(Circle())
             }
             .accessibilityLabel("Skip")
             .accessibilityHint("Skip this recipe - or swipe left")
 
             // Listen button (disabled - Phase 7)
-            KindredButton(
-                icon: "headphones",
-                style: .secondary,
-                size: .large
-            ) {
+            Button {
                 // Phase 7 implementation
+            } label: {
+                Image(systemName: "headphones")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundColor(.kindredAccent)
+                    .frame(width: 56, height: 56)
+                    .background(Color.kindredCardSurface)
+                    .clipShape(Circle())
             }
             .disabled(true)
             .opacity(0.5)
@@ -150,14 +153,17 @@ public struct FeedView: View {
             .accessibilityHint("Available in a future update")
 
             // Bookmark button
-            KindredButton(
-                icon: "heart.fill",
-                style: .primary,
-                size: .large
-            ) {
+            Button {
                 if let topCard = store.cardStack.first {
                     store.send(.swipeCard(topCard.id, .right))
                 }
+            } label: {
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(width: 56, height: 56)
+                    .background(Color.kindredAccent)
+                    .clipShape(Circle())
             }
             .accessibilityLabel("Bookmark")
             .accessibilityHint("Save this recipe - or swipe right")

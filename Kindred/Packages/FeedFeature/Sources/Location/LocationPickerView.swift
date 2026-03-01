@@ -92,10 +92,8 @@ public struct LocationPickerView: View {
 
     private var useMyLocationButton: some View {
         KindredButton(
-            title: "Use my location",
-            icon: "location.fill",
-            style: .secondary,
-            size: .large
+            "Use my location",
+            style: .secondary
         ) {
             Task {
                 await requestUserLocation()

@@ -53,25 +53,3 @@ struct ParallaxHeader: View {
     }
 }
 
-// MARK: - Viral Badge
-
-struct ViralBadge: View {
-    var body: some View {
-        HStack(spacing: KindredSpacing.xs) {
-            Image(systemName: "flame.fill")
-                .font(.system(size: 12))
-            Text("VIRAL")
-                .font(.kindredCaption())
-                .fontWeight(.bold)
-        }
-        .foregroundColor(.white)
-        .padding(.horizontal, KindredSpacing.sm)
-        .padding(.vertical, KindredSpacing.xs)
-        .background(
-            Capsule()
-                .fill(Color.kindredAccentDecorative)
-        )
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Viral recipe")
-    }
-}

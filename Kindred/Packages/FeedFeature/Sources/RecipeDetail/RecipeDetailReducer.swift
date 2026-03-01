@@ -80,7 +80,7 @@ public struct RecipeDetailReducer {
                         let query = KindredAPI.RecipeDetailQuery(id: recipeId)
                         let result = try await apolloClient.fetch(
                             query: query,
-                            cachePolicy: .returnCacheDataAndFetch
+                            cachePolicy: .cacheFirst
                         )
 
                         guard let recipeData = result.data?.recipe else {

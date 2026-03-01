@@ -2,7 +2,6 @@ import CoreLocation
 import Dependencies
 import Foundation
 
-@DependencyClient
 public struct LocationClient {
     public var requestAuthorization: @Sendable () async -> CLAuthorizationStatus
     public var currentLocation: @Sendable () async throws -> CLLocation

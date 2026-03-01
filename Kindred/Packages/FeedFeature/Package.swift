@@ -12,7 +12,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.0.0"),
-        .package(url: "https://github.com/onevcat/Kingfisher", from: "7.0.0"),
+        .package(url: "https://github.com/onevcat/Kingfisher", from: "8.0.0"),
         .package(name: "DesignSystem", path: "../DesignSystem"),
         .package(name: "NetworkClient", path: "../NetworkClient"),
         .package(name: "KindredAPI", path: "../KindredAPI"),

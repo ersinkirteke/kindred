@@ -2,7 +2,6 @@ import Dependencies
 import Foundation
 import Network
 
-@DependencyClient
 public struct NetworkMonitorClient {
     public var isConnected: @Sendable () -> Bool = { true }
     public var connectivityStream: @Sendable () -> AsyncStream<Bool> = {

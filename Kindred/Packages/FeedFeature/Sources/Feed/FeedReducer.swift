@@ -128,7 +128,7 @@ public struct FeedReducer {
                                 let query = KindredAPI.ViralRecipesQuery(location: location)
                                 let result = try await apolloClient.fetch(
                                     query: query,
-                                    cachePolicy: .returnCacheDataAndFetch
+                                    cachePolicy: .cacheFirst
                                 )
 
                                 if let recipes = result.data?.viralRecipes {
@@ -165,7 +165,7 @@ public struct FeedReducer {
                         let query = KindredAPI.RecipeDetailQuery(id: topCard.id)
                         _ = try? await apolloClient.fetch(
                             query: query,
-                            cachePolicy: .returnCacheDataAndFetch
+                            cachePolicy: .cacheFirst
                         )
                     }
                 }
@@ -251,17 +251,17 @@ public struct FeedReducer {
                 return .run { [location = state.location, page = state.currentPage] send in
                     do {
                         let query = KindredAPI.RecipesQuery(
-                            location: location,
-                            limit: 10,
-                            offset: page * 10
+                            location: .some(location),
+                            limit: .some(10),
+                            offset: .some(Int32(page * 10))
                         )
                         let result = try await apolloClient.fetch(
                             query: query,
-                            cachePolicy: .returnCacheDataAndFetch
+                            cachePolicy: .cacheFirst
                         )
 
                         if let recipes = result.data?.recipes {
-                            let cards = recipes.map { RecipeCard.from(graphQL: $0.fragments.recipeCard) }
+                            let cards = recipes.map { RecipeCard.from(recipesQuery: $0) }
                             await send(.moreRecipesLoaded(.success(cards)))
                         } else {
                             await send(.moreRecipesLoaded(.success([])))
@@ -292,7 +292,7 @@ public struct FeedReducer {
                         let query = KindredAPI.ViralRecipesQuery(location: location)
                         let result = try await apolloClient.fetch(
                             query: query,
-                            cachePolicy: .fetchIgnoringCacheData
+                            cachePolicy: .networkOnly
                         )
 
                         if let recipes = result.data?.viralRecipes {
@@ -319,7 +319,7 @@ public struct FeedReducer {
                         let query = KindredAPI.RecipeDetailQuery(id: topCard.id)
                         _ = try? await apolloClient.fetch(
                             query: query,
-                            cachePolicy: .returnCacheDataAndFetch
+                            cachePolicy: .cacheFirst
                         )
                     }
                 }
@@ -344,7 +344,7 @@ public struct FeedReducer {
                         let query = KindredAPI.ViralRecipesQuery(location: newLocation)
                         let result = try await apolloClient.fetch(
                             query: query,
-                            cachePolicy: .fetchIgnoringCacheData
+                            cachePolicy: .networkOnly
                         )
 
                         if let recipes = result.data?.viralRecipes {
@@ -369,7 +369,7 @@ public struct FeedReducer {
                             let query = KindredAPI.ViralRecipesQuery(location: location)
                             let result = try await apolloClient.fetch(
                                 query: query,
-                                cachePolicy: .fetchIgnoringCacheData
+                                cachePolicy: .networkOnly
                             )
 
                             if let recipes = result.data?.viralRecipes {
@@ -441,7 +441,7 @@ private enum FeedError: LocalizedError {
 // MARK: - RecipeCard Extension for Recipes Query
 
 extension RecipeCard {
-    static func from(graphQL recipe: KindredAPI.RecipesQuery.Data.Recipe.RecipeCard) -> RecipeCard {
+    static func from(recipesQuery recipe: KindredAPI.RecipesQuery.Data.Recipe) -> RecipeCard {
         return RecipeCard(
             id: recipe.id,
             name: recipe.name,
@@ -453,7 +453,7 @@ extension RecipeCard {
             isViral: recipe.isViral ?? false,
             engagementLoves: recipe.engagementLoves ?? 0,
             dietaryTags: recipe.dietaryTags ?? [],
-            difficulty: recipe.difficulty
+            difficulty: recipe.difficulty.rawValue
         )
     }
 }

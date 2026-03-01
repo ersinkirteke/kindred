@@ -76,7 +76,7 @@ public struct RecipeCard: Equatable, Identifiable {
             isViral: recipe.isViral ?? false,
             engagementLoves: recipe.engagementLoves ?? 0,
             dietaryTags: recipe.dietaryTags ?? [],
-            difficulty: recipe.difficulty
+            difficulty: recipe.difficulty.rawValue
         )
     }
 }

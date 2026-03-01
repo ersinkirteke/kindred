@@ -11,7 +11,7 @@ struct RecipeCardView: View {
     @State private var rotation: Double = 0
 
     var body: some View {
-        CardSurface(padding: 0) {
+        CardSurface {
             VStack(alignment: .leading, spacing: 0) {
                 // Hero image (top half)
                 heroImageView

@@ -84,9 +84,9 @@ public struct RecipeDetail: Equatable, Identifiable {
             isViral: recipe.isViral ?? false,
             engagementLoves: recipe.engagementLoves ?? 0,
             dietaryTags: recipe.dietaryTags ?? [],
-            difficulty: recipe.difficulty,
-            ingredients: recipe.ingredients?.map { RecipeIngredient.from(graphQL: $0) } ?? [],
-            steps: recipe.steps?.map { RecipeStep.from(graphQL: $0) } ?? []
+            difficulty: recipe.difficulty.rawValue,
+            ingredients: recipe.ingredients.map { RecipeIngredient.from(graphQL: $0) },
+            steps: recipe.steps.map { RecipeStep.from(graphQL: $0) }
         )
     }
 }
@@ -179,7 +179,7 @@ public extension String {
         case "dairy-free":
             return .cyan
         default:
-            return Color("TextSecondary", bundle: .module)
+            return .gray
         }
     }
 }

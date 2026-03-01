@@ -2,7 +2,6 @@ import Dependencies
 import Foundation
 import SwiftData
 
-@DependencyClient
 public struct GuestSessionClient {
     public var getGuestUserId: @Sendable () -> String = { "" }
     public var bookmarkRecipe: @Sendable (String, String, String?) async throws -> Void
@@ -86,7 +85,7 @@ private class GuestSessionStore {
         }
     }
 
-    func getGuestUserId() -> String {
+    nonisolated func getGuestUserId() -> String {
         let key = "guestUserId"
         if let existingId = UserDefaults.standard.string(forKey: key) {
             return existingId
