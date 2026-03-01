@@ -1,0 +1,145 @@
+# Requirements: Kindred
+
+**Defined:** 2026-03-01
+**Core Value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
+
+## v2.0 Requirements
+
+Requirements for iOS App milestone. Each maps to roadmap phases.
+
+### Authentication & Onboarding
+
+- [ ] **AUTH-01**: User can browse the recipe feed as a guest without creating an account
+- [ ] **AUTH-02**: User can sign in with Google OAuth (one-tap)
+- [ ] **AUTH-03**: User can sign in with Apple Sign In (one-tap)
+- [ ] **AUTH-04**: Guest user is prompted to create account when saving, bookmarking, or using voice features
+- [ ] **AUTH-05**: Guest session state (browsed recipes, preferences) persists through account conversion
+- [ ] **AUTH-06**: User completes onboarding flow in under 90 seconds (dietary prefs, location, optional voice upload)
+
+### Feed & Discovery
+
+- [ ] **FEED-01**: User sees viral recipes trending within 5-10 miles of their location
+- [ ] **FEED-02**: Each recipe card displays AI hero image, recipe name, prep time, calories, loves count, and VIRAL badge
+- [ ] **FEED-03**: User can swipe left to skip and swipe right to bookmark recipe cards
+- [ ] **FEED-04**: User can tap Listen/Watch/Skip buttons as swipe alternatives
+- [ ] **FEED-05**: User's location is shown as a city badge at the top of the feed
+- [ ] **FEED-06**: User can manually change their location to explore other areas
+- [ ] **FEED-07**: User can filter recipes by dietary preference (vegan, keto, halal, allergies)
+- [ ] **FEED-08**: Feed loads cached content when offline with clear offline indicator
+
+### Voice Experience
+
+- [ ] **VOICE-01**: User can listen to any recipe's instructions narrated in their cloned voice
+- [ ] **VOICE-02**: Voice narration streams in real-time with play/pause/seek controls and 64dp play button
+- [ ] **VOICE-03**: Voice narration displays the speaker's name prominently during playback
+- [ ] **VOICE-04**: Voice playback continues in background with lock screen controls
+- [ ] **VOICE-05**: Voice profiles are cached locally for offline narration playback
+- [ ] **VOICE-06**: User can upload a 30-60 second voice clip to create a voice profile
+- [ ] **VOICE-07**: Free tier users get 1 voice slot; Pro users get unlimited voice slots
+
+### Personalization
+
+- [ ] **PERS-01**: App learns user taste from implicit feedback (skips and bookmarks) via Culinary DNA
+- [ ] **PERS-02**: Feed ranking adapts based on user's Culinary DNA profile over time
+- [ ] **PERS-03**: User can set dietary preferences during onboarding or in settings (vegan, keto, halal, allergies)
+
+### Accessibility
+
+- [ ] **ACCS-01**: All interactive elements have minimum 56dp touch targets (WCAG AAA)
+- [ ] **ACCS-02**: All body text is minimum 18sp with Dynamic Type support
+- [ ] **ACCS-03**: Full VoiceOver support with meaningful labels on all custom controls and gestures
+- [ ] **ACCS-04**: Navigation depth is maximum 3 levels from any screen
+- [ ] **ACCS-05**: Color contrast meets WCAG AAA 7:1 ratio
+
+### Monetization
+
+- [ ] **MONET-01**: Free tier displays ads (AdMob) in non-intrusive placements
+- [ ] **MONET-02**: Pro tier ($9.99/mo) removes ads and unlocks unlimited voice slots
+- [ ] **MONET-03**: User can subscribe to Pro via App Store billing (StoreKit 2)
+- [ ] **MONET-04**: Subscription status syncs between app and backend via JWS verification
+
+## Future Requirements
+
+Deferred to future milestones. Tracked but not in current roadmap.
+
+### Pantry & Ingredients (v2.1)
+
+- **PANT-01**: User can scan fridge photo to identify ingredients (Gemini 3 Flash)
+- **PANT-02**: User can scan supermarket receipt to populate digital pantry
+- **PANT-03**: User receives push notification alerts for food expiry
+
+### Android (v2.x)
+
+- **ANDR-01**: Android full feature parity with iOS
+
+### Social & Integrations (v3.0)
+
+- **SOCL-01**: User can share recipes externally
+- **SOCL-02**: User can follow other users
+- **INTG-01**: Instacart/UberEats "Order Ingredients" integration
+
+## Out of Scope
+
+Explicitly excluded. Documented to prevent scope creep.
+
+| Feature | Reason |
+|---------|--------|
+| AI cooking video generation (Veo) | $4.50-9/user/month cost, 30-120s latency, cooking safety |
+| In-app recipe creation | Content moderation, quality control, liability |
+| Real-time chat / community | High complexity, not core to emotional utility |
+| Map view for recipe discovery | Cognitive overload, location privacy concerns |
+| In-app voice recording | iOS permissions complexity, audio quality issues |
+| Auto-play voice narration | Startles users, accessibility conflict with screen readers |
+| Mandatory onboarding tutorial | Kills D7 retention, high drop-off |
+| Complex filtering UI | Cognitive overload for 65% of users who prefer defaults |
+| Web app | Mobile-first, native only for v2.0 |
+| Cross-platform framework | Native iOS + Android for best UX and accessibility |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| AUTH-01 | — | Pending |
+| AUTH-02 | — | Pending |
+| AUTH-03 | — | Pending |
+| AUTH-04 | — | Pending |
+| AUTH-05 | — | Pending |
+| AUTH-06 | — | Pending |
+| FEED-01 | — | Pending |
+| FEED-02 | — | Pending |
+| FEED-03 | — | Pending |
+| FEED-04 | — | Pending |
+| FEED-05 | — | Pending |
+| FEED-06 | — | Pending |
+| FEED-07 | — | Pending |
+| FEED-08 | — | Pending |
+| VOICE-01 | — | Pending |
+| VOICE-02 | — | Pending |
+| VOICE-03 | — | Pending |
+| VOICE-04 | — | Pending |
+| VOICE-05 | — | Pending |
+| VOICE-06 | — | Pending |
+| VOICE-07 | — | Pending |
+| PERS-01 | — | Pending |
+| PERS-02 | — | Pending |
+| PERS-03 | — | Pending |
+| ACCS-01 | — | Pending |
+| ACCS-02 | — | Pending |
+| ACCS-03 | — | Pending |
+| ACCS-04 | — | Pending |
+| ACCS-05 | — | Pending |
+| MONET-01 | — | Pending |
+| MONET-02 | — | Pending |
+| MONET-03 | — | Pending |
+| MONET-04 | — | Pending |
+
+**Coverage:**
+- v2.0 requirements: 33 total
+- Mapped to phases: 0
+- Unmapped: 33
+
+---
+*Requirements defined: 2026-03-01*
+*Last updated: 2026-03-01 after initial definition*
