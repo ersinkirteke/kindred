@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 current_phase: 02
-current_plan: 02
+current_plan: 01
 status: executing
 stopped_at: Completed plan 02-02
-last_updated: "2026-03-01T08:56:21.041Z"
+last_updated: "2026-03-01T09:05:11.030Z"
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 7
-  percent: 88
+  completed_plans: 8
+  percent: 100
 ---
 
 # Project State: Kindred
@@ -28,25 +28,25 @@ progress:
 
 **Core Value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
 
-**Current Focus:** Phase 2 (Feed Engine) in progress. PostGIS geospatial foundation complete. Next: Feed ranking algorithm.
+**Current Focus:** Phase 2 (Feed Engine) complete. All 7 feed requirements delivered. PostGIS spatial queries, velocity ranking, and offline-first GraphQL API operational.
 
 ---
 
 ## Current Position
 
 **Phase:** 02-feed-engine
-**Plan:** 02 of 3
-**Status:** In Progress
-**Progress:** [█████████░] 88% (7/8 plans complete)
+**Plan:** 3 of 3
+**Status:** Complete
+**Progress:** [██████████] 100% (8/8 plans complete)
 
 ---
 
 ## Performance Metrics
 
 ### Velocity
-- **Phases completed:** 1
-- **Plans completed:** 7
-- **Average plans per phase:** 5 (Phase 1: 5 plans, Phase 2: 2/3 in progress)
+- **Phases completed:** 2
+- **Plans completed:** 8
+- **Average plans per phase:** 4 (Phase 1: 5 plans, Phase 2: 3 plans)
 - **Estimated completion:** TBD
 
 ### Quality
@@ -64,10 +64,7 @@ progress:
 | 01-05      | 4 min    | 2     | 12    | 2026-02-28 |
 | 02-01      | 5 min    | 2     | 9     | 2026-03-01 |
 | 02-02      | 8 min    | 2     | 7     | 2026-03-01 |
-
----
-| Phase 01-foundation P04 | 6 | 2 tasks | 8 files |
-| Phase 02-feed-engine P02 | 8 | 2 tasks | 7 files |
+| 02-03      | 4 min    | 2     | 8     | 2026-03-01 |
 
 ## Accumulated Context
 
@@ -110,6 +107,11 @@ progress:
 36. **AI cuisine/meal tagging:** Gemini parser extracts cuisineType (29 categories) and mealType (7 categories) - AI tagging enables feed filtering without manual categorization (02-02)
 37. **Views weighted at 0.3x:** Passive engagement (views) weighted lower than active engagement (loves) for velocity calculation (02-02)
 38. **Geocode city once per scrape:** Apply lat/lng to all recipes from same city - prevents N API calls when scraping N recipes (02-02)
+39. **RecipeCard card-level fields only:** Detail fields (dietaryTags, cookTime, difficulty) excluded from feed cards to reduce GraphQL payload size and improve feed performance (02-03)
+40. **Keyset pagination with velocityScore + id cursor:** Prevents page drift when feed updates, more efficient than offset pagination for velocity-ranked results (02-03)
+41. **Expanded radius fallback (city -> country -> global):** Feed never returns empty per user requirement - progressively expands from 10mi -> 50mi -> 500mi -> global (02-03)
+42. **Progressive filter relaxation:** When filters produce zero results, drop dietaryTags first, then mealTypes, then cuisineTypes - improves UX by showing partial matches (02-03)
+43. **Cache-Control with stale-while-revalidate:** 5 min fresh (max-age=300), 24 hour stale (stale-while-revalidate=86400) for offline-first mobile clients with pull-to-refresh (02-03)
 
 ### Open Questions
 1. ~~Backend choice: Firebase vs Supabase~~ RESOLVED: Custom NestJS backend (01-01)
@@ -127,21 +129,25 @@ None
 ## Session Continuity
 
 ### What Just Happened
-- Completed Plan 02-02: Feed Ranking Algorithm (Velocity Scoring + AI Tagging)
-- Created VelocityScorer utility with TDD (13 tests passing)
-- Velocity formula: (engagement/hour) * (1 + e^(-age/24)) with viral threshold = 10/hour
-- Extended ParsedRecipe DTO with cuisineType and mealType fields
-- Gemini parser now extracts cuisine (29 categories) and meal type (7 categories)
-- Integrated geocoding in scraping pipeline (geocode city once, apply to all recipes)
-- Replaced hardcoded viralThreshold=1000 with velocity-based viral detection
-- Added recalculateVelocityScores() method for batch velocity updates
-- Created 02-02-SUMMARY.md with full documentation and self-check
-- Updated STATE.md and ROADMAP.md with 02-02 progress
-- Duration: 8 minutes
-- **Phase 2 (Feed Engine): 2/3 plans complete**
+- Completed Plan 02-03: Feed GraphQL API (PostGIS Geo-Radius Queries)
+- Created RecipeCard, RecipeConnection, FeedFiltersInput DTOs for feed API
+- Implemented FeedService with PostGIS ST_DWithin spatial queries
+- 5-10 mile radius filtering with keyset pagination (velocityScore + id cursor)
+- Expanded radius fallback: 10mi -> 50mi (city) -> 500mi (country) -> global
+- Progressive filter relaxation for zero-result queries (dietaryTags -> mealTypes -> cuisineTypes)
+- Created FeedResolver with feed, cityName, searchCities GraphQL queries
+- Cache-Control headers: max-age=300, stale-while-revalidate=86400 for offline-first
+- ETag generation for conditional requests (bandwidth savings)
+- Query complexity estimation for DoS prevention
+- Registered FeedModule in AppModule
+- Created 02-03-SUMMARY.md with full documentation and self-check
+- Updated STATE.md and ROADMAP.md with 02-03 progress
+- Duration: 4 minutes
+- **Phase 2 (Feed Engine): COMPLETE (3/3 plans done)**
 
 ### What's Next
-1. Plan 02-03: Feed query resolver with PostGIS spatial queries, velocityScore sorting, and cuisine/meal filtering
+1. Phase 2 complete - all 7 feed requirements delivered (FEED-01 through FEED-09)
+2. Next phase: Phase 3 (Voice Core) or Phase 4 (iOS App)
 
 ### Context for Next Session
 - **Mode:** Interactive (user approval required for roadmap and plans)
@@ -154,9 +160,9 @@ None
 
 ### Last Session
 - **Date:** 2026-03-01
-- **Duration:** 8 minutes
-- **Stopped at:** Completed plan 02-02
-- **Next action:** Begin Plan 02-03 (Feed query resolver)
+- **Duration:** 4 minutes
+- **Stopped at:** Completed plan 02-03
+- **Next action:** Begin Phase 3 (Voice Core) or Phase 4 (iOS App)
 
 ---
 
