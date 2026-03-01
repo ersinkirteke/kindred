@@ -3,6 +3,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
 import { ImagesModule } from '../images/images.module';
+import { GeocodingModule } from '../geocoding/geocoding.module';
 import { XApiService } from './x-api.service';
 import { InstagramService } from './instagram.service';
 import { RecipeParserService } from './recipe-parser.service';
@@ -20,6 +21,7 @@ import { ScrapingScheduler } from './scraping.scheduler';
     ConfigModule,
     PrismaModule,
     ImagesModule,
+    GeocodingModule,
   ],
   providers: [
     XApiService,

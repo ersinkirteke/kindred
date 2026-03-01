@@ -1,10 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CuisineType, MealType } from '@prisma/client';
 import { XApiService } from './x-api.service';
 import { InstagramService } from './instagram.service';
 import { RecipeParserService } from './recipe-parser.service';
 import { RawScrapedPost } from './dto/scraped-recipe.dto';
 import { ImageGenerationProcessor } from '../images/image-generation.processor';
+import { GeocodingService } from '../geocoding/geocoding.service';
+import { VelocityScorer } from '../feed/utils/velocity-scorer';
 
 interface ScrapingResult {
   newRecipes: number;
@@ -19,7 +22,6 @@ interface ScrapingResult {
 @Injectable()
 export class ScrapingService {
   private readonly logger = new Logger(ScrapingService.name);
-  private readonly viralThreshold: number;
 
   constructor(
     private readonly xApiService: XApiService,
@@ -27,10 +29,8 @@ export class ScrapingService {
     private readonly recipeParser: RecipeParserService,
     private readonly prisma: PrismaService,
     private readonly imageProcessor: ImageGenerationProcessor,
-  ) {
-    // Engagement count threshold for viral flag (configurable)
-    this.viralThreshold = 1000;
-  }
+    private readonly geocoding: GeocodingService,
+  ) {}
 
   /**
    * Scrape recipes for a specific city
@@ -46,7 +46,19 @@ export class ScrapingService {
     };
 
     try {
-      // 1. Fetch raw posts from all sources
+      // 1. Geocode the city (once per scrape)
+      const cityCoords = await this.geocoding.geocodeCity(city);
+      if (!cityCoords) {
+        this.logger.warn(
+          `Failed to geocode city "${city}" - recipes will have null lat/lng`,
+        );
+      } else {
+        this.logger.log(
+          `Geocoded ${city}: (${cityCoords.lat}, ${cityCoords.lng})`,
+        );
+      }
+
+      // 2. Fetch raw posts from all sources
       const [xPosts, instagramPosts] = await Promise.all([
         this.xApiService.searchRecipeTweets(city, 20),
         this.instagramService.searchRecipePosts(city, 20),
@@ -60,7 +72,7 @@ export class ScrapingService {
         return result;
       }
 
-      // 2. Deduplicate by sourceId - check existing recipes
+      // 3. Deduplicate by sourceId - check existing recipes
       const sourceIds = allPosts.map((post) => post.sourceId);
       const existingRecipes = await this.prisma.recipe.findMany({
         where: {
@@ -81,7 +93,7 @@ export class ScrapingService {
         `Filtered out ${result.duplicates} duplicate posts, ${newPosts.length} new posts to process`,
       );
 
-      // 3. Parse each new post
+      // 4. Parse each new post
       for (const post of newPosts) {
         try {
           const parsedRecipe = await this.recipeParser.parseRecipeFromText(
@@ -96,9 +108,14 @@ export class ScrapingService {
             continue;
           }
 
-          // 4. Store in database
-          const isViral = post.engagementCount >= this.viralThreshold;
+          // 5. Calculate velocity score
+          const velocityResult = VelocityScorer.calculate(
+            post.engagementCount,
+            0, // Views not available from X API v2
+            post.postedAt,
+          );
 
+          // 6. Store in database
           const createdRecipe = await this.prisma.recipe.create({
             data: {
               // Recipe metadata
@@ -116,6 +133,14 @@ export class ScrapingService {
               carbs: parsedRecipe.carbs,
               fat: parsedRecipe.fat,
 
+              // Cuisine and meal type (AI-tagged)
+              cuisineType: parsedRecipe.cuisineType as CuisineType,
+              mealType: parsedRecipe.mealType as MealType,
+
+              // Geolocation (from geocoded city)
+              latitude: cityCoords?.lat ?? null,
+              longitude: cityCoords?.lng ?? null,
+
               // Scraping metadata
               scrapedFrom: post.platform,
               sourceId: post.sourceId,
@@ -123,9 +148,10 @@ export class ScrapingService {
               scrapedAt: new Date(),
               imageStatus: 'PENDING', // Will be updated by image processor
 
-              // Engagement
-              isViral,
-              engagementLoves: post.engagementCount, // We'll use this field for total engagement
+              // Engagement (velocity-based viral detection)
+              velocityScore: velocityResult.velocityScore,
+              isViral: velocityResult.isViral,
+              engagementLoves: post.engagementCount,
               engagementViews: 0, // Not available from X API v2
 
               // Create nested ingredients
@@ -150,7 +176,7 @@ export class ScrapingService {
             },
           });
 
-          // 5. Queue background image generation (non-blocking)
+          // 7. Queue background image generation (non-blocking)
           this.imageProcessor.enqueue({
             recipeId: createdRecipe.id,
             recipeName: createdRecipe.name,
@@ -159,7 +185,7 @@ export class ScrapingService {
 
           result.newRecipes++;
           this.logger.log(
-            `✓ Stored recipe: ${parsedRecipe.name} (${post.sourceId})`,
+            `✓ Stored recipe: ${parsedRecipe.name} (${post.sourceId}) - velocity: ${velocityResult.velocityScore.toFixed(2)}${velocityResult.isViral ? ' [VIRAL]' : ''}`,
           );
         } catch (error) {
           result.parseFailures++;
@@ -278,5 +304,65 @@ export class ScrapingService {
     // TODO: Add more country mappings or integrate geocoding API
     // For now, default to United States
     return 'United States';
+  }
+
+  /**
+   * Recalculate velocity scores for all recipes within the 7-day window
+   * Called during each scraping cycle to update viral status as content ages
+   */
+  async recalculateVelocityScores(): Promise<void> {
+    this.logger.log('Starting velocity score recalculation...');
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    // Fetch recipes scraped within last 7 days
+    const recipes = await this.prisma.recipe.findMany({
+      where: {
+        scrapedAt: { gte: sevenDaysAgo },
+      },
+      select: {
+        id: true,
+        scrapedAt: true,
+        engagementLoves: true,
+        engagementViews: true,
+      },
+    });
+
+    this.logger.log(
+      `Recalculating velocity for ${recipes.length} recipes from last 7 days`,
+    );
+
+    // Batch update velocity scores
+    const updatePromises = recipes.map((recipe) => {
+      const velocityResult = VelocityScorer.calculate(
+        recipe.engagementLoves,
+        recipe.engagementViews,
+        recipe.scrapedAt,
+      );
+
+      return this.prisma.recipe.update({
+        where: { id: recipe.id },
+        data: {
+          velocityScore: velocityResult.velocityScore,
+          isViral: velocityResult.isViral,
+        },
+      });
+    });
+
+    await Promise.all(updatePromises);
+
+    const viralCount = recipes.filter((recipe) => {
+      const velocityResult = VelocityScorer.calculate(
+        recipe.engagementLoves,
+        recipe.engagementViews,
+        recipe.scrapedAt,
+      );
+      return velocityResult.isViral;
+    }).length;
+
+    this.logger.log(
+      `Velocity recalculation complete: ${viralCount} viral recipes out of ${recipes.length}`,
+    );
   }
 }

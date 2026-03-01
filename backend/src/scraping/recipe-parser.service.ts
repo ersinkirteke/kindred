@@ -73,7 +73,9 @@ export class RecipeParserService {
   "protein": "Estimated protein in grams per serving (number, optional)",
   "carbs": "Estimated carbs in grams per serving (number, optional)",
   "fat": "Estimated fat in grams per serving (number, optional)",
-  "difficulty": "Difficulty level based on techniques and ingredient count (string, required: BEGINNER, INTERMEDIATE, or ADVANCED)"
+  "difficulty": "Difficulty level based on techniques and ingredient count (string, required: BEGINNER, INTERMEDIATE, or ADVANCED)",
+  "cuisineType": "Primary cuisine category (string, required - choose ONE from: Italian, Mexican, Chinese, Japanese, Sichuan, Cantonese, Indian, Thai, Korean, Vietnamese, Mediterranean, French, Spanish, Greek, Middle Eastern, Lebanese, Turkish, Moroccan, Ethiopian, American, Southern, Tex-Mex, Brazilian, Peruvian, Caribbean, British, German, Fusion, Other)",
+  "mealType": "Meal category (string, required - choose ONE from: Breakfast, Lunch, Dinner, Snack, Dessert, Appetizer, Drink)"
 }
 
 Requirements:
@@ -83,6 +85,11 @@ Requirements:
 - Detect dietary tags from ingredients (e.g., no meat = vegetarian, no animal products = vegan)
 - Difficulty: BEGINNER (≤5 ingredients, basic techniques), INTERMEDIATE (6-10 ingredients, moderate techniques), ADVANCED (>10 ingredients or complex techniques)
 - If servings not specified, estimate based on ingredient quantities
+- cuisineType MUST be one of the listed categories (case-sensitive)
+- If cuisine doesn't fit listed categories, use "Fusion" for mixed cuisines or "Other"
+- mealType MUST be one of the listed categories
+- For ambiguous dishes, prioritize traditional cuisine origin (e.g., tacos = "Mexican" not "Tex-Mex")
+- Base meal type on when the dish is traditionally served
 
 Post text:
 ${rawText}`;
@@ -109,7 +116,9 @@ ${rawText}`;
         parsed.ingredients.length === 0 ||
         !parsed.steps ||
         parsed.steps.length === 0 ||
-        !parsed.difficulty
+        !parsed.difficulty ||
+        !parsed.cuisineType ||
+        !parsed.mealType
       ) {
         this.logger.warn('Parsed recipe missing required fields');
         return null;
@@ -129,6 +138,12 @@ ${rawText}`;
       if (!Array.isArray(parsed.dietaryTags)) {
         parsed.dietaryTags = [];
       }
+
+      // Map cuisineType to Prisma enum format
+      const cuisineType = this.mapToCuisineEnum(parsed.cuisineType);
+
+      // Map mealType to Prisma enum format
+      const mealType = this.mapToMealEnum(parsed.mealType);
 
       const recipe: ParsedRecipe = {
         name: parsed.name,
@@ -152,6 +167,8 @@ ${rawText}`;
         carbs: parsed.carbs ? Number(parsed.carbs) : undefined,
         fat: parsed.fat ? Number(parsed.fat) : undefined,
         difficulty: parsed.difficulty,
+        cuisineType,
+        mealType,
       };
 
       this.logger.log(`Successfully parsed recipe: ${recipe.name}`);
@@ -162,5 +179,77 @@ ${rawText}`;
       );
       return null;
     }
+  }
+
+  /**
+   * Map AI-extracted cuisine type to Prisma enum format
+   * "Middle Eastern" -> "MIDDLE_EASTERN", "Tex-Mex" -> "TEX_MEX", etc.
+   */
+  private mapToCuisineEnum(cuisineType: string): string {
+    const mapping: Record<string, string> = {
+      Italian: 'ITALIAN',
+      Mexican: 'MEXICAN',
+      Chinese: 'CHINESE',
+      Japanese: 'JAPANESE',
+      Sichuan: 'SICHUAN',
+      Cantonese: 'CANTONESE',
+      Indian: 'INDIAN',
+      Thai: 'THAI',
+      Korean: 'KOREAN',
+      Vietnamese: 'VIETNAMESE',
+      Mediterranean: 'MEDITERRANEAN',
+      French: 'FRENCH',
+      Spanish: 'SPANISH',
+      Greek: 'GREEK',
+      'Middle Eastern': 'MIDDLE_EASTERN',
+      Lebanese: 'LEBANESE',
+      Turkish: 'TURKISH',
+      Moroccan: 'MOROCCAN',
+      Ethiopian: 'ETHIOPIAN',
+      American: 'AMERICAN',
+      Southern: 'SOUTHERN',
+      'Tex-Mex': 'TEX_MEX',
+      Brazilian: 'BRAZILIAN',
+      Peruvian: 'PERUVIAN',
+      Caribbean: 'CARIBBEAN',
+      British: 'BRITISH',
+      German: 'GERMAN',
+      Fusion: 'FUSION',
+      Other: 'OTHER',
+    };
+
+    const mapped = mapping[cuisineType];
+    if (!mapped) {
+      this.logger.warn(
+        `Unknown cuisine type "${cuisineType}", defaulting to OTHER`,
+      );
+      return 'OTHER';
+    }
+
+    return mapped;
+  }
+
+  /**
+   * Map AI-extracted meal type to Prisma enum format
+   * "Breakfast" -> "BREAKFAST", etc.
+   */
+  private mapToMealEnum(mealType: string): string {
+    const mapping: Record<string, string> = {
+      Breakfast: 'BREAKFAST',
+      Lunch: 'LUNCH',
+      Dinner: 'DINNER',
+      Snack: 'SNACK',
+      Dessert: 'DESSERT',
+      Appetizer: 'APPETIZER',
+      Drink: 'DRINK',
+    };
+
+    const mapped = mapping[mealType];
+    if (!mapped) {
+      this.logger.warn(`Unknown meal type "${mealType}", defaulting to DINNER`);
+      return 'DINNER';
+    }
+
+    return mapped;
   }
 }
