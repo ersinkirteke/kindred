@@ -48,7 +48,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 - [ ] **ACCS-01**: All interactive elements have minimum 56dp touch targets (WCAG AAA)
 - [ ] **ACCS-02**: All body text is minimum 18sp with Dynamic Type support
 - [ ] **ACCS-03**: Full VoiceOver support with meaningful labels on all custom controls and gestures
-- [ ] **ACCS-04**: Navigation depth is maximum 3 levels from any screen
+- [x] **ACCS-04**: Navigation depth is maximum 3 levels from any screen
 - [ ] **ACCS-05**: Color contrast meets WCAG AAA 7:1 ratio
 
 ### Monetization
