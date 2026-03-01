@@ -160,7 +160,7 @@ Plans:
 | 2. Feed Engine | v1.5 | 3/3 | Complete | 2026-03-01 |
 | 3. Voice Core | v1.5 | 3/3 | Complete | 2026-03-01 |
 | 4. Foundation & Architecture | v2.0 | 0/4 | Planned | - |
-| 5. Guest Browsing & Feed | v2.0 | 0/? | Not started | - |
+| 5. Guest Browsing & Feed | 1/4 | In Progress|  | - |
 | 6. Dietary Filtering & Personalization | v2.0 | 0/? | Not started | - |
 | 7. Voice Playback & Streaming | v2.0 | 0/? | Not started | - |
 | 8. Authentication & Onboarding | v2.0 | 0/? | Not started | - |

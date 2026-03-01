@@ -9,7 +9,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 
 ### Authentication & Onboarding
 
-- [ ] **AUTH-01**: User can browse the recipe feed as a guest without creating an account
+- [x] **AUTH-01**: User can browse the recipe feed as a guest without creating an account
 - [ ] **AUTH-02**: User can sign in with Google OAuth (one-tap)
 - [ ] **AUTH-03**: User can sign in with Apple Sign In (one-tap)
 - [ ] **AUTH-04**: Guest user is prompted to create account when saving, bookmarking, or using voice features
@@ -25,7 +25,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 - [ ] **FEED-05**: User's location is shown as a city badge at the top of the feed
 - [ ] **FEED-06**: User can manually change their location to explore other areas
 - [ ] **FEED-07**: User can filter recipes by dietary preference (vegan, keto, halal, allergies)
-- [ ] **FEED-08**: Feed loads cached content when offline with clear offline indicator
+- [x] **FEED-08**: Feed loads cached content when offline with clear offline indicator
 
 ### Voice Experience
 
@@ -101,7 +101,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 5 | Pending |
+| AUTH-01 | Phase 5 | Complete |
 | AUTH-02 | Phase 8 | Pending |
 | AUTH-03 | Phase 8 | Pending |
 | AUTH-04 | Phase 8 | Pending |
@@ -114,7 +114,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FEED-05 | Phase 5 | Pending |
 | FEED-06 | Phase 5 | Pending |
 | FEED-07 | Phase 6 | Pending |
-| FEED-08 | Phase 5 | Pending |
+| FEED-08 | Phase 5 | Complete |
 | VOICE-01 | Phase 7 | Pending |
 | VOICE-02 | Phase 7 | Pending |
 | VOICE-03 | Phase 7 | Pending |

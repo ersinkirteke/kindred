@@ -2,21 +2,21 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: iOS App
-current_phase: 4 of 10 — Foundation & Architecture
-status: completed
-last_updated: "2026-03-01T16:34:59.493Z"
+current_phase: 5 of 10 — Guest Browsing & Feed
+status: in_progress
+last_updated: "2026-03-01T22:11:48.017Z"
 progress:
-  total_phases: 1
+  total_phases: 2
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 8
+  completed_plans: 5
 ---
 
 # Project State: Kindred
 
 **Last Updated:** 2026-03-01
-**Current Phase:** 4 of 10 — Foundation & Architecture
-**Status:** Plan 04-02 complete
+**Current Phase:** 5 of 10 — Guest Browsing & Feed
+**Status:** Plan 05-01 complete
 
 ---
 
@@ -25,18 +25,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
-**Current focus:** Phase 4 — Foundation & Architecture (v2.0 iOS App milestone)
+**Current focus:** Phase 5 — Guest Browsing & Feed (v2.0 iOS App milestone)
 
 ---
 
 ## Current Position
 
-Phase: 4 of 10 (Foundation & Architecture)
-Plan: 4 of 4 in current phase (PHASE COMPLETE)
-Status: Phase 04 complete - all foundation plans executed
-Last activity: 2026-03-01 — Completed 04-04: App Shell Integration (3 tasks, 15 min)
+Phase: 5 of 10 (Guest Browsing & Feed)
+Plan: 1 of 4 in current phase
+Status: Phase 05 in progress - infrastructure dependencies complete
+Last activity: 2026-03-01 — Completed 05-01: Feed Infrastructure - Dependencies & Domain Types (2 tasks, 6 min)
 
-Progress: [████░░░░░░] 39% (14 of 36 total plans complete)
+Progress: [████░░░░░░] 42% (15 of 36 total plans complete)
 
 ---
 
@@ -55,6 +55,7 @@ Progress: [████░░░░░░] 39% (14 of 36 total plans complete)
 | 2. Feed Engine (v1.5) | 3 | ~2.5h | ~50 min |
 | 3. Voice Core (v1.5) | 3 | ~1.75h | ~35 min |
 | 4. Foundation & Architecture (v2.0) | 4 | ~52 min | ~13 min |
+| 5. Guest Browsing & Feed (v2.0) | 1 | ~6 min | ~6 min |
 
 **Recent Trend:**
 - v1.5 milestone: Delivered in 2 days (21 feat commits, 6,066 LOC TypeScript)
@@ -64,6 +65,7 @@ Progress: [████░░░░░░] 39% (14 of 36 total plans complete)
 
 ---
 | Phase 04 P04 | 15 | 3 tasks | 7 files |
+| Phase 05-guest-browsing-feed P01 | 338 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -85,6 +87,9 @@ Recent decisions affecting v2.0 iOS work:
 - Kingfisher cache limits: 100MB memory, 500MB disk to prevent memory pressure on older devices (04-03)
 - Launch flow: splash → conditional welcome card → main content with @AppStorage persistence (04-04)
 - HapticFeedback utility respects UIAccessibility.isReduceMotionEnabled, no in-app toggle (04-04)
+- SwiftData for guest session storage with separate GuestBookmark and GuestSkip models (05-01)
+- Deferred location permission - only requested when user taps "Use my location" (05-01)
+- Guest UUID in UserDefaults carries over to account creation in Phase 8 (05-01)
 
 ### Pending Todos
 
@@ -117,10 +122,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed Phase 4 Foundation & Architecture (04-04: App Shell Integration)
-Resume file: .planning/phases/04-foundation-architecture/04-04-SUMMARY.md
-Next action: Ready for Phase 5 (Feed Core) planning
+Stopped at: Completed Phase 5 Plan 1 (05-01: Feed Infrastructure - Dependencies & Domain Types)
+Resume file: .planning/phases/05-guest-browsing-feed/05-01-SUMMARY.md
+Next action: Ready for Phase 5 Plan 2 (Card Stack)
 
 ---
 
-*State updated: 2026-03-01 after completing Phase 4 (Foundation & Architecture) - 4/4 plans executed*
+*State updated: 2026-03-01 after completing Phase 5 Plan 1 (Guest Browsing & Feed) - 1/4 plans executed*
