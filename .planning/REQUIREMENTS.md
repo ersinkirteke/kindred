@@ -24,7 +24,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 - [x] **FEED-04**: User can tap Listen/Watch/Skip buttons as swipe alternatives
 - [x] **FEED-05**: User's location is shown as a city badge at the top of the feed
 - [x] **FEED-06**: User can manually change their location to explore other areas
-- [ ] **FEED-07**: User can filter recipes by dietary preference (vegan, keto, halal, allergies)
+- [x] **FEED-07**: User can filter recipes by dietary preference (vegan, keto, halal, allergies)
 - [x] **FEED-08**: Feed loads cached content when offline with clear offline indicator
 
 ### Voice Experience
@@ -41,7 +41,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 
 - [ ] **PERS-01**: App learns user taste from implicit feedback (skips and bookmarks) via Culinary DNA
 - [ ] **PERS-02**: Feed ranking adapts based on user's Culinary DNA profile over time
-- [ ] **PERS-03**: User can set dietary preferences during onboarding or in settings (vegan, keto, halal, allergies)
+- [x] **PERS-03**: User can set dietary preferences during onboarding or in settings (vegan, keto, halal, allergies)
 
 ### Accessibility
 
@@ -113,7 +113,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FEED-04 | Phase 5 | Complete |
 | FEED-05 | Phase 5 | Complete |
 | FEED-06 | Phase 5 | Complete |
-| FEED-07 | Phase 6 | Pending |
+| FEED-07 | Phase 6 | Complete |
 | FEED-08 | Phase 5 | Complete |
 | VOICE-01 | Phase 7 | Pending |
 | VOICE-02 | Phase 7 | Pending |
@@ -124,7 +124,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VOICE-07 | Phase 9 | Pending |
 | PERS-01 | Phase 6 | Pending |
 | PERS-02 | Phase 6 | Pending |
-| PERS-03 | Phase 6 | Pending |
+| PERS-03 | Phase 6 | Complete |
 | ACCS-01 | Phase 5 | Pending (baked in) |
 | ACCS-02 | Phase 7 | Pending (baked in) |
 | ACCS-03 | Phase 7 | Pending (baked in) |

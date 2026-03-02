@@ -2,21 +2,21 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: iOS App
-current_phase: 5 of 10 — Guest Browsing & Feed
-status: completed
-last_updated: "2026-03-02T21:42:45.856Z"
+current_phase: 6 of 10 — Dietary Filtering & Personalization
+status: in_progress
+last_updated: "2026-03-03T00:13:06Z"
 progress:
-  total_phases: 2
+  total_phases: 3
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 11
+  completed_plans: 9
 ---
 
 # Project State: Kindred
 
-**Last Updated:** 2026-03-01
-**Current Phase:** 5 of 10 — Guest Browsing & Feed
-**Status:** Plan 05-01 complete
+**Last Updated:** 2026-03-03
+**Current Phase:** 6 of 10 — Dietary Filtering & Personalization
+**Status:** Plan 06-01 complete
 
 ---
 
@@ -25,18 +25,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
-**Current focus:** Phase 5 — Guest Browsing & Feed (v2.0 iOS App milestone)
+**Current focus:** Phase 6 — Dietary Filtering & Personalization (v2.0 iOS App milestone)
 
 ---
 
 ## Current Position
 
-Phase: 5 of 10 (Guest Browsing & Feed)
-Plan: 4 of 4 in current phase
-Status: Phase 05 complete - all feed features integrated
-Last activity: 2026-03-02 — Completed 05-04: Feed Integration - Location Picker, Navigation, and Badge (3 tasks, 160 min)
+Phase: 6 of 10 (Dietary Filtering & Personalization)
+Plan: 1 of 3 in current phase
+Status: Plan 06-01 complete - dietary chip bar UI and filtering implemented
+Last activity: 2026-03-03 — Completed 06-01: Dietary Filtering with Chip Bar UI (2 tasks, 11 min)
 
-Progress: [█████░░░░░] 50% (18 of 36 total plans complete)
+Progress: [█████░░░░░] 52% (9 of 11 Phase 6+ plans complete; phases 4-5 fully complete)
 
 ---
 
@@ -70,6 +70,7 @@ Progress: [█████░░░░░] 50% (18 of 36 total plans complete)
 | Phase 05-guest-browsing-feed P03 | 228 | 2 tasks | 6 files |
 | Phase 05-guest-browsing-feed P04 | 160 | 3 tasks | 7 files |
 | Phase 05 P04 | 160 | 3 tasks | 7 files |
+| Phase 06-dietary-filtering-personalization P01 | 670 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,8 @@ Recent decisions affecting v2.0 iOS work:
 - @AppStorage for last selected city persistence across app launches (05-04)
 - @Namespace matched geometry for hero animation on card-to-detail navigation (05-04)
 - Me tab bookmark badge only shows when bookmarkCount > 0 for clean UI (05-04)
+- Reuse .onAppear for filter changes instead of duplicating fetch logic (06-01)
+- Dual-access dietary preferences (Feed + Me tab) via shared @AppStorage key (06-01)
 
 ### Pending Todos
 
@@ -130,11 +133,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-02
-Stopped at: Completed Phase 5 Plan 4 (05-04: Feed Integration - Location Picker, Navigation, and Badge)
-Resume file: .planning/phases/05-guest-browsing-feed/05-04-SUMMARY.md
-Next action: Ready for Phase 6 (Personalization & Profile)
+Last session: 2026-03-03
+Stopped at: Completed Phase 6 Plan 1 (06-01: Dietary Filtering with Chip Bar UI)
+Resume file: .planning/phases/06-dietary-filtering-personalization/06-01-SUMMARY.md
+Next action: Ready for Phase 6 Plan 2 (Culinary DNA Learning)
 
 ---
 
-*State updated: 2026-03-02 after completing Phase 5 Plan 4 (Guest Browsing & Feed) - 4/4 plans executed - Phase 5 complete*
+*State updated: 2026-03-03 after completing Phase 6 Plan 1 (Dietary Filtering & Personalization) - 1/3 plans executed*
