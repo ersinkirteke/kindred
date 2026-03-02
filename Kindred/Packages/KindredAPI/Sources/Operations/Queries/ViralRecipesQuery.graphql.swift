@@ -8,7 +8,7 @@ public struct ViralRecipesQuery: GraphQLQuery {
   public static let operationName: String = "ViralRecipes"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query ViralRecipes($location: String!) { viralRecipes(location: $location) { __typename id name description prepTime cookTime calories imageUrl imageStatus location isViral engagementLoves engagementBookmarks dietaryTags difficulty ingredients { __typename name quantity unit orderIndex } } }"#
+      #"query ViralRecipes($location: String!) { viralRecipes(location: $location) { __typename id name description prepTime cookTime calories imageUrl imageStatus location isViral engagementLoves engagementBookmarks dietaryTags difficulty cuisineType ingredients { __typename name quantity unit orderIndex } } }"#
     ))
 
   public var location: String
@@ -58,6 +58,7 @@ public struct ViralRecipesQuery: GraphQLQuery {
         .field("engagementBookmarks", Int.self),
         .field("dietaryTags", [String].self),
         .field("difficulty", GraphQLEnum<KindredAPI.DifficultyLevel>.self),
+        .field("cuisineType", GraphQLEnum<KindredAPI.CuisineType>.self),
         .field("ingredients", [Ingredient].self),
       ] }
       @_spi(Execution) public static var __fulfilledFragments: [any ApolloAPI.SelectionSet.Type] { [
@@ -78,6 +79,7 @@ public struct ViralRecipesQuery: GraphQLQuery {
       public var engagementBookmarks: Int { __data["engagementBookmarks"] }
       public var dietaryTags: [String] { __data["dietaryTags"] }
       public var difficulty: GraphQLEnum<KindredAPI.DifficultyLevel> { __data["difficulty"] }
+      public var cuisineType: GraphQLEnum<KindredAPI.CuisineType> { __data["cuisineType"] }
       public var ingredients: [Ingredient] { __data["ingredients"] }
 
       /// ViralRecipe.Ingredient

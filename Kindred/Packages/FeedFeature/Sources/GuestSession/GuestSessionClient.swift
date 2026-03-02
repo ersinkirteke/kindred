@@ -4,13 +4,14 @@ import SwiftData
 
 public struct GuestSessionClient {
     public var getGuestUserId: @Sendable () -> String = { "" }
-    public var bookmarkRecipe: @Sendable (String, String, String?) async throws -> Void
+    public var bookmarkRecipe: @Sendable (String, String, String?, String?) async throws -> Void
     public var unbookmarkRecipe: @Sendable (String) async throws -> Void
     public var isBookmarked: @Sendable (String) async -> Bool = { _ in false }
-    public var skipRecipe: @Sendable (String) async throws -> Void
+    public var skipRecipe: @Sendable (String, String?) async throws -> Void
     public var undoSkip: @Sendable (String) async throws -> Void
     public var bookmarkCount: @Sendable () async -> Int = { 0 }
     public var allBookmarks: @Sendable () async -> [GuestBookmark] = { [] }
+    public var allSkips: @Sendable () async -> [GuestSkip] = { [] }
 }
 
 extension GuestSessionClient: DependencyKey {
@@ -21,8 +22,8 @@ extension GuestSessionClient: DependencyKey {
             getGuestUserId: {
                 store.getGuestUserId()
             },
-            bookmarkRecipe: { recipeId, recipeName, imageUrl in
-                try await store.bookmarkRecipe(recipeId: recipeId, recipeName: recipeName, imageUrl: imageUrl)
+            bookmarkRecipe: { recipeId, recipeName, imageUrl, cuisineType in
+                try await store.bookmarkRecipe(recipeId: recipeId, recipeName: recipeName, imageUrl: imageUrl, cuisineType: cuisineType)
             },
             unbookmarkRecipe: { recipeId in
                 try await store.unbookmarkRecipe(recipeId: recipeId)
@@ -30,8 +31,8 @@ extension GuestSessionClient: DependencyKey {
             isBookmarked: { recipeId in
                 await store.isBookmarked(recipeId: recipeId)
             },
-            skipRecipe: { recipeId in
-                try await store.skipRecipe(recipeId: recipeId)
+            skipRecipe: { recipeId, cuisineType in
+                try await store.skipRecipe(recipeId: recipeId, cuisineType: cuisineType)
             },
             undoSkip: { recipeId in
                 try await store.undoSkip(recipeId: recipeId)
@@ -41,6 +42,9 @@ extension GuestSessionClient: DependencyKey {
             },
             allBookmarks: {
                 await store.allBookmarks()
+            },
+            allSkips: {
+                await store.allSkips()
             }
         )
     }
@@ -48,13 +52,14 @@ extension GuestSessionClient: DependencyKey {
     public static var testValue: GuestSessionClient {
         return GuestSessionClient(
             getGuestUserId: { "test-guest-id" },
-            bookmarkRecipe: { _, _, _ in },
+            bookmarkRecipe: { _, _, _, _ in },
             unbookmarkRecipe: { _ in },
             isBookmarked: { _ in false },
-            skipRecipe: { _ in },
+            skipRecipe: { _, _ in },
             undoSkip: { _ in },
             bookmarkCount: { 0 },
-            allBookmarks: { [] }
+            allBookmarks: { [] },
+            allSkips: { [] }
         )
     }
 }
@@ -96,7 +101,7 @@ private class GuestSessionStore {
         return newId
     }
 
-    func bookmarkRecipe(recipeId: String, recipeName: String, imageUrl: String?) async throws {
+    func bookmarkRecipe(recipeId: String, recipeName: String, imageUrl: String?, cuisineType: String?) async throws {
         let guestUserId = getGuestUserId()
 
         // Check if already bookmarked
@@ -115,7 +120,8 @@ private class GuestSessionStore {
             recipeId: recipeId,
             guestUserId: guestUserId,
             recipeName: recipeName,
-            recipeImageUrl: imageUrl
+            recipeImageUrl: imageUrl,
+            cuisineType: cuisineType
         )
 
         modelContext.insert(bookmark)
@@ -156,7 +162,7 @@ private class GuestSessionStore {
         }
     }
 
-    func skipRecipe(recipeId: String) async throws {
+    func skipRecipe(recipeId: String, cuisineType: String?) async throws {
         let guestUserId = getGuestUserId()
 
         // Check if already skipped
@@ -173,7 +179,8 @@ private class GuestSessionStore {
 
         let skip = GuestSkip(
             recipeId: recipeId,
-            guestUserId: guestUserId
+            guestUserId: guestUserId,
+            cuisineType: cuisineType
         )
 
         modelContext.insert(skip)
@@ -222,6 +229,23 @@ private class GuestSessionStore {
                 bookmark.guestUserId == guestUserId
             },
             sortBy: [SortDescriptor(\GuestBookmark.createdAt, order: .reverse)]
+        )
+
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            return []
+        }
+    }
+
+    func allSkips() async -> [GuestSkip] {
+        let guestUserId = getGuestUserId()
+
+        let descriptor = FetchDescriptor<GuestSkip>(
+            predicate: #Predicate<GuestSkip> { skip in
+                skip.guestUserId == guestUserId
+            },
+            sortBy: [SortDescriptor(\GuestSkip.createdAt, order: .reverse)]
         )
 
         do {

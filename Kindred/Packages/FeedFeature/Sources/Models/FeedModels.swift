@@ -18,6 +18,8 @@ public struct RecipeCard: Equatable, Identifiable {
     public let engagementLoves: Int
     public let dietaryTags: [String]
     public let difficulty: String?
+    public let cuisineType: String?
+    public let velocityScore: Double
 
     public init(
         id: String,
@@ -30,7 +32,9 @@ public struct RecipeCard: Equatable, Identifiable {
         isViral: Bool,
         engagementLoves: Int,
         dietaryTags: [String] = [],
-        difficulty: String? = nil
+        difficulty: String? = nil,
+        cuisineType: String? = nil,
+        velocityScore: Double = 0.0
     ) {
         self.id = id
         self.name = name
@@ -43,6 +47,8 @@ public struct RecipeCard: Equatable, Identifiable {
         self.engagementLoves = engagementLoves
         self.dietaryTags = dietaryTags
         self.difficulty = difficulty
+        self.cuisineType = cuisineType
+        self.velocityScore = velocityScore
     }
 
     public var totalTime: Int? {
@@ -76,7 +82,8 @@ public struct RecipeCard: Equatable, Identifiable {
             isViral: recipe.isViral ?? false,
             engagementLoves: recipe.engagementLoves ?? 0,
             dietaryTags: recipe.dietaryTags ?? [],
-            difficulty: recipe.difficulty.rawValue
+            difficulty: recipe.difficulty.rawValue,
+            cuisineType: recipe.cuisineType.rawValue
         )
     }
 }

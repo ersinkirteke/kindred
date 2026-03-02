@@ -14,6 +14,7 @@ query ViralRecipes($location: String!) {
     engagementBookmarks
     dietaryTags
     difficulty
+    cuisineType
     ingredients {
       name
       quantity
@@ -39,5 +40,35 @@ query Recipes($location: String, $limit: Int, $offset: Int) {
     engagementBookmarks
     dietaryTags
     difficulty
+    cuisineType
+  }
+}
+
+query FeedFiltered($latitude: Float!, $longitude: Float!, $first: Int, $after: String, $filters: FeedFiltersInput, $lastFetchedAt: String) {
+  feed(latitude: $latitude, longitude: $longitude, first: $first, after: $after, filters: $filters, lastFetchedAt: $lastFetchedAt) {
+    edges {
+      node {
+        id
+        name
+        imageUrl
+        imageStatus
+        prepTime
+        calories
+        engagementLoves
+        engagementHumanized
+        isViral
+        cuisineType
+        mealType
+        velocityScore
+        distanceMiles
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    totalCount
+    newSinceLastFetch
   }
 }

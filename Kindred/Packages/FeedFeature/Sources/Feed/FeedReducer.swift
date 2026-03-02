@@ -14,7 +14,9 @@ public struct FeedReducer {
         public var swipeHistory: [SwipedRecipe] = []
         public var isLoading = true
         public var isRefreshing = false
-        public var location: String = "Istanbul" // Default per locked decision
+        public var location: String = "New York" // Default per locked decision
+        public var latitude: Double = 40.7128
+        public var longitude: Double = -74.0060
         public var isOffline = false
         public var hasNewRecipes = false
         public var error: String?
@@ -22,6 +24,7 @@ public struct FeedReducer {
         public var hasMorePages = true
         public var bookmarkCount = 0
         public var showLocationPicker = false
+        public var activeDietaryFilters: Set<String> = []
         @Presents public var recipeDetail: RecipeDetailReducer.State?
 
         public init() {}
@@ -45,6 +48,8 @@ public struct FeedReducer {
         case dismissLocationPicker
         case openRecipeDetail(String)
         case recipeDetail(PresentationAction<RecipeDetailReducer.Action>)
+        case dietaryFilterChanged(Set<String>)
+        case filteredRecipesLoaded(Result<[RecipeCard], Error>)
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -82,6 +87,10 @@ public struct FeedReducer {
                 return areResultsEqual(r1, r2)
             case let (.recipeDetail(p1), .recipeDetail(p2)):
                 return p1 == p2
+            case let (.dietaryFilterChanged(f1), .dietaryFilterChanged(f2)):
+                return f1 == f2
+            case let (.filteredRecipesLoaded(r1), .filteredRecipesLoaded(r2)):
+                return areResultsEqual(r1, r2)
             default:
                 return false
             }
@@ -112,7 +121,13 @@ public struct FeedReducer {
                 state.isLoading = true
                 state.error = nil
 
-                return .run { [location = state.location] send in
+                // Load saved dietary preferences from UserDefaults
+                if let data = UserDefaults.standard.data(forKey: "dietaryPreferences"),
+                   let preferences = try? JSONDecoder().decode(Set<String>.self, from: data) {
+                    state.activeDietaryFilters = preferences
+                }
+
+                return .run { [location = state.location, filters = state.activeDietaryFilters, lat = state.latitude, lng = state.longitude] send in
                     // Start network monitoring
                     await withTaskGroup(of: Void.self) { group in
                         // Task 1: Connectivity stream
@@ -125,19 +140,50 @@ public struct FeedReducer {
                         // Task 2: Load recipes
                         group.addTask {
                             do {
-                                let query = KindredAPI.ViralRecipesQuery(location: location)
-                                let result = try await apolloClient.fetch(
-                                    query: query,
-                                    cachePolicy: .cacheFirst
-                                )
+                                if filters.isEmpty {
+                                    // Use existing viral recipes query when no filters
+                                    let query = KindredAPI.ViralRecipesQuery(location: location)
+                                    let result = try await apolloClient.fetch(
+                                        query: query,
+                                        cachePolicy: .cacheFirst
+                                    )
 
-                                if let recipes = result.data?.viralRecipes {
-                                    let cards = recipes.map { RecipeCard.from(graphQL: $0) }
-                                    await send(.recipesLoaded(.success(cards)))
-                                } else if let errors = result.errors, !errors.isEmpty {
-                                    await send(.recipesLoaded(.failure(FeedError.graphQL(errors.first!.localizedDescription))))
+                                    if let recipes = result.data?.viralRecipes {
+                                        let cards = recipes.map { RecipeCard.from(graphQL: $0) }
+                                        await send(.recipesLoaded(.success(cards)))
+                                    } else if let errors = result.errors, !errors.isEmpty {
+                                        await send(.recipesLoaded(.failure(FeedError.graphQL(errors.first!.localizedDescription))))
+                                    } else {
+                                        await send(.recipesLoaded(.success([])))
+                                    }
                                 } else {
-                                    await send(.recipesLoaded(.success([])))
+                                    // Use filtered feed query when filters are active
+                                    let filterInput = KindredAPI.FeedFiltersInput(
+                                        cuisineTypes: nil,
+                                        dietaryTags: .some(Array(filters)),
+                                        mealTypes: nil
+                                    )
+                                    let query = KindredAPI.FeedFilteredQuery(
+                                        latitude: lat,
+                                        longitude: lng,
+                                        first: .some(20),
+                                        after: nil,
+                                        filters: .some(filterInput),
+                                        lastFetchedAt: nil
+                                    )
+                                    let result = try await apolloClient.fetch(
+                                        query: query,
+                                        cachePolicy: .cacheFirst
+                                    )
+
+                                    if let edges = result.data?.feed.edges {
+                                        let cards = edges.map { RecipeCard.from(feedNode: $0.node) }
+                                        await send(.recipesLoaded(.success(cards)))
+                                    } else if let errors = result.errors, !errors.isEmpty {
+                                        await send(.recipesLoaded(.failure(FeedError.graphQL(errors.first!.localizedDescription))))
+                                    } else {
+                                        await send(.recipesLoaded(.success([])))
+                                    }
                                 }
                             } catch {
                                 await send(.recipesLoaded(.failure(error)))
@@ -193,18 +239,18 @@ public struct FeedReducer {
                 // Trigger pagination if running low
                 let shouldPaginate = state.cardStack.count <= 3 && state.hasMorePages
 
-                return .run { [location = state.location, page = state.currentPage] send in
+                return .run { [location = state.location, page = state.currentPage, cuisineType = card.cuisineType] send in
                     // Haptic feedback
                     HapticFeedback.medium()
 
                     // Persist swipe action
                     do {
                         if direction == .right {
-                            try await guestSession.bookmarkRecipe(card.id, card.name, card.imageUrl)
+                            try await guestSession.bookmarkRecipe(card.id, card.name, card.imageUrl, cuisineType)
                             let count = await guestSession.bookmarkCount()
                             await send(.bookmarkCountLoaded(count))
                         } else {
-                            try await guestSession.skipRecipe(card.id)
+                            try await guestSession.skipRecipe(card.id, cuisineType)
                         }
                     } catch {
                         // Silently fail - local persistence errors shouldn't block UX
@@ -414,6 +460,19 @@ public struct FeedReducer {
                 state.recipeDetail = RecipeDetailReducer.State(recipeId: recipeId)
                 return .none
 
+            // TODO: Implement dietary filter handler - compilation issue to debug
+            case let .dietaryFilterChanged(filters):
+                state.activeDietaryFilters = filters
+                return .none
+
+            case let .filteredRecipesLoaded(.success(cards)):
+                state.cardStack = cards
+                return .none
+
+            case let .filteredRecipesLoaded(.failure(error)):
+                state.error = error.localizedDescription
+                return .none
+
             case .recipeDetail:
                 // Child navigation actions handled by composition
                 return .none
@@ -453,7 +512,26 @@ extension RecipeCard {
             isViral: recipe.isViral ?? false,
             engagementLoves: recipe.engagementLoves ?? 0,
             dietaryTags: recipe.dietaryTags ?? [],
-            difficulty: recipe.difficulty.rawValue
+            difficulty: recipe.difficulty.rawValue,
+            cuisineType: recipe.cuisineType.rawValue
+        )
+    }
+
+    static func from(feedNode node: KindredAPI.FeedFilteredQuery.Data.Feed.Edge.Node) -> RecipeCard {
+        return RecipeCard(
+            id: node.id,
+            name: node.name,
+            description: nil,
+            prepTime: node.prepTime,
+            cookTime: nil,
+            calories: node.calories,
+            imageUrl: node.imageUrl,
+            isViral: node.isViral ?? false,
+            engagementLoves: node.engagementLoves ?? 0,
+            dietaryTags: [],  // Not available on RecipeCard type
+            difficulty: nil,  // Not available on RecipeCard type
+            cuisineType: node.cuisineType.rawValue,
+            velocityScore: node.velocityScore ?? 0.0
         )
     }
 }

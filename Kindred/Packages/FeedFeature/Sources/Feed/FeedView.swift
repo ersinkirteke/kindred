@@ -27,8 +27,12 @@ public struct FeedView: View {
                     LocationPickerView(store: store)
                 }
                 .navigationDestination(item: $store.scope(state: \.recipeDetail, action: \.recipeDetail)) { detailStore in
-                    RecipeDetailView(store: detailStore)
-                        .navigationTransition(.zoom(sourceID: detailStore.recipeId, in: heroNamespace))
+                    if #available(iOS 18.0, *) {
+                        RecipeDetailView(store: detailStore)
+                            .navigationTransition(.zoom(sourceID: detailStore.recipeId, in: heroNamespace))
+                    } else {
+                        RecipeDetailView(store: detailStore)
+                    }
                 }
                 .onChange(of: store.location) { oldValue, newValue in
                     // VoiceOver announcement on location change

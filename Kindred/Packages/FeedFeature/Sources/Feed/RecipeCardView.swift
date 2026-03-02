@@ -17,8 +17,12 @@ struct RecipeCardView: View {
             Color.clear
                 .frame(height: 280)
                 .overlay {
-                    heroImageView
-                        .matchedTransitionSource(id: recipe.id, in: heroNamespace)
+                    if #available(iOS 18.0, *) {
+                        heroImageView
+                            .matchedTransitionSource(id: recipe.id, in: heroNamespace)
+                    } else {
+                        heroImageView
+                    }
                 }
                 .clipped()
                 .overlay(alignment: .topTrailing) {

@@ -128,7 +128,8 @@ public struct RecipeDetailReducer {
                             try await guestSession.bookmarkRecipe(
                                 recipe.id,
                                 recipe.name,
-                                recipe.imageUrl
+                                recipe.imageUrl,
+                                nil // cuisineType not available in detail view
                             )
 
                             // Check bookmark count for soft nudge

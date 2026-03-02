@@ -13,7 +13,7 @@
       "none": {}
     },
     "schemaTypes": {
-      "path": "Packages/NetworkClient/Sources/Schema",
+      "path": "Packages/KindredAPI",
       "moduleType": {
         "swiftPackage": {}
       }

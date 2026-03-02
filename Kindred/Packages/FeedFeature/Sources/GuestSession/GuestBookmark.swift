@@ -8,6 +8,7 @@ public class GuestBookmark {
     public var guestUserId: String
     public var recipeName: String
     public var recipeImageUrl: String?
+    public var cuisineType: String?
     public var createdAt: Date
 
     public init(
@@ -16,6 +17,7 @@ public class GuestBookmark {
         guestUserId: String,
         recipeName: String,
         recipeImageUrl: String? = nil,
+        cuisineType: String? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -23,6 +25,7 @@ public class GuestBookmark {
         self.guestUserId = guestUserId
         self.recipeName = recipeName
         self.recipeImageUrl = recipeImageUrl
+        self.cuisineType = cuisineType
         self.createdAt = createdAt
     }
 }
