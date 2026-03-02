@@ -22,8 +22,8 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 - [x] **FEED-02**: Each recipe card displays AI hero image, recipe name, prep time, calories, loves count, and VIRAL badge
 - [x] **FEED-03**: User can swipe left to skip and swipe right to bookmark recipe cards
 - [x] **FEED-04**: User can tap Listen/Watch/Skip buttons as swipe alternatives
-- [ ] **FEED-05**: User's location is shown as a city badge at the top of the feed
-- [ ] **FEED-06**: User can manually change their location to explore other areas
+- [x] **FEED-05**: User's location is shown as a city badge at the top of the feed
+- [x] **FEED-06**: User can manually change their location to explore other areas
 - [ ] **FEED-07**: User can filter recipes by dietary preference (vegan, keto, halal, allergies)
 - [x] **FEED-08**: Feed loads cached content when offline with clear offline indicator
 
@@ -111,8 +111,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FEED-02 | Phase 5 | Complete |
 | FEED-03 | Phase 5 | Complete |
 | FEED-04 | Phase 5 | Complete |
-| FEED-05 | Phase 5 | Pending |
-| FEED-06 | Phase 5 | Pending |
+| FEED-05 | Phase 5 | Complete |
+| FEED-06 | Phase 5 | Complete |
 | FEED-07 | Phase 6 | Pending |
 | FEED-08 | Phase 5 | Complete |
 | VOICE-01 | Phase 7 | Pending |

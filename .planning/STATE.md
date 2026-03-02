@@ -4,12 +4,12 @@ milestone: v2.0
 milestone_name: iOS App
 current_phase: 5 of 10 — Guest Browsing & Feed
 status: completed
-last_updated: "2026-03-01T20:22:19.993Z"
+last_updated: "2026-03-02T21:42:45.856Z"
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State: Kindred
@@ -32,11 +32,11 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 5 of 10 (Guest Browsing & Feed)
-Plan: 2 of 4 in current phase
-Status: Phase 05 in progress - card stack complete
-Last activity: 2026-03-01 — Completed 05-02: Card Stack - Swipeable Feed UI (2 tasks, 5 min)
+Plan: 4 of 4 in current phase
+Status: Phase 05 complete - all feed features integrated
+Last activity: 2026-03-02 — Completed 05-04: Feed Integration - Location Picker, Navigation, and Badge (3 tasks, 160 min)
 
-Progress: [████░░░░░░] 42% (15 of 36 total plans complete)
+Progress: [█████░░░░░] 50% (18 of 36 total plans complete)
 
 ---
 
@@ -67,7 +67,9 @@ Progress: [████░░░░░░] 42% (15 of 36 total plans complete)
 | Phase 04 P04 | 15 | 3 tasks | 7 files |
 | Phase 05-guest-browsing-feed P01 | 338 | 2 tasks | 10 files |
 | Phase 05-guest-browsing-feed P02 | 313 | 2 tasks | 7 files |
-| Phase 05 P02 | 313 | 2 tasks | 7 files |
+| Phase 05-guest-browsing-feed P03 | 228 | 2 tasks | 6 files |
+| Phase 05-guest-browsing-feed P04 | 160 | 3 tasks | 7 files |
+| Phase 05 P04 | 160 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -92,6 +94,11 @@ Recent decisions affecting v2.0 iOS work:
 - SwiftData for guest session storage with separate GuestBookmark and GuestSkip models (05-01)
 - Deferred location permission - only requested when user taps "Use my location" (05-01)
 - Guest UUID in UserDefaults carries over to account creation in Phase 8 (05-01)
+- MapKit MKLocalSearch for city discovery - no API keys, respects privacy, works offline (05-04)
+- "Use my location" at top of picker above search for prominent visibility (05-04)
+- @AppStorage for last selected city persistence across app launches (05-04)
+- @Namespace matched geometry for hero animation on card-to-detail navigation (05-04)
+- Me tab bookmark badge only shows when bookmarkCount > 0 for clean UI (05-04)
 
 ### Pending Todos
 
@@ -123,11 +130,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-01
-Stopped at: Completed Phase 5 Plan 2 (05-02: Card Stack - Swipeable Feed UI)
-Resume file: .planning/phases/05-guest-browsing-feed/05-02-SUMMARY.md
-Next action: Ready for Phase 5 Plan 3 (Recipe Detail Screen)
+Last session: 2026-03-02
+Stopped at: Completed Phase 5 Plan 4 (05-04: Feed Integration - Location Picker, Navigation, and Badge)
+Resume file: .planning/phases/05-guest-browsing-feed/05-04-SUMMARY.md
+Next action: Ready for Phase 6 (Personalization & Profile)
 
 ---
 
-*State updated: 2026-03-01 after completing Phase 5 Plan 2 (Guest Browsing & Feed) - 2/4 plans executed*
+*State updated: 2026-03-02 after completing Phase 5 Plan 4 (Guest Browsing & Feed) - 4/4 plans executed - Phase 5 complete*
