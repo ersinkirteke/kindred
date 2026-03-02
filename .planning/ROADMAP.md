@@ -81,11 +81,12 @@ Plans:
   1. User can filter recipes by dietary preference (vegan, keto, halal, allergies) with filters persisting across sessions
   2. App learns user taste from skips and bookmarks via Culinary DNA (after 50+ interactions)
   3. Feed ranking adapts over time based on Culinary DNA profile (similar cuisines surface more, disliked patterns surface less)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 06-01-PLAN.md — Dietary filtering chip bar, GraphQL query update, @AppStorage persistence, cuisineType on SwiftData models
+- [ ] 06-02-PLAN.md — Culinary DNA engine, PersonalizationClient, FeedRanker, ForYouBadge, activation card
+- [ ] 06-03-PLAN.md — Me tab Culinary DNA visualization (progress + affinity bars), dietary preferences section, visual verification
 
 ### Phase 7: Voice Playback & Streaming
 **Goal**: Users listen to recipe narrations in cloned voices with full audio playback controls
