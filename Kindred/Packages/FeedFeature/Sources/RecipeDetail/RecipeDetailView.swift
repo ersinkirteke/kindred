@@ -36,8 +36,18 @@ public struct RecipeDetailView: View {
                         }
                     }
                     .padding(.horizontal, KindredSpacing.md)
-                    .padding(.top, KindredSpacing.md)
+                    .padding(.top, KindredSpacing.lg)
                     .padding(.bottom, 100) // Space for sticky bottom bar
+                    .background(Color.kindredBackground)
+                    .clipShape(
+                        UnevenRoundedRectangle(
+                            topLeadingRadius: 20,
+                            bottomLeadingRadius: 0,
+                            bottomTrailingRadius: 0,
+                            topTrailingRadius: 20
+                        )
+                    )
+                    .offset(y: -20)
                 }
             }
             .background(Color.kindredBackground)

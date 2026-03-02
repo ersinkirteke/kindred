@@ -25,8 +25,11 @@ public final class ApolloClientFactory: Sendable {
         )
 
         // 3. Network transport with GraphQL endpoint
-        // TODO: Make URL configurable per environment (dev/staging/prod)
+        #if DEBUG
+        let url = URL(string: "http://localhost:3001/v1/graphql")!
+        #else
         let url = URL(string: "https://api.kindred.app/graphql")!
+        #endif
         let transport = RequestChainNetworkTransport(
             urlSession: URLSession.shared,
             interceptorProvider: interceptorProvider,

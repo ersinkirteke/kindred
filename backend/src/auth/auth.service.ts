@@ -16,9 +16,9 @@ export class AuthService {
     const secretKey = this.configService.get<string>('CLERK_SECRET_KEY');
 
     if (!secretKey) {
-      throw new Error(
-        'CLERK_SECRET_KEY is not configured. Please set it in your environment variables.',
-      );
+      this.logger.warn('CLERK_SECRET_KEY not configured - auth will reject all tokens');
+      this.clerkClient = null;
+      return;
     }
 
     this.clerkClient = createClerkClient({
@@ -33,6 +33,9 @@ export class AuthService {
    * Throws UnauthorizedException on invalid or expired tokens.
    */
   async verifyToken(token: string): Promise<ClerkTokenPayload> {
+    if (!this.clerkClient) {
+      throw new UnauthorizedException('Auth not configured');
+    }
     try {
       // Clerk SDK's verifyToken validates the JWT signature, expiration, and issuer
       const payload = await this.clerkClient.verifyToken(token);
@@ -52,6 +55,9 @@ export class AuthService {
    * Used for webhook enrichment if needed.
    */
   async getClerkUser(clerkId: string) {
+    if (!this.clerkClient) {
+      throw new Error('Auth not configured');
+    }
     try {
       return await this.clerkClient.users.getUser(clerkId);
     } catch (error) {

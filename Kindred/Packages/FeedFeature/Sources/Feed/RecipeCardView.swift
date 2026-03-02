@@ -11,32 +11,40 @@ struct RecipeCardView: View {
     @State private var rotation: Double = 0
 
     var body: some View {
-        CardSurface {
-            VStack(alignment: .leading, spacing: 0) {
-                // Hero image (top half)
-                heroImageView
-                    .frame(height: 280)
-                    .clipped()
+        VStack(alignment: .leading, spacing: 0) {
+            // Hero image (edge-to-edge within card)
+            heroImageView
+                .frame(maxWidth: .infinity)
+                .frame(height: 280)
+                .clipped()
 
-                // Recipe details (bottom half)
-                VStack(alignment: .leading, spacing: KindredSpacing.sm) {
-                    Text(recipe.name)
-                        .font(.kindredHeading2())
-                        .foregroundColor(.kindredTextPrimary)
+            // Recipe details with padding
+            VStack(alignment: .leading, spacing: KindredSpacing.sm) {
+                Text(recipe.name)
+                    .font(.kindredHeading2())
+                    .foregroundColor(.kindredTextPrimary)
+                    .lineLimit(2)
+
+                if let description = recipe.description {
+                    Text(description)
+                        .font(.kindredBody())
+                        .foregroundColor(.kindredTextSecondary)
                         .lineLimit(2)
-
-                    if let description = recipe.description {
-                        Text(description)
-                            .font(.kindredBody())
-                            .foregroundColor(.kindredTextSecondary)
-                            .lineLimit(2)
-                    }
-
-                    metadataRow
                 }
-                .padding(KindredSpacing.md)
+
+                metadataRow
             }
+            .padding(KindredSpacing.md)
         }
+        .background(Color.kindredCardSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.kindredTextSecondary.opacity(0.3), lineWidth: 1.5)
+        )
+        .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 4)
+        .frame(maxWidth: 340)
+        .padding(.horizontal, KindredSpacing.xl)
         .offset(offset)
         .rotationEffect(.degrees(rotation))
         .gesture(

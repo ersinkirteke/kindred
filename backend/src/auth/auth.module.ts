@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '../config/config.module';
 import { UsersModule } from '../users/users.module';
 import { AuthService } from './auth.service';
@@ -15,6 +15,7 @@ import { ClerkWebhookController } from './clerk-webhook.controller';
  * Controllers:
  * - ClerkWebhookController: REST endpoint for user sync webhooks
  */
+@Global()
 @Module({
   imports: [ConfigModule, UsersModule],
   controllers: [ClerkWebhookController],

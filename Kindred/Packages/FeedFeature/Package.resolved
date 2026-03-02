@@ -1,5 +1,5 @@
 {
-  "originHash" : "2f7738c23a60f199fe7a0fda2a57eca1a8946b84bd3acec1db576e3df82fce5b",
+  "originHash" : "50a31abfc6edf5f044bf632456242d9416a2694b03d000f398e088bee6c780d4",
   "pins" : [
     {
       "identity" : "apollo-ios",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "fd16d76fd8b9a976d88bfb6cacc05ca8d19c91b6",
         "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher",
+      "state" : {
+        "revision" : "2ef543ee21d63734e1c004ad6c870255e8716c50",
+        "version" : "7.12.0"
       }
     },
     {

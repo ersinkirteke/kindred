@@ -18,7 +18,6 @@ struct SwipeCardStack: View {
                         onTap(card.id)
                     }
                 )
-                .frame(maxWidth: .infinity)
                 .scaleEffect(scaleForCard(at: index))
                 .offset(y: offsetForCard(at: index))
                 .zIndex(Double(cards.count - index))

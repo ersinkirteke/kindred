@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgis/postgis:15-3.4
     container_name: kindred-postgres
     restart: unless-stopped
     ports:
@@ -26,7 +24,7 @@ services:
     container_name: kindred-app
     restart: unless-stopped
     ports:
-      - '3000:3000'
+      - '3001:3000'
     environment:
       DATABASE_URL: postgresql://kindred:kindred_dev@postgres:5432/kindred
       NODE_ENV: development

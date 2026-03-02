@@ -42,6 +42,17 @@ struct ParallaxHeader: View {
                         .frame(width: geometry.size.width, height: height)
                 }
 
+                // Bottom gradient for readability
+                VStack {
+                    Spacer()
+                    LinearGradient(
+                        colors: [.clear, Color.black.opacity(0.4), Color.black.opacity(0.6)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 120)
+                }
+
                 // Viral badge overlay
                 if isViral {
                     ViralBadge()

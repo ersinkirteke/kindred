@@ -22,11 +22,11 @@ export class R2StorageService {
   private readonly publicUrl: string;
 
   constructor(private readonly configService: ConfigService) {
-    const accountId = this.configService.getOrThrow<string>('CLOUDFLARE_ACCOUNT_ID');
-    const accessKeyId = this.configService.getOrThrow<string>('R2_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.getOrThrow<string>('R2_SECRET_ACCESS_KEY');
-    this.bucketName = this.configService.getOrThrow<string>('R2_BUCKET_NAME');
-    this.publicUrl = this.configService.getOrThrow<string>('R2_PUBLIC_URL');
+    const accountId = this.configService.get<string>('CLOUDFLARE_ACCOUNT_ID', 'dummy');
+    const accessKeyId = this.configService.get<string>('R2_ACCESS_KEY_ID', 'dummy');
+    const secretAccessKey = this.configService.get<string>('R2_SECRET_ACCESS_KEY', 'dummy');
+    this.bucketName = this.configService.get<string>('R2_BUCKET_NAME', 'kindred-images');
+    this.publicUrl = this.configService.get<string>('R2_PUBLIC_URL', 'https://images.kindred.app');
 
     // Initialize S3 client with R2 endpoint
     this.s3Client = new S3Client({

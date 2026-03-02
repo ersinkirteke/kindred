@@ -18,6 +18,6 @@ import { ImageGenerationProcessor } from './image-generation.processor';
 @Module({
   imports: [ConfigModule, PrismaModule],
   providers: [ImagesService, R2StorageService, ImageGenerationProcessor],
-  exports: [ImagesService, ImageGenerationProcessor],
+  exports: [ImagesService, ImageGenerationProcessor, R2StorageService],
 })
 export class ImagesModule {}

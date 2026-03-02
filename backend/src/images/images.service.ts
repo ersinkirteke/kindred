@@ -33,7 +33,7 @@ export class ImagesService {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
   ) {
-    this.projectId = this.configService.getOrThrow<string>('GOOGLE_CLOUD_PROJECT');
+    this.projectId = this.configService.get<string>('GOOGLE_CLOUD_PROJECT', 'kindred-dev');
 
     // Initialize Vertex AI Prediction Service Client
     // Uses GOOGLE_APPLICATION_CREDENTIALS environment variable for auth

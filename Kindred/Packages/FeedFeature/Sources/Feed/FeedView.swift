@@ -95,7 +95,6 @@ public struct FeedView: View {
                     store.send(.openRecipeDetail(recipeId))
                 }
             )
-            .padding(.horizontal, KindredSpacing.md)
 
             // Action buttons
             actionButtons
