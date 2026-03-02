@@ -3,8 +3,10 @@ import SwiftUI
 
 struct SwipeCardStack: View {
     let cards: [RecipeCard]
+    let heroNamespace: Namespace.ID
     let onSwipe: (String, SwipeDirection) -> Void
     let onTap: (String) -> Void
+
     var body: some View {
         ZStack {
             // Show next card behind current for smooth transition
@@ -12,6 +14,7 @@ struct SwipeCardStack: View {
                 let nextCard = cards[1]
                 RecipeCardView(
                     recipe: nextCard,
+                    heroNamespace: heroNamespace,
                     onSwipe: { _ in },
                     onTap: { }
                 )
@@ -22,6 +25,7 @@ struct SwipeCardStack: View {
             if let card = cards.first {
                 RecipeCardView(
                     recipe: card,
+                    heroNamespace: heroNamespace,
                     onSwipe: { direction in
                         onSwipe(card.id, direction)
                     },

@@ -4,6 +4,7 @@ import SwiftUI
 
 struct RecipeCardView: View {
     let recipe: RecipeCard
+    let heroNamespace: Namespace.ID
     let onSwipe: (SwipeDirection) -> Void
     let onTap: () -> Void
 
@@ -17,6 +18,7 @@ struct RecipeCardView: View {
                 .frame(height: 280)
                 .overlay {
                     heroImageView
+                        .matchedTransitionSource(id: recipe.id, in: heroNamespace)
                 }
                 .clipped()
                 .overlay(alignment: .topTrailing) {

@@ -4,6 +4,7 @@ import SwiftUI
 
 public struct FeedView: View {
     @Bindable var store: StoreOf<FeedReducer>
+    @Namespace private var heroNamespace
 
     public init(store: StoreOf<FeedReducer>) {
         self.store = store
@@ -27,6 +28,25 @@ public struct FeedView: View {
                 }
                 .navigationDestination(item: $store.scope(state: \.recipeDetail, action: \.recipeDetail)) { detailStore in
                     RecipeDetailView(store: detailStore)
+                        .navigationTransition(.zoom(sourceID: detailStore.recipeId, in: heroNamespace))
+                }
+                .onChange(of: store.location) { oldValue, newValue in
+                    // VoiceOver announcement on location change
+                    UIAccessibility.post(
+                        notification: .announcement,
+                        argument: "Now showing recipes near \(newValue)"
+                    )
+                }
+                .onChange(of: store.cardStack) { oldStack, newStack in
+                    // VoiceOver announcement on card transitions
+                    if let topCard = newStack.first, !newStack.isEmpty {
+                        let currentIndex = 1
+                        let total = newStack.count
+                        UIAccessibility.post(
+                            notification: .announcement,
+                            argument: "Recipe \(currentIndex) of \(total), \(topCard.name)"
+                        )
+                    }
                 }
         }
         .onAppear {
@@ -88,6 +108,7 @@ public struct FeedView: View {
             // Card stack
             SwipeCardStack(
                 cards: store.cardStack,
+                heroNamespace: heroNamespace,
                 onSwipe: { recipeId, direction in
                     store.send(.swipeCard(recipeId, direction))
                 },

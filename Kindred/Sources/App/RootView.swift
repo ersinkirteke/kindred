@@ -30,7 +30,7 @@ struct RootView: View {
                 Label("Me", systemImage: "person.fill")
             }
             .tag(AppReducer.Tab.me)
-            .badge(store.feedState.bookmarkCount)
+            .badge(store.feedState.bookmarkCount > 0 ? store.feedState.bookmarkCount : nil)
         }
         .tint(.kindredAccent)
         .toolbarBackground(Color.kindredCardSurface, for: .tabBar)
