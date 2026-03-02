@@ -27,6 +27,13 @@ public struct FeedReducer {
         public var activeDietaryFilters: Set<String> = []
         @Presents public var recipeDetail: RecipeDetailReducer.State?
 
+        // Culinary DNA state
+        public var culinaryDNAAffinities: [AffinityScore] = []
+        public var interactionCount: Int = 0
+        public var isDNAActivated: Bool = false
+        public var showDNAActivationCard: Bool = false
+        public var hasSeenDNAActivation: Bool = false
+
         public init() {}
     }
 
@@ -50,6 +57,12 @@ public struct FeedReducer {
         case recipeDetail(PresentationAction<RecipeDetailReducer.Action>)
         case dietaryFilterChanged(Set<String>)
         case filteredRecipesLoaded(Result<[RecipeCard], Error>)
+
+        // Culinary DNA actions
+        case computeCulinaryDNA
+        case culinaryDNAComputed([AffinityScore], Int, Bool)
+        case dismissDNAActivationCard
+        case feedReranked([RecipeCard])
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -91,6 +104,14 @@ public struct FeedReducer {
                 return f1 == f2
             case let (.filteredRecipesLoaded(r1), .filteredRecipesLoaded(r2)):
                 return areResultsEqual(r1, r2)
+            case (.computeCulinaryDNA, .computeCulinaryDNA):
+                return true
+            case let (.culinaryDNAComputed(a1, c1, act1), .culinaryDNAComputed(a2, c2, act2)):
+                return a1 == a2 && c1 == c2 && act1 == act2
+            case (.dismissDNAActivationCard, .dismissDNAActivationCard):
+                return true
+            case let (.feedReranked(r1), .feedReranked(r2)):
+                return r1 == r2
             default:
                 return false
             }
@@ -113,6 +134,7 @@ public struct FeedReducer {
     @Dependency(\.apolloClient) var apolloClient
     @Dependency(\.guestSessionClient) var guestSession
     @Dependency(\.networkMonitorClient) var networkMonitor
+    @Dependency(\.personalizationClient) var personalization
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -205,17 +227,22 @@ public struct FeedReducer {
                 state.currentPage = 1
                 state.error = nil
 
-                // Prefetch detail for top card
-                if let topCard = cards.first {
-                    return .run { _ in
-                        let query = KindredAPI.RecipeDetailQuery(id: topCard.id)
-                        _ = try? await apolloClient.fetch(
-                            query: query,
-                            cachePolicy: .cacheFirst
-                        )
-                    }
-                }
-                return .none
+                // Load hasSeenDNAActivation from UserDefaults
+                state.hasSeenDNAActivation = UserDefaults.standard.bool(forKey: "hasSeenDNAActivation")
+
+                // Prefetch detail for top card and compute DNA
+                return .merge(
+                    .run { _ in
+                        if let topCard = cards.first {
+                            let query = KindredAPI.RecipeDetailQuery(id: topCard.id)
+                            _ = try? await apolloClient.fetch(
+                                query: query,
+                                cachePolicy: .cacheFirst
+                            )
+                        }
+                    },
+                    .send(.computeCulinaryDNA)
+                )
 
             case let .recipesLoaded(.failure(error)):
                 state.isLoading = false
@@ -239,6 +266,10 @@ public struct FeedReducer {
                 // Trigger pagination if running low
                 let shouldPaginate = state.cardStack.count <= 3 && state.hasMorePages
 
+                // Increment interaction count and check if we should recompute DNA
+                let newInteractionCount = state.interactionCount + 1
+                let shouldRecomputeDNA = newInteractionCount % 10 == 0
+
                 return .run { [location = state.location, page = state.currentPage, cuisineType = card.cuisineType] send in
                     // Haptic feedback
                     HapticFeedback.medium()
@@ -260,6 +291,11 @@ public struct FeedReducer {
                     // Trigger pagination if needed
                     if shouldPaginate {
                         await send(.loadMoreRecipes)
+                    }
+
+                    // Recompute DNA every 10 swipes for performance
+                    if shouldRecomputeDNA {
+                        await send(.computeCulinaryDNA)
                     }
                 }
 
@@ -359,17 +395,19 @@ public struct FeedReducer {
                 state.currentPage = 1
                 state.error = nil
 
-                // Prefetch top card
-                if let topCard = cards.first {
-                    return .run { _ in
-                        let query = KindredAPI.RecipeDetailQuery(id: topCard.id)
-                        _ = try? await apolloClient.fetch(
-                            query: query,
-                            cachePolicy: .cacheFirst
-                        )
-                    }
-                }
-                return .none
+                // Prefetch top card and compute DNA
+                return .merge(
+                    .run { _ in
+                        if let topCard = cards.first {
+                            let query = KindredAPI.RecipeDetailQuery(id: topCard.id)
+                            _ = try? await apolloClient.fetch(
+                                query: query,
+                                cachePolicy: .cacheFirst
+                            )
+                        }
+                    },
+                    .send(.computeCulinaryDNA)
+                )
 
             case let .refreshCompleted(.failure(error)):
                 state.isRefreshing = false
@@ -499,6 +537,46 @@ public struct FeedReducer {
             case let .filteredRecipesLoaded(.failure(error)):
                 state.isLoading = false
                 state.error = error.localizedDescription
+                return .none
+
+            case .computeCulinaryDNA:
+                return .run { send in
+                    let bookmarks = await guestSession.allBookmarks()
+                    let skips = await guestSession.allSkips()
+                    let affinities = await personalization.computeAffinities(bookmarks, skips)
+                    let count = await personalization.interactionCount(bookmarks, skips)
+                    let activated = await personalization.isActivated(bookmarks, skips)
+                    await send(.culinaryDNAComputed(affinities, count, activated))
+                }
+
+            case let .culinaryDNAComputed(affinities, count, activated):
+                state.culinaryDNAAffinities = affinities
+                state.interactionCount = count
+                state.isDNAActivated = activated
+
+                // Show activation card only once when crossing threshold
+                if activated && !state.hasSeenDNAActivation {
+                    state.showDNAActivationCard = true
+                }
+
+                // Re-rank feed if DNA is activated and we have cards
+                if activated && !state.cardStack.isEmpty {
+                    return .run { [cardStack = state.cardStack, affinities] send in
+                        let reranked = await personalization.rerankFeed(cardStack, affinities)
+                        await send(.feedReranked(reranked))
+                    }
+                }
+                return .none
+
+            case .dismissDNAActivationCard:
+                state.showDNAActivationCard = false
+                state.hasSeenDNAActivation = true
+                // Persist to UserDefaults
+                UserDefaults.standard.set(true, forKey: "hasSeenDNAActivation")
+                return .none
+
+            case let .feedReranked(cards):
+                state.cardStack = cards
                 return .none
 
             case .recipeDetail:

@@ -101,6 +101,14 @@ public struct FeedView: View {
             Spacer()
                 .frame(height: KindredSpacing.md)
 
+            // DNA Activation Card (appears once when crossing 50 interactions)
+            if store.showDNAActivationCard {
+                DNAActivationCard {
+                    store.send(.dismissDNAActivationCard)
+                }
+                .transition(.scale.combined(with: .opacity))
+            }
+
             // Card count indicator
             CardCountIndicator(
                 current: 1,
@@ -120,6 +128,7 @@ public struct FeedView: View {
             SwipeCardStack(
                 cards: store.cardStack,
                 heroNamespace: heroNamespace,
+                isPersonalized: isRecipePersonalized,
                 onSwipe: { recipeId, direction in
                     store.send(.swipeCard(recipeId, direction))
                 },
@@ -133,6 +142,12 @@ public struct FeedView: View {
 
             Spacer()
         }
+    }
+
+    private func isRecipePersonalized(_ recipe: RecipeCard) -> Bool {
+        guard store.isDNAActivated else { return false }
+        let topCuisines = Set(store.culinaryDNAAffinities.prefix(3).map(\.cuisineType))
+        return recipe.cuisineType.map { topCuisines.contains($0) } ?? false
     }
 
     private var actionButtons: some View {

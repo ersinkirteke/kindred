@@ -4,6 +4,7 @@ import SwiftUI
 struct SwipeCardStack: View {
     let cards: [RecipeCard]
     let heroNamespace: Namespace.ID
+    let isPersonalized: (RecipeCard) -> Bool
     let onSwipe: (String, SwipeDirection) -> Void
     let onTap: (String) -> Void
 
@@ -15,6 +16,7 @@ struct SwipeCardStack: View {
                 RecipeCardView(
                     recipe: nextCard,
                     heroNamespace: heroNamespace,
+                    isPersonalized: isPersonalized(nextCard),
                     onSwipe: { _ in },
                     onTap: { }
                 )
@@ -26,6 +28,7 @@ struct SwipeCardStack: View {
                 RecipeCardView(
                     recipe: card,
                     heroNamespace: heroNamespace,
+                    isPersonalized: isPersonalized(card),
                     onSwipe: { direction in
                         onSwipe(card.id, direction)
                     },

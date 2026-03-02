@@ -5,6 +5,7 @@ import SwiftUI
 struct RecipeCardView: View {
     let recipe: RecipeCard
     let heroNamespace: Namespace.ID
+    let isPersonalized: Bool
     let onSwipe: (SwipeDirection) -> Void
     let onTap: () -> Void
 
@@ -28,6 +29,12 @@ struct RecipeCardView: View {
                 .overlay(alignment: .topTrailing) {
                     if recipe.isViral {
                         ViralBadge()
+                            .padding(KindredSpacing.md)
+                    }
+                }
+                .overlay(alignment: .bottomLeading) {
+                    if isPersonalized {
+                        ForYouBadge()
                             .padding(KindredSpacing.md)
                     }
                 }
@@ -175,6 +182,10 @@ struct RecipeCardView: View {
 
         if recipe.isViral {
             label += ", Viral recipe"
+        }
+
+        if isPersonalized {
+            label += ", Personalized for you"
         }
 
         return label
