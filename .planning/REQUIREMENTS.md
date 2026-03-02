@@ -39,8 +39,8 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 
 ### Personalization
 
-- [ ] **PERS-01**: App learns user taste from implicit feedback (skips and bookmarks) via Culinary DNA
-- [ ] **PERS-02**: Feed ranking adapts based on user's Culinary DNA profile over time
+- [x] **PERS-01**: App learns user taste from implicit feedback (skips and bookmarks) via Culinary DNA
+- [x] **PERS-02**: Feed ranking adapts based on user's Culinary DNA profile over time
 - [x] **PERS-03**: User can set dietary preferences during onboarding or in settings (vegan, keto, halal, allergies)
 
 ### Accessibility
@@ -122,8 +122,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VOICE-05 | Phase 7 | Pending |
 | VOICE-06 | Phase 7 | Pending |
 | VOICE-07 | Phase 9 | Pending |
-| PERS-01 | Phase 6 | Pending |
-| PERS-02 | Phase 6 | Pending |
+| PERS-01 | Phase 6 | Complete |
+| PERS-02 | Phase 6 | Complete |
 | PERS-03 | Phase 6 | Complete |
 | ACCS-01 | Phase 5 | Pending (baked in) |
 | ACCS-02 | Phase 7 | Pending (baked in) |

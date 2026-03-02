@@ -3,20 +3,20 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: iOS App
 current_phase: 6 of 10 — Dietary Filtering & Personalization
-status: in_progress
-last_updated: "2026-03-03T00:13:06Z"
+status: completed
+last_updated: "2026-03-02T23:37:51.179Z"
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State: Kindred
 
 **Last Updated:** 2026-03-03
 **Current Phase:** 6 of 10 — Dietary Filtering & Personalization
-**Status:** Plan 06-01 complete
+**Status:** Plan 06-02 complete
 
 ---
 
@@ -32,11 +32,11 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 6 of 10 (Dietary Filtering & Personalization)
-Plan: 1 of 3 in current phase
-Status: Plan 06-01 complete - dietary chip bar UI and filtering implemented
-Last activity: 2026-03-03 — Completed 06-01: Dietary Filtering with Chip Bar UI (2 tasks, 11 min)
+Plan: 2 of 3 in current phase
+Status: Plan 06-02 complete - Culinary DNA personalization engine with feed re-ranking
+Last activity: 2026-03-03 — Completed 06-02: Culinary DNA Personalization Engine (2 tasks, 8 min)
 
-Progress: [█████░░░░░] 52% (9 of 11 Phase 6+ plans complete; phases 4-5 fully complete)
+Progress: [█████░░░░░] 58% (10 of 11 Phase 6+ plans complete; phases 4-5 fully complete)
 
 ---
 
@@ -71,6 +71,7 @@ Progress: [█████░░░░░] 52% (9 of 11 Phase 6+ plans complete;
 | Phase 05-guest-browsing-feed P04 | 160 | 3 tasks | 7 files |
 | Phase 05 P04 | 160 | 3 tasks | 7 files |
 | Phase 06-dietary-filtering-personalization P01 | 670 | 2 tasks | 11 files |
+| Phase 06 P02 | 8 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,8 @@ Recent decisions affecting v2.0 iOS work:
 - Me tab bookmark badge only shows when bookmarkCount > 0 for clean UI (05-04)
 - Reuse .onAppear for filter changes instead of duplicating fetch logic (06-01)
 - Dual-access dietary preferences (Feed + Me tab) via shared @AppStorage key (06-01)
+- Exponential recency decay with 30-day half-life weights recent interactions more heavily (06-02)
+- 60/40 personalization/discovery split balances preferred cuisines with variety to avoid filter bubbles (06-02)
 
 ### Pending Todos
 
@@ -134,10 +137,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed Phase 6 Plan 1 (06-01: Dietary Filtering with Chip Bar UI)
-Resume file: .planning/phases/06-dietary-filtering-personalization/06-01-SUMMARY.md
-Next action: Ready for Phase 6 Plan 2 (Culinary DNA Learning)
+Stopped at: Completed Phase 6 Plan 2 (06-02: Culinary DNA Personalization Engine)
+Resume file: .planning/phases/06-dietary-filtering-personalization/06-02-SUMMARY.md
+Next action: Ready for Phase 6 Plan 3 (Meal Type Filtering)
 
 ---
 
-*State updated: 2026-03-03 after completing Phase 6 Plan 1 (Dietary Filtering & Personalization) - 1/3 plans executed*
+*State updated: 2026-03-03 after completing Phase 6 Plan 2 (Dietary Filtering & Personalization) - 2/3 plans executed*

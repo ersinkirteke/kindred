@@ -162,7 +162,7 @@ Plans:
 | 3. Voice Core | v1.5 | 3/3 | Complete | 2026-03-01 |
 | 4. Foundation & Architecture | v2.0 | 0/4 | Planned | - |
 | 5. Guest Browsing & Feed | 2/4 | In Progress|  | - |
-| 6. Dietary Filtering & Personalization | v2.0 | 0/? | Not started | - |
+| 6. Dietary Filtering & Personalization | 2/3 | In Progress|  | - |
 | 7. Voice Playback & Streaming | v2.0 | 0/? | Not started | - |
 | 8. Authentication & Onboarding | v2.0 | 0/? | Not started | - |
 | 9. Monetization & Voice Tiers | v2.0 | 0/? | Not started | - |
