@@ -84,15 +84,13 @@ public struct FeedView: View {
     @ViewBuilder
     private var contentView: some View {
         if store.isLoading {
-            loadingView
+            loadingViewWithChips
         } else if store.error != nil {
             ErrorStateView.networkError {
                 store.send(.onAppear)
             }
         } else if store.cardStack.isEmpty {
-            EndOfStackCard {
-                store.send(.toggleLocationPicker)
-            }
+            emptyStateView
         } else {
             mainFeedView
         }
@@ -108,6 +106,15 @@ public struct FeedView: View {
                 current: 1,
                 total: store.cardStack.count
             )
+
+            // Dietary chip bar
+            DietaryChipBar(
+                activeFilters: store.activeDietaryFilters,
+                onFilterChanged: { filters in
+                    store.send(.dietaryFilterChanged(filters))
+                }
+            )
+            .padding(.bottom, KindredSpacing.sm)
 
             // Card stack
             SwipeCardStack(
@@ -181,15 +188,87 @@ public struct FeedView: View {
         .padding(.horizontal, KindredSpacing.xl)
     }
 
-    private var loadingView: some View {
-        ScrollView {
-            VStack(spacing: KindredSpacing.lg) {
-                ForEach(0..<3, id: \.self) { _ in
-                    skeletonCard
+    private var loadingViewWithChips: some View {
+        VStack(spacing: KindredSpacing.lg) {
+            // Show chip bar during loading so users see their active filters
+            DietaryChipBar(
+                activeFilters: store.activeDietaryFilters,
+                onFilterChanged: { filters in
+                    store.send(.dietaryFilterChanged(filters))
+                }
+            )
+            .padding(.top, KindredSpacing.md)
+
+            ScrollView {
+                VStack(spacing: KindredSpacing.lg) {
+                    ForEach(0..<3, id: \.self) { _ in
+                        skeletonCard
+                    }
+                }
+                .padding(.horizontal, KindredSpacing.md)
+                .padding(.vertical, KindredSpacing.lg)
+            }
+        }
+    }
+
+    private var emptyStateView: some View {
+        VStack(spacing: KindredSpacing.lg) {
+            // Show chip bar in empty state
+            DietaryChipBar(
+                activeFilters: store.activeDietaryFilters,
+                onFilterChanged: { filters in
+                    store.send(.dietaryFilterChanged(filters))
+                }
+            )
+            .padding(.top, KindredSpacing.md)
+
+            Spacer()
+
+            // Empty state message
+            if !store.activeDietaryFilters.isEmpty {
+                // Filtered empty state
+                VStack(spacing: KindredSpacing.md) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 48))
+                        .foregroundColor(.kindredTextSecondary)
+
+                    Text("No \(filterDescription) recipes nearby")
+                        .font(.kindredHeading2())
+                        .foregroundColor(.kindredTextPrimary)
+                        .multilineTextAlignment(.center)
+
+                    Text("Try removing a filter or changing your location")
+                        .font(.kindredBody())
+                        .foregroundColor(.kindredTextSecondary)
+                        .multilineTextAlignment(.center)
+
+                    KindredButton("Clear Filters", style: .secondary) {
+                        store.send(.dietaryFilterChanged([]))
+                    }
+                    .padding(.top, KindredSpacing.sm)
+                }
+                .padding(.horizontal, KindredSpacing.xl)
+            } else {
+                // Default empty state (no recipes in location)
+                EndOfStackCard {
+                    store.send(.toggleLocationPicker)
                 }
             }
-            .padding(.horizontal, KindredSpacing.md)
-            .padding(.vertical, KindredSpacing.lg)
+
+            Spacer()
+        }
+    }
+
+    private var filterDescription: String {
+        let sortedFilters = store.activeDietaryFilters.sorted()
+        if sortedFilters.count == 1 {
+            return sortedFilters[0].lowercased()
+        } else if sortedFilters.count == 2 {
+            return "\(sortedFilters[0].lowercased()) and \(sortedFilters[1].lowercased())"
+        } else {
+            let allButLast = sortedFilters.dropLast().map { $0.lowercased() }.joined(separator: ", ")
+            let last = sortedFilters.last!.lowercased()
+            return "\(allButLast), and \(last)"
         }
     }
 

@@ -460,16 +460,44 @@ public struct FeedReducer {
                 state.recipeDetail = RecipeDetailReducer.State(recipeId: recipeId)
                 return .none
 
-            // TODO: Implement dietary filter handler - compilation issue to debug
-            case let .dietaryFilterChanged(filters):
-                state.activeDietaryFilters = filters
-                return .none
+            case let .dietaryFilterChanged(newFilters):
+                state.activeDietaryFilters = newFilters
+                state.isLoading = true
+                state.error = nil
+                state.cardStack = []
+                state.swipeHistory = []
+                state.currentPage = 0
+                state.hasMorePages = true
+
+                // Save preferences to UserDefaults
+                if let encoded = try? JSONEncoder().encode(newFilters) {
+                    UserDefaults.standard.set(encoded, forKey: "dietaryPreferences")
+                }
+
+                // Trigger re-fetch with the current filters (now updated in state)
+                return .send(.onAppear)
 
             case let .filteredRecipesLoaded(.success(cards)):
+                state.isLoading = false
                 state.cardStack = cards
+                state.hasMorePages = cards.count >= 10
+                state.currentPage = 1
+                state.error = nil
+
+                // Prefetch detail for top card
+                if let topCard = cards.first {
+                    return .run { _ in
+                        let query = KindredAPI.RecipeDetailQuery(id: topCard.id)
+                        _ = try? await apolloClient.fetch(
+                            query: query,
+                            cachePolicy: .cacheFirst
+                        )
+                    }
+                }
                 return .none
 
             case let .filteredRecipesLoaded(.failure(error)):
+                state.isLoading = false
                 state.error = error.localizedDescription
                 return .none
 
