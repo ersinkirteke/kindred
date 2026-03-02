@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import FeedFeature
 import Foundation
 
 public enum AuthState: Equatable {
@@ -13,6 +14,11 @@ public struct ProfileReducer {
         public var authState: AuthState = .guest
         public var dietaryPreferences: Set<String> = []
 
+        // Culinary DNA
+        public var culinaryDNAAffinities: [AffinityScore] = []
+        public var interactionCount: Int = 0
+        public var isDNAActivated: Bool = false
+
         public init() {}
     }
 
@@ -23,7 +29,12 @@ public struct ProfileReducer {
         case loadDietaryPreferences
         case dietaryPreferencesChanged(Set<String>)
         case resetDietaryPreferences
+        case loadCulinaryDNA
+        case culinaryDNALoaded([AffinityScore], Int, Bool)
     }
+
+    @Dependency(\.guestSessionClient) var guestSession
+    @Dependency(\.personalizationClient) var personalization
 
     public init() {}
 
@@ -31,8 +42,11 @@ public struct ProfileReducer {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                // Load dietary preferences on appear
-                return .send(.loadDietaryPreferences)
+                // Load dietary preferences and culinary DNA on appear
+                return .merge(
+                    .send(.loadDietaryPreferences),
+                    .send(.loadCulinaryDNA)
+                )
 
             case .loadDietaryPreferences:
                 // Load from UserDefaults
@@ -53,6 +67,22 @@ public struct ProfileReducer {
             case .resetDietaryPreferences:
                 state.dietaryPreferences = []
                 UserDefaults.standard.removeObject(forKey: "dietaryPreferences")
+                return .none
+
+            case .loadCulinaryDNA:
+                return .run { send in
+                    let bookmarks = await guestSession.allBookmarks()
+                    let skips = await guestSession.allSkips()
+                    let affinities = await personalization.computeAffinities(bookmarks, skips)
+                    let count = await personalization.interactionCount(bookmarks, skips)
+                    let activated = await personalization.isActivated(bookmarks, skips)
+                    await send(.culinaryDNALoaded(affinities, count, activated))
+                }
+
+            case let .culinaryDNALoaded(affinities, count, activated):
+                state.culinaryDNAAffinities = affinities
+                state.interactionCount = count
+                state.isDNAActivated = activated
                 return .none
 
             case .signInTapped:
