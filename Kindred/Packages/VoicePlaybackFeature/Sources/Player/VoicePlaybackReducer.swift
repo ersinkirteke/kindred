@@ -264,11 +264,8 @@ public struct VoicePlaybackReducer {
                 // Check cache first
                 let recipeId = state.pendingRecipeId ?? state.currentPlayback?.recipeId ?? "unknown"
                 return .run { [voiceId, recipeId] send in
-                    // Clear any corrupt cached files from previous failed attempts
-                    try? await voiceCache.clearCache()
-
                     // TODO: Replace cache check once real narration API is connected
-                    if false, let cachedURL = await voiceCache.getCachedAudio(voiceId, recipeId) {
+                    if let cachedURL = await voiceCache.getCachedAudio(voiceId, recipeId) {
                         let metadata = NarrationMetadata(
                             recipeId: recipeId,
                             voiceId: voiceId,
@@ -318,44 +315,37 @@ public struct VoicePlaybackReducer {
                 )
 
                 // Start observing streams and play audio
-                return .run { send in
-                    guard let url = URL(string: metadata.audioURL) else {
-                        await send(.narrationFailed("Invalid audio URL"))
-                        return
-                    }
-
-                    do {
-                        // Start audio playback
-                        try await audioPlayer.play(url)
-
-                        // Mark as playing immediately
-                        await send(.statusChanged(.playing))
-
-                        // Observe time, status, and duration updates
-                        await withTaskGroup(of: Void.self) { group in
-                            group.addTask {
-                                for await time in await audioPlayer.currentTimeStream() {
-                                    await send(.timeUpdated(time))
-                                }
-                            }
-
-                            group.addTask {
-                                for await status in await audioPlayer.statusStream() {
-                                    await send(.statusChanged(status))
-                                }
-                            }
-
-                            group.addTask {
-                                for await duration in await audioPlayer.durationStream() {
-                                    await send(.durationUpdated(duration))
-                                }
-                            }
+                return .merge(
+                    .run { send in
+                        guard let url = URL(string: metadata.audioURL) else {
+                            await send(.narrationFailed("Invalid audio URL"))
+                            return
                         }
-                    } catch {
-                        await send(.narrationFailed("\(url.absoluteString) — \(error.localizedDescription)"))
+                        do {
+                            try await audioPlayer.play(url)
+                        } catch {
+                            await send(.narrationFailed("\(url.absoluteString) — \(error.localizedDescription)"))
+                        }
+                    },
+                    .run { send in
+                        for await time in await audioPlayer.currentTimeStream() {
+                            await send(.timeUpdated(time))
+                        }
                     }
-                }
-                .cancellable(id: CancelID.timeObserver)
+                    .cancellable(id: CancelID.timeObserver),
+                    .run { send in
+                        for await status in await audioPlayer.statusStream() {
+                            await send(.statusChanged(status))
+                        }
+                    }
+                    .cancellable(id: CancelID.statusObserver),
+                    .run { send in
+                        for await duration in await audioPlayer.durationStream() {
+                            await send(.durationUpdated(duration))
+                        }
+                    }
+                    .cancellable(id: CancelID.durationObserver)
+                )
 
             case let .narrationFailed(errorMessage):
                 state.error = errorMessage
