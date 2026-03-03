@@ -164,7 +164,7 @@ Plans:
 | 4. Foundation & Architecture | v2.0 | 4/4 | Complete | 2026-03-01 |
 | 5. Guest Browsing & Feed | v2.0 | 4/4 | Complete | 2026-03-02 |
 | 6. Dietary Filtering & Personalization | v2.0 | 3/3 | Complete | 2026-03-03 |
-| 7. Voice Playback & Streaming | v2.0 | 0/? | Not started | - |
+| 7. Voice Playback & Streaming | 2/4 | In Progress|  | - |
 | 8. Authentication & Onboarding | v2.0 | 0/? | Not started | - |
 | 9. Monetization & Voice Tiers | v2.0 | 0/? | Not started | - |
 | 10. Accessibility & Polish | v2.0 | 0/? | Not started | - |

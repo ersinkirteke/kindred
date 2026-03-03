@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: iOS App
 current_phase: 07
-status: in-progress
-last_updated: "2026-03-03T07:52:36Z"
+status: executing
+last_updated: "2026-03-03T08:02:33.000Z"
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
 ---
 
 # Project State: Kindred
@@ -32,11 +32,11 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 7 of 10 (Voice Playback & Streaming)
-Plan: 1 of 4 in current phase
-Status: Phase 7 in progress - Voice playback infrastructure complete
-Last activity: 2026-03-03 — Completed 07-01: VoicePlaybackFeature Foundation Infrastructure (2 tasks, 3 min)
+Plan: 2 of 4 in current phase
+Status: Phase 7 in progress - Voice player UI complete
+Last activity: 2026-03-03 — Completed 07-02: Voice Player UI Component (2 tasks, 4 min)
 
-Progress: [███████░░░] 25% (1 of 4 Phase 7 plans complete)
+Progress: [██████████░] 50% (2 of 4 Phase 7 plans complete)
 
 ---
 
@@ -57,7 +57,7 @@ Progress: [███████░░░] 25% (1 of 4 Phase 7 plans complete)
 | 4. Foundation & Architecture (v2.0) | 4 | ~52 min | ~13 min |
 | 5. Guest Browsing & Feed (v2.0) | 4 | ~1039 min | ~260 min |
 | 6. Dietary Filtering & Personalization (v2.0) | 3 | ~686 min | ~229 min |
-| 7. Voice Playback & Streaming (v2.0) | 1 | ~3 min | ~3 min |
+| 7. Voice Playback & Streaming (v2.0) | 2 | ~7 min | ~3.5 min |
 
 **Recent Trend:**
 - v1.5 milestone: Delivered in 2 days (21 feat commits, 6,066 LOC TypeScript)
@@ -76,6 +76,7 @@ Progress: [███████░░░] 25% (1 of 4 Phase 7 plans complete)
 | Phase 06 P02 | 8 | 2 tasks | 10 files |
 | Phase 06 P03 | 8 | 2 tasks | 5 files |
 | Phase 07 P01 | 3 | 2 tasks | 10 files |
+| Phase 07-voice-playback-streaming P02 | 4 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,12 @@ Recent decisions affecting v2.0 iOS work:
 - .cachesDirectory (not .documentDirectory) for audio files per iOS best practices (07-01)
 - Binary search O(log n) for timestamp-to-step mapping in StepSyncEngine (07-01)
 - 500MB cache limit with LRU eviction matches Kingfisher image cache strategy (07-01)
+- TCA reducer with 20+ actions for comprehensive playback control (07-02)
+- Mini-player uses 44x44 tap target, expanded player uses 64dp play button (07-02)
+- Last-used voice per recipe auto-starts, picker shown only on first listen (07-02)
+- Voice picker orders own voice first, then alphabetically (07-02)
+- Auto-cache on .playing status avoids duplicate downloads (07-02)
+- Mid-playback voice switch shows spinner on play button (07-02)
 
 ### Pending Todos
 
@@ -151,10 +158,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed Phase 7 Plan 1 (07-01: VoicePlaybackFeature Foundation Infrastructure)
-Resume file: .planning/phases/07-voice-playback-streaming/07-01-SUMMARY.md
-Next action: Ready for Phase 7 Plan 2 (Voice Player UI Component)
+Stopped at: Completed Phase 7 Plan 2 (07-02: Voice Player UI Component)
+Resume file: .planning/phases/07-voice-playback-streaming/07-02-SUMMARY.md
+Next action: Ready for Phase 7 Plan 3 (App Integration)
 
 ---
 
-*State updated: 2026-03-03 after completing Phase 7 Plan 1 (Voice Playback & Streaming) - Phase 7 in progress (1/4 plans)*
+*State updated: 2026-03-03 after completing Phase 7 Plan 2 (Voice Playback & Streaming) - Phase 7 in progress (2/4 plans)*
