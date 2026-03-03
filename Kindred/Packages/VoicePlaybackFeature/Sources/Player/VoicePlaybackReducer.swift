@@ -368,7 +368,7 @@ public struct VoicePlaybackReducer {
                 return .none
 
             case .play:
-                guard var currentPlayback = state.currentPlayback,
+                guard let currentPlayback = state.currentPlayback,
                       currentPlayback.status != .playing else { return .none }
                 state.currentPlayback = CurrentPlayback(
                     recipeId: currentPlayback.recipeId,
@@ -387,7 +387,7 @@ public struct VoicePlaybackReducer {
                 }
 
             case .pause:
-                guard var currentPlayback = state.currentPlayback,
+                guard let currentPlayback = state.currentPlayback,
                       currentPlayback.status == .playing else { return .none }
                 state.currentPlayback = CurrentPlayback(
                     recipeId: currentPlayback.recipeId,
@@ -438,7 +438,7 @@ public struct VoicePlaybackReducer {
                 return .send(.seekTo(targetTime))
 
             case .cycleSpeed:
-                guard var currentPlayback = state.currentPlayback else { return .none }
+                guard let currentPlayback = state.currentPlayback else { return .none }
                 let nextSpeed = currentPlayback.speed.next
 
                 state.currentPlayback = CurrentPlayback(
@@ -504,7 +504,7 @@ public struct VoicePlaybackReducer {
                 )
 
             case let .timeUpdated(time):
-                guard var currentPlayback = state.currentPlayback else { return .none }
+                guard let currentPlayback = state.currentPlayback else { return .none }
 
                 // Update step index using StepSyncEngine
                 let stepIndex: Int?
@@ -533,7 +533,7 @@ public struct VoicePlaybackReducer {
                 return .none
 
             case let .durationUpdated(duration):
-                guard var currentPlayback = state.currentPlayback else { return .none }
+                guard let currentPlayback = state.currentPlayback else { return .none }
 
                 state.currentPlayback = CurrentPlayback(
                     recipeId: currentPlayback.recipeId,
@@ -551,7 +551,7 @@ public struct VoicePlaybackReducer {
                 return .none
 
             case let .statusChanged(status):
-                guard var currentPlayback = state.currentPlayback else { return .none }
+                guard let currentPlayback = state.currentPlayback else { return .none }
 
                 state.currentPlayback = CurrentPlayback(
                     recipeId: currentPlayback.recipeId,
@@ -607,7 +607,7 @@ public struct VoicePlaybackReducer {
                 return .none
 
             case let .switchVoiceMidPlayback(newVoiceId):
-                guard var currentPlayback = state.currentPlayback else { return .none }
+                guard let currentPlayback = state.currentPlayback else { return .none }
                 let savedTime = currentPlayback.currentTime
 
                 state.isLoadingNarration = true
