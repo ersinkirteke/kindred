@@ -28,9 +28,9 @@
 
 **Milestone Goal:** Put Kindred in users' hands — the full iOS experience with feed, voice playback, personalization, accessibility, and monetization.
 
-- [ ] **Phase 4: Foundation & Architecture** - SwiftUI + TCA structure, Apollo iOS GraphQL client, theme system
-- [ ] **Phase 5: Guest Browsing & Feed** - Guest mode, swipe cards, recipe discovery, location-based feed
-- [ ] **Phase 6: Dietary Filtering & Personalization** - Dietary preferences, Culinary DNA learning from implicit feedback
+- [x] **Phase 4: Foundation & Architecture** - SwiftUI + TCA structure, Apollo iOS GraphQL client, theme system
+- [x] **Phase 5: Guest Browsing & Feed** - Guest mode, swipe cards, recipe discovery, location-based feed
+- [x] **Phase 6: Dietary Filtering & Personalization** - Dietary preferences, Culinary DNA learning from implicit feedback
 - [ ] **Phase 7: Voice Playback & Streaming** - Voice narration streaming, background audio, offline caching
 - [ ] **Phase 8: Authentication & Onboarding** - Google/Apple OAuth, guest-to-account conversion, sub-90s onboarding
 - [ ] **Phase 9: Monetization & Voice Tiers** - Free tier with ads, Pro subscription, StoreKit 2, voice slot enforcement
@@ -84,9 +84,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Dietary filtering chip bar, GraphQL query update, @AppStorage persistence, cuisineType on SwiftData models
-- [ ] 06-02-PLAN.md — Culinary DNA engine, PersonalizationClient, FeedRanker, ForYouBadge, activation card
-- [ ] 06-03-PLAN.md — Me tab Culinary DNA visualization (progress + affinity bars), dietary preferences section, visual verification
+- [x] 06-01-PLAN.md — Dietary filtering chip bar, GraphQL query update, @AppStorage persistence, cuisineType on SwiftData models (✓ 2026-03-02, 670 min)
+- [x] 06-02-PLAN.md — Culinary DNA engine, PersonalizationClient, FeedRanker, ForYouBadge, activation card (✓ 2026-03-03, 8 min)
+- [x] 06-03-PLAN.md — Me tab Culinary DNA visualization (progress + affinity bars), dietary preferences section, visual verification (✓ 2026-03-03, 8 min)
 
 ### Phase 7: Voice Playback & Streaming
 **Goal**: Users listen to recipe narrations in cloned voices with full audio playback controls
@@ -160,9 +160,9 @@ Plans:
 | 1. Foundation | v1.5 | 5/5 | Complete | 2026-02-28 |
 | 2. Feed Engine | v1.5 | 3/3 | Complete | 2026-03-01 |
 | 3. Voice Core | v1.5 | 3/3 | Complete | 2026-03-01 |
-| 4. Foundation & Architecture | v2.0 | 0/4 | Planned | - |
-| 5. Guest Browsing & Feed | 2/4 | In Progress|  | - |
-| 6. Dietary Filtering & Personalization | 2/3 | In Progress|  | - |
+| 4. Foundation & Architecture | v2.0 | 4/4 | Complete | 2026-03-01 |
+| 5. Guest Browsing & Feed | v2.0 | 4/4 | Complete | 2026-03-02 |
+| 6. Dietary Filtering & Personalization | v2.0 | 3/3 | Complete | 2026-03-03 |
 | 7. Voice Playback & Streaming | v2.0 | 0/? | Not started | - |
 | 8. Authentication & Onboarding | v2.0 | 0/? | Not started | - |
 | 9. Monetization & Voice Tiers | v2.0 | 0/? | Not started | - |
