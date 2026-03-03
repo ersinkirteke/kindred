@@ -226,7 +226,7 @@ public struct RecipeDetailView: View {
                 .background(Color.kindredDivider)
 
             HStack(spacing: KindredSpacing.md) {
-                // Listen button (disabled - Phase 7)
+                // Listen button
                 Button(action: {
                     store.send(.listenTapped)
                 }) {
@@ -238,17 +238,16 @@ public struct RecipeDetailView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .frame(minHeight: 56)
-                    .foregroundColor(.kindredAccent.opacity(0.5))
+                    .foregroundColor(.kindredAccent)
                     .background(Color.clear)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.kindredAccent.opacity(0.5), lineWidth: 2)
+                            .stroke(Color.kindredAccent, lineWidth: 2)
                     )
                     .cornerRadius(12)
                 }
-                .disabled(true)
                 .accessibilityLabel("Listen to this recipe")
-                .accessibilityHint("Available in a future update")
+                .accessibilityHint("Double tap to listen to this recipe narrated")
 
                 // Bookmark button
                 Button(action: {

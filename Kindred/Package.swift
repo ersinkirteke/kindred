@@ -19,6 +19,7 @@ let package = Package(
         .package(path: "Packages/AuthClient"),
         .package(path: "Packages/FeedFeature"),
         .package(path: "Packages/ProfileFeature"),
+        .package(path: "Packages/VoicePlaybackFeature"),
     ],
     targets: [
         .target(
@@ -32,6 +33,7 @@ let package = Package(
                 "AuthClient",
                 "FeedFeature",
                 "ProfileFeature",
+                "VoicePlaybackFeature",
             ],
             path: "Sources"
         ),

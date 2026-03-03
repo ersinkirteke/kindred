@@ -168,9 +168,11 @@ public struct FeedView: View {
             .accessibilityLabel("Skip")
             .accessibilityHint("Skip this recipe - or swipe left")
 
-            // Listen button (disabled - Phase 7)
+            // Listen button
             Button {
-                // Phase 7 implementation
+                if let topCard = store.cardStack.first {
+                    store.send(.openRecipeDetail(topCard.id))
+                }
             } label: {
                 Image(systemName: "headphones")
                     .font(.system(size: 24, weight: .semibold))
@@ -179,10 +181,8 @@ public struct FeedView: View {
                     .background(Color.kindredCardSurface)
                     .clipShape(Circle())
             }
-            .disabled(true)
-            .opacity(0.5)
             .accessibilityLabel("Listen")
-            .accessibilityHint("Available in a future update")
+            .accessibilityHint("Double tap to listen to this recipe")
 
             // Bookmark button
             Button {

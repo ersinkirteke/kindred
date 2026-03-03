@@ -1,5 +1,6 @@
 import UIKit
 import Kingfisher
+import VoicePlaybackFeature
 
 /// AppDelegate for Firebase and Kingfisher cache configuration
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -12,6 +13,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         cache.memoryStorage.config.totalCostLimit = 100 * 1024 * 1024 // 100MB memory
         cache.memoryStorage.config.countLimit = 50 // 50 images in memory
         cache.diskStorage.config.sizeLimit = 500 * 1024 * 1024 // 500MB disk
+
+        // Configure AVAudioSession for background voice playback
+        AudioSessionConfigurator.configure()
 
         // TODO: Firebase configuration will be added when analytics is needed
         return true

@@ -6,14 +6,26 @@ import DesignSystem
 struct StepTimelineView: View {
 
     let steps: [RecipeStep]
+    var currentStepIndex: Int? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(sortedSteps) { step in
-                StepRow(
-                    step: step,
-                    isLast: step.id == sortedSteps.last?.id
-                )
+        ScrollViewReader { proxy in
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(sortedSteps) { step in
+                    StepRow(
+                        step: step,
+                        isLast: step.id == sortedSteps.last?.id,
+                        isCurrentStep: currentStepIndex == step.orderIndex
+                    )
+                    .id(step.orderIndex)
+                }
+            }
+            .onChange(of: currentStepIndex) { oldValue, newValue in
+                if let newIndex = newValue {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        proxy.scrollTo(newIndex, anchor: .center)
+                    }
+                }
             }
         }
     }
@@ -29,6 +41,7 @@ private struct StepRow: View {
 
     let step: RecipeStep
     let isLast: Bool
+    var isCurrentStep: Bool = false
 
     var body: some View {
         HStack(alignment: .top, spacing: KindredSpacing.md) {
@@ -39,6 +52,7 @@ private struct StepRow: View {
                     Circle()
                         .fill(Color.kindredAccent)
                         .frame(width: 32, height: 32)
+                        .shadow(color: isCurrentStep ? Color.kindredAccent.opacity(0.4) : .clear, radius: 8, x: 0, y: 0)
 
                     Text("\(step.orderIndex)")
                         .font(.kindredBodyBold())
@@ -74,13 +88,23 @@ private struct StepRow: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.bottom, isLast ? 0 : KindredSpacing.lg)
+            .padding(KindredSpacing.sm)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isCurrentStep ? Color.kindredAccent.opacity(0.1) : Color.clear)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isCurrentStep ? Color.kindredAccent : Color.clear, lineWidth: 2)
+            )
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(stepAccessibilityLabel)
     }
 
     private var stepAccessibilityLabel: String {
-        var label = "Step \(step.orderIndex), \(step.text)"
+        var label = isCurrentStep ? "Currently playing: Step \(step.orderIndex), " : "Step \(step.orderIndex), "
+        label += step.text
         if let duration = step.duration {
             label += ", approximately \(duration) minutes"
         }
