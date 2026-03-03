@@ -83,7 +83,7 @@ public struct OnboardingReducer {
                 return .send(.nextStep)
 
             case .completeOnboarding:
-                // Parent handles persisting @AppStorage("hasCompletedOnboarding") and dismissing
+                state.currentStep = state.totalSteps
                 return .none
 
             case .appleSignInTapped:
