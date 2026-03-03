@@ -122,6 +122,8 @@ public struct FeedView: View {
                     store.send(.dietaryFilterChanged(filters))
                 }
             )
+            .contentShape(Rectangle())
+            .zIndex(1)
             .padding(.bottom, KindredSpacing.sm)
 
             // Card stack

@@ -1,5 +1,8 @@
 import AVFoundation
 import Foundation
+import os.log
+
+private let logger = Logger(subsystem: "com.ersinkirteke.kindred", category: "AudioPlayer")
 
 // MARK: - AudioPlayerManager
 
@@ -16,6 +19,8 @@ public actor AudioPlayerManager {
     // MARK: - Public Methods
 
     public func play(url: URL) async throws {
+        logger.info("▶️ play() called with URL: \(url.absoluteString)")
+
         // Clean up existing player
         await cleanup()
 
@@ -24,45 +29,11 @@ public actor AudioPlayerManager {
 
         let newPlayer = AVPlayer(playerItem: playerItem)
         newPlayer.automaticallyWaitsToMinimizeStalling = true
+        newPlayer.volume = 1.0
         self.player = newPlayer
 
-        // Start playback
+        // Start playback - AVPlayer handles buffering internally
         newPlayer.play()
-
-        // Wait for player item to become ready (or fail)
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            // Use a flag to prevent double-resume
-            let resumed = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
-            resumed.initialize(to: false)
-
-            var observation: NSKeyValueObservation?
-            observation = playerItem.observe(\.status, options: [.initial, .new]) { item, _ in
-                guard !resumed.pointee else { return }
-                switch item.status {
-                case .readyToPlay:
-                    resumed.pointee = true
-                    observation?.invalidate()
-                    observation = nil
-                    resumed.deallocate()
-                    continuation.resume()
-                case .failed:
-                    resumed.pointee = true
-                    observation?.invalidate()
-                    observation = nil
-                    let error = item.error ?? NSError(
-                        domain: "AudioPlayerManager",
-                        code: -1,
-                        userInfo: [NSLocalizedDescriptionKey: "Failed to load audio"]
-                    )
-                    resumed.deallocate()
-                    continuation.resume(throwing: error)
-                case .unknown:
-                    break // Still loading, wait
-                @unknown default:
-                    break
-                }
-            }
-        }
     }
 
     public func pause() async {
@@ -132,8 +103,8 @@ public actor AudioPlayerManager {
                 await self?.storeTimeObserverToken(token)
             }
 
-            continuation.onTermination = { [weak player] _ in
-                player?.removeTimeObserver(token)
+            continuation.onTermination = { _ in
+                // Observer removal is handled by cleanup() to avoid double-remove crash
             }
         }
     }
@@ -141,6 +112,7 @@ public actor AudioPlayerManager {
     public func statusStream() -> AsyncStream<PlaybackStatus> {
         AsyncStream { continuation in
             guard let player = self.player else {
+                logger.warning("⚠️ statusStream: player is nil")
                 continuation.yield(.idle)
                 continuation.finish()
                 return
@@ -153,6 +125,7 @@ public actor AudioPlayerManager {
             case .waitingToPlayAtSpecifiedRate: .buffering
             @unknown default: .idle
             }
+            logger.info("📊 statusStream initial: \(String(describing: initialStatus))")
             continuation.yield(initialStatus)
 
             // Observe time control status changes
@@ -233,5 +206,119 @@ public actor AudioPlayerManager {
 
     private func storeItemEndedTask(_ task: Task<Void, Never>) {
         self.itemEndedTask = task
+    }
+
+    /// Waits for an AVPlayerItem to reach `.readyToPlay` status using KVO observation.
+    /// Times out after 15 seconds. Throws if the item fails to load or times out.
+    private func waitForReadyToPlay(playerItem: AVPlayerItem) async throws {
+        let statusStream = AsyncStream<AVPlayerItem.Status> { continuation in
+            let observation = playerItem.observe(\.status, options: [.initial, .new]) { item, _ in
+                continuation.yield(item.status)
+            }
+            continuation.onTermination = { _ in
+                observation.invalidate()
+            }
+        }
+
+        // Race the status observation against a 15-second timeout
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            group.addTask {
+                for await status in statusStream {
+                    logger.debug("📡 PlayerItem status: \(status.rawValue)")
+                    switch status {
+                    case .readyToPlay:
+                        return
+                    case .failed:
+                        throw playerItem.error ?? PlayerError.failedToLoad
+                    case .unknown:
+                        continue
+                    @unknown default:
+                        continue
+                    }
+                }
+                throw PlayerError.failedToLoad
+            }
+
+            group.addTask {
+                try await Task.sleep(nanoseconds: 15_000_000_000) // 15 seconds
+                logger.error("⏰ waitForReadyToPlay timed out after 15s")
+                throw PlayerError.timeout
+            }
+
+            // Wait for the first task to complete (either ready or timeout)
+            try await group.next()
+            // Cancel the other task
+            group.cancelAll()
+        }
+    }
+}
+
+// MARK: - TestAudioGenerator
+
+public enum TestAudioGenerator {
+    /// Creates a 10-second sine wave WAV audio file in the caches directory for testing.
+    /// Returns the file URL. Reuses existing file if already created.
+    public static func createTestFile() -> URL {
+        let cachesDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        let url = cachesDir.appendingPathComponent("kindred_test_narration.wav")
+
+        if FileManager.default.fileExists(atPath: url.path) {
+            logger.info("🎵 Test file already exists at \(url.path)")
+            return url
+        }
+
+        do {
+            let sampleRate: Double = 44100
+            let duration: Double = 10
+            let frequency: Double = 440
+            let frameCount = AVAudioFrameCount(sampleRate * duration)
+
+            // Use WAV/PCM format - simplest, no encoding needed
+            let settings: [String: Any] = [
+                AVFormatIDKey: Int(kAudioFormatLinearPCM),
+                AVSampleRateKey: sampleRate,
+                AVNumberOfChannelsKey: 1,
+                AVLinearPCMBitDepthKey: 16,
+                AVLinearPCMIsFloatKey: false,
+                AVLinearPCMIsBigEndianKey: false,
+            ]
+
+            let audioFile = try AVAudioFile(forWriting: url, settings: settings)
+            guard let buffer = AVAudioPCMBuffer(pcmFormat: audioFile.processingFormat, frameCapacity: frameCount) else {
+                logger.error("❌ Failed to create PCM buffer")
+                throw PlayerError.failedToLoad
+            }
+
+            buffer.frameLength = frameCount
+            if let channelData = buffer.floatChannelData?[0] {
+                let sr = Float(sampleRate)
+                for i in 0..<Int(frameCount) {
+                    channelData[i] = sin(2.0 * .pi * Float(frequency) * Float(i) / sr) * 0.3
+                }
+            }
+
+            try audioFile.write(from: buffer)
+            logger.info("🎵 Created test WAV file at \(url.path) (\(frameCount) frames)")
+            return url
+        } catch {
+            logger.error("❌ Failed to create test audio: \(error.localizedDescription)")
+            return url
+        }
+    }
+}
+
+// MARK: - PlayerError
+
+enum PlayerError: Error, LocalizedError {
+    case failedToLoad
+    case timeout
+
+    var errorDescription: String? {
+        switch self {
+        case .failedToLoad:
+            return "Failed to load audio"
+        case .timeout:
+            return "Audio loading timed out"
+        }
     }
 }

@@ -130,13 +130,13 @@ public struct ExpandedPlayerView: View {
                         }
                         HapticFeedback.medium()
                     } label: {
-                        if store.isLoadingNarration {
+                        if store.isLoadingNarration || playback.status == .loading {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
                                 .scaleEffect(2.0)
                                 .frame(width: 64, height: 64)
                         } else {
-                            Image(systemName: playback.status == .playing ? "pause.circle.fill" : "play.circle.fill")
+                            Image(systemName: (playback.status == .playing || playback.status == .buffering) ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.system(size: 64))
                                 .foregroundColor(.kindredAccent)
                         }
@@ -182,16 +182,8 @@ public struct ExpandedPlayerView: View {
                     // Voice switch button (if multiple voices available)
                     if store.voiceProfiles.count > 1 {
                         Button {
-                            store.send(.dismissVoicePicker)
-                            // Re-show voice picker after brief delay
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                store.send(.startPlayback(
-                                    recipeId: playback.recipeId,
-                                    recipeName: playback.recipeName,
-                                    artworkURL: playback.artworkURL,
-                                    steps: store.recipeSteps
-                                ))
-                            }
+                            store.send(.showVoiceSwitcher)
+                            HapticFeedback.light()
                         } label: {
                             HStack(spacing: 4) {
                                 Image(systemName: "person.2.fill")

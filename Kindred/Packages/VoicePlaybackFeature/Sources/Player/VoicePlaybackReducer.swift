@@ -80,6 +80,7 @@ public struct VoicePlaybackReducer {
         case cachingCompleted(URL)
         case cachingFailed(String)
         case dismissVoicePicker
+        case showVoiceSwitcher
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -120,6 +121,7 @@ public struct VoicePlaybackReducer {
             case let (.cachingFailed(lErr), .cachingFailed(rErr)):
                 return lErr == rErr
             case (.dismissVoicePicker, .dismissVoicePicker): return true
+            case (.showVoiceSwitcher, .showVoiceSwitcher): return true
             default:
                 return false
             }
@@ -237,8 +239,11 @@ public struct VoicePlaybackReducer {
                 // Check cache first
                 let recipeId = state.pendingRecipeId ?? state.currentPlayback?.recipeId ?? "unknown"
                 return .run { [voiceId, recipeId] send in
-                    if let cachedURL = await voiceCache.getCachedAudio(voiceId, recipeId) {
-                        // Load from cache
+                    // Clear any corrupt cached files from previous failed attempts
+                    try? await voiceCache.clearCache()
+
+                    // TODO: Replace cache check once real narration API is connected
+                    if false, let cachedURL = await voiceCache.getCachedAudio(voiceId, recipeId) {
                         let metadata = NarrationMetadata(
                             recipeId: recipeId,
                             voiceId: voiceId,
@@ -250,14 +255,14 @@ public struct VoicePlaybackReducer {
                         await send(.narrationReady(metadata))
                     } else {
                         // TODO: Replace with actual narration API call (GraphQL mutation or R2 presigned URL)
-                        // Using Apple's official HLS test stream for development/demo
-                        let sampleURL = "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8"
+                        // Using locally generated test audio file for development
+                        let testFileURL = TestAudioGenerator.createTestFile()
                         let metadata = NarrationMetadata(
                             recipeId: recipeId,
                             voiceId: voiceId,
-                            audioURL: sampleURL,
-                            duration: 300,
-                            stepTimestamps: [0, 30, 60, 120, 180, 240],
+                            audioURL: testFileURL.absoluteString,
+                            duration: 10,
+                            stepTimestamps: [0, 2, 4, 6, 8],
                             generatedAt: Date()
                         )
                         await send(.narrationReady(metadata))
@@ -295,13 +300,13 @@ public struct VoicePlaybackReducer {
                     }
 
                     do {
-                        // Start audio playback and wait for ready
+                        // Start audio playback
                         try await audioPlayer.play(url)
 
-                        // Mark as playing after successful load
+                        // Mark as playing immediately
                         await send(.statusChanged(.playing))
 
-                        // Observe time updates
+                        // Observe time, status, and duration updates
                         await withTaskGroup(of: Void.self) { group in
                             group.addTask {
                                 for await time in await audioPlayer.currentTimeStream() {
@@ -322,7 +327,7 @@ public struct VoicePlaybackReducer {
                             }
                         }
                     } catch {
-                        await send(.narrationFailed("Could not play audio: \(error.localizedDescription)"))
+                        await send(.narrationFailed("\(url.absoluteString) — \(error.localizedDescription)"))
                     }
                 }
                 .cancellable(id: CancelID.timeObserver)
@@ -330,6 +335,21 @@ public struct VoicePlaybackReducer {
             case let .narrationFailed(errorMessage):
                 state.error = errorMessage
                 state.isLoadingNarration = false
+                // Keep currentPlayback visible so user can see error state
+                if let currentPlayback = state.currentPlayback {
+                    state.currentPlayback = CurrentPlayback(
+                        recipeId: currentPlayback.recipeId,
+                        recipeName: currentPlayback.recipeName,
+                        voiceId: currentPlayback.voiceId,
+                        speakerName: currentPlayback.speakerName,
+                        artworkURL: currentPlayback.artworkURL,
+                        duration: currentPlayback.duration,
+                        currentTime: currentPlayback.currentTime,
+                        speed: currentPlayback.speed,
+                        status: .error(errorMessage),
+                        currentStepIndex: currentPlayback.currentStepIndex
+                    )
+                }
                 return .none
 
             case .play:
@@ -432,6 +452,23 @@ public struct VoicePlaybackReducer {
                 state.isLoadingNarration = false
                 return .none
 
+            case .showVoiceSwitcher:
+                // Stop playback, close expanded player, show voice picker
+                state.isExpanded = false
+                state.showVoicePicker = true
+                state.isLoadingNarration = false
+                state.currentPlayback = nil
+                state.narrationMetadata = nil
+
+                return .concatenate(
+                    .cancel(id: CancelID.timeObserver),
+                    .cancel(id: CancelID.autoCache),
+                    .cancel(id: CancelID.delayedDismiss),
+                    .run { _ in
+                        await audioPlayer.cleanup()
+                    }
+                )
+
             case .dismiss:
                 state.isExpanded = false
                 state.currentPlayback = nil
@@ -516,11 +553,17 @@ public struct VoicePlaybackReducer {
 
                 // Handle auto-dismiss on stopped
                 if case .stopped = status {
-                    return .run { send in
-                        try await clock.sleep(for: .seconds(2))
-                        await send(.dismiss)
-                    }
-                    .cancellable(id: CancelID.delayedDismiss)
+                    // Cancel streams immediately to prevent further events,
+                    // then schedule delayed dismiss for cleanup
+                    return .concatenate(
+                        .cancel(id: CancelID.timeObserver),
+                        .cancel(id: CancelID.autoCache),
+                        .run { [clock] send in
+                            try await clock.sleep(for: .seconds(2))
+                            await send(.dismiss)
+                        }
+                        .cancellable(id: CancelID.delayedDismiss)
+                    )
                 }
 
                 // Handle auto-cache on playing (if not already cached)

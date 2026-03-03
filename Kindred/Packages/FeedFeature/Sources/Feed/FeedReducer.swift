@@ -5,6 +5,9 @@ import DesignSystem
 import Foundation
 import KindredAPI
 import NetworkClient
+import os.log
+
+private let feedLogger = Logger(subsystem: "com.ersinkirteke.kindred", category: "Feed")
 
 @Reducer
 public struct FeedReducer {
@@ -25,6 +28,7 @@ public struct FeedReducer {
         public var bookmarkCount = 0
         public var showLocationPicker = false
         public var activeDietaryFilters: Set<String> = []
+        public var allRecipes: [RecipeCard] = [] // Unfiltered full list for client-side filtering
         @Presents public var recipeDetail: RecipeDetailReducer.State?
 
         // Culinary DNA state
@@ -149,7 +153,7 @@ public struct FeedReducer {
                     state.activeDietaryFilters = preferences
                 }
 
-                return .run { [location = state.location, filters = state.activeDietaryFilters, lat = state.latitude, lng = state.longitude] send in
+                return .run { [location = state.location] send in
                     // Start network monitoring
                     await withTaskGroup(of: Void.self) { group in
                         // Task 1: Connectivity stream
@@ -159,53 +163,22 @@ public struct FeedReducer {
                             }
                         }
 
-                        // Task 2: Load recipes
+                        // Task 2: Load recipes (always use ViralRecipesQuery, filter client-side)
                         group.addTask {
                             do {
-                                if filters.isEmpty {
-                                    // Use existing viral recipes query when no filters
-                                    let query = KindredAPI.ViralRecipesQuery(location: location)
-                                    let result = try await apolloClient.fetch(
-                                        query: query,
-                                        cachePolicy: .cacheFirst
-                                    )
+                                let query = KindredAPI.ViralRecipesQuery(location: location)
+                                let result = try await apolloClient.fetch(
+                                    query: query,
+                                    cachePolicy: .cacheFirst
+                                )
 
-                                    if let recipes = result.data?.viralRecipes {
-                                        let cards = recipes.map { RecipeCard.from(graphQL: $0) }
-                                        await send(.recipesLoaded(.success(cards)))
-                                    } else if let errors = result.errors, !errors.isEmpty {
-                                        await send(.recipesLoaded(.failure(FeedError.graphQL(errors.first!.localizedDescription))))
-                                    } else {
-                                        await send(.recipesLoaded(.success([])))
-                                    }
+                                if let recipes = result.data?.viralRecipes {
+                                    let cards = recipes.map { RecipeCard.from(graphQL: $0) }
+                                    await send(.recipesLoaded(.success(cards)))
+                                } else if let errors = result.errors, !errors.isEmpty {
+                                    await send(.recipesLoaded(.failure(FeedError.graphQL(errors.first!.localizedDescription))))
                                 } else {
-                                    // Use filtered feed query when filters are active
-                                    let filterInput = KindredAPI.FeedFiltersInput(
-                                        cuisineTypes: nil,
-                                        dietaryTags: .some(Array(filters)),
-                                        mealTypes: nil
-                                    )
-                                    let query = KindredAPI.FeedFilteredQuery(
-                                        latitude: lat,
-                                        longitude: lng,
-                                        first: .some(20),
-                                        after: nil,
-                                        filters: .some(filterInput),
-                                        lastFetchedAt: nil
-                                    )
-                                    let result = try await apolloClient.fetch(
-                                        query: query,
-                                        cachePolicy: .cacheFirst
-                                    )
-
-                                    if let edges = result.data?.feed.edges {
-                                        let cards = edges.map { RecipeCard.from(feedNode: $0.node) }
-                                        await send(.recipesLoaded(.success(cards)))
-                                    } else if let errors = result.errors, !errors.isEmpty {
-                                        await send(.recipesLoaded(.failure(FeedError.graphQL(errors.first!.localizedDescription))))
-                                    } else {
-                                        await send(.recipesLoaded(.success([])))
-                                    }
+                                    await send(.recipesLoaded(.success([])))
                                 }
                             } catch {
                                 await send(.recipesLoaded(.failure(error)))
@@ -222,7 +195,16 @@ public struct FeedReducer {
 
             case let .recipesLoaded(.success(cards)):
                 state.isLoading = false
-                state.cardStack = cards
+                state.allRecipes = cards
+                // Debug: log dietary tags to diagnose filtering
+                let filterDesc = state.activeDietaryFilters.joined(separator: ", ")
+                feedLogger.info("📊 Loaded \(cards.count) recipes, filters: \(filterDesc)")
+                for card in cards.prefix(5) {
+                    let tags = card.dietaryTags.joined(separator: ", ")
+                    feedLogger.info("🏷️ '\(card.name)' tags: \(tags)")
+                }
+                // Apply client-side dietary filtering
+                state.cardStack = applyDietaryFilter(recipes: cards, filters: state.activeDietaryFilters)
                 state.hasMorePages = cards.count >= 10
                 state.currentPage = 1
                 state.error = nil
@@ -500,20 +482,16 @@ public struct FeedReducer {
 
             case let .dietaryFilterChanged(newFilters):
                 state.activeDietaryFilters = newFilters
-                state.isLoading = true
                 state.error = nil
-                state.cardStack = []
-                state.swipeHistory = []
-                state.currentPage = 0
-                state.hasMorePages = true
 
                 // Save preferences to UserDefaults
                 if let encoded = try? JSONEncoder().encode(newFilters) {
                     UserDefaults.standard.set(encoded, forKey: "dietaryPreferences")
                 }
 
-                // Trigger re-fetch with the current filters (now updated in state)
-                return .send(.onAppear)
+                // Client-side filtering — no server round-trip needed
+                state.cardStack = applyDietaryFilter(recipes: state.allRecipes, filters: newFilters)
+                return .none
 
             case let .filteredRecipesLoaded(.success(cards)):
                 state.isLoading = false
@@ -588,6 +566,24 @@ public struct FeedReducer {
             RecipeDetailReducer()
         }
     }
+}
+
+// MARK: - Dietary Filtering
+
+private func applyDietaryFilter(recipes: [RecipeCard], filters: Set<String>) -> [RecipeCard] {
+    guard !filters.isEmpty else { return recipes }
+    let normalizedFilters = Set(filters.map { normalizeDietaryTag($0) })
+    return recipes.filter { card in
+        let normalizedTags = Set(card.dietaryTags.map { normalizeDietaryTag($0) })
+        return !normalizedFilters.isDisjoint(with: normalizedTags)
+    }
+}
+
+private func normalizeDietaryTag(_ tag: String) -> String {
+    tag.lowercased()
+        .replacingOccurrences(of: "_", with: "")
+        .replacingOccurrences(of: "-", with: "")
+        .replacingOccurrences(of: " ", with: "")
 }
 
 // MARK: - Errors

@@ -54,17 +54,28 @@ public struct MiniPlayerView: View {
                             )
                     }
 
-                    // Recipe name + speaker name
+                    // Recipe name + speaker name / error
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(playback.recipeName)
-                            .font(.kindredBodyBold())
-                            .foregroundColor(.kindredTextPrimary)
-                            .lineLimit(1)
+                        if case let .error(message) = playback.status {
+                            Text("Error")
+                                .font(.kindredBodyBold())
+                                .foregroundColor(.red)
+                                .lineLimit(1)
+                            Text(message)
+                                .font(.kindredCaption())
+                                .foregroundColor(.red)
+                                .lineLimit(2)
+                        } else {
+                            Text(playback.recipeName)
+                                .font(.kindredBodyBold())
+                                .foregroundColor(.kindredTextPrimary)
+                                .lineLimit(1)
 
-                        Text(playback.speakerName)
-                            .font(.kindredBody())
-                            .foregroundColor(.kindredTextSecondary)
-                            .lineLimit(1)
+                            Text(playback.speakerName)
+                                .font(.kindredBody())
+                                .foregroundColor(.kindredTextSecondary)
+                                .lineLimit(1)
+                        }
                     }
 
                     Spacer()
@@ -77,12 +88,16 @@ public struct MiniPlayerView: View {
                             store.send(.play)
                         }
                     } label: {
-                        if store.isLoadingNarration {
+                        if case .error = playback.status {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.red)
+                        } else if store.isLoadingNarration || playback.status == .loading {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
                                 .frame(width: 20, height: 20)
                         } else {
-                            Image(systemName: playback.status == .playing ? "pause.fill" : "play.fill")
+                            Image(systemName: (playback.status == .playing || playback.status == .buffering) ? "pause.fill" : "play.fill")
                                 .font(.system(size: 20))
                                 .foregroundColor(.kindredAccent)
                         }
