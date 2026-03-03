@@ -15,6 +15,7 @@ let package = Package(
         .package(url: "https://github.com/clerk/clerk-ios", from: "1.0.0"),
         .package(name: "AuthClient", path: "../AuthClient"),
         .package(name: "DesignSystem", path: "../DesignSystem"),
+        .package(name: "FeedFeature", path: "../FeedFeature"),
     ],
     targets: [
         .target(
@@ -24,6 +25,7 @@ let package = Package(
                 .product(name: "ClerkKit", package: "clerk-ios"),
                 "AuthClient",
                 "DesignSystem",
+                "FeedFeature",
             ]
         ),
     ]
