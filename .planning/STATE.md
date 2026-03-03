@@ -4,12 +4,12 @@ milestone: v2.0
 milestone_name: iOS App
 current_phase: 07
 status: completed
-last_updated: "2026-03-03T21:29:00.546Z"
+last_updated: "2026-03-03T21:40:17.371Z"
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 21
-  completed_plans: 18
+  completed_plans: 19
 ---
 
 # Project State: Kindred
@@ -32,11 +32,11 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 8 of 10 (Authentication & Onboarding)
-Plan: 1 of 4 in current phase
-Status: Phase 8 in progress - AuthFeature package with sign-in infrastructure complete
-Last activity: 2026-03-03 — Completed 08-01: AuthFeature package with SignInClient TCA dependency (2 tasks, 4 min)
+Plan: 2 of 4 in current phase
+Status: Phase 8 in progress - Onboarding carousel with 4 steps complete
+Last activity: 2026-03-03 — Completed 08-02: Onboarding carousel (sign-in, dietary, location, voice teaser) (2 tasks, 7 min)
 
-Progress: [█████████████░] 25% (1 of 4 Phase 8 plans complete)
+Progress: [██████████████████████████░] 50% (2 of 4 Phase 8 plans complete)
 
 ---
 
@@ -81,7 +81,7 @@ Progress: [█████████████░] 25% (1 of 4 Phase 8 plans
 | Phase 07-voice-playback-streaming P05 | 4 | 2 tasks | 2 files |
 | Phase 07-voice-playback-streaming P06 | 2 | 2 tasks | 1 files |
 | Phase 08-authentication-onboarding P01 | 4 | 2 tasks | 4 files |
-| Phase 08 P01 | 4 | 2 tasks | 4 files |
+| Phase 08-authentication-onboarding P02 | 7 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -138,6 +138,9 @@ Recent decisions affecting v2.0 iOS work:
 - SignInClient uses TCA @DependencyClient pattern wrapping Clerk SDK with proper error mapping (08-01)
 - SignInGateReducer is pure presentation reducer - cooldown and deferred action logic belong in parent reducer (08-01)
 - SignInGateView uses Apple SignInWithAppleButton on top, custom Google button below, with swipe-down dismissal enabled (08-01)
+- Dietary preferences use SAME UserDefaults key as Phase 6 (dietaryPreferences) for consistency (08-02)
+- OnboardingView uses TabView PageTabViewStyle for horizontal paging carousel with dots indicator (08-02)
+- FeedFeature dependency added to AuthFeature for LocationClient access in onboarding (08-02)
 
 ### Pending Todos
 
@@ -170,10 +173,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed Phase 8 Plan 1 (08-01: AuthFeature package with SignInClient TCA dependency)
-Resume file: .planning/phases/08-authentication-onboarding/08-01-SUMMARY.md
-Next action: Phase 8 in progress (1/4 plans done) - proceed to Plan 02 (Onboarding carousel)
+Stopped at: Completed Phase 8 Plan 2 (08-02: Onboarding carousel with 4 steps)
+Resume file: .planning/phases/08-authentication-onboarding/08-02-SUMMARY.md
+Next action: Phase 8 in progress (2/4 plans done) - proceed to Plan 03 (Auth gate integration and guest migration)
 
 ---
 
-*State updated: 2026-03-03 after completing Phase 8 Plan 1 (Authentication & Onboarding) - Phase 8 in progress (1/4 plans)*
+*State updated: 2026-03-03 after completing Phase 8 Plan 2 (Authentication & Onboarding) - Phase 8 in progress (2/4 plans)*
