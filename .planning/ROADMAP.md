@@ -117,11 +117,13 @@ Plans:
   2. Guest user is prompted to create account when saving, bookmarking, or using voice features with frictionless conversion
   3. Guest session state (browsed recipes, dietary preferences, bookmarks) persists through account conversion (no data loss)
   4. New user completes onboarding flow in under 90 seconds (welcome → dietary prefs → location → optional voice upload → start)
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
+- [ ] 08-01-PLAN.md -- AuthFeature package: SignInClient (Clerk Apple/Google), SignInGateReducer, SignInGateView
+- [ ] 08-02-PLAN.md -- Onboarding carousel: OnboardingReducer, 4 step views (sign-in, dietary, location, voice teaser)
+- [ ] 08-03-PLAN.md -- Auth gate wiring into Feed/Voice reducers, GuestMigrationClient, app integration
+- [ ] 08-04-PLAN.md -- Visual verification of onboarding and auth gate on device
 
 ### Phase 9: Monetization & Voice Tiers
 **Goal**: Free and Pro tiers operational with App Store billing and voice slot enforcement
