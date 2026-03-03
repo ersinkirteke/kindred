@@ -10,7 +10,7 @@ public struct SignInClient: Sendable {
     public var signInWithApple: @Sendable () async throws -> ClerkUser
     public var signInWithGoogle: @Sendable () async throws -> ClerkUser
     public var signOut: @Sendable () async throws -> Void
-    public var observeAuthState: @Sendable () async -> AsyncStream<AuthState>
+    public var observeAuthState: @Sendable () async -> AsyncStream<AuthState> = { AsyncStream { $0.finish() } }
 }
 
 /// Sign-in specific errors
@@ -36,7 +36,7 @@ public enum SignInError: Error, LocalizedError {
 extension SignInClient: DependencyKey {
     public static let liveValue: SignInClient = {
         @MainActor
-        func performSignIn(_ action: () async throws -> Void) async throws -> ClerkUser {
+        func performSignIn(_ action: @Sendable () async throws -> Void) async throws -> ClerkUser {
             do {
                 try await action()
 
@@ -71,16 +71,16 @@ extension SignInClient: DependencyKey {
         return SignInClient(
             signInWithApple: {
                 try await performSignIn {
-                    try await Clerk.shared.auth.signInWithApple()
+                    _ = try await Clerk.shared.auth.signInWithApple()
                 }
             },
             signInWithGoogle: {
                 try await performSignIn {
-                    try await Clerk.shared.auth.signIn(strategy: .oauth(provider: .google))
+                    _ = try await Clerk.shared.auth.signInWithOAuth(provider: .google)
                 }
             },
             signOut: {
-                try await Clerk.shared.signOut()
+                try await Clerk.shared.auth.signOut()
             },
             observeAuthState: {
                 AsyncStream { continuation in

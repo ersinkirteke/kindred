@@ -14,7 +14,10 @@ public struct OnboardingView: View {
             Color.kindredBackground
                 .ignoresSafeArea()
 
-            TabView(selection: $store.currentStep) {
+            TabView(selection: Binding(
+                get: { store.currentStep },
+                set: { _ in }
+            )) {
                 SignInStepView(store: store)
                     .tag(0)
 

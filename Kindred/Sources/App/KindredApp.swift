@@ -9,7 +9,8 @@ struct KindredApp: App {
 
     // App state
     @State private var showSplash = true
-    @AppStorage("hasSeenWelcome") private var hasSeenWelcome = false
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    // TODO: Replace WelcomeCardView with OnboardingView when Plan 08-02 is complete
 
     let store = Store(initialState: AppReducer.State()) {
         AppReducer()
@@ -24,9 +25,10 @@ struct KindredApp: App {
                     RootView(store: store)
 
                     // Welcome card overlay (first launch only)
-                    if !hasSeenWelcome {
+                    // TODO: Replace with OnboardingView when Plan 08-02 is complete
+                    if !hasCompletedOnboarding {
                         WelcomeCardView {
-                            hasSeenWelcome = true
+                            hasCompletedOnboarding = true
                         }
                     }
                 }

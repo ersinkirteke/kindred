@@ -4,6 +4,7 @@ import FeedFeature
 import ProfileFeature
 import SwiftUI
 import VoicePlaybackFeature
+import AuthFeature
 
 struct RootView: View {
     @Bindable var store: StoreOf<AppReducer>
@@ -86,6 +87,14 @@ struct RootView: View {
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
+        }
+        .fullScreenCover(
+            item: $store.scope(state: \.authGate, action: \.authGate)
+        ) { gateStore in
+            SignInGateView(store: gateStore)
+        }
+        .onAppear {
+            store.send(.observeAuth)
         }
     }
 }

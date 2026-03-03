@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		01EEA3FEAC764CFD5AE95F03 /* ProfileFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B450ED7410537AB3996299C9 /* ProfileFeature */; };
+		03AF12E8B7C4D5A6E9F01234 /* AuthFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 5CA7E3F1D8B2946A0C5E7F38 /* AuthFeature */; };
+		04BF23D9C8E5F6B7A0D12345 /* VoicePlaybackFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 6DB8F4E2E9C3A57B1D6F8049 /* VoicePlaybackFeature */; };
 		0D6F14EFF9B37E2E487CA01D /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1D24BEB16D5667E125AB4E70 /* Kingfisher */; };
 		2A6D51CE56EFA78DCE67B757 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD8617476EEC6D057886A1 /* AppDelegate.swift */; };
 		320ED449D03AE01022D086C6 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EE1509997A85428D90FEB0 /* SplashView.swift */; };
@@ -25,6 +27,8 @@
 
 /* Begin PBXFileReference section */
 		037416CD7B126DDDA615EA95 /* ProfileFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ProfileFeature; path = Packages/ProfileFeature; sourceTree = SOURCE_ROOT; };
+		08CF34A1B5D6E7F8A2C40123 /* AuthFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = AuthFeature; path = Packages/AuthFeature; sourceTree = SOURCE_ROOT; };
+		09DF45B2C6E7F809B3D51234 /* VoicePlaybackFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = VoicePlaybackFeature; path = Packages/VoicePlaybackFeature; sourceTree = SOURCE_ROOT; };
 		21EA7E4E85B8B213AD9B7718 /* DesignSystem */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DesignSystem; path = Packages/DesignSystem; sourceTree = SOURCE_ROOT; };
 		289D9F05375F81D3894469AB /* WelcomeCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCardView.swift; sourceTree = "<group>"; };
 		3496CDC3F3645B70903E4225 /* AppReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReducer.swift; sourceTree = "<group>"; };
@@ -51,8 +55,10 @@
 				DA690AB73D958CDF5A961596 /* DesignSystem in Frameworks */,
 				8BD8FE27792C4D33DC7D6EAA /* NetworkClient in Frameworks */,
 				7CAEB444EC2EB7E5A59B1B9C /* AuthClient in Frameworks */,
+				03AF12E8B7C4D5A6E9F01234 /* AuthFeature in Frameworks */,
 				D376666C5C0300F25A9F0D23 /* FeedFeature in Frameworks */,
 				01EEA3FEAC764CFD5AE95F03 /* ProfileFeature in Frameworks */,
+				04BF23D9C8E5F6B7A0D12345 /* VoicePlaybackFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,11 +78,13 @@
 			isa = PBXGroup;
 			children = (
 				EAF03268B06E1885805AA2CD /* AuthClient */,
+				08CF34A1B5D6E7F8A2C40123 /* AuthFeature */,
 				21EA7E4E85B8B213AD9B7718 /* DesignSystem */,
 				371276036F9FB016888AC7B0 /* FeedFeature */,
 				DDB7118C7A4026DD1E4A8A62 /* KindredAPI */,
 				A81A2B1EB1B9D33DFF070A4D /* NetworkClient */,
 				037416CD7B126DDDA615EA95 /* ProfileFeature */,
+				09DF45B2C6E7F809B3D51234 /* VoicePlaybackFeature */,
 			);
 			path = Packages;
 			sourceTree = "<group>";
@@ -141,8 +149,10 @@
 				0A97151FE41F3FFF96275F39 /* DesignSystem */,
 				6E6199357BF415DFAC6C6F50 /* NetworkClient */,
 				3AF62527EDE9E5CC238BE4E0 /* AuthClient */,
+				5CA7E3F1D8B2946A0C5E7F38 /* AuthFeature */,
 				066BAEDC6DA6B6119976424F /* FeedFeature */,
 				B450ED7410537AB3996299C9 /* ProfileFeature */,
+				6DB8F4E2E9C3A57B1D6F8049 /* VoicePlaybackFeature */,
 			);
 			productName = Kindred;
 			productReference = 776F85584ADFADA9DD5079BB /* Kindred.app */;
@@ -185,6 +195,8 @@
 				6346B7592D34E435361B4541 /* XCLocalSwiftPackageReference "Packages/KindredAPI" */,
 				59121B9B84E3D462E8BD9511 /* XCLocalSwiftPackageReference "Packages/NetworkClient" */,
 				3AB35058B2D32E755056685A /* XCLocalSwiftPackageReference "Packages/ProfileFeature" */,
+				7EAF56C3D9E4B0A1F2835678 /* XCLocalSwiftPackageReference "Packages/AuthFeature" */,
+				8FBF67D4EAF5C1B2F3946789 /* XCLocalSwiftPackageReference "Packages/VoicePlaybackFeature" */,
 			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
@@ -397,6 +409,14 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/ProfileFeature;
 		};
+		7EAF56C3D9E4B0A1F2835678 /* XCLocalSwiftPackageReference "Packages/AuthFeature" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/AuthFeature;
+		};
+		8FBF67D4EAF5C1B2F3946789 /* XCLocalSwiftPackageReference "Packages/VoicePlaybackFeature" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/VoicePlaybackFeature;
+		};
 		59121B9B84E3D462E8BD9511 /* XCLocalSwiftPackageReference "Packages/NetworkClient" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/NetworkClient;
@@ -505,6 +525,14 @@
 		B450ED7410537AB3996299C9 /* ProfileFeature */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ProfileFeature;
+		};
+		5CA7E3F1D8B2946A0C5E7F38 /* AuthFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AuthFeature;
+		};
+		6DB8F4E2E9C3A57B1D6F8049 /* VoicePlaybackFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VoicePlaybackFeature;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

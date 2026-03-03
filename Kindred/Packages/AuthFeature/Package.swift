@@ -26,7 +26,8 @@ let package = Package(
                 "AuthClient",
                 "DesignSystem",
                 "FeedFeature",
-            ]
+            ],
+            path: "Sources"
         ),
     ]
 )

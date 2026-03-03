@@ -5,6 +5,7 @@ import DesignSystem
 import Foundation
 import KindredAPI
 import NetworkClient
+import AuthClient
 import os.log
 
 private let feedLogger = Logger(subsystem: "com.ersinkirteke.kindred", category: "Feed")
@@ -38,6 +39,9 @@ public struct FeedReducer {
         public var showDNAActivationCard: Bool = false
         public var hasSeenDNAActivation: Bool = false
 
+        // Auth state
+        public var currentAuthState: AuthState = .guest
+
         public init() {}
     }
 
@@ -67,6 +71,14 @@ public struct FeedReducer {
         case culinaryDNAComputed([AffinityScore], Int, Bool)
         case dismissDNAActivationCard
         case feedReranked([RecipeCard])
+
+        // Auth actions
+        case authStateUpdated(AuthState)
+        case delegate(Delegate)
+
+    public enum Delegate: Equatable {
+        case authGateRequested(recipeId: String, recipeName: String, imageUrl: String?, cuisineType: String?, actionType: String)
+    }
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -116,6 +128,10 @@ public struct FeedReducer {
                 return true
             case let (.feedReranked(r1), .feedReranked(r2)):
                 return r1 == r2
+            case let (.authStateUpdated(a1), .authStateUpdated(a2)):
+                return a1 == a2
+            case let (.delegate(d1), .delegate(d2)):
+                return d1 == d2
             default:
                 return false
             }
@@ -245,6 +261,19 @@ public struct FeedReducer {
                     state.swipeHistory.removeLast()
                 }
 
+                // CHECK AUTH STATE for bookmark swipe (right swipe)
+                if direction == .right, case .guest = state.currentAuthState {
+                    // Guest user attempting to bookmark - trigger auth gate via delegate
+                    // Card already removed from stack for responsive UI
+                    return .send(.delegate(.authGateRequested(
+                        recipeId: card.id,
+                        recipeName: card.name,
+                        imageUrl: card.imageUrl,
+                        cuisineType: card.cuisineType,
+                        actionType: "bookmark"
+                    )))
+                }
+
                 // Trigger pagination if running low
                 let shouldPaginate = state.cardStack.count <= 3 && state.hasMorePages
 
@@ -256,13 +285,14 @@ public struct FeedReducer {
                     // Haptic feedback
                     HapticFeedback.medium()
 
-                    // Persist swipe action
+                    // Persist swipe action (authenticated users or skip action)
                     do {
                         if direction == .right {
                             try await guestSession.bookmarkRecipe(card.id, card.name, card.imageUrl, cuisineType)
                             let count = await guestSession.bookmarkCount()
                             await send(.bookmarkCountLoaded(count))
                         } else {
+                            // Skip is NOT gated - always allowed
                             try await guestSession.skipRecipe(card.id, cuisineType)
                         }
                     } catch {
@@ -555,6 +585,14 @@ public struct FeedReducer {
 
             case let .feedReranked(cards):
                 state.cardStack = cards
+                return .none
+
+            case let .authStateUpdated(authState):
+                state.currentAuthState = authState
+                return .none
+
+            case .delegate:
+                // Delegate actions handled by parent reducer
                 return .none
 
             case .recipeDetail:

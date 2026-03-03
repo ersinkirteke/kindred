@@ -17,6 +17,7 @@ let package = Package(
         .package(name: "NetworkClient", path: "../NetworkClient"),
         .package(name: "KindredAPI", path: "../KindredAPI"),
         .package(name: "VoicePlaybackFeature", path: "../VoicePlaybackFeature"),
+        .package(name: "AuthClient", path: "../AuthClient"),
     ],
     targets: [
         .target(
@@ -28,6 +29,7 @@ let package = Package(
                 "NetworkClient",
                 .product(name: "KindredAPI", package: "KindredAPI"),
                 "VoicePlaybackFeature",
+                "AuthClient",
             ]
         ),
     ]

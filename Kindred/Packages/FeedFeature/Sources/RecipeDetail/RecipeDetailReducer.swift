@@ -2,6 +2,7 @@ import Foundation
 import ComposableArchitecture
 import KindredAPI
 import Apollo
+import AuthClient
 
 // MARK: - Recipe Detail Reducer
 
@@ -19,6 +20,7 @@ public struct RecipeDetailReducer {
         public var checkedIngredients: Set<String> = []
         public var error: String?
         public var showBookmarkNudge: Bool = false
+        public var currentAuthState: AuthState = .guest
 
         public init(recipeId: String) {
             self.recipeId = recipeId
@@ -35,6 +37,12 @@ public struct RecipeDetailReducer {
         case toggleIngredient(String)
         case listenTapped
         case dismissBookmarkNudge
+        case authStateUpdated(AuthState)
+        case delegate(Delegate)
+
+    public enum Delegate: Equatable {
+        case authGateRequested(actionType: String)
+    }
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -55,6 +63,10 @@ public struct RecipeDetailReducer {
             case let (.bookmarkStatusLoaded(lhs), .bookmarkStatusLoaded(rhs)):
                 return lhs == rhs
             case let (.toggleIngredient(lhs), .toggleIngredient(rhs)):
+                return lhs == rhs
+            case let (.authStateUpdated(lhs), .authStateUpdated(rhs)):
+                return lhs == rhs
+            case let (.delegate(lhs), .delegate(rhs)):
                 return lhs == rhs
             default:
                 return false
@@ -117,6 +129,12 @@ public struct RecipeDetailReducer {
             case .toggleBookmark:
                 guard let recipe = state.recipe else { return .none }
 
+                // CHECK AUTH STATE - gate bookmark for guests
+                if case .guest = state.currentAuthState {
+                    return .send(.delegate(.authGateRequested(actionType: "bookmark")))
+                }
+
+                // Authenticated user - proceed with bookmark toggle
                 let wasBookmarked = state.isBookmarked
                 state.isBookmarked.toggle()
 
@@ -155,11 +173,24 @@ public struct RecipeDetailReducer {
                 return .none
 
             case .listenTapped:
-                // Placeholder for Phase 7 - disabled button, no-op
+                // CHECK AUTH STATE - gate listen for guests
+                if case .guest = state.currentAuthState {
+                    return .send(.delegate(.authGateRequested(actionType: "listen")))
+                }
+
+                // Authenticated user - action handled by parent AppReducer
                 return .none
 
             case .dismissBookmarkNudge:
                 state.showBookmarkNudge = false
+                return .none
+
+            case let .authStateUpdated(authState):
+                state.currentAuthState = authState
+                return .none
+
+            case .delegate:
+                // Delegate actions handled by parent reducer
                 return .none
             }
         }

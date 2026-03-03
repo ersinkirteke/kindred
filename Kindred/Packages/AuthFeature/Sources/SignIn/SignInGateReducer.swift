@@ -11,7 +11,13 @@ public struct SignInGateReducer {
         public var signInError: String?
         public var deferredActionId: String?  // Opaque ID for the action to execute after sign-in
 
-        public init(deferredActionId: String? = nil) {
+        public init(
+            isSigningIn: Bool = false,
+            signInError: String? = nil,
+            deferredActionId: String? = nil
+        ) {
+            self.isSigningIn = isSigningIn
+            self.signInError = signInError
             self.deferredActionId = deferredActionId
         }
     }
