@@ -21,6 +21,16 @@ public actor AudioPlayerManager {
     public func play(url: URL) async throws {
         logger.info("▶️ play() called with URL: \(url.absoluteString)")
 
+        // Verify audio session is active
+        let session = AVAudioSession.sharedInstance()
+        logger.info("Audio session category: \(session.category.rawValue), mode: \(session.mode.rawValue), isOtherAudioPlaying: \(session.isOtherAudioPlaying)")
+
+        // Re-activate session if needed (handles silent mode, etc.)
+        if session.category != .playback {
+            try session.setCategory(.playback, mode: .spokenAudio)
+        }
+        try session.setActive(true)
+
         // Clean up existing player
         await cleanup()
 
@@ -32,7 +42,30 @@ public actor AudioPlayerManager {
         newPlayer.volume = 1.0
         self.player = newPlayer
 
+        // Wait for AVPlayerItem to reach .readyToPlay before calling play()
+        do {
+            try await waitForReadyToPlay(playerItem: playerItem)
+            logger.info("✅ PlayerItem ready to play")
+        } catch {
+            // Enhanced error diagnostics
+            let itemStatus = playerItem.status.rawValue
+            let itemError = playerItem.error?.localizedDescription ?? "none"
+            let sessionCategory = session.category.rawValue
+            let otherAudioPlaying = session.isOtherAudioPlaying
+
+            logger.error("❌ waitForReadyToPlay failed - URL: \(url.absoluteString), status: \(itemStatus), error: \(itemError), session: \(sessionCategory), otherAudio: \(otherAudioPlaying)")
+
+            throw PlayerError.failedToLoadWithDetails(
+                url: url.absoluteString,
+                itemStatus: itemStatus,
+                itemError: itemError,
+                sessionCategory: sessionCategory,
+                otherAudioPlaying: otherAudioPlaying
+            )
+        }
+
         // Start playback - AVPlayer handles buffering internally
+        logger.info("🎵 Calling AVPlayer.play()")
         newPlayer.play()
     }
 
@@ -136,7 +169,10 @@ public actor AudioPlayerManager {
                 case .playing:
                     .playing
                 case .paused:
-                    if player.currentItem?.isPlaybackLikelyToKeepUp == false {
+                    // Check for AVPlayerItem errors first
+                    if let error = player.currentItem?.error {
+                        .error("Cannot Open: \(error.localizedDescription)")
+                    } else if player.currentItem?.isPlaybackLikelyToKeepUp == false {
                         .buffering
                     } else {
                         .paused
@@ -154,6 +190,14 @@ public actor AudioPlayerManager {
                 await self?.storeStatusObservation(observation)
             }
 
+            // Observe item status for error detection
+            let itemObservation = player.currentItem?.observe(\.status, options: [.new]) { item, _ in
+                if item.status == .failed, let error = item.error {
+                    logger.error("❌ AVPlayerItem failed: \(error.localizedDescription)")
+                    continuation.yield(.error("Failed: \(error.localizedDescription)"))
+                }
+            }
+
             // Observe item end notification
             let task = Task {
                 let center = NotificationCenter.default
@@ -168,6 +212,7 @@ public actor AudioPlayerManager {
 
             continuation.onTermination = { _ in
                 observation.invalidate()
+                itemObservation?.invalidate()
                 task.cancel()
             }
         }
@@ -312,6 +357,7 @@ public enum TestAudioGenerator {
 enum PlayerError: Error, LocalizedError {
     case failedToLoad
     case timeout
+    case failedToLoadWithDetails(url: String, itemStatus: Int, itemError: String, sessionCategory: String, otherAudioPlaying: Bool)
 
     var errorDescription: String? {
         switch self {
@@ -319,6 +365,12 @@ enum PlayerError: Error, LocalizedError {
             return "Failed to load audio"
         case .timeout:
             return "Audio loading timed out"
+        case let .failedToLoadWithDetails(url, itemStatus, itemError, sessionCategory, otherAudioPlaying):
+            return """
+            Failed to load: \(url)
+            Status: \(itemStatus), Error: \(itemError)
+            Session: \(sessionCategory), OtherAudio: \(otherAudioPlaying)
+            """
         }
     }
 }
