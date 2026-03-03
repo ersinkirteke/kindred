@@ -62,6 +62,7 @@ public struct VoiceUploadReducer {
         case uploadProgress(Double)
         case uploadCompleted(VoiceProfile)
         case uploadFailed(String)
+        case filePickerDismissed
         case dismiss
     }
 
@@ -77,6 +78,10 @@ public struct VoiceUploadReducer {
             case .selectFile:
                 state.showFilePicker = true
                 state.error = nil
+                return .none
+
+            case .filePickerDismissed:
+                state.showFilePicker = false
                 return .none
 
             case let .fileSelected(url):

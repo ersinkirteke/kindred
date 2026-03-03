@@ -49,6 +49,37 @@ public struct VoicePickerView: View {
                                 onPreview: { onPreview(profile.id) }
                             )
                         }
+
+                        // Add new voice profile button
+                        Button {
+                            onCreateProfile()
+                        } label: {
+                            HStack(spacing: 12) {
+                                Circle()
+                                    .fill(Color.kindredAccent.opacity(0.15))
+                                    .frame(width: 44, height: 44)
+                                    .overlay(
+                                        Image(systemName: "plus")
+                                            .foregroundColor(.kindredAccent)
+                                            .font(.system(size: 20, weight: .semibold))
+                                    )
+
+                                Text("Create Voice Profile")
+                                    .font(.kindredBodyBold())
+                                    .foregroundColor(.kindredAccent)
+
+                                Spacer()
+                            }
+                            .padding(16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .strokeBorder(
+                                        style: StrokeStyle(lineWidth: 1.5, dash: [6, 4])
+                                    )
+                                    .foregroundColor(.kindredAccent.opacity(0.4))
+                            )
+                        }
+                        .accessibilityLabel("Create a new voice profile")
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 16)

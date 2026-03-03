@@ -26,7 +26,11 @@ public struct VoiceUploadView: View {
         .fileImporter(
             isPresented: Binding(
                 get: { store.showFilePicker },
-                set: { _ in }
+                set: { newValue in
+                    if !newValue {
+                        store.send(.filePickerDismissed)
+                    }
+                }
             ),
             allowedContentTypes: [.audio],
             allowsMultipleSelection: false
