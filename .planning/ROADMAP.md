@@ -98,12 +98,13 @@ Plans:
   3. Voice playback continues in background with lock screen controls (play/pause, seek, Now Playing info)
   4. Voice profiles cache locally for offline narration playback (downloaded audio files persist)
   5. VoiceOver users can navigate audio controls with meaningful labels and hints
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
-- [ ] 07-03: TBD
+- [ ] 07-01-PLAN.md — VoicePlaybackFeature package: AudioPlayerClient, VoiceCacheClient, StepSyncEngine, domain models
+- [ ] 07-02-PLAN.md — VoicePlaybackReducer, MiniPlayerView, ExpandedPlayerView, VoicePickerView
+- [ ] 07-03-PLAN.md — Background audio, lock screen controls, app integration, RecipeDetail wiring, step highlighting
+- [ ] 07-04-PLAN.md — Voice upload flow, end-to-end visual verification
 
 ### Phase 8: Authentication & Onboarding
 **Goal**: Users complete onboarding in under 90 seconds and seamlessly convert from guest to account
