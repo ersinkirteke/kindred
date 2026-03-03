@@ -32,7 +32,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 - [x] **VOICE-01**: User can listen to any recipe's instructions narrated in their cloned voice
 - [x] **VOICE-02**: Voice narration streams in real-time with play/pause/seek controls and 64dp play button
 - [x] **VOICE-03**: Voice narration displays the speaker's name prominently during playback
-- [ ] **VOICE-04**: Voice playback continues in background with lock screen controls
+- [x] **VOICE-04**: Voice playback continues in background with lock screen controls
 - [x] **VOICE-05**: Voice profiles are cached locally for offline narration playback
 - [x] **VOICE-06**: User can upload a 30-60 second voice clip to create a voice profile
 - [ ] **VOICE-07**: Free tier users get 1 voice slot; Pro users get unlimited voice slots
@@ -118,7 +118,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VOICE-01 | Phase 7 | Complete |
 | VOICE-02 | Phase 7 | Complete |
 | VOICE-03 | Phase 7 | Complete |
-| VOICE-04 | Phase 7 | Pending |
+| VOICE-04 | Phase 7 | Complete |
 | VOICE-05 | Phase 7 | Complete |
 | VOICE-06 | Phase 7 | Complete |
 | VOICE-07 | Phase 9 | Pending |
