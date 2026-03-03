@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import AuthFeature
 import FeedFeature
 import SwiftData
 import SwiftUI
@@ -10,10 +11,13 @@ struct KindredApp: App {
     // App state
     @State private var showSplash = true
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    // TODO: Replace WelcomeCardView with OnboardingView when Plan 08-02 is complete
 
     let store = Store(initialState: AppReducer.State()) {
         AppReducer()
+    }
+
+    let onboardingStore = Store(initialState: OnboardingReducer.State()) {
+        OnboardingReducer()
     }
 
     var body: some Scene {
@@ -24,12 +28,16 @@ struct KindredApp: App {
                 } else {
                     RootView(store: store)
 
-                    // Welcome card overlay (first launch only)
-                    // TODO: Replace with OnboardingView when Plan 08-02 is complete
                     if !hasCompletedOnboarding {
-                        WelcomeCardView {
-                            hasCompletedOnboarding = true
-                        }
+                        OnboardingView(store: onboardingStore)
+                            .transition(.opacity)
+                            .onChange(of: onboardingStore.currentStep) { _, newStep in
+                                if newStep >= onboardingStore.totalSteps {
+                                    withAnimation {
+                                        hasCompletedOnboarding = true
+                                    }
+                                }
+                            }
                     }
                 }
             }
