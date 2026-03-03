@@ -9,17 +9,20 @@ public struct VoicePickerView: View {
     let selectedVoiceId: String?
     let onSelect: (String) -> Void
     let onPreview: (String) -> Void
+    let onCreateProfile: () -> Void
 
     public init(
         voiceProfiles: [VoiceProfile],
         selectedVoiceId: String?,
         onSelect: @escaping (String) -> Void,
-        onPreview: @escaping (String) -> Void
+        onPreview: @escaping (String) -> Void,
+        onCreateProfile: @escaping () -> Void = {}
     ) {
         self.voiceProfiles = voiceProfiles
         self.selectedVoiceId = selectedVoiceId
         self.onSelect = onSelect
         self.onPreview = onPreview
+        self.onCreateProfile = onCreateProfile
     }
 
     public var body: some View {
@@ -33,7 +36,7 @@ public struct VoicePickerView: View {
 
             if voiceProfiles.isEmpty {
                 // Empty state
-                EmptyStateView()
+                EmptyStateView(onCreateProfile: onCreateProfile)
             } else {
                 // Voice cards
                 ScrollView {
@@ -167,6 +170,8 @@ struct VoiceCardView: View {
 // MARK: - EmptyStateView
 
 struct EmptyStateView: View {
+    let onCreateProfile: () -> Void
+
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "mic.slash")
@@ -183,9 +188,8 @@ struct EmptyStateView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
 
-            // TODO: Add navigation to voice cloning flow in Phase 8+
             Button("Create Voice Profile") {
-                // Navigation will be implemented in later phase
+                onCreateProfile()
             }
             .font(.kindredBodyBold())
             .foregroundColor(.white)

@@ -64,10 +64,28 @@ struct RootView: View {
                 },
                 onPreview: { voiceId in
                     store.send(.voicePlayback(.previewVoiceSample(voiceId)))
+                },
+                onCreateProfile: {
+                    store.send(.voicePlayback(.showVoiceUpload))
                 }
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: Binding(
+            get: { store.voicePlaybackState.voiceUpload != nil },
+            set: { newValue in
+                if !newValue {
+                    store.send(.voicePlayback(.voiceUpload(.dismiss)))
+                }
+            }
+        )) {
+            let voicePlaybackStore = store.scope(state: \.voicePlaybackState, action: \.voicePlayback)
+            if let uploadStore = voicePlaybackStore.scope(state: \.voiceUpload, action: \.voiceUpload) {
+                VoiceUploadView(store: uploadStore)
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+            }
         }
     }
 }

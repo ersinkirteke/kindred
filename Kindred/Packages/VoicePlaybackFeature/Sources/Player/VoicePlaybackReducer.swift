@@ -23,6 +23,7 @@ public struct VoicePlaybackReducer {
         public var pendingRecipeId: String?
         public var pendingRecipeName: String?
         public var pendingArtworkURL: String?
+        public var voiceUpload: VoiceUploadReducer.State?
 
         public init(
             currentPlayback: CurrentPlayback? = nil,
@@ -37,7 +38,8 @@ public struct VoicePlaybackReducer {
             error: String? = nil,
             pendingRecipeId: String? = nil,
             pendingRecipeName: String? = nil,
-            pendingArtworkURL: String? = nil
+            pendingArtworkURL: String? = nil,
+            voiceUpload: VoiceUploadReducer.State? = nil
         ) {
             self.currentPlayback = currentPlayback
             self.isExpanded = isExpanded
@@ -52,6 +54,7 @@ public struct VoicePlaybackReducer {
             self.pendingRecipeId = pendingRecipeId
             self.pendingRecipeName = pendingRecipeName
             self.pendingArtworkURL = pendingArtworkURL
+            self.voiceUpload = voiceUpload
         }
     }
 
@@ -81,6 +84,8 @@ public struct VoicePlaybackReducer {
         case cachingFailed(String)
         case dismissVoicePicker
         case showVoiceSwitcher
+        case showVoiceUpload
+        case voiceUpload(VoiceUploadReducer.Action)
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -122,6 +127,9 @@ public struct VoicePlaybackReducer {
                 return lErr == rErr
             case (.dismissVoicePicker, .dismissVoicePicker): return true
             case (.showVoiceSwitcher, .showVoiceSwitcher): return true
+            case (.showVoiceUpload, .showVoiceUpload): return true
+            case let (.voiceUpload(lAction), .voiceUpload(rAction)):
+                return lAction == rAction
             default:
                 return false
             }
@@ -153,6 +161,23 @@ public struct VoicePlaybackReducer {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .showVoiceUpload:
+                state.showVoicePicker = false
+                state.voiceUpload = VoiceUploadReducer.State()
+                return .none
+
+            case .voiceUpload(.dismiss):
+                state.voiceUpload = nil
+                return .none
+
+            case let .voiceUpload(.uploadCompleted(profile)):
+                // Add the new profile to the list
+                state.voiceProfiles.append(profile)
+                return .none
+
+            case .voiceUpload:
+                return .none
+
             case let .startPlayback(recipeId, recipeName, artworkURL, steps):
                 state.recipeSteps = steps
                 state.isLoadingNarration = true
@@ -646,6 +671,9 @@ public struct VoicePlaybackReducer {
                 print("Caching failed (non-critical): \(errorMessage)")
                 return .none
             }
+        }
+        .ifLet(\.voiceUpload, action: \.voiceUpload) {
+            VoiceUploadReducer()
         }
     }
 }
