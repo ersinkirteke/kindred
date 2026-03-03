@@ -101,12 +101,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [x] 07-01-PLAN.md — VoicePlaybackFeature package: AudioPlayerClient, VoiceCacheClient, StepSyncEngine, domain models
-- [x] 07-02-PLAN.md — VoicePlaybackReducer, MiniPlayerView, ExpandedPlayerView, VoicePickerView
-- [x] 07-03-PLAN.md — Background audio, lock screen controls, app integration, RecipeDetail wiring, step highlighting
-- [x] 07-04-PLAN.md — Voice upload flow, end-to-end visual verification
-- [ ] 07-05-PLAN.md — [GAP CLOSURE] Fix AVPlayer playback: waitForReadyToPlay, remove premature status, enable cache
-- [ ] 07-06-PLAN.md — [GAP CLOSURE] Residual fixes and human verification of end-to-end audio playback
+- [x] 07-01-PLAN.md — VoicePlaybackFeature package: AudioPlayerClient, VoiceCacheClient, StepSyncEngine, domain models (✓ 2026-03-03, 3 min)
+- [x] 07-02-PLAN.md — VoicePlaybackReducer, MiniPlayerView, ExpandedPlayerView, VoicePickerView (✓ 2026-03-03, 4 min)
+- [x] 07-03-PLAN.md — Background audio, lock screen controls, app integration, RecipeDetail wiring, step highlighting (✓ 2026-03-03, 3 min)
+- [x] 07-04-PLAN.md — Voice upload flow, end-to-end visual verification (✓ 2026-03-03)
+- [x] 07-05-PLAN.md — [GAP CLOSURE] Fix AVPlayer playback: waitForReadyToPlay, remove premature status, enable cache (✓ 2026-03-03, 4 min)
+- [x] 07-06-PLAN.md — [GAP CLOSURE] Residual fixes and human verification of end-to-end audio playback (✓ 2026-03-03, 2 min)
 
 ### Phase 8: Authentication & Onboarding
 **Goal**: Users complete onboarding in under 90 seconds and seamlessly convert from guest to account
@@ -166,7 +166,7 @@ Plans:
 | 4. Foundation & Architecture | v2.0 | 4/4 | Complete | 2026-03-01 |
 | 5. Guest Browsing & Feed | v2.0 | 4/4 | Complete | 2026-03-02 |
 | 6. Dietary Filtering & Personalization | v2.0 | 3/3 | Complete | 2026-03-03 |
-| 7. Voice Playback & Streaming | 2/4 | In Progress|  | - |
+| 7. Voice Playback & Streaming | v2.0 | 4/6 | In Progress | - |
 | 8. Authentication & Onboarding | v2.0 | 0/? | Not started | - |
 | 9. Monetization & Voice Tiers | v2.0 | 0/? | Not started | - |
 | 10. Accessibility & Polish | v2.0 | 0/? | Not started | - |
