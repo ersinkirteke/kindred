@@ -24,7 +24,10 @@ public struct VoiceUploadView: View {
             }
         }
         .fileImporter(
-            isPresented: $store.showFilePicker,
+            isPresented: Binding(
+                get: { store.showFilePicker },
+                set: { _ in }
+            ),
             allowedContentTypes: [.audio],
             allowsMultipleSelection: false
         ) { result in
@@ -191,7 +194,10 @@ public struct VoiceUploadView: View {
                 .font(.kindredBodyBold())
                 .foregroundColor(.kindredTextPrimary)
 
-            TextField("e.g., My Voice, Mom, Dad", text: $store.voiceName)
+            TextField("e.g., My Voice, Mom, Dad", text: Binding(
+                get: { store.voiceName },
+                set: { store.send(.voiceNameChanged($0)) }
+            ))
                 .font(.kindredBody())
                 .foregroundColor(.kindredTextPrimary)
                 .padding(16)

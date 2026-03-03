@@ -107,7 +107,10 @@ public struct MiniPlayerView: View {
             .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -2)
             .transition(.move(edge: .bottom).combined(with: .opacity))
             .animation(.easeInOut(duration: 0.3), value: store.currentPlayback != nil)
-            .sheet(isPresented: $store.isExpanded.sending(\.toggleExpanded)) {
+            .sheet(isPresented: Binding(
+                get: { store.isExpanded },
+                set: { _ in store.send(.toggleExpanded) }
+            )) {
                 ExpandedPlayerView(store: store)
                     .presentationDetents([.fraction(0.6), .large])
                     .presentationDragIndicator(.visible)

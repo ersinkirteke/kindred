@@ -14,85 +14,57 @@ public struct ExpandedPlayerView: View {
 
     public var body: some View {
         if let playback = store.currentPlayback {
-            VStack(spacing: 20) {
-                // Speaker section (top)
-                VStack(spacing: 8) {
-                    // Speaker avatar
-                    if let voiceProfile = store.voiceProfiles.first(where: { $0.id == playback.voiceId }),
-                       let avatarURL = voiceProfile.avatarURL,
-                       let url = URL(string: avatarURL) {
+            VStack(spacing: 16) {
+                // Speaker section with artwork (top)
+                HStack(spacing: 16) {
+                    // Recipe artwork (compact)
+                    if let artworkURL = playback.artworkURL, let url = URL(string: artworkURL) {
                         KFImage(url)
                             .placeholder {
-                                Circle()
+                                RoundedRectangle(cornerRadius: 12)
                                     .fill(Color.kindredDivider)
                                     .overlay(
-                                        Image(systemName: "person.crop.circle")
+                                        Image(systemName: "photo")
                                             .foregroundColor(.kindredTextSecondary)
                                     )
                             }
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 64, height: 64)
-                            .clipShape(Circle())
+                            .frame(width: 80, height: 80)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                     } else {
+                        // Speaker avatar (no artwork)
                         Circle()
                             .fill(Color.kindredDivider)
-                            .frame(width: 64, height: 64)
+                            .frame(width: 80, height: 80)
                             .overlay(
-                                Image(systemName: "person.crop.circle")
+                                Image(systemName: "person.crop.circle.fill")
                                     .foregroundColor(.kindredTextSecondary)
-                                    .font(.system(size: 32))
+                                    .font(.system(size: 40))
                             )
                     }
 
-                    // Speaker name (prominently displayed)
-                    Text(playback.speakerName)
-                        .font(.kindredHeading2())
-                        .foregroundColor(.kindredTextPrimary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        // Recipe name
+                        Text(playback.recipeName)
+                            .font(.kindredHeading3())
+                            .foregroundColor(.kindredTextPrimary)
+                            .lineLimit(2)
 
-                    Text("Narrating")
-                        .font(.kindredCaption())
-                        .foregroundColor(.kindredTextSecondary)
+                        // Speaker name (prominently displayed)
+                        Text(playback.speakerName)
+                            .font(.kindredHeading2())
+                            .foregroundColor(.kindredAccent)
+
+                        Text("Narrating")
+                            .font(.kindredCaption())
+                            .foregroundColor(.kindredTextSecondary)
+                    }
+
+                    Spacer()
                 }
-                .padding(.top, 16)
-
-                // Recipe artwork
-                if let artworkURL = playback.artworkURL, let url = URL(string: artworkURL) {
-                    KFImage(url)
-                        .placeholder {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.kindredDivider)
-                                .aspectRatio(1, contentMode: .fit)
-                                .overlay(
-                                    Image(systemName: "photo")
-                                        .foregroundColor(.kindredTextSecondary)
-                                        .font(.system(size: 40))
-                                )
-                        }
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .frame(maxWidth: 280)
-                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
-                } else {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.kindredDivider)
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(maxWidth: 280)
-                        .overlay(
-                            Image(systemName: "photo")
-                                .foregroundColor(.kindredTextSecondary)
-                                .font(.system(size: 40))
-                        )
-                }
-
-                // Recipe name
-                Text(playback.recipeName)
-                    .font(.kindredHeading3())
-                    .foregroundColor(.kindredTextPrimary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .padding(.horizontal, 24)
+                .padding(.horizontal, 24)
+                .padding(.top, 20)
 
                 // Current step text
                 if let stepIndex = playback.currentStepIndex,
@@ -210,17 +182,30 @@ public struct ExpandedPlayerView: View {
                     // Voice switch button (if multiple voices available)
                     if store.voiceProfiles.count > 1 {
                         Button {
-                            store.send(.toggleExpanded) // Show voice picker inline
+                            store.send(.dismissVoicePicker)
+                            // Re-show voice picker after brief delay
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                store.send(.startPlayback(
+                                    recipeId: playback.recipeId,
+                                    recipeName: playback.recipeName,
+                                    artworkURL: playback.artworkURL,
+                                    steps: store.recipeSteps
+                                ))
+                            }
                         } label: {
-                            Image(systemName: "waveform.badge.person")
-                                .font(.kindredBodyBold())
-                                .foregroundColor(.kindredAccent)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(
-                                    Capsule()
-                                        .stroke(Color.kindredAccent, lineWidth: 1.5)
-                                )
+                            HStack(spacing: 4) {
+                                Image(systemName: "person.2.fill")
+                                    .font(.system(size: 14))
+                                Text("Voice")
+                                    .font(.kindredBodyBold())
+                            }
+                            .foregroundColor(.kindredAccent)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(
+                                Capsule()
+                                    .stroke(Color.kindredAccent, lineWidth: 1.5)
+                            )
                         }
                         .accessibilityLabel("Switch narrator voice")
                         .accessibilityHint("Double tap to choose a different voice")

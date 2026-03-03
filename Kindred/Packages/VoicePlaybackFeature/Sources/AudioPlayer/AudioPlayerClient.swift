@@ -9,9 +9,9 @@ public struct AudioPlayerClient {
     public var resume: @Sendable () async -> Void
     public var seek: @Sendable (TimeInterval) async -> Void
     public var setRate: @Sendable (Float) async -> Void
-    public var currentTimeStream: @Sendable () -> AsyncStream<TimeInterval>
-    public var statusStream: @Sendable () -> AsyncStream<PlaybackStatus>
-    public var durationStream: @Sendable () -> AsyncStream<TimeInterval>
+    public var currentTimeStream: @Sendable () async -> AsyncStream<TimeInterval>
+    public var statusStream: @Sendable () async -> AsyncStream<PlaybackStatus>
+    public var durationStream: @Sendable () async -> AsyncStream<TimeInterval>
     public var cleanup: @Sendable () async -> Void
 }
 
@@ -59,17 +59,17 @@ extension AudioPlayerClient: DependencyKey {
             resume: { },
             seek: { _ in },
             setRate: { _ in },
-            currentTimeStream: {
+            currentTimeStream: { @Sendable in
                 AsyncStream { continuation in
                     continuation.finish()
                 }
             },
-            statusStream: {
+            statusStream: { @Sendable in
                 AsyncStream { continuation in
                     continuation.finish()
                 }
             },
-            durationStream: {
+            durationStream: { @Sendable in
                 AsyncStream { continuation in
                     continuation.finish()
                 }

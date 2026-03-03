@@ -48,5 +48,26 @@ struct RootView: View {
                 .animation(.spring(response: 0.3, dampingFraction: 0.8), value: store.voicePlaybackState.currentPlayback != nil)
             }
         }
+        .sheet(isPresented: Binding(
+            get: { store.voicePlaybackState.showVoicePicker },
+            set: { newValue in
+                if !newValue {
+                    store.send(.voicePlayback(.dismissVoicePicker))
+                }
+            }
+        )) {
+            VoicePickerView(
+                voiceProfiles: store.voicePlaybackState.voiceProfiles,
+                selectedVoiceId: store.voicePlaybackState.selectedVoiceId,
+                onSelect: { voiceId in
+                    store.send(.voicePlayback(.selectVoice(voiceId)))
+                },
+                onPreview: { voiceId in
+                    store.send(.voicePlayback(.previewVoiceSample(voiceId)))
+                }
+            )
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
     }
 }

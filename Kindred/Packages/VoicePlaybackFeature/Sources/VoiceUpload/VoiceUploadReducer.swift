@@ -65,10 +65,6 @@ public struct VoiceUploadReducer {
         case dismiss
     }
 
-    // MARK: - Dependencies
-
-    @Dependency(\.apolloClient) var apolloClient
-
     // MARK: - Initialization
 
     public init() {}

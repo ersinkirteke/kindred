@@ -20,6 +20,9 @@ public struct VoicePlaybackReducer {
         public var narrationMetadata: NarrationMetadata?
         public var recipeSteps: [String] = []
         public var error: String?
+        public var pendingRecipeId: String?
+        public var pendingRecipeName: String?
+        public var pendingArtworkURL: String?
 
         public init(
             currentPlayback: CurrentPlayback? = nil,
@@ -31,7 +34,10 @@ public struct VoicePlaybackReducer {
             showVoicePicker: Bool = false,
             narrationMetadata: NarrationMetadata? = nil,
             recipeSteps: [String] = [],
-            error: String? = nil
+            error: String? = nil,
+            pendingRecipeId: String? = nil,
+            pendingRecipeName: String? = nil,
+            pendingArtworkURL: String? = nil
         ) {
             self.currentPlayback = currentPlayback
             self.isExpanded = isExpanded
@@ -43,6 +49,9 @@ public struct VoicePlaybackReducer {
             self.narrationMetadata = narrationMetadata
             self.recipeSteps = recipeSteps
             self.error = error
+            self.pendingRecipeId = pendingRecipeId
+            self.pendingRecipeName = pendingRecipeName
+            self.pendingArtworkURL = pendingArtworkURL
         }
     }
 
@@ -70,6 +79,7 @@ public struct VoicePlaybackReducer {
         case stopPreview
         case cachingCompleted(URL)
         case cachingFailed(String)
+        case dismissVoicePicker
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -109,6 +119,7 @@ public struct VoicePlaybackReducer {
                 return lURL == rURL
             case let (.cachingFailed(lErr), .cachingFailed(rErr)):
                 return lErr == rErr
+            case (.dismissVoicePicker, .dismissVoicePicker): return true
             default:
                 return false
             }
@@ -144,6 +155,9 @@ public struct VoicePlaybackReducer {
                 state.recipeSteps = steps
                 state.isLoadingNarration = true
                 state.error = nil
+                state.pendingRecipeId = recipeId
+                state.pendingRecipeName = recipeName
+                state.pendingArtworkURL = artworkURL
 
                 // Check last used voice for this recipe
                 if let lastVoiceId = state.lastUsedVoicePerRecipe[recipeId] {
@@ -207,7 +221,7 @@ public struct VoicePlaybackReducer {
                 return .none
 
             case let .selectVoice(voiceId):
-                guard let currentRecipeId = state.currentPlayback?.recipeId ?? state.recipeSteps.isEmpty ? nil : "pending" else {
+                guard state.currentPlayback?.recipeId != nil || !state.recipeSteps.isEmpty else {
                     return .none
                 }
 
@@ -221,29 +235,27 @@ public struct VoicePlaybackReducer {
                 }
 
                 // Check cache first
-                return .run { [voiceId] send in
-                    // TODO: Extract recipeId from pending state
-                    let recipeId = "recipe-1" // Placeholder
-
+                let recipeId = state.pendingRecipeId ?? state.currentPlayback?.recipeId ?? "unknown"
+                return .run { [voiceId, recipeId] send in
                     if let cachedURL = await voiceCache.getCachedAudio(voiceId, recipeId) {
                         // Load from cache
                         let metadata = NarrationMetadata(
                             recipeId: recipeId,
                             voiceId: voiceId,
                             audioURL: cachedURL.absoluteString,
-                            duration: 300, // Placeholder
-                            stepTimestamps: [0, 30, 60, 120, 180, 240], // Placeholder
+                            duration: 300,
+                            stepTimestamps: [0, 30, 60, 120, 180, 240],
                             generatedAt: Date()
                         )
                         await send(.narrationReady(metadata))
                     } else {
-                        // Stream from remote
                         // TODO: Replace with actual narration API call (GraphQL mutation or R2 presigned URL)
-                        let remoteURL = "https://example.com/narration/\(recipeId)_\(voiceId).m4a"
+                        // Using Apple's official HLS test stream for development/demo
+                        let sampleURL = "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8"
                         let metadata = NarrationMetadata(
                             recipeId: recipeId,
                             voiceId: voiceId,
-                            audioURL: remoteURL,
+                            audioURL: sampleURL,
                             duration: 300,
                             stepTimestamps: [0, 30, 60, 120, 180, 240],
                             generatedAt: Date()
@@ -264,10 +276,10 @@ public struct VoicePlaybackReducer {
 
                 state.currentPlayback = CurrentPlayback(
                     recipeId: metadata.recipeId,
-                    recipeName: "Recipe Name", // TODO: Get from state
+                    recipeName: state.pendingRecipeName ?? "Recipe",
                     voiceId: metadata.voiceId,
                     speakerName: voiceProfile.name,
-                    artworkURL: nil, // TODO: Get from state
+                    artworkURL: state.pendingArtworkURL,
                     duration: metadata.duration,
                     currentTime: 0,
                     speed: .normal,
@@ -282,28 +294,35 @@ public struct VoicePlaybackReducer {
                         return
                     }
 
-                    // Start audio playback
-                    try await audioPlayer.play(url)
+                    do {
+                        // Start audio playback and wait for ready
+                        try await audioPlayer.play(url)
 
-                    // Observe time updates
-                    await withTaskGroup(of: Void.self) { group in
-                        group.addTask {
-                            for await time in audioPlayer.currentTimeStream() {
-                                await send(.timeUpdated(time))
+                        // Mark as playing after successful load
+                        await send(.statusChanged(.playing))
+
+                        // Observe time updates
+                        await withTaskGroup(of: Void.self) { group in
+                            group.addTask {
+                                for await time in await audioPlayer.currentTimeStream() {
+                                    await send(.timeUpdated(time))
+                                }
+                            }
+
+                            group.addTask {
+                                for await status in await audioPlayer.statusStream() {
+                                    await send(.statusChanged(status))
+                                }
+                            }
+
+                            group.addTask {
+                                for await duration in await audioPlayer.durationStream() {
+                                    await send(.durationUpdated(duration))
+                                }
                             }
                         }
-
-                        group.addTask {
-                            for await status in audioPlayer.statusStream() {
-                                await send(.statusChanged(status))
-                            }
-                        }
-
-                        group.addTask {
-                            for await duration in audioPlayer.durationStream() {
-                                await send(.durationUpdated(duration))
-                            }
-                        }
+                    } catch {
+                        await send(.narrationFailed("Could not play audio: \(error.localizedDescription)"))
                     }
                 }
                 .cancellable(id: CancelID.timeObserver)
@@ -314,13 +333,39 @@ public struct VoicePlaybackReducer {
                 return .none
 
             case .play:
-                guard state.currentPlayback?.status == .paused else { return .none }
+                guard var currentPlayback = state.currentPlayback,
+                      currentPlayback.status != .playing else { return .none }
+                state.currentPlayback = CurrentPlayback(
+                    recipeId: currentPlayback.recipeId,
+                    recipeName: currentPlayback.recipeName,
+                    voiceId: currentPlayback.voiceId,
+                    speakerName: currentPlayback.speakerName,
+                    artworkURL: currentPlayback.artworkURL,
+                    duration: currentPlayback.duration,
+                    currentTime: currentPlayback.currentTime,
+                    speed: currentPlayback.speed,
+                    status: .playing,
+                    currentStepIndex: currentPlayback.currentStepIndex
+                )
                 return .run { _ in
                     await audioPlayer.resume()
                 }
 
             case .pause:
-                guard state.currentPlayback?.status == .playing else { return .none }
+                guard var currentPlayback = state.currentPlayback,
+                      currentPlayback.status == .playing else { return .none }
+                state.currentPlayback = CurrentPlayback(
+                    recipeId: currentPlayback.recipeId,
+                    recipeName: currentPlayback.recipeName,
+                    voiceId: currentPlayback.voiceId,
+                    speakerName: currentPlayback.speakerName,
+                    artworkURL: currentPlayback.artworkURL,
+                    duration: currentPlayback.duration,
+                    currentTime: currentPlayback.currentTime,
+                    speed: currentPlayback.speed,
+                    status: .paused,
+                    currentStepIndex: currentPlayback.currentStepIndex
+                )
                 return .run { _ in
                     await audioPlayer.pause()
                 }
@@ -380,6 +425,11 @@ public struct VoicePlaybackReducer {
 
             case .toggleExpanded:
                 state.isExpanded.toggle()
+                return .none
+
+            case .dismissVoicePicker:
+                state.showVoicePicker = false
+                state.isLoadingNarration = false
                 return .none
 
             case .dismiss:

@@ -20,13 +20,49 @@ public actor AudioPlayerManager {
         await cleanup()
 
         let playerItem = AVPlayerItem(url: url)
-        playerItem.audioTimePitchAlgorithm = .timePitch
+        playerItem.audioTimePitchAlgorithm = .spectral
 
         let newPlayer = AVPlayer(playerItem: playerItem)
+        newPlayer.automaticallyWaitsToMinimizeStalling = true
         self.player = newPlayer
 
         // Start playback
         newPlayer.play()
+
+        // Wait for player item to become ready (or fail)
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            // Use a flag to prevent double-resume
+            let resumed = UnsafeMutablePointer<Bool>.allocate(capacity: 1)
+            resumed.initialize(to: false)
+
+            var observation: NSKeyValueObservation?
+            observation = playerItem.observe(\.status, options: [.initial, .new]) { item, _ in
+                guard !resumed.pointee else { return }
+                switch item.status {
+                case .readyToPlay:
+                    resumed.pointee = true
+                    observation?.invalidate()
+                    observation = nil
+                    resumed.deallocate()
+                    continuation.resume()
+                case .failed:
+                    resumed.pointee = true
+                    observation?.invalidate()
+                    observation = nil
+                    let error = item.error ?? NSError(
+                        domain: "AudioPlayerManager",
+                        code: -1,
+                        userInfo: [NSLocalizedDescriptionKey: "Failed to load audio"]
+                    )
+                    resumed.deallocate()
+                    continuation.resume(throwing: error)
+                case .unknown:
+                    break // Still loading, wait
+                @unknown default:
+                    break
+                }
+            }
+        }
     }
 
     public func pause() async {
@@ -97,9 +133,7 @@ public actor AudioPlayerManager {
             }
 
             continuation.onTermination = { [weak player] _ in
-                if let token = token {
-                    player?.removeTimeObserver(token)
-                }
+                player?.removeTimeObserver(token)
             }
         }
     }
@@ -112,7 +146,16 @@ public actor AudioPlayerManager {
                 return
             }
 
-            // Observe time control status
+            // Emit initial status immediately
+            let initialStatus: PlaybackStatus = switch player.timeControlStatus {
+            case .playing: .playing
+            case .paused: .paused
+            case .waitingToPlayAtSpecifiedRate: .buffering
+            @unknown default: .idle
+            }
+            continuation.yield(initialStatus)
+
+            // Observe time control status changes
             let observation = player.observe(\.timeControlStatus, options: [.new]) { [weak player] _, change in
                 guard let newValue = change.newValue, let player = player else { return }
 
