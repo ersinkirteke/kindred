@@ -4,12 +4,12 @@ milestone: v2.0
 milestone_name: iOS App
 current_phase: 07
 status: completed
-last_updated: "2026-03-03T20:36:58.467Z"
+last_updated: "2026-03-03T21:29:00.546Z"
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 4
-  total_plans: 17
-  completed_plans: 17
+  total_plans: 21
+  completed_plans: 18
 ---
 
 # Project State: Kindred
@@ -31,12 +31,12 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 
 ## Current Position
 
-Phase: 7 of 10 (Voice Playback & Streaming)
-Plan: 4 of 6 in current phase
-Status: Phase 7 in progress - Audio playback verified end-to-end on device
-Last activity: 2026-03-03 — Completed 07-06: End-to-End Audio Playback Verification (2 tasks, 2 min)
+Phase: 8 of 10 (Authentication & Onboarding)
+Plan: 1 of 4 in current phase
+Status: Phase 8 in progress - AuthFeature package with sign-in infrastructure complete
+Last activity: 2026-03-03 — Completed 08-01: AuthFeature package with SignInClient TCA dependency (2 tasks, 4 min)
 
-Progress: [████████████░] 67% (4 of 6 Phase 7 plans complete)
+Progress: [█████████████░] 25% (1 of 4 Phase 8 plans complete)
 
 ---
 
@@ -80,6 +80,8 @@ Progress: [████████████░] 67% (4 of 6 Phase 7 plans co
 | Phase 07-voice-playback-streaming P03 | 3 | 2 tasks | 11 files |
 | Phase 07-voice-playback-streaming P05 | 4 | 2 tasks | 2 files |
 | Phase 07-voice-playback-streaming P06 | 2 | 2 tasks | 1 files |
+| Phase 08-authentication-onboarding P01 | 4 | 2 tasks | 4 files |
+| Phase 08 P01 | 4 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -133,6 +135,9 @@ Recent decisions affecting v2.0 iOS work:
 - Cache-first strategy enabled — getCachedAudio called before streaming, no destructive clearCache (07-05)
 - Stream observations independently cancellable (timeObserver, statusObserver, durationObserver) (07-05)
 - Verified end-to-end audio playback on device with working controls, background audio, and cache operations (07-06)
+- SignInClient uses TCA @DependencyClient pattern wrapping Clerk SDK with proper error mapping (08-01)
+- SignInGateReducer is pure presentation reducer - cooldown and deferred action logic belong in parent reducer (08-01)
+- SignInGateView uses Apple SignInWithAppleButton on top, custom Google button below, with swipe-down dismissal enabled (08-01)
 
 ### Pending Todos
 
@@ -165,10 +170,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed Phase 7 Plan 6 (07-06: End-to-End Audio Playback Verification)
-Resume file: .planning/phases/07-voice-playback-streaming/07-06-SUMMARY.md
-Next action: Phase 7 complete (4/6 plans done) - ready for next phase or remaining plans
+Stopped at: Completed Phase 8 Plan 1 (08-01: AuthFeature package with SignInClient TCA dependency)
+Resume file: .planning/phases/08-authentication-onboarding/08-01-SUMMARY.md
+Next action: Phase 8 in progress (1/4 plans done) - proceed to Plan 02 (Onboarding carousel)
 
 ---
 
-*State updated: 2026-03-03 after completing Phase 7 Plan 6 (Voice Playback & Streaming) - Phase 7 in progress (4/6 plans)*
+*State updated: 2026-03-03 after completing Phase 8 Plan 1 (Authentication & Onboarding) - Phase 8 in progress (1/4 plans)*

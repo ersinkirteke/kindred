@@ -10,9 +10,9 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 ### Authentication & Onboarding
 
 - [x] **AUTH-01**: User can browse the recipe feed as a guest without creating an account
-- [ ] **AUTH-02**: User can sign in with Google OAuth (one-tap)
-- [ ] **AUTH-03**: User can sign in with Apple Sign In (one-tap)
-- [ ] **AUTH-04**: Guest user is prompted to create account when saving, bookmarking, or using voice features
+- [x] **AUTH-02**: User can sign in with Google OAuth (one-tap)
+- [x] **AUTH-03**: User can sign in with Apple Sign In (one-tap)
+- [x] **AUTH-04**: Guest user is prompted to create account when saving, bookmarking, or using voice features
 - [ ] **AUTH-05**: Guest session state (browsed recipes, preferences) persists through account conversion
 - [ ] **AUTH-06**: User completes onboarding flow in under 90 seconds (dietary prefs, location, optional voice upload)
 
@@ -102,9 +102,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | AUTH-01 | Phase 5 | Complete |
-| AUTH-02 | Phase 8 | Pending |
-| AUTH-03 | Phase 8 | Pending |
-| AUTH-04 | Phase 8 | Pending |
+| AUTH-02 | Phase 8 | Complete |
+| AUTH-03 | Phase 8 | Complete |
+| AUTH-04 | Phase 8 | Complete |
 | AUTH-05 | Phase 8 | Pending |
 | AUTH-06 | Phase 8 | Pending |
 | FEED-01 | Phase 5 | Complete |
