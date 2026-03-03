@@ -1,4 +1,5 @@
 import UIKit
+import ClerkKit
 import Kingfisher
 import VoicePlaybackFeature
 
@@ -13,6 +14,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         cache.memoryStorage.config.totalCostLimit = 100 * 1024 * 1024 // 100MB memory
         cache.memoryStorage.config.countLimit = 50 // 50 images in memory
         cache.diskStorage.config.sizeLimit = 500 * 1024 * 1024 // 500MB disk
+
+        // Clerk SDK configured lazily — no-op here until real key is set
 
         // Configure AVAudioSession for background voice playback
         AudioSessionConfigurator.configure()

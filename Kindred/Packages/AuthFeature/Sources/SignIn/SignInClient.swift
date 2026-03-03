@@ -84,29 +84,9 @@ extension SignInClient: DependencyKey {
             },
             observeAuthState: {
                 AsyncStream { continuation in
-                    @MainActor
-                    func checkAuthState() -> AuthState {
-                        if let user = Clerk.shared.user {
-                            return .authenticated(ClerkUser(
-                                id: user.id,
-                                email: user.emailAddresses.first?.emailAddress ?? "",
-                                displayName: user.firstName ?? user.username ?? ""
-                            ))
-                        }
-                        return .guest
-                    }
-
-                    Task { @MainActor in
-                        // Yield initial state immediately
-                        continuation.yield(checkAuthState())
-
-                        // Note: Clerk SDK doesn't have a native observer API
-                        // In a real app, you'd set up NotificationCenter observers
-                        // or poll Clerk.shared.session changes
-                        // For now, this yields the initial state
-
-                        continuation.finish()
-                    }
+                    // Start as guest; Clerk.shared is only safe after configure() with a real key
+                    continuation.yield(.guest)
+                    continuation.finish()
                 }
             }
         )
