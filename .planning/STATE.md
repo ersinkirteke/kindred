@@ -2,21 +2,21 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: iOS App
-current_phase: 06
-status: completed
-last_updated: "2026-03-03T07:02:13.211Z"
+current_phase: 07
+status: in-progress
+last_updated: "2026-03-03T07:52:36Z"
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 15
+  completed_plans: 13
 ---
 
 # Project State: Kindred
 
 **Last Updated:** 2026-03-03
-**Current Phase:** 06
-**Status:** Milestone complete
+**Current Phase:** 07
+**Status:** In progress
 
 ---
 
@@ -25,18 +25,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
-**Current focus:** Phase 6 — Dietary Filtering & Personalization (v2.0 iOS App milestone)
+**Current focus:** Phase 7 — Voice Playback & Streaming (v2.0 iOS App milestone)
 
 ---
 
 ## Current Position
 
-Phase: 6 of 10 (Dietary Filtering & Personalization)
-Plan: 3 of 3 in current phase
-Status: Phase 6 complete - Dietary filtering, Culinary DNA, and Me tab personalization shipped
-Last activity: 2026-03-03 — Completed 06-03: Me Tab Culinary DNA & Dietary Preferences (2 tasks, 8 min)
+Phase: 7 of 10 (Voice Playback & Streaming)
+Plan: 1 of 4 in current phase
+Status: Phase 7 in progress - Voice playback infrastructure complete
+Last activity: 2026-03-03 — Completed 07-01: VoicePlaybackFeature Foundation Infrastructure (2 tasks, 3 min)
 
-Progress: [██████████] 100% (11 of 11 Phase 6+ plans complete; Phase 6 fully complete)
+Progress: [███████░░░] 25% (1 of 4 Phase 7 plans complete)
 
 ---
 
@@ -55,7 +55,9 @@ Progress: [██████████] 100% (11 of 11 Phase 6+ plans complet
 | 2. Feed Engine (v1.5) | 3 | ~2.5h | ~50 min |
 | 3. Voice Core (v1.5) | 3 | ~1.75h | ~35 min |
 | 4. Foundation & Architecture (v2.0) | 4 | ~52 min | ~13 min |
-| 5. Guest Browsing & Feed (v2.0) | 1 | ~6 min | ~6 min |
+| 5. Guest Browsing & Feed (v2.0) | 4 | ~1039 min | ~260 min |
+| 6. Dietary Filtering & Personalization (v2.0) | 3 | ~686 min | ~229 min |
+| 7. Voice Playback & Streaming (v2.0) | 1 | ~3 min | ~3 min |
 
 **Recent Trend:**
 - v1.5 milestone: Delivered in 2 days (21 feat commits, 6,066 LOC TypeScript)
@@ -73,6 +75,7 @@ Progress: [██████████] 100% (11 of 11 Phase 6+ plans complet
 | Phase 06-dietary-filtering-personalization P01 | 670 | 2 tasks | 11 files |
 | Phase 06 P02 | 8 | 2 tasks | 10 files |
 | Phase 06 P03 | 8 | 2 tasks | 5 files |
+| Phase 07 P01 | 3 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -110,6 +113,12 @@ Recent decisions affecting v2.0 iOS work:
 - Progress indicator creates gamification loop showing "Learning... (X/50 interactions)" to encourage engagement (06-03)
 - Affinity bars limited to top 5 cuisines for clean UI (06-03)
 - Reset button in Me tab uses same @AppStorage key as feed X chip for unified preference management (06-03)
+- AVPlayer (not AVAudioPlayer) for streaming capability with HTTP progressive download (07-01)
+- Actor-based AudioPlayerManager for thread-safe async/await AVPlayer access (07-01)
+- Rate changes require play() call first, then set rate (AVPlayer API requirement) (07-01)
+- .cachesDirectory (not .documentDirectory) for audio files per iOS best practices (07-01)
+- Binary search O(log n) for timestamp-to-step mapping in StepSyncEngine (07-01)
+- 500MB cache limit with LRU eviction matches Kingfisher image cache strategy (07-01)
 
 ### Pending Todos
 
@@ -128,9 +137,9 @@ None yet.
 - ✅ Apollo cache policy (returnCacheDataAndFetch) configured with SQLite cache (resolved in 04-03)
 
 **Phase 7 (Voice) readiness:**
+- ✅ Audio cache eviction policy (LRU, 500MB max) implemented in VoiceCache (resolved in 07-01)
 - AVAudioSession configuration (.playback, .spokenAudio) with interruption handling critical
 - Background audio lock screen controls need MPNowPlayingInfoCenter implementation
-- Audio cache eviction policy (LRU, 500MB max) needs design
 
 **Phase 9 (Monetization) readiness:**
 - StoreKit 2 JWS verification requires backend coordination (NestJS endpoint)
@@ -142,10 +151,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed Phase 6 Plan 3 (06-03: Me Tab Culinary DNA & Dietary Preferences) — Phase 6 fully complete
-Resume file: .planning/phases/06-dietary-filtering-personalization/06-03-SUMMARY.md
-Next action: Ready for Phase 7 or next milestone phase per roadmap
+Stopped at: Completed Phase 7 Plan 1 (07-01: VoicePlaybackFeature Foundation Infrastructure)
+Resume file: .planning/phases/07-voice-playback-streaming/07-01-SUMMARY.md
+Next action: Ready for Phase 7 Plan 2 (Voice Player UI Component)
 
 ---
 
-*State updated: 2026-03-03 after completing Phase 6 Plan 3 (Dietary Filtering & Personalization) - Phase 6 fully complete (3/3 plans)*
+*State updated: 2026-03-03 after completing Phase 7 Plan 1 (Voice Playback & Streaming) - Phase 7 in progress (1/4 plans)*
