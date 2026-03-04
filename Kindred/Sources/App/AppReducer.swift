@@ -56,6 +56,7 @@ struct AppReducer {
 
     @Dependency(\.signInClient) var signInClient
     @Dependency(\.guestMigrationClient) var guestMigrationClient
+    @Dependency(\.guestSessionClient) var guestSession
     @Dependency(\.continuousClock) var clock
 
     var body: some ReducerOf<Self> {
@@ -96,8 +97,50 @@ struct AppReducer {
                     let fiveMinutesAgo = Date().addingTimeInterval(-5 * 60)
                     if lastDismissedAt > fiveMinutesAgo {
                         // Within cooldown period - execute action directly without showing gate
-                        print("✅ [AuthGate] Cooldown active - executing action without gate")
-                        return executePendingGatedAction(gatedAction)
+                        // IMPORTANT: Execute bookmark directly here to avoid infinite loop
+                        // (re-sending toggleBookmark would trigger auth check again)
+                        switch gatedAction {
+                        case let .bookmark(recipeId, recipeName, imageUrl, cuisineType):
+                            return .run { [guestSession] send in
+                                try? await guestSession.bookmarkRecipe(recipeId, recipeName ?? "", imageUrl, cuisineType)
+                                let count = await guestSession.bookmarkCount()
+                                await send(.feed(.bookmarkCountLoaded(count)))
+                            }
+
+                        case let .toggleBookmark(recipeId):
+                            if var detail = state.feedState.recipeDetail {
+                                let wasBookmarked = detail.isBookmarked
+                                detail.isBookmarked.toggle()
+                                state.feedState.recipeDetail = detail
+                                return .run { [guestSession] send in
+                                    do {
+                                        if wasBookmarked {
+                                            try await guestSession.unbookmarkRecipe(recipeId)
+                                        } else {
+                                            try await guestSession.bookmarkRecipe(
+                                                recipeId,
+                                                detail.recipe?.name ?? "",
+                                                detail.recipe?.imageUrl,
+                                                nil
+                                            )
+                                        }
+                                        let count = await guestSession.bookmarkCount()
+                                        await send(.feed(.bookmarkCountLoaded(count)))
+                                    } catch {
+                                        await send(.feed(.recipeDetail(.presented(.bookmarkStatusLoaded(wasBookmarked)))))
+                                    }
+                                }
+                            }
+                            return .none
+
+                        case let .listenToRecipe(recipeId, recipeName, artworkURL, steps):
+                            return .send(.voicePlayback(.startPlayback(
+                                recipeId: recipeId,
+                                recipeName: recipeName,
+                                artworkURL: artworkURL,
+                                steps: steps
+                            )))
+                        }
                     }
                 }
 

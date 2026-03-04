@@ -155,13 +155,6 @@ public struct RecipeDetailReducer {
                                 recipe.imageUrl,
                                 nil // cuisineType not available in detail view
                             )
-
-                            // Check bookmark count for soft nudge
-                            let count = await guestSession.bookmarkCount()
-                            if count >= 10 {
-                                // Show gentle nudge (not blocking)
-                                // User decision: soft limit, not hard block
-                            }
                         }
                     } catch {
                         // Revert on error
