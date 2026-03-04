@@ -17,12 +17,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         // Clerk SDK configured lazily — no-op here until real key is set
 
-        // DEBUG: Reset onboarding and auth gate state for testing (remove before release)
-        #if DEBUG
-        UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding")
-        UserDefaults.standard.removeObject(forKey: "lastGateDismissedAt")
-        #endif
-
         // Configure AVAudioSession for background voice playback
         AudioSessionConfigurator.configure()
 
