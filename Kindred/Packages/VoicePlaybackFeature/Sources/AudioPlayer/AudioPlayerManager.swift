@@ -55,6 +55,9 @@ public actor AudioPlayerManager {
 
             logger.error("❌ waitForReadyToPlay failed - URL: \(url.absoluteString), status: \(itemStatus), error: \(itemError), session: \(sessionCategory), otherAudio: \(otherAudioPlaying)")
 
+            // Clean up failed player so streams see nil and finish immediately
+            await cleanup()
+
             throw PlayerError.failedToLoadWithDetails(
                 url: url.absoluteString,
                 itemStatus: itemStatus,

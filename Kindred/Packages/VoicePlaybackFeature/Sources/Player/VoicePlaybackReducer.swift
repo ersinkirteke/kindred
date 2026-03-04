@@ -314,8 +314,8 @@ public struct VoicePlaybackReducer {
                     currentStepIndex: nil
                 )
 
-                // Start observing streams and play audio
-                return .merge(
+                // Play audio first, then start observing streams once player is ready
+                return .concatenate(
                     .run { send in
                         guard let url = URL(string: metadata.audioURL) else {
                             await send(.narrationFailed("Invalid audio URL"))
@@ -327,24 +327,26 @@ public struct VoicePlaybackReducer {
                             await send(.narrationFailed("\(url.absoluteString) — \(error.localizedDescription)"))
                         }
                     },
-                    .run { send in
-                        for await time in await audioPlayer.currentTimeStream() {
-                            await send(.timeUpdated(time))
+                    .merge(
+                        .run { send in
+                            for await time in await audioPlayer.currentTimeStream() {
+                                await send(.timeUpdated(time))
+                            }
                         }
-                    }
-                    .cancellable(id: CancelID.timeObserver),
-                    .run { send in
-                        for await status in await audioPlayer.statusStream() {
-                            await send(.statusChanged(status))
+                        .cancellable(id: CancelID.timeObserver),
+                        .run { send in
+                            for await status in await audioPlayer.statusStream() {
+                                await send(.statusChanged(status))
+                            }
                         }
-                    }
-                    .cancellable(id: CancelID.statusObserver),
-                    .run { send in
-                        for await duration in await audioPlayer.durationStream() {
-                            await send(.durationUpdated(duration))
+                        .cancellable(id: CancelID.statusObserver),
+                        .run { send in
+                            for await duration in await audioPlayer.durationStream() {
+                                await send(.durationUpdated(duration))
+                            }
                         }
-                    }
-                    .cancellable(id: CancelID.durationObserver)
+                        .cancellable(id: CancelID.durationObserver)
+                    )
                 )
 
             case let .narrationFailed(errorMessage):
@@ -370,6 +372,11 @@ public struct VoicePlaybackReducer {
             case .play:
                 guard let currentPlayback = state.currentPlayback,
                       currentPlayback.status != .playing else { return .none }
+
+                // If near the end, restart from beginning
+                let shouldRestart = currentPlayback.currentTime >= currentPlayback.duration - 0.5
+                    && currentPlayback.duration > 0
+
                 state.currentPlayback = CurrentPlayback(
                     recipeId: currentPlayback.recipeId,
                     recipeName: currentPlayback.recipeName,
@@ -377,12 +384,15 @@ public struct VoicePlaybackReducer {
                     speakerName: currentPlayback.speakerName,
                     artworkURL: currentPlayback.artworkURL,
                     duration: currentPlayback.duration,
-                    currentTime: currentPlayback.currentTime,
+                    currentTime: shouldRestart ? 0 : currentPlayback.currentTime,
                     speed: currentPlayback.speed,
                     status: .playing,
-                    currentStepIndex: currentPlayback.currentStepIndex
+                    currentStepIndex: shouldRestart ? 0 : currentPlayback.currentStepIndex
                 )
                 return .run { _ in
+                    if shouldRestart {
+                        await audioPlayer.seek(0)
+                    }
                     await audioPlayer.resume()
                 }
 
@@ -552,6 +562,11 @@ public struct VoicePlaybackReducer {
 
             case let .statusChanged(status):
                 guard let currentPlayback = state.currentPlayback else { return .none }
+
+                // Don't let stream status override error state
+                if case .error = currentPlayback.status {
+                    return .none
+                }
 
                 state.currentPlayback = CurrentPlayback(
                     recipeId: currentPlayback.recipeId,
