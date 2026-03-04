@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 // MARK: - PlaybackStatus
 
@@ -70,5 +71,18 @@ public struct CurrentPlayback: Equatable, Sendable {
         self.speed = speed
         self.status = status
         self.currentStepIndex = currentStepIndex
+    }
+}
+
+// MARK: - Environment Key
+
+private struct CurrentPlaybackKey: EnvironmentKey {
+    static let defaultValue: CurrentPlayback? = nil
+}
+
+public extension EnvironmentValues {
+    var currentPlayback: CurrentPlayback? {
+        get { self[CurrentPlaybackKey.self] }
+        set { self[CurrentPlaybackKey.self] = newValue }
     }
 }

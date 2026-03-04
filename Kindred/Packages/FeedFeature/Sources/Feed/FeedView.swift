@@ -73,9 +73,6 @@ public struct FeedView: View {
                 contentView
             }
         }
-        .refreshable {
-            await store.send(.refreshFeed).finish()
-        }
         .onShake {
             store.send(.undoLastSwipe)
         }

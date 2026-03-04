@@ -3,6 +3,7 @@ import ComposableArchitecture
 import KindredAPI
 import Apollo
 import AuthClient
+import VoicePlaybackFeature
 
 // MARK: - Recipe Detail Reducer
 
@@ -21,6 +22,7 @@ public struct RecipeDetailReducer {
         public var error: String?
         public var showBookmarkNudge: Bool = false
         public var currentAuthState: AuthState = .guest
+        public var playbackStatus: PlaybackStatus = .idle
 
         public init(recipeId: String) {
             self.recipeId = recipeId
@@ -38,10 +40,12 @@ public struct RecipeDetailReducer {
         case listenTapped
         case dismissBookmarkNudge
         case authStateUpdated(AuthState)
+        case playbackStatusUpdated(PlaybackStatus)
         case delegate(Delegate)
 
     public enum Delegate: Equatable {
         case authGateRequested(actionType: String)
+        case pausePlayback
     }
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
@@ -65,6 +69,8 @@ public struct RecipeDetailReducer {
             case let (.toggleIngredient(lhs), .toggleIngredient(rhs)):
                 return lhs == rhs
             case let (.authStateUpdated(lhs), .authStateUpdated(rhs)):
+                return lhs == rhs
+            case let (.playbackStatusUpdated(lhs), .playbackStatusUpdated(rhs)):
                 return lhs == rhs
             case let (.delegate(lhs), .delegate(rhs)):
                 return lhs == rhs
@@ -173,6 +179,11 @@ public struct RecipeDetailReducer {
                 return .none
 
             case .listenTapped:
+                // If already playing this recipe, pause it
+                if case .playing = state.playbackStatus {
+                    return .send(.delegate(.pausePlayback))
+                }
+
                 // CHECK AUTH STATE - gate listen for guests
                 if case .guest = state.currentAuthState {
                     return .send(.delegate(.authGateRequested(actionType: "listen")))
@@ -187,6 +198,10 @@ public struct RecipeDetailReducer {
 
             case let .authStateUpdated(authState):
                 state.currentAuthState = authState
+                return .none
+
+            case let .playbackStatusUpdated(status):
+                state.playbackStatus = status
                 return .none
 
             case .delegate:

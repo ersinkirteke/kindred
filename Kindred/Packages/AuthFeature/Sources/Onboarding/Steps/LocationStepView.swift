@@ -42,10 +42,21 @@ struct LocationStepView: View {
             // Location buttons
             VStack(spacing: KindredSpacing.md) {
                 // Use my location button
-                KindredButton("Use my location", style: .primary) {
-                    store.send(.requestLocationPermission)
+                if store.isRequestingLocation {
+                    HStack(spacing: KindredSpacing.sm) {
+                        ProgressView()
+                            .tint(.kindredAccent)
+                        Text("Getting your location...")
+                            .font(.kindredBody())
+                            .foregroundColor(.kindredTextSecondary)
+                    }
+                    .frame(height: 56)
+                } else {
+                    KindredButton("Use my location", style: .primary) {
+                        store.send(.requestLocationPermission)
+                    }
+                    .accessibilityLabel("Use current location")
                 }
-                .accessibilityLabel("Use current location")
 
                 // Manual city entry button
                 KindredButton("Enter city manually", style: .secondary) {

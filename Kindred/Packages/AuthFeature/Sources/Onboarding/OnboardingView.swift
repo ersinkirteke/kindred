@@ -14,24 +14,36 @@ public struct OnboardingView: View {
             Color.kindredBackground
                 .ignoresSafeArea()
 
-            TabView(selection: Binding(
-                get: { store.currentStep },
-                set: { _ in }
-            )) {
-                SignInStepView(store: store)
-                    .tag(0)
-
-                DietaryPrefsStepView(store: store)
-                    .tag(1)
-
-                LocationStepView(store: store)
-                    .tag(2)
-
-                VoiceTeaserStepView(store: store)
-                    .tag(3)
+            Group {
+                switch store.currentStep {
+                case 0:
+                    SignInStepView(store: store)
+                case 1:
+                    DietaryPrefsStepView(store: store)
+                case 2:
+                    LocationStepView(store: store)
+                default:
+                    VoiceTeaserStepView(store: store)
+                }
             }
-            .tabViewStyle(.page(indexDisplayMode: .always))
-            .indexViewStyle(.page(backgroundDisplayMode: .always))
+            .animation(.easeInOut(duration: 0.3), value: store.currentStep)
+            .transition(.asymmetric(
+                insertion: .move(edge: .trailing).combined(with: .opacity),
+                removal: .move(edge: .leading).combined(with: .opacity)
+            ))
+
+            // Page indicator
+            VStack {
+                Spacer()
+                HStack(spacing: 8) {
+                    ForEach(0..<store.totalSteps, id: \.self) { index in
+                        Circle()
+                            .fill(index == store.currentStep ? Color.kindredAccent : Color.kindredAccent.opacity(0.3))
+                            .frame(width: 8, height: 8)
+                    }
+                }
+                .padding(.bottom, 16)
+            }
         }
     }
 }

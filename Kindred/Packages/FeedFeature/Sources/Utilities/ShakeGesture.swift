@@ -28,17 +28,11 @@ private struct ShakeGestureModifier: ViewModifier {
             .onReceive(NotificationCenter.default.publisher(for: UIDevice.deviceDidShakeNotification)) { _ in
                 action()
             }
-            .simultaneousGesture(
-                // 3-finger swipe left as accessible alternative (iOS standard undo gesture)
-                DragGesture(minimumDistance: 50)
-                    .onEnded { value in
-                        // Detect 3-finger swipe left
-                        if value.translation.width < -50 {
-                            // Check if accessibility features are enabled and this is an undo gesture
-                            action()
-                        }
-                    }
-            )
+            // NOTE: Removed simultaneousGesture(DragGesture) that was intended as a
+            // 3-finger undo gesture. It could not actually detect finger count and was
+            // stealing/conflicting with the card swipe DragGesture in RecipeCardView,
+            // preventing onEnded from firing on the card's gesture.
+            // The shake-to-undo via motionEnded still works on device.
     }
 }
 

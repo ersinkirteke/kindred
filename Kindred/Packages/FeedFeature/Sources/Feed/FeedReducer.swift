@@ -30,6 +30,7 @@ public struct FeedReducer {
         public var showLocationPicker = false
         public var activeDietaryFilters: Set<String> = []
         public var allRecipes: [RecipeCard] = [] // Unfiltered full list for client-side filtering
+        public var swipedRecipeIDs: Set<String> = [] // Track swiped cards to prevent reappearance
         @Presents public var recipeDetail: RecipeDetailReducer.State?
 
         // Culinary DNA state
@@ -160,14 +161,24 @@ public struct FeedReducer {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                state.isLoading = true
-                state.error = nil
-
                 // Load saved dietary preferences from UserDefaults
                 if let data = UserDefaults.standard.data(forKey: "dietaryPreferences"),
                    let preferences = try? JSONDecoder().decode(Set<String>.self, from: data) {
                     state.activeDietaryFilters = preferences
                 }
+
+                // Load saved city from onboarding
+                if let savedCity = UserDefaults.standard.string(forKey: "selectedCity"), !savedCity.isEmpty {
+                    state.location = savedCity
+                }
+
+                // Don't reload if we already have cards (prevents re-fetching on tab switch / back from detail)
+                guard state.cardStack.isEmpty && state.allRecipes.isEmpty else {
+                    return .none
+                }
+
+                state.isLoading = true
+                state.error = nil
 
                 return .run { [location = state.location] send in
                     // Start network monitoring
@@ -253,6 +264,7 @@ public struct FeedReducer {
                 }
 
                 let card = state.cardStack.remove(at: cardIndex)
+                state.swipedRecipeIDs.insert(card.id)
                 let swipedRecipe = SwipedRecipe(recipe: card, direction: direction)
 
                 // Add to history (cap at 3)
@@ -317,6 +329,7 @@ public struct FeedReducer {
                 }
 
                 let swipedRecipe = state.swipeHistory.removeFirst()
+                state.swipedRecipeIDs.remove(swipedRecipe.recipe.id)
                 state.cardStack.insert(swipedRecipe.recipe, at: 0)
 
                 return .run { send in
@@ -366,7 +379,11 @@ public struct FeedReducer {
                 }
 
             case let .moreRecipesLoaded(.success(cards)):
-                state.cardStack.append(contentsOf: cards)
+                let existingIDs = Set(state.allRecipes.map(\.id)).union(state.swipedRecipeIDs)
+                let newCards = cards.filter { !existingIDs.contains($0.id) }
+                state.allRecipes.append(contentsOf: newCards)
+                let filtered = applyDietaryFilter(recipes: newCards, filters: state.activeDietaryFilters)
+                state.cardStack.append(contentsOf: filtered)
                 state.hasMorePages = cards.count >= 10
                 state.currentPage += 1
                 return .none
@@ -402,7 +419,9 @@ public struct FeedReducer {
 
             case let .refreshCompleted(.success(cards)):
                 state.isRefreshing = false
-                state.cardStack = cards
+                state.swipedRecipeIDs = []
+                state.allRecipes = cards
+                state.cardStack = applyDietaryFilter(recipes: cards, filters: state.activeDietaryFilters)
                 state.hasMorePages = cards.count >= 10
                 state.currentPage = 1
                 state.error = nil
@@ -520,7 +539,9 @@ public struct FeedReducer {
                 }
 
                 // Client-side filtering — no server round-trip needed
-                state.cardStack = applyDietaryFilter(recipes: state.allRecipes, filters: newFilters)
+                // Exclude already-swiped cards to prevent reappearance
+                let unswiped = state.allRecipes.filter { !state.swipedRecipeIDs.contains($0.id) }
+                state.cardStack = applyDietaryFilter(recipes: unswiped, filters: newFilters)
                 return .none
 
             case let .filteredRecipesLoaded(.success(cards)):
@@ -584,7 +605,8 @@ public struct FeedReducer {
                 return .none
 
             case let .feedReranked(cards):
-                state.cardStack = cards
+                // Exclude already-swiped cards to prevent reappearance
+                state.cardStack = cards.filter { !state.swipedRecipeIDs.contains($0.id) }
                 return .none
 
             case let .authStateUpdated(authState):
@@ -608,10 +630,16 @@ public struct FeedReducer {
 
 // MARK: - Dietary Filtering
 
+private let allDietaryOptions = ["Vegan", "Vegetarian", "Gluten-Free", "Dairy-Free", "Keto", "Halal", "Nut-Free", "Kosher", "Low-Carb", "Pescatarian"]
+
 private func applyDietaryFilter(recipes: [RecipeCard], filters: Set<String>) -> [RecipeCard] {
     guard !filters.isEmpty else { return recipes }
+    // If all options selected, show everything (including recipes with no tags)
+    if filters.count >= allDietaryOptions.count { return recipes }
     let normalizedFilters = Set(filters.map { normalizeDietaryTag($0) })
     return recipes.filter { card in
+        // Include recipes with no dietary tags (untagged)
+        guard !card.dietaryTags.isEmpty else { return true }
         let normalizedTags = Set(card.dietaryTags.map { normalizeDietaryTag($0) })
         return !normalizedFilters.isDisjoint(with: normalizedTags)
     }

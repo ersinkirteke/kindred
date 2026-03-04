@@ -30,6 +30,7 @@ struct SwipeCardStack: View {
                     heroNamespace: heroNamespace,
                     isPersonalized: isPersonalized(card),
                     onSwipe: { direction in
+                        print("🃏 [Stack] onSwipe received: \(card.id) \(direction)")
                         onSwipe(card.id, direction)
                     },
                     onTap: {
@@ -37,6 +38,10 @@ struct SwipeCardStack: View {
                     }
                 )
                 .id(card.id)
+                .transition(.asymmetric(
+                    insertion: .scale(scale: 0.95).combined(with: .opacity),
+                    removal: .opacity
+                ))
             }
         }
         .frame(height: 400)

@@ -95,9 +95,9 @@ struct AppReducer {
                 if let lastDismissedAt = UserDefaults.standard.object(forKey: "lastGateDismissedAt") as? Date {
                     let fiveMinutesAgo = Date().addingTimeInterval(-5 * 60)
                     if lastDismissedAt > fiveMinutesAgo {
-                        // Within cooldown period - silently drop the action
-                        print("🚫 [AuthGate] Cooldown active - gate suppressed")
-                        return .none
+                        // Within cooldown period - execute action directly without showing gate
+                        print("✅ [AuthGate] Cooldown active - executing action without gate")
+                        return executePendingGatedAction(gatedAction)
                     }
                 }
 
@@ -208,6 +208,8 @@ struct AppReducer {
                             }
                             return .send(.authGateRequested(gatedAction))
                         }
+                    case .pausePlayback:
+                        return .send(.voicePlayback(.pause))
                     }
                     return .none
                 }
@@ -215,6 +217,16 @@ struct AppReducer {
                 // Forward listenTapped to voice playback
                 if case .listenTapped = recipeDetailAction,
                    let recipe = state.feedState.recipeDetail?.recipe {
+                    // Toggle play/pause if playback is active for this recipe
+                    if let playback = state.voicePlaybackState.currentPlayback,
+                       playback.recipeId == recipe.id {
+                        if playback.status == .playing {
+                            return .send(.voicePlayback(.pause))
+                        } else if playback.status == .paused {
+                            return .send(.voicePlayback(.play))
+                        }
+                    }
+
                     // Check auth state
                     if case .guest = state.currentAuthState {
                         // Guest user - trigger auth gate
@@ -256,7 +268,15 @@ struct AppReducer {
                     return .send(.authGateRequested(gatedAction))
                 }
 
-            case .feed, .profile, .voicePlayback:
+            case .voicePlayback:
+                // HARD TEST: force .paused to check if button changes
+                if var detail = state.feedState.recipeDetail {
+                    detail.playbackStatus = .paused
+                    state.feedState.recipeDetail = detail
+                }
+                return .none
+
+            case .feed, .profile:
                 return .none
             }
         }

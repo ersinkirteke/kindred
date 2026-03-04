@@ -231,10 +231,23 @@ public struct RecipeDetailView: View {
                     store.send(.listenTapped)
                 }) {
                     HStack(spacing: KindredSpacing.sm) {
-                        Image(systemName: "headphones")
-                            .font(.system(size: 18))
-                        Text("Listen")
-                            .font(.kindredBodyBold())
+                        switch store.playbackStatus {
+                        case .loading, .buffering:
+                            ProgressView()
+                                .tint(.kindredAccent)
+                            Text("Loading...")
+                                .font(.kindredBodyBold())
+                        case .playing, .paused:
+                            Image(systemName: store.playbackStatus == .playing ? "pause.fill" : "play.fill")
+                                .font(.system(size: 18))
+                            Text(store.playbackStatus == .playing ? "Pause" : "Resume")
+                                .font(.kindredBodyBold())
+                        default:
+                            Image(systemName: "headphones")
+                                .font(.system(size: 18))
+                            Text("Listen")
+                                .font(.kindredBodyBold())
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .frame(minHeight: 56)
@@ -246,8 +259,9 @@ public struct RecipeDetailView: View {
                     )
                     .cornerRadius(12)
                 }
-                .accessibilityLabel("Listen to this recipe")
-                .accessibilityHint("Double tap to listen to this recipe narrated")
+                .disabled(store.playbackStatus == .loading || store.playbackStatus == .buffering)
+                .accessibilityLabel(store.playbackStatus == .playing ? "Pause narration" : "Listen to this recipe")
+                .accessibilityHint(store.playbackStatus == .playing ? "Double tap to pause" : "Double tap to listen to this recipe narrated")
 
                 // Bookmark button
                 Button(action: {

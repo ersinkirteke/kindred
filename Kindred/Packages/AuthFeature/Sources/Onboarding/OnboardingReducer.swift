@@ -24,6 +24,7 @@ public struct OnboardingReducer {
         public var locationAuthStatus: LocationAuthStatus = .notDetermined
         public var selectedCity: String?
         public var showCityPicker = false
+        public var isRequestingLocation = false
 
         // Voice teaser step state (no additional state needed)
 
@@ -149,42 +150,18 @@ public struct OnboardingReducer {
                 }
 
             case .requestLocationPermission:
-                return .run { send in
-                    let status = await locationClient.requestAuthorization()
-                    let mappedStatus: LocationAuthStatus = switch status {
-                    case .authorizedWhenInUse, .authorizedAlways:
-                            .authorized
-                    case .denied, .restricted:
-                            .denied
-                    default:
-                            .notDetermined
-                    }
-                    await send(.locationAuthChanged(mappedStatus))
+                // Open city picker instantly — request auth in background for future feed use
+                state.showCityPicker = true
+                return .run { _ in
+                    _ = await locationClient.requestAuthorization()
                 }
 
-            case .locationAuthChanged(let status):
-                state.locationAuthStatus = status
-
-                if status == .authorized {
-                    // Get city name and auto-advance
-                    return .run { send in
-                        do {
-                            let location = try await locationClient.currentLocation()
-                            let cityName = try await locationClient.reverseGeocode(location)
-                            await send(.citySelected(cityName))
-                        } catch {
-                            // If getting location fails after permission granted, show manual picker
-                            await send(.showManualCityPicker)
-                        }
-                    }
-                } else if status == .denied {
-                    // Show manual fallback
-                    state.showCityPicker = true
-                }
-
+            case .locationAuthChanged:
+                // No longer used — kept for action exhaustiveness
                 return .none
 
             case .showManualCityPicker:
+                state.isRequestingLocation = false
                 state.showCityPicker = true
                 return .none
 
@@ -195,6 +172,7 @@ public struct OnboardingReducer {
             case .citySelected(let city):
                 state.selectedCity = city
                 state.showCityPicker = false
+                state.isRequestingLocation = false
 
                 // Save to @AppStorage key
                 UserDefaults.standard.set(city, forKey: "selectedCity")
@@ -210,5 +188,28 @@ public struct OnboardingReducer {
                 return .send(.completeOnboarding)
             }
         }
+    }
+}
+
+// MARK: - Timeout Helper
+
+private enum TimeoutError: Error {
+    case timedOut
+}
+
+private func withTimeout<T: Sendable>(seconds: Int, operation: @escaping @Sendable () async throws -> T) async throws -> T {
+    try await withThrowingTaskGroup(of: T.self) { group in
+        group.addTask {
+            try await operation()
+        }
+        group.addTask {
+            try await Task.sleep(for: .seconds(seconds))
+            throw TimeoutError.timedOut
+        }
+        guard let result = try await group.next() else {
+            throw TimeoutError.timedOut
+        }
+        group.cancelAll()
+        return result
     }
 }

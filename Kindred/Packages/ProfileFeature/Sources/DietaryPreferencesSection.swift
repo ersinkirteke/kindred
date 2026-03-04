@@ -59,7 +59,7 @@ private struct DietaryChipsGrid: View {
     let activeFilters: Set<String>
     let onFilterChanged: (Set<String>) -> Void
 
-    private let dietaryTags = ["Vegan", "Vegetarian", "Gluten-free", "Dairy-free", "Keto", "Halal", "Nut-free"]
+    private let dietaryTags = ["Vegan", "Vegetarian", "Gluten-Free", "Dairy-Free", "Keto", "Halal", "Nut-Free", "Kosher", "Low-Carb", "Pescatarian"]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {

@@ -33,6 +33,19 @@ struct KindredApp: App {
                             .transition(.opacity)
                             .onChange(of: onboardingStore.currentStep) { _, newStep in
                                 if newStep >= onboardingStore.totalSteps {
+                                    // Push onboarding preferences into feed BEFORE dismissing
+                                    let dietaryPrefs = onboardingStore.selectedDietaryPrefs
+                                    if !dietaryPrefs.isEmpty {
+                                        store.send(.feed(.dietaryFilterChanged(dietaryPrefs)))
+                                    }
+                                    if let city = onboardingStore.selectedCity {
+                                        // changeLocation triggers re-fetch with new location
+                                        store.send(.feed(.changeLocation(city)))
+                                    } else {
+                                        // No city selected — refresh with defaults + new filters
+                                        store.send(.feed(.refreshFeed))
+                                    }
+
                                     withAnimation {
                                         hasCompletedOnboarding = true
                                     }

@@ -88,9 +88,7 @@ struct RootView: View {
                     .presentationDragIndicator(.visible)
             }
         }
-        .fullScreenCover(
-            item: $store.scope(state: \.authGate, action: \.authGate)
-        ) { gateStore in
+        .fullScreenCover(item: $store.scope(state: \.authGate, action: \.authGate)) { gateStore in
             SignInGateView(store: gateStore)
         }
         .onAppear {

@@ -10,15 +10,42 @@ public struct LocationClient {
 
 extension LocationClient: DependencyKey {
     public static var liveValue: LocationClient {
+        // Shared CLLocationManager — created on main thread for CoreLocation
+        let manager: CLLocationManager = {
+            if Thread.isMainThread {
+                return CLLocationManager()
+            } else {
+                return DispatchQueue.main.sync { CLLocationManager() }
+            }
+        }()
+
         return LocationClient(
             requestAuthorization: {
-                await LocationManager.shared.requestPermission()
-                // Give the system time to process the permission request
-                try? await Task.sleep(for: .milliseconds(500))
-                return await LocationManager.shared.authorizationStatus
+                let status = await MainActor.run { manager.authorizationStatus }
+                if status != .notDetermined {
+                    return status
+                }
+
+                await MainActor.run { manager.requestWhenInUseAuthorization() }
+
+                // Poll for authorization change (max 30 seconds for user to respond)
+                for _ in 0..<300 {
+                    try? await Task.sleep(for: .milliseconds(100))
+                    let current = await MainActor.run { manager.authorizationStatus }
+                    if current != .notDetermined {
+                        return current
+                    }
+                }
+                return await MainActor.run { manager.authorizationStatus }
             },
             currentLocation: {
-                try await LocationManager.shared.requestCurrentLocation()
+                // Use iOS 17+ CLLocationUpdate async API — no delegates needed
+                for try await update in CLLocationUpdate.liveUpdates(.default) {
+                    if let location = update.location {
+                        return location
+                    }
+                }
+                throw LocationError.noCityFound
             },
             reverseGeocode: { location in
                 let geocoder = CLGeocoder()
@@ -28,7 +55,6 @@ extension LocationClient: DependencyKey {
                     throw LocationError.geocodingFailed
                 }
 
-                // Try to get city name (locality), fallback to administrative area
                 if let city = placemark.locality {
                     return city
                 } else if let area = placemark.administrativeArea {
@@ -43,7 +69,6 @@ extension LocationClient: DependencyKey {
     }
 
     public static var testValue: LocationClient {
-        // Istanbul coordinates for testing
         let istanbulLocation = CLLocation(latitude: 41.0082, longitude: 28.9784)
 
         return LocationClient(

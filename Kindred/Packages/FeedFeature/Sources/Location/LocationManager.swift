@@ -1,32 +1,54 @@
-import Combine
 import CoreLocation
 import Foundation
+import os.log
 
-@MainActor
-public class LocationManager: NSObject, ObservableObject {
-    public static let shared = LocationManager()
+private let locationLogger = Logger(subsystem: "com.ersinkirteke.kindred", category: "Location")
 
-    private let locationManager = CLLocationManager()
+/// Minimal CLLocationManager wrapper. NOT @MainActor — uses DispatchQueue.main
+/// explicitly to avoid Swift concurrency / Objective-C delegate interop issues.
+public final class LocationManager: NSObject {
+    public static let shared: LocationManager = {
+        if Thread.isMainThread {
+            return LocationManager()
+        } else {
+            return DispatchQueue.main.sync { LocationManager() }
+        }
+    }()
 
-    @Published public var authorizationStatus: CLAuthorizationStatus = .notDetermined
-    @Published public var lastLocation: CLLocation?
-
+    private let clManager = CLLocationManager()
     private var locationContinuation: CheckedContinuation<CLLocation, Error>?
+    private var authContinuation: CheckedContinuation<CLAuthorizationStatus, Never>?
 
     private override init() {
         super.init()
-        locationManager.delegate = self
-        authorizationStatus = locationManager.authorizationStatus
+        clManager.delegate = self
+        clManager.desiredAccuracy = kCLLocationAccuracyKilometer
+        locationLogger.info("LocationManager init, status=\(self.clManager.authorizationStatus.rawValue)")
     }
 
-    public func requestPermission() {
-        locationManager.requestWhenInUseAuthorization()
+    public func requestPermissionAndWait() async -> CLAuthorizationStatus {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async { [self] in
+                let status = self.clManager.authorizationStatus
+                locationLogger.info("requestPermission: status=\(status.rawValue)")
+
+                if status != .notDetermined {
+                    continuation.resume(returning: status)
+                } else {
+                    self.authContinuation = continuation
+                    self.clManager.requestWhenInUseAuthorization()
+                }
+            }
+        }
     }
 
     public func requestCurrentLocation() async throws -> CLLocation {
-        return try await withCheckedThrowingContinuation { continuation in
-            self.locationContinuation = continuation
-            locationManager.requestLocation()
+        try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.main.async { [self] in
+                locationLogger.info("requestCurrentLocation: calling requestLocation()")
+                self.locationContinuation = continuation
+                self.clManager.requestLocation()
+            }
         }
     }
 }
@@ -35,15 +57,19 @@ public class LocationManager: NSObject, ObservableObject {
 
 extension LocationManager: CLLocationManagerDelegate {
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        authorizationStatus = manager.authorizationStatus
+        let status = manager.authorizationStatus
+        locationLogger.info("delegate: authChanged status=\(status.rawValue)")
+
+        if let continuation = authContinuation, status != .notDetermined {
+            authContinuation = nil
+            continuation.resume(returning: status)
+        }
     }
 
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.first else { return }
+        locationLogger.info("delegate: didUpdateLocations lat=\(location.coordinate.latitude) lng=\(location.coordinate.longitude)")
 
-        lastLocation = location
-
-        // Fulfill continuation if waiting for location
         if let continuation = locationContinuation {
             locationContinuation = nil
             continuation.resume(returning: location)
@@ -51,7 +77,8 @@ extension LocationManager: CLLocationManagerDelegate {
     }
 
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        // Fulfill continuation with error if waiting for location
+        locationLogger.error("delegate: didFail error=\(error.localizedDescription)")
+
         if let continuation = locationContinuation {
             locationContinuation = nil
             continuation.resume(throwing: error)

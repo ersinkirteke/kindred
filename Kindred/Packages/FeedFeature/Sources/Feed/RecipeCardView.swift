@@ -67,31 +67,40 @@ struct RecipeCardView: View {
         .padding(.horizontal, KindredSpacing.xl)
         .offset(offset)
         .rotationEffect(.degrees(rotation))
-        .gesture(
-            DragGesture()
+        .contentShape(Rectangle())
+        .simultaneousGesture(
+            TapGesture()
+                .onEnded {
+                    onTap()
+                }
+        )
+        .highPriorityGesture(
+            DragGesture(minimumDistance: 15)
                 .onChanged { gesture in
                     offset = CGSize(
                         width: gesture.translation.width,
-                        height: gesture.translation.height * 0.4 // Dampened vertical
+                        height: gesture.translation.height * 0.4
                     )
                     rotation = Double(gesture.translation.width) / 10.0
                 }
                 .onEnded { gesture in
-                    let threshold: CGFloat = 200
-                    let swipeDistance = abs(gesture.translation.width)
+                    let actualWidth = abs(gesture.translation.width)
+                    let predictedWidth = abs(gesture.predictedEndTranslation.width)
+                    let swipeDetected = actualWidth > 80 || predictedWidth > 150
 
-                    if swipeDistance > threshold {
-                        // Swipe successful - animate off screen
+                    if swipeDetected {
                         let direction: SwipeDirection = gesture.translation.width > 0 ? .right : .left
-                        let finalOffset = gesture.translation.width > 0 ? 500.0 : -500.0
-
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            offset = CGSize(width: finalOffset, height: offset.height)
-                        } completion: {
+                        // Animate the card off-screen, then call onSwipe
+                        let flyOutX: CGFloat = direction == .right ? 500 : -500
+                        withAnimation(.easeIn(duration: 0.2)) {
+                            offset = CGSize(width: flyOutX, height: 0)
+                            rotation = Double(flyOutX) / 10.0
+                        }
+                        // Fire the swipe action after the animation
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
                             onSwipe(direction)
                         }
                     } else {
-                        // Snap back with spring animation
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                             offset = .zero
                             rotation = 0
@@ -99,9 +108,6 @@ struct RecipeCardView: View {
                     }
                 }
         )
-        .onTapGesture {
-            onTap()
-        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabelText)
         .accessibilityAction(named: "Bookmark") {
