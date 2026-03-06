@@ -1,5 +1,6 @@
 import UIKit
 import ClerkKit
+import FeedFeature
 import Kingfisher
 import VoicePlaybackFeature
 
@@ -19,6 +20,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         // Configure AVAudioSession for background voice playback
         AudioSessionConfigurator.configure()
+
+        // Warm up LocationManager on main thread to avoid Swift Concurrency deadlocks
+        LocationManager.warmUp()
 
         // TODO: Firebase configuration will be added when analytics is needed
         return true

@@ -92,13 +92,12 @@ public struct LocationPickerView: View {
 
     private var useMyLocationButton: some View {
         KindredButton(
-            "Use my location",
+            store.isRequestingLocation ? "Locating..." : "Use my location",
             style: .secondary
         ) {
-            Task {
-                await requestUserLocation()
-            }
+            store.send(.useMyLocation)
         }
+        .disabled(store.isRequestingLocation)
         .accessibilityLabel("Use my location")
         .accessibilityHint("Get recipes near your current location")
     }
@@ -230,42 +229,5 @@ public struct LocationPickerView: View {
 
         // Dismiss sheet
         dismiss()
-    }
-
-    @MainActor
-    private func requestUserLocation() async {
-        @Dependency(\.locationClient) var locationClient
-
-        do {
-            // Request authorization
-            let status = await locationClient.requestAuthorization()
-
-            guard status == .authorizedWhenInUse || status == .authorizedAlways else {
-                // Permission denied - select default city (Istanbul per locked decision)
-                selectCity(CitySearchService.popularCities[0]) // Istanbul
-                return
-            }
-
-            // Get current location
-            let location = try await locationClient.currentLocation()
-
-            // Reverse geocode to city name
-            let cityName = try await locationClient.reverseGeocode(location)
-
-            // Create city result
-            let city = CitySearchService.CityResult(
-                name: cityName,
-                fullName: cityName, // We only have city name from reverse geocode
-                latitude: location.coordinate.latitude,
-                longitude: location.coordinate.longitude
-            )
-
-            // Select the city
-            selectCity(city)
-
-        } catch {
-            // On error, fall back to default city
-            selectCity(CitySearchService.popularCities[0]) // Istanbul
-        }
     }
 }

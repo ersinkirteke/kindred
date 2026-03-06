@@ -23,6 +23,7 @@ public struct RecipeDetailReducer {
         public var showBookmarkNudge: Bool = false
         public var currentAuthState: AuthState = .guest
         public var playbackStatus: PlaybackStatus = .idle
+        public var isMiniPlayerVisible: Bool = false
 
         public init(recipeId: String) {
             self.recipeId = recipeId
@@ -41,6 +42,7 @@ public struct RecipeDetailReducer {
         case dismissBookmarkNudge
         case authStateUpdated(AuthState)
         case playbackStatusUpdated(PlaybackStatus)
+        case miniPlayerVisibilityChanged(Bool)
         case delegate(Delegate)
 
     public enum Delegate: Equatable {
@@ -71,6 +73,8 @@ public struct RecipeDetailReducer {
             case let (.authStateUpdated(lhs), .authStateUpdated(rhs)):
                 return lhs == rhs
             case let (.playbackStatusUpdated(lhs), .playbackStatusUpdated(rhs)):
+                return lhs == rhs
+            case let (.miniPlayerVisibilityChanged(lhs), .miniPlayerVisibilityChanged(rhs)):
                 return lhs == rhs
             case let (.delegate(lhs), .delegate(rhs)):
                 return lhs == rhs
@@ -172,10 +176,7 @@ public struct RecipeDetailReducer {
                 return .none
 
             case .listenTapped:
-                // If already playing this recipe, pause it
-                if case .playing = state.playbackStatus {
-                    return .send(.delegate(.pausePlayback))
-                }
+                // Play/pause toggle is handled by AppReducer which checks actual voicePlayback state
 
                 // CHECK AUTH STATE - gate listen for guests
                 if case .guest = state.currentAuthState {
@@ -195,6 +196,10 @@ public struct RecipeDetailReducer {
 
             case let .playbackStatusUpdated(status):
                 state.playbackStatus = status
+                return .none
+
+            case let .miniPlayerVisibilityChanged(visible):
+                state.isMiniPlayerVisible = visible
                 return .none
 
             case .delegate:

@@ -1,6 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 import DesignSystem
+import FeedFeature
 import MapKit
 
 struct LocationStepView: View {
@@ -53,6 +54,9 @@ struct LocationStepView: View {
                     .frame(height: 56)
                 } else {
                     KindredButton("Use my location", style: .primary) {
+                        // Request permission directly from main thread (SwiftUI button action)
+                        // before entering TCA effect, to ensure the system dialog shows
+                        LocationManager.shared?.requestPermission()
                         store.send(.requestLocationPermission)
                     }
                     .accessibilityLabel("Use current location")
@@ -73,6 +77,7 @@ struct LocationStepView: View {
                         .padding(.top, KindredSpacing.sm)
                         .padding(.horizontal, KindredSpacing.md)
                 }
+
             }
             .padding(.horizontal, KindredSpacing.lg)
 

@@ -1,20 +1,35 @@
 import SwiftUI
 import ComposableArchitecture
 import DesignSystem
+import VoicePlaybackFeature
 
 // MARK: - Recipe Detail View
 
 public struct RecipeDetailView: View {
 
     @Bindable var store: StoreOf<RecipeDetailReducer>
+    @ObservedObject private var playbackObserver = PlaybackObserver.shared
+
+    /// Derived playback status for this recipe from the global voice playback state
+    private var effectivePlaybackStatus: PlaybackStatus {
+        guard let playback = playbackObserver.currentPlayback,
+              playback.recipeId == store.recipeId else {
+            return .idle
+        }
+        return playback.status
+    }
+
+    /// Whether the mini player is currently visible
+    private var isMiniPlayerVisible: Bool {
+        playbackObserver.currentPlayback != nil
+    }
 
     public init(store: StoreOf<RecipeDetailReducer>) {
         self.store = store
     }
 
     public var body: some View {
-        ZStack(alignment: .bottom) {
-            // Main content
+        VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     // Parallax hero image
@@ -37,7 +52,6 @@ public struct RecipeDetailView: View {
                     }
                     .padding(.horizontal, KindredSpacing.md)
                     .padding(.top, KindredSpacing.lg)
-                    .padding(.bottom, 100) // Space for sticky bottom bar
                     .background(Color.kindredBackground)
                     .clipShape(
                         UnevenRoundedRectangle(
@@ -52,7 +66,7 @@ public struct RecipeDetailView: View {
             }
             .background(Color.kindredBackground)
 
-            // Sticky bottom bar
+            // Sticky bottom bar - VStack ensures it sits above mini player
             if store.recipe != nil {
                 bottomBar
             }
@@ -231,16 +245,21 @@ public struct RecipeDetailView: View {
                     store.send(.listenTapped)
                 }) {
                     HStack(spacing: KindredSpacing.sm) {
-                        switch store.playbackStatus {
+                        switch effectivePlaybackStatus {
                         case .loading, .buffering:
                             ProgressView()
                                 .tint(.kindredAccent)
                             Text("Loading...")
                                 .font(.kindredBodyBold())
-                        case .playing, .paused:
-                            Image(systemName: store.playbackStatus == .playing ? "pause.fill" : "play.fill")
+                        case .playing:
+                            Image(systemName: "pause.fill")
                                 .font(.system(size: 18))
-                            Text(store.playbackStatus == .playing ? "Pause" : "Resume")
+                            Text("Pause")
+                                .font(.kindredBodyBold())
+                        case .paused:
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 18))
+                            Text("Resume")
                                 .font(.kindredBodyBold())
                         default:
                             Image(systemName: "headphones")
@@ -259,9 +278,9 @@ public struct RecipeDetailView: View {
                     )
                     .cornerRadius(12)
                 }
-                .disabled(store.playbackStatus == .loading || store.playbackStatus == .buffering)
-                .accessibilityLabel(store.playbackStatus == .playing ? "Pause narration" : "Listen to this recipe")
-                .accessibilityHint(store.playbackStatus == .playing ? "Double tap to pause" : "Double tap to listen to this recipe narrated")
+                .disabled(effectivePlaybackStatus == .loading || effectivePlaybackStatus == .buffering)
+                .accessibilityLabel(effectivePlaybackStatus == .playing ? "Pause narration" : "Listen to this recipe")
+                .accessibilityHint(effectivePlaybackStatus == .playing ? "Double tap to pause" : "Double tap to listen to this recipe narrated")
 
                 // Bookmark button
                 Button(action: {
@@ -284,8 +303,14 @@ public struct RecipeDetailView: View {
             }
             .padding(.horizontal, KindredSpacing.md)
             .padding(.vertical, KindredSpacing.md)
-            .background(Color.kindredCardSurface)
+
+            // Space for mini player when it's visible
+            if isMiniPlayerVisible {
+                Spacer()
+                    .frame(height: 67)
+            }
         }
+        .background(Color.kindredCardSurface)
     }
 }
 

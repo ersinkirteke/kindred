@@ -4,84 +4,134 @@ import os.log
 
 private let locationLogger = Logger(subsystem: "com.ersinkirteke.kindred", category: "Location")
 
-/// Minimal CLLocationManager wrapper. NOT @MainActor — uses DispatchQueue.main
-/// explicitly to avoid Swift concurrency / Objective-C delegate interop issues.
-public final class LocationManager: NSObject {
-    public static let shared: LocationManager = {
-        if Thread.isMainThread {
-            return LocationManager()
-        } else {
-            return DispatchQueue.main.sync { LocationManager() }
-        }
-    }()
+/// Minimal CLLocationManager wrapper. Polling-based, thread-safe property reads.
+public final class LocationManager: NSObject, @unchecked Sendable, CLLocationManagerDelegate {
+    public private(set) static var shared: LocationManager!
 
-    private let clManager = CLLocationManager()
-    private var locationContinuation: CheckedContinuation<CLLocation, Error>?
-    private var authContinuation: CheckedContinuation<CLAuthorizationStatus, Never>?
+    public static func warmUp() {
+        assert(Thread.isMainThread)
+        if shared == nil {
+            shared = LocationManager()
+        }
+    }
+
+    let clManager = CLLocationManager()
+
+    // Thread-safe storage for values set by delegate on main thread, read from any thread
+    private let lock = NSLock()
+    private var _lastAuthStatus: CLAuthorizationStatus = .notDetermined
+    private var _lastLocation: CLLocation?
+
+    private var safeAuthStatus: CLAuthorizationStatus {
+        lock.lock(); defer { lock.unlock() }
+        return _lastAuthStatus
+    }
+
+    private var safeLocation: CLLocation? {
+        lock.lock(); defer { lock.unlock() }
+        return _lastLocation
+    }
 
     private override init() {
         super.init()
+        _lastAuthStatus = clManager.authorizationStatus
         clManager.delegate = self
-        clManager.desiredAccuracy = kCLLocationAccuracyKilometer
-        locationLogger.info("LocationManager init, status=\(self.clManager.authorizationStatus.rawValue)")
+        clManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        locationLogger.info("📍 LocationManager init, status=\(self._lastAuthStatus.rawValue)")
+    }
+
+    // MARK: - Authorization
+
+    /// Call from main thread to trigger the system permission dialog immediately
+    public func requestPermission() {
+        assert(Thread.isMainThread, "requestPermission must be called on main thread")
+        clManager.requestWhenInUseAuthorization()
     }
 
     public func requestPermissionAndWait() async -> CLAuthorizationStatus {
-        await withCheckedContinuation { continuation in
-            DispatchQueue.main.async { [self] in
-                let status = self.clManager.authorizationStatus
-                locationLogger.info("requestPermission: status=\(status.rawValue)")
+        let currentStatus = safeAuthStatus
+        locationLogger.info("📍 auth current: \(currentStatus.rawValue)")
 
-                if status != .notDetermined {
-                    continuation.resume(returning: status)
-                } else {
-                    self.authContinuation = continuation
-                    self.clManager.requestWhenInUseAuthorization()
+        if currentStatus != .notDetermined {
+            if currentStatus == .authorizedWhenInUse || currentStatus == .authorizedAlways {
+                DispatchQueue.main.async { [self] in
+                    self.clManager.startUpdatingLocation()
                 }
             }
+            return currentStatus
         }
-    }
 
-    public func requestCurrentLocation() async throws -> CLLocation {
-        try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.main.async { [self] in
-                locationLogger.info("requestCurrentLocation: calling requestLocation()")
-                self.locationContinuation = continuation
-                self.clManager.requestLocation()
+        // Must be called on main thread to show dialog
+        DispatchQueue.main.async { [self] in
+            self.clManager.requestWhenInUseAuthorization()
+        }
+
+        // Poll thread-safe status
+        for _ in 0..<60 {
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            let status = safeAuthStatus
+            if status != .notDetermined {
+                locationLogger.info("📍 auth resolved: \(status.rawValue)")
+                if status == .authorizedWhenInUse || status == .authorizedAlways {
+                    DispatchQueue.main.async { [self] in
+                        self.clManager.startUpdatingLocation()
+                    }
+                }
+                return status
             }
         }
+
+        return .denied
     }
-}
 
-// MARK: - CLLocationManagerDelegate
+    // MARK: - Location Fetching
 
-extension LocationManager: CLLocationManagerDelegate {
+    public func requestCurrentLocation() async throws -> CLLocation {
+        DispatchQueue.main.async { [self] in
+            self.clManager.startUpdatingLocation()
+        }
+
+        for i in 0..<30 {
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            if let location = safeLocation, location.horizontalAccuracy >= 0 {
+                locationLogger.info("📍 location: \(location.coordinate.latitude), \(location.coordinate.longitude) after \(i) polls")
+                DispatchQueue.main.async { [self] in
+                    self.clManager.stopUpdatingLocation()
+                }
+                return location
+            }
+        }
+
+        DispatchQueue.main.async { [self] in
+            self.clManager.stopUpdatingLocation()
+        }
+        throw LocationError.noCityFound
+    }
+
+    // MARK: - Delegate (runs on main thread, writes to thread-safe storage)
+
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
-        locationLogger.info("delegate: authChanged status=\(status.rawValue)")
+        lock.lock()
+        _lastAuthStatus = status
+        lock.unlock()
+        locationLogger.info("📍 delegate authChanged: \(status.rawValue)")
 
-        if let continuation = authContinuation, status != .notDetermined {
-            authContinuation = nil
-            continuation.resume(returning: status)
+        if status == .authorizedWhenInUse || status == .authorizedAlways {
+            clManager.startUpdatingLocation()
         }
     }
 
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.first else { return }
-        locationLogger.info("delegate: didUpdateLocations lat=\(location.coordinate.latitude) lng=\(location.coordinate.longitude)")
-
-        if let continuation = locationContinuation {
-            locationContinuation = nil
-            continuation.resume(returning: location)
+        if let loc = locations.last {
+            lock.lock()
+            _lastLocation = loc
+            lock.unlock()
+            locationLogger.info("📍 delegate didUpdate: \(loc.coordinate.latitude), \(loc.coordinate.longitude) acc=\(loc.horizontalAccuracy)")
         }
     }
 
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        locationLogger.error("delegate: didFail error=\(error.localizedDescription)")
-
-        if let continuation = locationContinuation {
-            locationContinuation = nil
-            continuation.resume(throwing: error)
-        }
+        locationLogger.error("📍 delegate didFail: \(error.localizedDescription)")
     }
 }

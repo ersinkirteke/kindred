@@ -37,5 +37,7 @@
 	<array>
 		<string>audio</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Kindred uses your location to show trending recipes near you.</string>
 </dict>
 </plist>

@@ -1,5 +1,6 @@
 import Apollo
 import ComposableArchitecture
+import CoreLocation
 import Dependencies
 import DesignSystem
 import Foundation
@@ -43,6 +44,9 @@ public struct FeedReducer {
         // Auth state
         public var currentAuthState: AuthState = .guest
 
+        // Location request state
+        public var isRequestingLocation = false
+
         public init() {}
     }
 
@@ -62,6 +66,9 @@ public struct FeedReducer {
         case bookmarkCountLoaded(Int)
         case toggleLocationPicker
         case dismissLocationPicker
+        case useMyLocation
+        case userLocationResolved(String, Double, Double)
+        case userLocationFailed
         case openRecipeDetail(String)
         case recipeDetail(PresentationAction<RecipeDetailReducer.Action>)
         case dietaryFilterChanged(Set<String>)
@@ -96,6 +103,12 @@ public struct FeedReducer {
             case (.toggleLocationPicker, .toggleLocationPicker):
                 return true
             case (.dismissLocationPicker, .dismissLocationPicker):
+                return true
+            case (.useMyLocation, .useMyLocation):
+                return true
+            case let (.userLocationResolved(c1, lat1, lon1), .userLocationResolved(c2, lat2, lon2)):
+                return c1 == c2 && lat1 == lat2 && lon1 == lon2
+            case (.userLocationFailed, .userLocationFailed):
                 return true
             case let (.swipeCard(id1, dir1), .swipeCard(id2, dir2)):
                 return id1 == id2 && dir1 == dir2
@@ -156,6 +169,7 @@ public struct FeedReducer {
     @Dependency(\.guestSessionClient) var guestSession
     @Dependency(\.networkMonitorClient) var networkMonitor
     @Dependency(\.personalizationClient) var personalization
+    @Dependency(\.locationClient) var locationClient
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -523,6 +537,46 @@ public struct FeedReducer {
             case .dismissLocationPicker:
                 state.showLocationPicker = false
                 return .none
+
+            case .useMyLocation:
+                state.isRequestingLocation = true
+                return .run { send in
+                    do {
+                        let status = await locationClient.requestAuthorization()
+                        guard status == .authorizedWhenInUse || status == .authorizedAlways else {
+                            await send(.userLocationFailed)
+                            return
+                        }
+                        let location = try await locationClient.currentLocation()
+                        let cityName = try await locationClient.reverseGeocode(location)
+                        await send(.userLocationResolved(
+                            cityName,
+                            location.coordinate.latitude,
+                            location.coordinate.longitude
+                        ))
+                    } catch {
+                        feedLogger.error("❌ useMyLocation failed: \(error.localizedDescription)")
+                        await send(.userLocationFailed)
+                    }
+                }
+
+            case let .userLocationResolved(cityName, latitude, longitude):
+                state.isRequestingLocation = false
+                state.showLocationPicker = false
+                state.latitude = latitude
+                state.longitude = longitude
+                UserDefaults.standard.set(cityName, forKey: "selectedCity")
+                UserDefaults.standard.set(cityName, forKey: "lastSelectedCity")
+                return .send(.changeLocation(cityName))
+
+            case .userLocationFailed:
+                state.isRequestingLocation = false
+                // Fall back to Istanbul
+                let fallback = CitySearchService.popularCities[0]
+                state.showLocationPicker = false
+                UserDefaults.standard.set(fallback.name, forKey: "selectedCity")
+                UserDefaults.standard.set(fallback.name, forKey: "lastSelectedCity")
+                return .send(.changeLocation(fallback.name))
 
             case let .openRecipeDetail(recipeId):
                 // Create RecipeDetailReducer.State and present it

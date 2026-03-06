@@ -1,6 +1,9 @@
 import CoreLocation
 import Dependencies
 import Foundation
+import os.log
+
+private let locationClientLogger = Logger(subsystem: "com.ersinkirteke.kindred", category: "LocationClient")
 
 public struct LocationClient {
     public var requestAuthorization: @Sendable () async -> CLAuthorizationStatus
@@ -8,52 +11,34 @@ public struct LocationClient {
     public var reverseGeocode: @Sendable (CLLocation) async throws -> String
 }
 
+// MARK: - DependencyKey
+
 extension LocationClient: DependencyKey {
     public static var liveValue: LocationClient {
-        // Shared CLLocationManager — created on main thread for CoreLocation
-        let manager: CLLocationManager = {
-            if Thread.isMainThread {
-                return CLLocationManager()
-            } else {
-                return DispatchQueue.main.sync { CLLocationManager() }
-            }
-        }()
-
         return LocationClient(
             requestAuthorization: {
-                let status = await MainActor.run { manager.authorizationStatus }
-                if status != .notDetermined {
-                    return status
-                }
-
-                await MainActor.run { manager.requestWhenInUseAuthorization() }
-
-                // Poll for authorization change (max 30 seconds for user to respond)
-                for _ in 0..<300 {
-                    try? await Task.sleep(for: .milliseconds(100))
-                    let current = await MainActor.run { manager.authorizationStatus }
-                    if current != .notDetermined {
-                        return current
-                    }
-                }
-                return await MainActor.run { manager.authorizationStatus }
+                locationClientLogger.info("📍 requestAuthorization called")
+                let result = await LocationManager.shared.requestPermissionAndWait()
+                locationClientLogger.info("📍 auth result: \(result.rawValue)")
+                return result
             },
             currentLocation: {
-                // Use iOS 17+ CLLocationUpdate async API — no delegates needed
-                for try await update in CLLocationUpdate.liveUpdates(.default) {
-                    if let location = update.location {
-                        return location
-                    }
-                }
-                throw LocationError.noCityFound
+                locationClientLogger.info("📍 currentLocation: using LocationManager.shared")
+                let location = try await LocationManager.shared.requestCurrentLocation()
+                locationClientLogger.info("📍 currentLocation resolved: \(location.coordinate.latitude), \(location.coordinate.longitude)")
+                return location
             },
             reverseGeocode: { location in
+                locationClientLogger.info("📍 reverseGeocode for \(location.coordinate.latitude), \(location.coordinate.longitude)")
                 let geocoder = CLGeocoder()
                 let placemarks = try await geocoder.reverseGeocodeLocation(location)
 
                 guard let placemark = placemarks.first else {
+                    locationClientLogger.error("❌ reverseGeocode: no placemarks")
                     throw LocationError.geocodingFailed
                 }
+
+                locationClientLogger.info("📍 placemark — locality: \(placemark.locality ?? "nil"), admin: \(placemark.administrativeArea ?? "nil"), country: \(placemark.country ?? "nil")")
 
                 if let city = placemark.locality {
                     return city

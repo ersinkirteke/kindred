@@ -314,7 +314,7 @@ public struct VoicePlaybackReducer {
                     currentStepIndex: nil
                 )
 
-                // Play audio first, then start observing streams once player is ready
+                // Play first so the player is set up, then start observing streams
                 return .concatenate(
                     .run { send in
                         guard let url = URL(string: metadata.audioURL) else {
@@ -675,6 +675,15 @@ public struct VoicePlaybackReducer {
                 // Non-critical failure - log but don't block playback
                 print("Caching failed (non-critical): \(errorMessage)")
                 return .none
+            }
+        }
+        .onChange(of: \.currentPlayback) { oldValue, newValue in
+            Reduce { _, _ in
+                .run { _ in
+                    await MainActor.run {
+                        PlaybackObserver.shared.currentPlayback = newValue
+                    }
+                }
             }
         }
         .ifLet(\.voiceUpload, action: \.voiceUpload) {

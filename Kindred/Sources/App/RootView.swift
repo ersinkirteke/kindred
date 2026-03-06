@@ -8,7 +8,6 @@ import AuthFeature
 
 struct RootView: View {
     @Bindable var store: StoreOf<AppReducer>
-
     var body: some View {
         TabView(selection: $store.selectedTab.sending(\.tabSelected)) {
             FeedView(

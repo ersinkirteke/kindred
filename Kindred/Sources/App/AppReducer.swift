@@ -312,10 +312,26 @@ struct AppReducer {
                 }
 
             case .voicePlayback:
-                // HARD TEST: force .paused to check if button changes
-                if var detail = state.feedState.recipeDetail {
-                    detail.playbackStatus = .paused
-                    state.feedState.recipeDetail = detail
+                // Sync playback status and mini player visibility to recipe detail via actions
+                // Always send (no equality guard) — TCA's @ObservableState deduplicates renders
+                if state.feedState.recipeDetail != nil {
+                    let isMiniPlayerVisible = state.voicePlaybackState.currentPlayback != nil
+                    let status: PlaybackStatus
+                    if let playback = state.voicePlaybackState.currentPlayback,
+                       playback.recipeId == state.feedState.recipeDetail!.recipeId {
+                        status = playback.status
+                    } else if state.voicePlaybackState.isLoadingNarration,
+                              let pendingId = state.voicePlaybackState.pendingRecipeId,
+                              pendingId == state.feedState.recipeDetail!.recipeId {
+                        status = .loading
+                    } else {
+                        status = .idle
+                    }
+
+                    return .merge(
+                        .send(.feed(.recipeDetail(.presented(.playbackStatusUpdated(status))))),
+                        .send(.feed(.recipeDetail(.presented(.miniPlayerVisibilityChanged(isMiniPlayerVisible)))))
+                    )
                 }
                 return .none
 

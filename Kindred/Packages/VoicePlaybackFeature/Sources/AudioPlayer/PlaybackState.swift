@@ -74,6 +74,14 @@ public struct CurrentPlayback: Equatable, Sendable {
     }
 }
 
+// MARK: - Observable Playback State (propagates through navigation)
+
+public class PlaybackObserver: ObservableObject {
+    public static let shared = PlaybackObserver()
+    @Published public var currentPlayback: CurrentPlayback?
+    public init() {}
+}
+
 // MARK: - Environment Key
 
 private struct CurrentPlaybackKey: EnvironmentKey {
