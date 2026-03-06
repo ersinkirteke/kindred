@@ -123,7 +123,7 @@ public struct ExpandedPlayerView: View {
 
                     // Play/pause (64dp per VOICE-02 requirement)
                     Button {
-                        if playback.status == .playing {
+                        if playback.status == .playing || playback.status == .buffering {
                             store.send(.pause)
                         } else {
                             store.send(.play)

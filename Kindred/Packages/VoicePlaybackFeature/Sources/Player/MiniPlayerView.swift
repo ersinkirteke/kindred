@@ -82,7 +82,7 @@ public struct MiniPlayerView: View {
 
                     // Play/pause button
                     Button {
-                        if playback.status == .playing {
+                        if playback.status == .playing || playback.status == .buffering {
                             store.send(.pause)
                         } else {
                             store.send(.play)

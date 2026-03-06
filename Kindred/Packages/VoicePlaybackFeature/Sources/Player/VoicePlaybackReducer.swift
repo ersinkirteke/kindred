@@ -371,7 +371,8 @@ public struct VoicePlaybackReducer {
 
             case .play:
                 guard let currentPlayback = state.currentPlayback,
-                      currentPlayback.status != .playing else { return .none }
+                      currentPlayback.status != .playing,
+                      currentPlayback.status != .buffering else { return .none }
 
                 // If near the end, restart from beginning
                 let shouldRestart = currentPlayback.currentTime >= currentPlayback.duration - 0.5
@@ -398,7 +399,7 @@ public struct VoicePlaybackReducer {
 
             case .pause:
                 guard let currentPlayback = state.currentPlayback,
-                      currentPlayback.status == .playing else { return .none }
+                      currentPlayback.status == .playing || currentPlayback.status == .buffering else { return .none }
                 state.currentPlayback = CurrentPlayback(
                     recipeId: currentPlayback.recipeId,
                     recipeName: currentPlayback.recipeName,
