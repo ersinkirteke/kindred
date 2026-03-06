@@ -32,7 +32,7 @@
 - [x] **Phase 5: Guest Browsing & Feed** - Guest mode, swipe cards, recipe discovery, location-based feed
 - [x] **Phase 6: Dietary Filtering & Personalization** - Dietary preferences, Culinary DNA learning from implicit feedback
 - [ ] **Phase 7: Voice Playback & Streaming** - Voice narration streaming, background audio, offline caching
-- [ ] **Phase 8: Authentication & Onboarding** - Google/Apple OAuth, guest-to-account conversion, sub-90s onboarding
+- [x] **Phase 8: Authentication & Onboarding** - Google/Apple OAuth, guest-to-account conversion, sub-90s onboarding
 - [ ] **Phase 9: Monetization & Voice Tiers** - Free tier with ads, Pro subscription, StoreKit 2, voice slot enforcement
 - [ ] **Phase 10: Accessibility & Polish** - WCAG AAA audit, VoiceOver polish, Dynamic Type testing, production readiness
 
@@ -120,10 +120,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 08-01-PLAN.md -- AuthFeature package: SignInClient (Clerk Apple/Google), SignInGateReducer, SignInGateView
-- [ ] 08-02-PLAN.md -- Onboarding carousel: OnboardingReducer, 4 step views (sign-in, dietary, location, voice teaser)
-- [ ] 08-03-PLAN.md -- Auth gate wiring into Feed/Voice reducers, GuestMigrationClient, app integration
-- [ ] 08-04-PLAN.md -- Visual verification of onboarding and auth gate on device
+- [x] 08-01-PLAN.md -- AuthFeature package: SignInClient (Clerk Apple/Google), SignInGateReducer, SignInGateView (✓ 2026-03-03)
+- [x] 08-02-PLAN.md -- Onboarding carousel: OnboardingReducer, 4 step views (sign-in, dietary, location, voice teaser) (✓ 2026-03-03)
+- [x] 08-03-PLAN.md -- Auth gate wiring into Feed/Voice reducers, GuestMigrationClient, app integration (✓ 2026-03-03)
+- [x] 08-04-PLAN.md -- Visual verification of onboarding and auth gate on device (✓ 2026-03-06)
 
 ### Phase 9: Monetization & Voice Tiers
 **Goal**: Free and Pro tiers operational with App Store billing and voice slot enforcement
@@ -134,11 +134,14 @@ Plans:
   2. User can subscribe to Pro ($9.99/mo) via StoreKit 2 App Store billing with subscription status syncing to backend
   3. Pro tier removes all ads and unlocks unlimited voice slots (Free tier has 1 voice slot)
   4. Subscription status persists across app restarts and device changes via JWS verification
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
+- [ ] 09-01-PLAN.md -- MonetizationFeature package: SubscriptionClient, SubscriptionReducer, PaywallView, StoreKit config
+- [ ] 09-02-PLAN.md -- AdClient, AdCardView (native), BannerAdView (recipe detail) with Google Mobile Ads SDK
+- [ ] 09-03-PLAN.md -- Feed ad injection, recipe detail banner, voice slot enforcement, paywall wiring
+- [ ] 09-04-PLAN.md -- Profile subscription section, AppDelegate lifecycle listeners, backend JWS verification
+- [ ] 09-05-PLAN.md -- Device verification of complete monetization flow
 
 ### Phase 10: Accessibility & Polish
 **Goal**: App meets WCAG AAA standards and is production-ready for App Store submission
@@ -168,8 +171,8 @@ Plans:
 | 4. Foundation & Architecture | v2.0 | 4/4 | Complete | 2026-03-01 |
 | 5. Guest Browsing & Feed | v2.0 | 4/4 | Complete | 2026-03-02 |
 | 6. Dietary Filtering & Personalization | v2.0 | 3/3 | Complete | 2026-03-03 |
-| 7. Voice Playback & Streaming | v2.0 | 4/6 | In Progress | - |
-| 8. Authentication & Onboarding | v2.0 | 0/? | Not started | - |
+| 7. Voice Playback & Streaming | v2.0 | 6/6 | Complete | 2026-03-03 |
+| 8. Authentication & Onboarding | v2.0 | 4/4 | Complete | 2026-03-06 |
 | 9. Monetization & Voice Tiers | v2.0 | 0/? | Not started | - |
 | 10. Accessibility & Polish | v2.0 | 0/? | Not started | - |
 
