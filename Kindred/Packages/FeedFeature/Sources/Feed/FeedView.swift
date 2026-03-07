@@ -27,6 +27,9 @@ public struct FeedView: View {
                 )) {
                     LocationPickerView(store: store)
                 }
+                .sheet(item: $store.scope(state: \.paywall, action: \.paywall)) { paywallStore in
+                    PaywallView(store: paywallStore)
+                }
                 .navigationDestination(item: $store.scope(state: \.recipeDetail, action: \.recipeDetail)) { detailStore in
                     if #available(iOS 18.0, *) {
                         RecipeDetailView(store: detailStore)

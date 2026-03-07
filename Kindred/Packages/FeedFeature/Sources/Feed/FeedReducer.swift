@@ -34,6 +34,7 @@ public struct FeedReducer {
         public var allRecipes: [RecipeCard] = [] // Unfiltered full list for client-side filtering
         public var swipedRecipeIDs: Set<String> = [] // Track swiped cards to prevent reappearance
         @Presents public var recipeDetail: RecipeDetailReducer.State?
+        @Presents public var paywall: SubscriptionReducer.State?
 
         // Culinary DNA state
         public var culinaryDNAAffinities: [AffinityScore] = []
@@ -93,6 +94,7 @@ public struct FeedReducer {
         case subscriptionStatusUpdated(SubscriptionStatus)
         case adVisibilityDetermined(Bool)
         case showPaywall
+        case paywall(PresentationAction<SubscriptionReducer.Action>)
 
     public enum Delegate: Equatable {
         case authGateRequested(recipeId: String, recipeName: String, imageUrl: String?, cuisineType: String?, actionType: String)
@@ -162,6 +164,8 @@ public struct FeedReducer {
                 return b1 == b2
             case (.showPaywall, .showPaywall):
                 return true
+            case let (.paywall(p1), .paywall(p2)):
+                return p1 == p2
             default:
                 return false
             }
@@ -709,15 +713,19 @@ public struct FeedReducer {
 
             case let .adVisibilityDetermined(shouldShow):
                 // Ad visibility determined by AdClient (first-launch check)
-                if case .free = state.subscriptionStatus {
-                    state.shouldShowAds = shouldShow
-                } else {
+                // Treat .unknown same as .free — only suppress ads if confirmed .pro
+                if case .pro = state.subscriptionStatus {
                     state.shouldShowAds = false
+                } else {
+                    state.shouldShowAds = shouldShow
                 }
                 return .none
 
             case .showPaywall:
-                // TODO: Present paywall - this will be handled by parent coordinator in Plan 04
+                state.paywall = SubscriptionReducer.State()
+                return .none
+
+            case .paywall:
                 return .none
 
             case .delegate:
@@ -731,6 +739,9 @@ public struct FeedReducer {
         }
         .ifLet(\.$recipeDetail, action: \.recipeDetail) {
             RecipeDetailReducer()
+        }
+        .ifLet(\.$paywall, action: \.paywall) {
+            SubscriptionReducer()
         }
     }
 }

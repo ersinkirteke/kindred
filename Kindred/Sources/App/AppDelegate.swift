@@ -38,12 +38,19 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             }
         }
 
-        // Initialize AdMob SDK
+        // Initialize AdMob SDK with test device for development
+        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [GADSimulatorID]
         GADMobileAds.sharedInstance().start(completionHandler: nil)
 
-        // Mark first launch complete (ads suppressed until second session)
+        // Mark first launch complete when app enters background (ads suppressed during first session)
         if !UserDefaults.standard.bool(forKey: "kindredFirstLaunchComplete") {
-            UserDefaults.standard.set(true, forKey: "kindredFirstLaunchComplete")
+            NotificationCenter.default.addObserver(
+                forName: UIApplication.didEnterBackgroundNotification,
+                object: nil,
+                queue: .main
+            ) { _ in
+                UserDefaults.standard.set(true, forKey: "kindredFirstLaunchComplete")
+            }
         }
 
         // TODO: Firebase configuration will be added when analytics is needed

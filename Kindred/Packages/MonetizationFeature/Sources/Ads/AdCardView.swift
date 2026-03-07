@@ -10,6 +10,8 @@ public struct AdCardView: View {
 
     @State private var nativeAd: GADNativeAd?
     @State private var loadState: AdLoadState = .idle
+    @State private var adLoader: GADAdLoader?
+    @State private var adCoordinator: AdLoaderCoordinator?
 
     @Dependency(\.adClient) var adClient
 
@@ -134,12 +136,9 @@ public struct AdCardView: View {
     private func loadAd() {
         loadState = .loading
 
-        let adLoader = GADAdLoader(
-            adUnitID: AdUnitIDs.feedNative,
-            rootViewController: nil,
-            adTypes: [.native],
-            options: nil
-        )
+        let rootVC = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.windows.first?.rootViewController
 
         let coordinator = AdLoaderCoordinator { ad in
             self.nativeAd = ad
@@ -148,11 +147,19 @@ public struct AdCardView: View {
             self.loadState = .failed(error.localizedDescription)
         }
 
-        adLoader.delegate = coordinator
-        adLoader.load(GADRequest())
+        let loader = GADAdLoader(
+            adUnitID: AdUnitIDs.feedNative,
+            rootViewController: rootVC,
+            adTypes: [.native],
+            options: nil
+        )
+        loader.delegate = coordinator
 
-        // Keep coordinator alive
-        objc_setAssociatedObject(adLoader, "coordinator", coordinator, .OBJC_ASSOCIATION_RETAIN)
+        // Store in @State to keep alive until callback
+        self.adCoordinator = coordinator
+        self.adLoader = loader
+
+        loader.load(GADRequest())
     }
 }
 
@@ -176,7 +183,7 @@ private struct NativeAdMediaView: UIViewRepresentable {
 // MARK: - AdLoaderCoordinator
 
 /// Coordinator to handle GADAdLoaderDelegate callbacks
-private class AdLoaderCoordinator: NSObject, GADAdLoaderDelegate, GADNativeAdDelegate {
+private class AdLoaderCoordinator: NSObject, GADNativeAdLoaderDelegate, GADNativeAdDelegate {
     let onSuccess: (GADNativeAd) -> Void
     let onFailure: (Error) -> Void
 

@@ -1,5 +1,5 @@
 {
-  "originHash" : "ca38b0266e15d972071fe4e91c0ef16be5fba042cb720e099aa7aac086197465",
+  "originHash" : "aa20e9bf3d4ff20807741e6658244df4c22202e1aef326f87188e7f4fc238de5",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -250,6 +250,24 @@
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
         "revision" : "e7441dc4dfec6a4ae929e614e3c1e67c6639d164",
+        "version" : "2.7.0"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-mobile-ads",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-mobile-ads",
+      "state" : {
+        "revision" : "7778cc1ab037c10dbbe026959e51e616bd961be9",
+        "version" : "11.13.0"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-user-messaging-platform",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git",
+      "state" : {
+        "revision" : "708a282840c2171ee63bd93b87afa49fe507d70e",
         "version" : "2.7.0"
       }
     },

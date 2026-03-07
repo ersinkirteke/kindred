@@ -31,12 +31,25 @@ public enum SignInError: Error, LocalizedError {
     }
 }
 
+// MARK: - Clerk Configuration Tracking
+
+/// Tracks whether Clerk.configure() has been called.
+/// Set to `true` from AppDelegate after calling Clerk.configure(publishableKey:).
+/// Avoids accessing Clerk.shared before configuration (which triggers assertionFailure).
+public enum ClerkConfigurationState {
+    @MainActor public static var isConfigured = false
+}
+
 // MARK: - Dependency Registration
 
 extension SignInClient: DependencyKey {
     public static let liveValue: SignInClient = {
         @MainActor
         func performSignIn(_ action: @Sendable () async throws -> Void) async throws -> ClerkUser {
+            guard ClerkConfigurationState.isConfigured else {
+                throw SignInError.clerkError("Sign-in is not available yet. Please set up your Clerk account first.")
+            }
+
             do {
                 try await action()
 
@@ -50,6 +63,8 @@ extension SignInClient: DependencyKey {
                     email: user.emailAddresses.first?.emailAddress ?? "",
                     displayName: user.firstName ?? user.username ?? ""
                 )
+            } catch let error as SignInError {
+                throw error
             } catch {
                 // Map Clerk errors to SignInError
                 let errorMessage = error.localizedDescription
@@ -80,6 +95,9 @@ extension SignInClient: DependencyKey {
                 }
             },
             signOut: {
+                guard await ClerkConfigurationState.isConfigured else {
+                    throw SignInError.clerkError("Sign-out is not available. Clerk is not configured.")
+                }
                 try await Clerk.shared.auth.signOut()
             },
             observeAuthState: {

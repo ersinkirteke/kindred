@@ -1,91 +1,87 @@
-import ComposableArchitecture
 import DesignSystem
 import GoogleMobileAds
 import SwiftUI
 
 /// Adaptive banner ad for recipe detail view
-/// Uses UIViewRepresentable to wrap GADBannerView
 public struct BannerAdView: View {
-    @State private var bannerHeight: CGFloat = 0
-    @Dependency(\.adClient) var adClient
+    @State private var adLoaded = false
+    @State private var adError: String?
 
     public init() {}
 
     public var body: some View {
-        Group {
-            if adClient.shouldShowAds() && bannerHeight > 0 {
-                BannerViewRepresentable(bannerHeight: $bannerHeight)
-                    .frame(height: bannerHeight)
-                    .background(Color.kindredCardSurface)
-                    .accessibilityLabel("Advertisement")
-            } else {
-                // Collapsed when no ad loaded or ads suppressed
-                EmptyView()
+        ZStack {
+            Color.kindredCardSurface
+
+            if let error = adError {
+                Text("Ad error: \(error)")
+                    .font(.caption2)
+                    .foregroundColor(.red)
+            } else if !adLoaded {
+                ProgressView()
+                    .controlSize(.small)
             }
+
+            BannerViewRepresentable(adLoaded: $adLoaded, adError: $adError)
         }
+        .frame(height: 60)
+        .cornerRadius(8)
+        .accessibilityLabel("Advertisement")
     }
 }
 
 // MARK: - BannerViewRepresentable
 
-/// UIViewRepresentable wrapper for GADBannerView
 private struct BannerViewRepresentable: UIViewRepresentable {
-    @Binding var bannerHeight: CGFloat
+    @Binding var adLoaded: Bool
+    @Binding var adError: String?
 
     func makeUIView(context: Context) -> GADBannerView {
         let bannerView = GADBannerView()
-
-        // Set ad unit ID
         bannerView.adUnitID = AdUnitIDs.detailBanner
 
-        // Get root view controller
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let rootViewController = windowScene.windows.first?.rootViewController {
             bannerView.rootViewController = rootViewController
         }
 
-        // Set delegate
         bannerView.delegate = context.coordinator
 
-        // Use adaptive banner size
-        let viewWidth = UIScreen.main.bounds.width
+        let viewWidth = UIScreen.main.bounds.width - 32 // Account for padding
         let adaptiveSize = GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(viewWidth)
         bannerView.adSize = adaptiveSize
 
-        // Load ad request
         bannerView.load(GADRequest())
 
         return bannerView
     }
 
-    func updateUIView(_ uiView: GADBannerView, context: Context) {
-        // No updates needed after initial setup
-    }
+    func updateUIView(_ uiView: GADBannerView, context: Context) {}
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(bannerHeight: $bannerHeight)
+        Coordinator(adLoaded: $adLoaded, adError: $adError)
     }
 
-    // MARK: - Coordinator
-
     class Coordinator: NSObject, GADBannerViewDelegate {
-        @Binding var bannerHeight: CGFloat
+        @Binding var adLoaded: Bool
+        @Binding var adError: String?
 
-        init(bannerHeight: Binding<CGFloat>) {
-            _bannerHeight = bannerHeight
+        init(adLoaded: Binding<Bool>, adError: Binding<String?>) {
+            _adLoaded = adLoaded
+            _adError = adError
         }
 
         func bannerViewDidReceiveAd(_ bannerView: GADBannerView) {
-            // Update height when ad loads successfully
             DispatchQueue.main.async {
-                self.bannerHeight = bannerView.adSize.size.height
+                self.adLoaded = true
+                self.adError = nil
             }
         }
 
         func bannerView(_ bannerView: GADBannerView, didFailToReceiveAdWithError error: Error) {
-            // Collapse on failure
             DispatchQueue.main.async {
-                self.bannerHeight = 0
+                self.adLoaded = false
+                self.adError = error.localizedDescription
             }
         }
     }

@@ -9,25 +9,10 @@ import MonetizationFeature
 public struct RecipeDetailView: View {
 
     @Bindable var store: StoreOf<RecipeDetailReducer>
-    @ObservedObject private var playbackObserver = PlaybackObserver.shared
 
-    /// Derived playback status for this recipe from the global voice playback state
-    private var effectivePlaybackStatus: PlaybackStatus {
-        guard let playback = playbackObserver.currentPlayback,
-              playback.recipeId == store.recipeId else {
-            return .idle
-        }
-        return playback.status
-    }
-
-    /// Whether the mini player is currently visible
-    private var isMiniPlayerVisible: Bool {
-        playbackObserver.currentPlayback != nil
-    }
-
-    /// Whether banner ad should be shown
+    /// Whether banner ad should be shown (hidden during active narration)
     private var shouldShowBannerAd: Bool {
-        let isNarrationActive = [.playing, .loading, .buffering].contains(effectivePlaybackStatus)
+        let isNarrationActive = [.playing, .loading, .buffering].contains(store.playbackStatus)
         return store.shouldShowAds && !isNarrationActive
     }
 
@@ -258,7 +243,7 @@ public struct RecipeDetailView: View {
                     store.send(.listenTapped)
                 }) {
                     HStack(spacing: KindredSpacing.sm) {
-                        switch effectivePlaybackStatus {
+                        switch store.playbackStatus {
                         case .loading, .buffering:
                             ProgressView()
                                 .tint(.kindredAccent)
@@ -291,9 +276,9 @@ public struct RecipeDetailView: View {
                     )
                     .cornerRadius(12)
                 }
-                .disabled(effectivePlaybackStatus == .loading || effectivePlaybackStatus == .buffering)
-                .accessibilityLabel(effectivePlaybackStatus == .playing ? "Pause narration" : "Listen to this recipe")
-                .accessibilityHint(effectivePlaybackStatus == .playing ? "Double tap to pause" : "Double tap to listen to this recipe narrated")
+                .disabled(store.playbackStatus == .loading || store.playbackStatus == .buffering)
+                .accessibilityLabel(store.playbackStatus == .playing ? "Pause narration" : "Listen to this recipe")
+                .accessibilityHint(store.playbackStatus == .playing ? "Double tap to pause" : "Double tap to listen to this recipe narrated")
 
                 // Bookmark button
                 Button(action: {
@@ -318,7 +303,7 @@ public struct RecipeDetailView: View {
             .padding(.vertical, KindredSpacing.md)
 
             // Space for mini player when it's visible
-            if isMiniPlayerVisible {
+            if store.isMiniPlayerVisible {
                 Spacer()
                     .frame(height: 67)
             }

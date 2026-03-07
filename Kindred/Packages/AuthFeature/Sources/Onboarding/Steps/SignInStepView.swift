@@ -1,6 +1,5 @@
 import SwiftUI
 import ComposableArchitecture
-import AuthenticationServices
 import DesignSystem
 
 struct SignInStepView: View {
@@ -49,28 +48,26 @@ struct SignInStepView: View {
 
             // Sign-in buttons
             VStack(spacing: KindredSpacing.md) {
-                // Apple Sign In button
-                ZStack {
-                    SignInWithAppleButton(.signIn) { _ in
-                        store.send(.appleSignInTapped)
-                    } onCompletion: { _ in
-                        // Handled via SignInClient
+                // Apple Sign In button (custom styled — Clerk SDK handles its own ASAuthorization flow)
+                Button {
+                    store.send(.appleSignInTapped)
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "apple.logo")
+                            .font(.system(size: 18, weight: .medium))
+                        Text("Sign in with Apple")
+                            .font(.kindredBodyBold())
                     }
-                    .signInWithAppleButtonStyle(.black)
+                    .frame(maxWidth: .infinity)
                     .frame(height: 56)
+                    .foregroundColor(.white)
+                    .background(Color.black)
                     .cornerRadius(12)
-                    .accessibilityLabel("Sign in with Apple")
-
-                    // Loading overlay for Apple button
-                    if store.isSigningIn {
-                        ProgressView()
-                            .tint(.white)
-                            .allowsHitTesting(false)
-                    }
                 }
+                .accessibilityLabel("Sign in with Apple")
 
                 // Google Sign In button
-                KindredButton("Sign in with Google", style: .secondary, isLoading: store.isSigningIn) {
+                KindredButton("Sign in with Google", style: .secondary) {
                     store.send(.googleSignInTapped)
                 }
                 .accessibilityLabel("Sign in with Google")
@@ -78,7 +75,7 @@ struct SignInStepView: View {
                 // Error text
                 if let error = store.signInError, !error.isEmpty {
                     Text(error)
-                        .font(.kindredCaption())
+                        .font(.kindredBody())
                         .foregroundColor(.kindredError)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, KindredSpacing.lg)
@@ -102,7 +99,6 @@ struct SignInStepView: View {
                 .accessibilityLabel("Continue browsing as guest")
             }
             .padding(.horizontal, KindredSpacing.lg)
-            .disabled(store.isSigningIn)
 
             Spacer(minLength: 40)
         }

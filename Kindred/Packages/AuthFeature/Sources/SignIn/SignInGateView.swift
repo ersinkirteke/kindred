@@ -1,6 +1,5 @@
 import SwiftUI
 import ComposableArchitecture
-import AuthenticationServices
 import DesignSystem
 
 /// Full-screen sign-in gate with Apple and Google OAuth
@@ -38,31 +37,28 @@ public struct SignInGateView: View {
 
                     // Sign-in buttons section
                     VStack(spacing: 16) {
-                        // Apple Sign In Button
-                        SignInWithAppleButton(
-                            .signIn,
-                            onRequest: { _ in },
-                            onCompletion: { _ in
-                                viewStore.send(.appleSignInTapped)
+                        // Apple Sign In Button (custom styled — Clerk SDK handles its own ASAuthorization flow)
+                        Button {
+                            viewStore.send(.appleSignInTapped)
+                        } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "apple.logo")
+                                    .font(.system(size: 18, weight: .medium))
+                                Text("Sign in with Apple")
+                                    .font(.kindredBodyBold())
                             }
-                        )
-                        .frame(height: 56)
-                        .cornerRadius(12)
-                        .disabled(viewStore.isSigningIn)
-                        .overlay(
-                            viewStore.isSigningIn
-                                ? ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                : nil
-                        )
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .foregroundColor(.white)
+                            .background(Color.black)
+                            .cornerRadius(12)
+                        }
                         .accessibilityLabel("Sign in with Apple")
 
                         // Google Sign In Button
                         KindredButton(
                             "Continue with Google",
-                            style: .secondary,
-                            isLoading: viewStore.isSigningIn,
-                            isDisabled: viewStore.isSigningIn
+                            style: .secondary
                         ) {
                             viewStore.send(.googleSignInTapped)
                         }
@@ -71,7 +67,7 @@ public struct SignInGateView: View {
                         // Error text
                         if let error = viewStore.signInError, !error.isEmpty {
                             Text(error)
-                                .font(.kindredCaption())
+                                .font(.kindredBody())
                                 .foregroundColor(.kindredError)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, KindredSpacing.md)

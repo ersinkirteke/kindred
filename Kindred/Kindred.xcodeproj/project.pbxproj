@@ -3,38 +3,39 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		01EEA3FEAC764CFD5AE95F03 /* ProfileFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B450ED7410537AB3996299C9 /* ProfileFeature */; };
-		03AF12E8B7C4D5A6E9F01234 /* AuthFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 5CA7E3F1D8B2946A0C5E7F38 /* AuthFeature */; };
-		04BF23D9C8E5F6B7A0D12345 /* VoicePlaybackFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 6DB8F4E2E9C3A57B1D6F8049 /* VoicePlaybackFeature */; };
+		01EEA3FEAC764CFD5AE95F03 /* AuthFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 4570807330C3DE35914BC7B5 /* AuthFeature */; };
 		0D6F14EFF9B37E2E487CA01D /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1D24BEB16D5667E125AB4E70 /* Kingfisher */; };
 		2A6D51CE56EFA78DCE67B757 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD8617476EEC6D057886A1 /* AppDelegate.swift */; };
 		320ED449D03AE01022D086C6 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EE1509997A85428D90FEB0 /* SplashView.swift */; };
-		7CAEB444EC2EB7E5A59B1B9C /* AuthClient in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF62527EDE9E5CC238BE4E0 /* AuthClient */; };
+		72DF1A34B1919B36BCE0081C /* ProfileFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B450ED7410537AB3996299C9 /* ProfileFeature */; };
+		7CAEB444EC2EB7E5A59B1B9C /* NetworkClient in Frameworks */ = {isa = PBXBuildFile; productRef = 6E6199357BF415DFAC6C6F50 /* NetworkClient */; };
 		845EF0A4F0C4BEE620283BD6 /* WelcomeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 289D9F05375F81D3894469AB /* WelcomeCardView.swift */; };
-		8BD8FE27792C4D33DC7D6EAA /* NetworkClient in Frameworks */ = {isa = PBXBuildFile; productRef = 6E6199357BF415DFAC6C6F50 /* NetworkClient */; };
+		8BD8FE27792C4D33DC7D6EAA /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 0A97151FE41F3FFF96275F39 /* DesignSystem */; };
 		99094B0770A0716CCDC586F1 /* AppReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3496CDC3F3645B70903E4225 /* AppReducer.swift */; };
 		B3C6F95655D8C25FEFD8D6B3 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 2CCFE3A0A6F704E23D34BF87 /* FirebaseAnalytics */; };
-		D376666C5C0300F25A9F0D23 /* FeedFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 066BAEDC6DA6B6119976424F /* FeedFeature */; };
-		DA690AB73D958CDF5A961596 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 0A97151FE41F3FFF96275F39 /* DesignSystem */; };
+		D376666C5C0300F25A9F0D23 /* AuthClient in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF62527EDE9E5CC238BE4E0 /* AuthClient */; };
+		DA690AB73D958CDF5A961596 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6AAFF7E009F608BA17F6C /* GoogleMobileAds */; };
 		E768C89793541F869615D2CE /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BEE4F0AD67E9ECB04B2AB48 /* RootView.swift */; };
 		F165A0B9D84C4F1E0AD3DF1D /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 8DD84777DCF4F7A390FED365 /* ComposableArchitecture */; };
+		F867E09E0F6329B6E1D0E437 /* MonetizationFeature in Frameworks */ = {isa = PBXBuildFile; productRef = E6E7A5DAB0E4917619A3938F /* MonetizationFeature */; };
 		FB9A44C92D5CEB57194F1B09 /* KindredApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE81F6651F8E28F15B615AD9 /* KindredApp.swift */; };
+		FCF3EB76FAC14E4B016EF78A /* FeedFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 066BAEDC6DA6B6119976424F /* FeedFeature */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		037416CD7B126DDDA615EA95 /* ProfileFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ProfileFeature; path = Packages/ProfileFeature; sourceTree = SOURCE_ROOT; };
-		08CF34A1B5D6E7F8A2C40123 /* AuthFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = AuthFeature; path = Packages/AuthFeature; sourceTree = SOURCE_ROOT; };
-		09DF45B2C6E7F809B3D51234 /* VoicePlaybackFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = VoicePlaybackFeature; path = Packages/VoicePlaybackFeature; sourceTree = SOURCE_ROOT; };
 		21EA7E4E85B8B213AD9B7718 /* DesignSystem */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DesignSystem; path = Packages/DesignSystem; sourceTree = SOURCE_ROOT; };
 		289D9F05375F81D3894469AB /* WelcomeCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCardView.swift; sourceTree = "<group>"; };
+		29CF750516AEF33A147F6DDA /* AuthFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = AuthFeature; path = Packages/AuthFeature; sourceTree = SOURCE_ROOT; };
 		3496CDC3F3645B70903E4225 /* AppReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReducer.swift; sourceTree = "<group>"; };
 		371276036F9FB016888AC7B0 /* FeedFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FeedFeature; path = Packages/FeedFeature; sourceTree = SOURCE_ROOT; };
 		5BEE4F0AD67E9ECB04B2AB48 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
-		776F85584ADFADA9DD5079BB /* Kindred.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Kindred.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		776F85584ADFADA9DD5079BB /* Kindred.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kindred.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A421752DCF7C006925165741 /* MonetizationFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = MonetizationFeature; path = Packages/MonetizationFeature; sourceTree = SOURCE_ROOT; };
 		A81A2B1EB1B9D33DFF070A4D /* NetworkClient */ = {isa = PBXFileReference; lastKnownFileType = folder; name = NetworkClient; path = Packages/NetworkClient; sourceTree = SOURCE_ROOT; };
 		D6EE1509997A85428D90FEB0 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		DDB7118C7A4026DD1E4A8A62 /* KindredAPI */ = {isa = PBXFileReference; lastKnownFileType = folder; name = KindredAPI; path = Packages/KindredAPI; sourceTree = SOURCE_ROOT; };
@@ -52,13 +53,14 @@
 				F165A0B9D84C4F1E0AD3DF1D /* ComposableArchitecture in Frameworks */,
 				0D6F14EFF9B37E2E487CA01D /* Kingfisher in Frameworks */,
 				B3C6F95655D8C25FEFD8D6B3 /* FirebaseAnalytics in Frameworks */,
-				DA690AB73D958CDF5A961596 /* DesignSystem in Frameworks */,
-				8BD8FE27792C4D33DC7D6EAA /* NetworkClient in Frameworks */,
-				7CAEB444EC2EB7E5A59B1B9C /* AuthClient in Frameworks */,
-				03AF12E8B7C4D5A6E9F01234 /* AuthFeature in Frameworks */,
-				D376666C5C0300F25A9F0D23 /* FeedFeature in Frameworks */,
-				01EEA3FEAC764CFD5AE95F03 /* ProfileFeature in Frameworks */,
-				04BF23D9C8E5F6B7A0D12345 /* VoicePlaybackFeature in Frameworks */,
+				DA690AB73D958CDF5A961596 /* GoogleMobileAds in Frameworks */,
+				8BD8FE27792C4D33DC7D6EAA /* DesignSystem in Frameworks */,
+				7CAEB444EC2EB7E5A59B1B9C /* NetworkClient in Frameworks */,
+				D376666C5C0300F25A9F0D23 /* AuthClient in Frameworks */,
+				01EEA3FEAC764CFD5AE95F03 /* AuthFeature in Frameworks */,
+				FCF3EB76FAC14E4B016EF78A /* FeedFeature in Frameworks */,
+				72DF1A34B1919B36BCE0081C /* ProfileFeature in Frameworks */,
+				F867E09E0F6329B6E1D0E437 /* MonetizationFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,13 +80,13 @@
 			isa = PBXGroup;
 			children = (
 				EAF03268B06E1885805AA2CD /* AuthClient */,
-				08CF34A1B5D6E7F8A2C40123 /* AuthFeature */,
+				29CF750516AEF33A147F6DDA /* AuthFeature */,
 				21EA7E4E85B8B213AD9B7718 /* DesignSystem */,
 				371276036F9FB016888AC7B0 /* FeedFeature */,
 				DDB7118C7A4026DD1E4A8A62 /* KindredAPI */,
+				A421752DCF7C006925165741 /* MonetizationFeature */,
 				A81A2B1EB1B9D33DFF070A4D /* NetworkClient */,
 				037416CD7B126DDDA615EA95 /* ProfileFeature */,
-				09DF45B2C6E7F809B3D51234 /* VoicePlaybackFeature */,
 			);
 			path = Packages;
 			sourceTree = "<group>";
@@ -146,13 +148,14 @@
 				8DD84777DCF4F7A390FED365 /* ComposableArchitecture */,
 				1D24BEB16D5667E125AB4E70 /* Kingfisher */,
 				2CCFE3A0A6F704E23D34BF87 /* FirebaseAnalytics */,
+				68A6AAFF7E009F608BA17F6C /* GoogleMobileAds */,
 				0A97151FE41F3FFF96275F39 /* DesignSystem */,
 				6E6199357BF415DFAC6C6F50 /* NetworkClient */,
 				3AF62527EDE9E5CC238BE4E0 /* AuthClient */,
-				5CA7E3F1D8B2946A0C5E7F38 /* AuthFeature */,
+				4570807330C3DE35914BC7B5 /* AuthFeature */,
 				066BAEDC6DA6B6119976424F /* FeedFeature */,
 				B450ED7410537AB3996299C9 /* ProfileFeature */,
-				6DB8F4E2E9C3A57B1D6F8049 /* VoicePlaybackFeature */,
+				E6E7A5DAB0E4917619A3938F /* MonetizationFeature */,
 			);
 			productName = Kindred;
 			productReference = 776F85584ADFADA9DD5079BB /* Kindred.app */;
@@ -166,11 +169,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 2630;
-				TargetAttributes = {
-					4BC8B10CCFC26A3C4AF7B1D6 = {
-						DevelopmentTeam = "";
-					};
-				};
 			};
 			buildConfigurationList = EB33AAF8AE6611F4F186CFED /* Build configuration list for PBXProject "Kindred" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -188,17 +186,17 @@
 				0EBCFC07E87B1BF755679818 /* XCRemoteSwiftPackageReference "apollo-ios" */,
 				125CE7825CE5A3F18CA7D711 /* XCRemoteSwiftPackageReference "clerk-ios" */,
 				6DAA1D29DFE766A920A3A46D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				CC0C06E81629C642843040F2 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 				CE220980450BE526C0EF108D /* XCRemoteSwiftPackageReference "swift-dependencies" */,
 				71C4BE006B8BBF1DFD504CCF /* XCLocalSwiftPackageReference "Packages/AuthClient" */,
+				7E8B4E1A0F2BF6EFCB7A2513 /* XCLocalSwiftPackageReference "Packages/AuthFeature" */,
 				653541C8A33D9FA9FC403545 /* XCLocalSwiftPackageReference "Packages/DesignSystem" */,
 				CB2DB9E4973816094A013BB6 /* XCLocalSwiftPackageReference "Packages/FeedFeature" */,
 				6346B7592D34E435361B4541 /* XCLocalSwiftPackageReference "Packages/KindredAPI" */,
+				8D30CB2B6E15133ED8CC146A /* XCLocalSwiftPackageReference "Packages/MonetizationFeature" */,
 				59121B9B84E3D462E8BD9511 /* XCLocalSwiftPackageReference "Packages/NetworkClient" */,
 				3AB35058B2D32E755056685A /* XCLocalSwiftPackageReference "Packages/ProfileFeature" */,
-				7EAF56C3D9E4B0A1F2835678 /* XCLocalSwiftPackageReference "Packages/AuthFeature" */,
-				8FBF67D4EAF5C1B2F3946789 /* XCLocalSwiftPackageReference "Packages/VoicePlaybackFeature" */,
 			);
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -230,6 +228,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CV9G42QVG4;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -248,6 +247,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CV9G42QVG4;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -295,7 +295,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = CV9G42QVG4;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -359,7 +359,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = CV9G42QVG4;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -409,14 +409,6 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/ProfileFeature;
 		};
-		7EAF56C3D9E4B0A1F2835678 /* XCLocalSwiftPackageReference "Packages/AuthFeature" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/AuthFeature;
-		};
-		8FBF67D4EAF5C1B2F3946789 /* XCLocalSwiftPackageReference "Packages/VoicePlaybackFeature" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/VoicePlaybackFeature;
-		};
 		59121B9B84E3D462E8BD9511 /* XCLocalSwiftPackageReference "Packages/NetworkClient" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/NetworkClient;
@@ -432,6 +424,14 @@
 		71C4BE006B8BBF1DFD504CCF /* XCLocalSwiftPackageReference "Packages/AuthClient" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/AuthClient;
+		};
+		7E8B4E1A0F2BF6EFCB7A2513 /* XCLocalSwiftPackageReference "Packages/AuthFeature" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/AuthFeature;
+		};
+		8D30CB2B6E15133ED8CC146A /* XCLocalSwiftPackageReference "Packages/MonetizationFeature" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/MonetizationFeature;
 		};
 		CB2DB9E4973816094A013BB6 /* XCLocalSwiftPackageReference "Packages/FeedFeature" */ = {
 			isa = XCLocalSwiftPackageReference;
@@ -480,6 +480,14 @@
 				minimumVersion = 8.0.0;
 			};
 		};
+		CC0C06E81629C642843040F2 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.0;
+			};
+		};
 		CE220980450BE526C0EF108D /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-dependencies";
@@ -513,6 +521,15 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = AuthClient;
 		};
+		4570807330C3DE35914BC7B5 /* AuthFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AuthFeature;
+		};
+		68A6AAFF7E009F608BA17F6C /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC0C06E81629C642843040F2 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
 		6E6199357BF415DFAC6C6F50 /* NetworkClient */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = NetworkClient;
@@ -526,13 +543,9 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = ProfileFeature;
 		};
-		5CA7E3F1D8B2946A0C5E7F38 /* AuthFeature */ = {
+		E6E7A5DAB0E4917619A3938F /* MonetizationFeature */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = AuthFeature;
-		};
-		6DB8F4E2E9C3A57B1D6F8049 /* VoicePlaybackFeature */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = VoicePlaybackFeature;
+			productName = MonetizationFeature;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

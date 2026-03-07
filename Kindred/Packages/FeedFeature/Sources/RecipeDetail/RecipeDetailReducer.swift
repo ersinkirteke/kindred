@@ -232,20 +232,20 @@ public struct RecipeDetailReducer {
 
             case let .subscriptionStatusUpdated(status):
                 state.subscriptionStatus = status
-                // Compute shouldShowAds based on subscription status and first-launch check
-                if case .free = status {
-                    state.shouldShowAds = adClient.shouldShowAds()
-                } else {
+                // Only suppress ads if confirmed .pro — treat .unknown same as .free
+                if case .pro = status {
                     state.shouldShowAds = false
+                } else {
+                    state.shouldShowAds = adClient.shouldShowAds()
                 }
                 return .none
 
             case let .adVisibilityDetermined(shouldShow):
-                // Ad visibility determined by AdClient (first-launch check)
-                if case .free = state.subscriptionStatus {
-                    state.shouldShowAds = shouldShow
-                } else {
+                // Only suppress ads if confirmed .pro — treat .unknown same as .free
+                if case .pro = state.subscriptionStatus {
                     state.shouldShowAds = false
+                } else {
+                    state.shouldShowAds = shouldShow
                 }
                 return .none
 

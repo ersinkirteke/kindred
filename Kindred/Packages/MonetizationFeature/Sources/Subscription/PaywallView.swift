@@ -102,6 +102,9 @@ public struct PaywallView: View {
         .presentationDragIndicator(.hidden)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Pro subscription upgrade")
+        .onAppear {
+            store.send(.onAppear)
+        }
     }
 }
 

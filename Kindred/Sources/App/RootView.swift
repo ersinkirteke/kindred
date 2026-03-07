@@ -57,6 +57,7 @@ struct RootView: View {
             VoicePickerView(
                 voiceProfiles: store.voicePlaybackState.voiceProfiles,
                 selectedVoiceId: store.voicePlaybackState.selectedVoiceId,
+                subscriptionStatus: store.voicePlaybackState.subscriptionStatus,
                 onSelect: { voiceId in
                     store.send(.voicePlayback(.selectVoice(voiceId)))
                 },
@@ -65,6 +66,9 @@ struct RootView: View {
                 },
                 onCreateProfile: {
                     store.send(.voicePlayback(.showVoiceUpload))
+                },
+                onUpgradeTapped: {
+                    store.send(.voicePlayback(.upgradeTapped))
                 }
             )
             .presentationDetents([.medium, .large])
