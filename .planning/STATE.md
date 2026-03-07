@@ -4,12 +4,12 @@ milestone: v2.0
 milestone_name: iOS App
 current_phase: 07
 status: completed
-last_updated: "2026-03-07T10:43:58.987Z"
+last_updated: "2026-03-07T10:46:34.501Z"
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 26
-  completed_plans: 24
+  completed_plans: 25
 ---
 
 # Project State: Kindred
@@ -32,11 +32,11 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 9 of 10 (Monetization & Voice Tiers)
-Plan: 3 of 5 in current phase
-Status: Plan 09-03 complete — Ad integration into feed/detail and voice slot enforcement
-Last activity: 2026-03-07 — Completed 09-03: Ad cards injected into feed, banner in recipe detail, voice slot limits enforced
+Plan: 4 of 5 in current phase
+Status: Plan 09-04 complete — Profile subscription UI, AppDelegate lifecycle, backend JWS verification
+Last activity: 2026-03-07 — Completed 09-04: Profile shows subscription status with Pro badge, Transaction.updates listener, voice slot enforcement
 
-Progress: [████████████████████████░░░░░░░░] 60% (3 of 5 Phase 9 plans complete)
+Progress: [████████████████████████████████] 80% (4 of 5 Phase 9 plans complete)
 
 ---
 
@@ -82,10 +82,11 @@ Progress: [███████████████████████
 | Phase 07-voice-playback-streaming P06 | 2 | 2 tasks | 1 files |
 | Phase 08-authentication-onboarding P01 | 4 | 2 tasks | 4 files |
 | Phase 08-authentication-onboarding P02 | 7 | 2 tasks | 7 files |
+| Phase 09 P04 | 7 | 3 tasks | 12 files |
 | Phase 09 P03 | 5 | 2 tasks | 9 files |
 | Phase 09 P02 | 6 | 2 tasks | 5 files |
 | Phase 09 P01 | 6 | 3 tasks | 7 files |
-| Phase 09 P03 | 5 | 2 tasks | 9 files |
+| Phase 09-monetization-voice-tiers P04 | 7 | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,10 @@ Recent decisions affecting v2.0 iOS work:
 - Banner ad hides when voice narration is ACTIVE (playing/loading/buffering), shows when idle/paused/error (09-03)
 - Voice slot limit (1 profile) enforced at UI layer in VoicePickerView with isAtVoiceLimit computed property (09-03)
 - Free tier allows 1 voice profile creation, Pro tier unlimited (09-03)
+- Transaction.updates listener runs throughout app lifecycle with Task-based cancellation in applicationWillTerminate (09-04)
+- Base64url JWS decoding for MVP, production will use @apple/app-store-server-library SignedDataVerifier (09-04)
+- Voice slot enforcement only on uploadVoice endpoint, replaceVoice excluded (doesn't consume new slot) (09-04)
+- PRO pill badge shown next to Profile heading for Pro users (capsule shape, .kindredAccent background) (09-04)
 
 ### Pending Todos
 
