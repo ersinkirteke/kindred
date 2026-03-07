@@ -1,5 +1,6 @@
 import DesignSystem
 import Kingfisher
+import MonetizationFeature
 import SwiftUI
 
 // MARK: - VoicePickerView
@@ -7,22 +8,36 @@ import SwiftUI
 public struct VoicePickerView: View {
     let voiceProfiles: [VoiceProfile]
     let selectedVoiceId: String?
+    let subscriptionStatus: SubscriptionStatus
     let onSelect: (String) -> Void
     let onPreview: (String) -> Void
     let onCreateProfile: () -> Void
+    let onUpgradeTapped: () -> Void
 
     public init(
         voiceProfiles: [VoiceProfile],
         selectedVoiceId: String?,
+        subscriptionStatus: SubscriptionStatus = .unknown,
         onSelect: @escaping (String) -> Void,
         onPreview: @escaping (String) -> Void,
-        onCreateProfile: @escaping () -> Void = {}
+        onCreateProfile: @escaping () -> Void = {},
+        onUpgradeTapped: @escaping () -> Void = {}
     ) {
         self.voiceProfiles = voiceProfiles
         self.selectedVoiceId = selectedVoiceId
+        self.subscriptionStatus = subscriptionStatus
         self.onSelect = onSelect
         self.onPreview = onPreview
         self.onCreateProfile = onCreateProfile
+        self.onUpgradeTapped = onUpgradeTapped
+    }
+
+    /// Whether free user has hit voice profile limit
+    private var isAtVoiceLimit: Bool {
+        if case .free = subscriptionStatus {
+            return voiceProfiles.count >= 1
+        }
+        return false
     }
 
     public var body: some View {
@@ -50,36 +65,64 @@ public struct VoicePickerView: View {
                             )
                         }
 
-                        // Add new voice profile button
-                        Button {
-                            onCreateProfile()
-                        } label: {
-                            HStack(spacing: 12) {
-                                Circle()
-                                    .fill(Color.kindredAccent.opacity(0.15))
-                                    .frame(width: 44, height: 44)
-                                    .overlay(
-                                        Image(systemName: "plus")
-                                            .foregroundColor(.kindredAccent)
-                                            .font(.system(size: 20, weight: .semibold))
-                                    )
+                        // Add new voice profile button OR upgrade CTA
+                        if isAtVoiceLimit {
+                            // Upgrade CTA for free users at voice limit
+                            Button {
+                                onUpgradeTapped()
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "crown.fill")
+                                        .foregroundColor(.kindredAccent)
+                                        .font(.system(size: 20, weight: .semibold))
 
-                                Text("Create Voice Profile")
-                                    .font(.kindredBodyBold())
-                                    .foregroundColor(.kindredAccent)
+                                    Text("Upgrade to Pro for more voices")
+                                        .font(.kindredBodyBold())
+                                        .foregroundColor(.kindredAccent)
 
-                                Spacer()
+                                    Spacer()
+                                }
+                                .padding(16)
+                                .background(Color.kindredCardSurface)
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.kindredAccent, lineWidth: 2)
+                                )
                             }
-                            .padding(16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .strokeBorder(
-                                        style: StrokeStyle(lineWidth: 1.5, dash: [6, 4])
-                                    )
-                                    .foregroundColor(.kindredAccent.opacity(0.4))
-                            )
+                            .accessibilityLabel("Upgrade to Kindred Pro for unlimited voice profiles")
+                        } else {
+                            // Create voice profile button (free users with 0 voices OR Pro users)
+                            Button {
+                                onCreateProfile()
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Circle()
+                                        .fill(Color.kindredAccent.opacity(0.15))
+                                        .frame(width: 44, height: 44)
+                                        .overlay(
+                                            Image(systemName: "plus")
+                                                .foregroundColor(.kindredAccent)
+                                                .font(.system(size: 20, weight: .semibold))
+                                        )
+
+                                    Text("Create Voice Profile")
+                                        .font(.kindredBodyBold())
+                                        .foregroundColor(.kindredAccent)
+
+                                    Spacer()
+                                }
+                                .padding(16)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .strokeBorder(
+                                            style: StrokeStyle(lineWidth: 1.5, dash: [6, 4])
+                                        )
+                                        .foregroundColor(.kindredAccent.opacity(0.4))
+                                )
+                            }
+                            .accessibilityLabel("Create a new voice profile")
                         }
-                        .accessibilityLabel("Create a new voice profile")
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 16)

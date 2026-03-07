@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import Foundation
+import MonetizationFeature
 import SwiftUI
 
 // MARK: - VoicePlaybackReducer
@@ -24,6 +25,8 @@ public struct VoicePlaybackReducer {
         public var pendingRecipeName: String?
         public var pendingArtworkURL: String?
         public var voiceUpload: VoiceUploadReducer.State?
+        public var subscriptionStatus: SubscriptionStatus = .unknown
+        public var showPaywall: Bool = false
 
         public init(
             currentPlayback: CurrentPlayback? = nil,
@@ -39,7 +42,9 @@ public struct VoicePlaybackReducer {
             pendingRecipeId: String? = nil,
             pendingRecipeName: String? = nil,
             pendingArtworkURL: String? = nil,
-            voiceUpload: VoiceUploadReducer.State? = nil
+            voiceUpload: VoiceUploadReducer.State? = nil,
+            subscriptionStatus: SubscriptionStatus = .unknown,
+            showPaywall: Bool = false
         ) {
             self.currentPlayback = currentPlayback
             self.isExpanded = isExpanded
@@ -55,6 +60,8 @@ public struct VoicePlaybackReducer {
             self.pendingRecipeName = pendingRecipeName
             self.pendingArtworkURL = pendingArtworkURL
             self.voiceUpload = voiceUpload
+            self.subscriptionStatus = subscriptionStatus
+            self.showPaywall = showPaywall
         }
     }
 
@@ -86,6 +93,11 @@ public struct VoicePlaybackReducer {
         case showVoiceSwitcher
         case showVoiceUpload
         case voiceUpload(VoiceUploadReducer.Action)
+        case checkSubscriptionStatus
+        case subscriptionStatusUpdated(SubscriptionStatus)
+        case upgradeTapped
+        case showPaywall
+        case dismissPaywall
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -130,6 +142,12 @@ public struct VoicePlaybackReducer {
             case (.showVoiceUpload, .showVoiceUpload): return true
             case let (.voiceUpload(lAction), .voiceUpload(rAction)):
                 return lAction == rAction
+            case (.checkSubscriptionStatus, .checkSubscriptionStatus): return true
+            case let (.subscriptionStatusUpdated(lStatus), .subscriptionStatusUpdated(rStatus)):
+                return lStatus == rStatus
+            case (.upgradeTapped, .upgradeTapped): return true
+            case (.showPaywall, .showPaywall): return true
+            case (.dismissPaywall, .dismissPaywall): return true
             default:
                 return false
             }
@@ -141,6 +159,7 @@ public struct VoicePlaybackReducer {
     @Dependency(\.audioPlayerClient) var audioPlayer
     @Dependency(\.voiceCacheClient) var voiceCache
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.subscriptionClient) var subscriptionClient
 
     // MARK: - CancelID
 
@@ -211,8 +230,12 @@ public struct VoicePlaybackReducer {
                     }
                 } else {
                     state.showVoicePicker = true
-                    // Fetch available voice profiles
+                    // Fetch available voice profiles and subscription status
                     return .run { send in
+                        // Fetch subscription status
+                        let status = await subscriptionClient.currentEntitlement()
+                        await send(.subscriptionStatusUpdated(status))
+
                         // TODO: Replace with actual GraphQL query to fetch voice profiles
                         // For now, return mock profiles
                         let mockProfiles = [
@@ -675,6 +698,29 @@ public struct VoicePlaybackReducer {
             case let .cachingFailed(errorMessage):
                 // Non-critical failure - log but don't block playback
                 print("Caching failed (non-critical): \(errorMessage)")
+                return .none
+
+            case .checkSubscriptionStatus:
+                return .run { send in
+                    let status = await subscriptionClient.currentEntitlement()
+                    await send(.subscriptionStatusUpdated(status))
+                }
+
+            case let .subscriptionStatusUpdated(status):
+                state.subscriptionStatus = status
+                return .none
+
+            case .upgradeTapped:
+                state.showPaywall = true
+                state.showVoicePicker = false
+                return .none
+
+            case .showPaywall:
+                state.showPaywall = true
+                return .none
+
+            case .dismissPaywall:
+                state.showPaywall = false
                 return .none
             }
         }
