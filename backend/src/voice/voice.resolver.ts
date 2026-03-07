@@ -6,6 +6,7 @@ import {
   CurrentUserContext,
 } from '../common/decorators/current-user.decorator';
 import { VoiceService } from './voice.service';
+import { SubscriptionService } from '../subscription/subscription.service';
 import { VoiceProfileDto } from './dto/voice-profile.dto';
 import { NarrationMetadataDto } from './dto/narration-request.dto';
 import { NarrationService } from './narration.service';
@@ -17,6 +18,12 @@ import { PrismaService } from '../prisma/prisma.service';
  * GraphQL queries and mutations for voice profile management.
  * File uploads (voice recording) are handled via REST controller.
  * This resolver handles queries and non-file mutations only.
+ *
+ * IMPORTANT: Voice CREATION is REST-only (POST /voice/upload in VoiceController).
+ * This resolver has no creation mutation. If a createVoiceProfile mutation is ever
+ * added to this resolver, it MUST call subscriptionService.checkVoiceSlotLimit(userId)
+ * BEFORE creating the profile to enforce VOICE-07 slot limits (free users: 1 slot,
+ * Pro users: unlimited). See VoiceController.uploadVoice() for reference implementation.
  */
 @Resolver(() => VoiceProfileDto)
 export class VoiceResolver {
@@ -24,6 +31,7 @@ export class VoiceResolver {
     private readonly voiceService: VoiceService,
     private readonly narrationService: NarrationService,
     private readonly prisma: PrismaService,
+    private readonly subscriptionService: SubscriptionService,
   ) {}
 
   /**

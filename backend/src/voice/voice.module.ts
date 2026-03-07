@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ImagesModule } from '../images/images.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { PushModule } from '../push/push.module';
+import { SubscriptionModule } from '../subscription/subscription.module';
 import { ElevenLabsService } from './elevenlabs.service';
 import { NarrationService } from './narration.service';
 import { NarrationController } from './narration.controller';
@@ -24,7 +25,7 @@ import { VoiceController } from './voice.controller';
  * - TTS streaming for recipe narration
  */
 @Module({
-  imports: [ImagesModule, PrismaModule, PushModule],
+  imports: [ImagesModule, PrismaModule, PushModule, SubscriptionModule],
   providers: [
     ElevenLabsService,
     NarrationService,

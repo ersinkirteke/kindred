@@ -8,10 +8,12 @@ import {
   Req,
   Param,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ClerkAuthGuard } from '../auth/auth.guard';
 import { VoiceService } from './voice.service';
+import { SubscriptionService } from '../subscription/subscription.service';
 import { UploadVoiceInput } from './dto/upload-voice.input';
 import { VoiceProfile } from '@prisma/client';
 
@@ -25,7 +27,10 @@ import { VoiceProfile } from '@prisma/client';
 @Controller('voice')
 @UseGuards(ClerkAuthGuard)
 export class VoiceController {
-  constructor(private readonly voiceService: VoiceService) {}
+  constructor(
+    private readonly voiceService: VoiceService,
+    private readonly subscriptionService: SubscriptionService,
+  ) {}
 
   /**
    * POST /voice/upload
@@ -71,6 +76,15 @@ export class VoiceController {
 
     // Extract user from request (set by ClerkAuthGuard)
     const userId = req.user.clerkId;
+
+    // Server-side voice slot enforcement (VOICE-07)
+    // Free users limited to 1 voice profile; Pro users unlimited
+    const slotCheck = await this.subscriptionService.checkVoiceSlotLimit(userId);
+    if (!slotCheck.allowed) {
+      throw new ForbiddenException(
+        `Voice slot limit reached (${slotCheck.currentCount}/${slotCheck.limit === -1 ? 'unlimited' : slotCheck.limit}). Upgrade to Pro for unlimited voice profiles.`,
+      );
+    }
 
     // Extract IP address
     const ipAddress = req.ip || req.headers['x-forwarded-for'] || 'unknown';
