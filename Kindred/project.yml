@@ -39,6 +39,8 @@ packages:
     path: Packages/NetworkClient
   AuthClient:
     path: Packages/AuthClient
+  AuthFeature:
+    path: Packages/AuthFeature
   FeedFeature:
     path: Packages/FeedFeature
   ProfileFeature:
@@ -64,6 +66,7 @@ targets:
       - package: DesignSystem
       - package: NetworkClient
       - package: AuthClient
+      - package: AuthFeature
       - package: FeedFeature
       - package: ProfileFeature
       - package: MonetizationFeature
@@ -73,3 +76,13 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.kindred.app
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
+
+schemes:
+  Kindred:
+    build:
+      targets:
+        Kindred: all
+    run:
+      storeKitConfiguration: Kindred.storekit
+    test:
+      storeKitConfiguration: Kindred.storekit

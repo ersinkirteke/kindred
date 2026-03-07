@@ -3,11 +3,10 @@ import Foundation
 import GoogleMobileAds
 
 /// TCA dependency client for AdMob SDK initialization and ad suppression logic
-@DependencyClient
 public struct AdClient: Sendable {
     /// Initializes the Google Mobile Ads SDK
     /// Should be called once at app launch
-    public var initializeSDK: @Sendable () async -> Void
+    public var initializeSDK: @Sendable () async -> Void = {}
 
     /// Determines whether ads should be shown to the user
     /// Returns false on the very first app launch (before AppDelegate sets the flag)
@@ -17,11 +16,11 @@ public struct AdClient: Sendable {
     /// at the end of didFinishLaunchingWithOptions. This means:
     /// - First launch: flag doesn't exist → shouldShowAds returns false
     /// - Subsequent launches: flag exists → shouldShowAds returns true
-    public var shouldShowAds: @Sendable () -> Bool
+    public var shouldShowAds: @Sendable () -> Bool = { false }
 
     /// Checks if this is the very first app launch ever
     /// Returns true if the "kindredFirstLaunchComplete" flag does not exist
-    public var isFirstLaunchEver: @Sendable () -> Bool
+    public var isFirstLaunchEver: @Sendable () -> Bool = { true }
 }
 
 // MARK: - Dependency Key

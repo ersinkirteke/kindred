@@ -65,3 +65,48 @@ public extension Font {
 // MARK: - Dynamic Type Support
 // All Font methods return Font (not static sizes) to support automatic
 // Dynamic Type scaling via SwiftUI's built-in .dynamicTypeSize() modifier
+
+// MARK: - View Modifiers
+// Convenience modifiers for applying typography styles to views
+
+public extension View {
+    /// Apply large title font style
+    func kindredLargeTitle() -> some View {
+        self.font(.kindredLargeTitle())
+    }
+
+    /// Apply heading 1 font style
+    func kindredHeading1() -> some View {
+        self.font(.kindredHeading1())
+    }
+
+    /// Apply heading 2 font style
+    func kindredHeading2() -> some View {
+        self.font(.kindredHeading2())
+    }
+
+    /// Apply heading 3 font style
+    func kindredHeading3() -> some View {
+        self.font(.kindredHeading3())
+    }
+
+    /// Apply body font style
+    func kindredBody() -> some View {
+        self.font(.kindredBody())
+    }
+
+    /// Apply bold body font style
+    func kindredBodyBold() -> some View {
+        self.font(.kindredBodyBold())
+    }
+
+    /// Apply caption font style
+    func kindredCaption() -> some View {
+        self.font(.kindredCaption())
+    }
+
+    /// Apply small font style
+    func kindredSmall() -> some View {
+        self.font(.kindredSmall())
+    }
+}

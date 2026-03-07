@@ -2,16 +2,21 @@ import Foundation
 import StoreKit
 import Dependencies
 
-@DependencyClient
 public struct SubscriptionClient: Sendable {
     /// Loads available subscription products from the App Store
     public var loadProducts: @Sendable () async throws -> [Product] = { [] }
 
     /// Purchases a subscription product
-    public var purchase: @Sendable (Product) async throws -> StoreKit.Transaction
+    public var purchase: @Sendable (Product) async throws -> StoreKit.Transaction = { _ in
+        struct UnimplementedError: Error {}
+        throw UnimplementedError()
+    }
 
     /// Restores previous purchases
-    public var restorePurchases: @Sendable () async throws -> Void
+    public var restorePurchases: @Sendable () async throws -> Void = {
+        struct UnimplementedError: Error {}
+        throw UnimplementedError()
+    }
 
     /// Checks current subscription entitlement status
     public var currentEntitlement: @Sendable () async -> SubscriptionStatus = { .unknown }
@@ -116,7 +121,8 @@ extension SubscriptionClient: DependencyKey {
                 }
             },
             jwsRepresentation: { transaction in
-                return transaction.jsonRepresentation
+                // jsonRepresentation returns Data, convert to base64 String
+                return transaction.jsonRepresentation.base64EncodedString()
             },
             syncSubscriptionToBackend: { jws in
                 // Get backend URL from environment
@@ -164,8 +170,6 @@ extension SubscriptionClient: DependencyKey {
         )
         return client
     }()
-
-    public static let testValue = SubscriptionClient()
 }
 
 // MARK: - Dependency Values

@@ -4,6 +4,9 @@ import Foundation
 import MonetizationFeature
 import StoreKit
 
+// Resolve SubscriptionStatus ambiguity between FeedFeature and MonetizationFeature
+public typealias SubscriptionStatus = MonetizationFeature.SubscriptionStatus
+
 public enum AuthState: Equatable {
     case guest
     case authenticated(userId: String)
