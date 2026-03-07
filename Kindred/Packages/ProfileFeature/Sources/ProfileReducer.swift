@@ -46,6 +46,7 @@ public struct ProfileReducer {
         case subscriptionProductsLoaded([Product])
         case subscribeTapped
         case purchaseCompleted(SubscriptionStatus)
+        case simulatedPurchaseCompleted
         case purchaseFailed(String)
         case manageSubscriptionTapped
         case restorePurchasesTapped
@@ -143,27 +144,39 @@ public struct ProfileReducer {
                 return .none
 
             case .subscribeTapped:
-                guard let product = state.subscriptionProducts.first else {
-                    return .send(.purchaseFailed("No subscription product available"))
-                }
-
-                return .run { send in
-                    do {
-                        _ = try await subscriptionClient.purchase(product)
-                        // Re-check entitlement after purchase
-                        let status = await subscriptionClient.currentEntitlement()
-                        await send(.purchaseCompleted(status))
-                    } catch {
-                        await send(.purchaseFailed(error.localizedDescription))
+                if let product = state.subscriptionProducts.first {
+                    // Real StoreKit purchase
+                    return .run { send in
+                        do {
+                            _ = try await subscriptionClient.purchase(product)
+                            let status = await subscriptionClient.currentEntitlement()
+                            await send(.purchaseCompleted(status))
+                        } catch {
+                            await send(.purchaseFailed(error.localizedDescription))
+                        }
                     }
+                } else {
+                    #if DEBUG
+                    // Simulated purchase when StoreKit Testing is not available (CLI install)
+                    return .run { send in
+                        try await Task.sleep(for: .seconds(1))
+                        await send(.simulatedPurchaseCompleted)
+                    }
+                    #else
+                    return .send(.purchaseFailed("No subscription product available"))
+                    #endif
                 }
 
             case let .purchaseCompleted(status):
                 state.subscriptionStatus = status
                 return .none
 
+            case .simulatedPurchaseCompleted:
+                let expiresDate = Calendar.current.date(byAdding: .month, value: 1, to: Date()) ?? Date()
+                state.subscriptionStatus = .pro(expiresDate: expiresDate, isInGracePeriod: false)
+                return .none
+
             case let .purchaseFailed(message):
-                // TODO: Show error alert in Phase 9 Plan 5 (error handling)
                 print("Purchase failed: \(message)")
                 return .none
 

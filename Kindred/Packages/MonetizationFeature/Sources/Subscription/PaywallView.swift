@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 import ComposableArchitecture
 import DesignSystem
 
@@ -39,9 +40,21 @@ public struct PaywallView: View {
                     )
                 }
 
-                // Subscribe button
+                // Subscribe button area
                 VStack(spacing: KindredSpacing.md) {
-                    if store.isPurchasing {
+                    if store.isLoadingProducts {
+                        HStack {
+                            ProgressView()
+                                .tint(.white)
+                            Text("Loading...")
+                                .kindredBody()
+                                .foregroundColor(.white)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Color.kindredAccent.opacity(0.5))
+                        .cornerRadius(16)
+                    } else if store.isPurchasing {
                         HStack {
                             ProgressView()
                                 .tint(.white)

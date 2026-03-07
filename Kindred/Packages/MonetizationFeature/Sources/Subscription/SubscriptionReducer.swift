@@ -10,6 +10,7 @@ public struct SubscriptionReducer {
     public struct State: Equatable {
         public var subscriptionStatus: SubscriptionStatus = .unknown
         public var products: [Product] = []
+        public var isLoadingProducts: Bool = true
         public var isPurchasing: Bool = false
         public var isRestoring: Bool = false
         public var showPaywall: Bool = false
@@ -27,6 +28,7 @@ public struct SubscriptionReducer {
         case entitlementChecked(SubscriptionStatus)
         case subscribeTapped
         case purchaseCompleted(SubscriptionStatus, StoreKit.Transaction)
+        case simulatedPurchaseCompleted
         case purchaseFailed(String)
         case restoreTapped
         case restoreCompleted(SubscriptionStatus)
@@ -55,7 +57,7 @@ public struct SubscriptionReducer {
                             let products = try await subscriptionClient.loadProducts()
                             await send(.productsLoaded(products))
                         } catch {
-                            await send(.purchaseFailed(error.localizedDescription))
+                            await send(.productsLoaded([]))
                         }
                     },
                     // Check current entitlement
@@ -76,6 +78,7 @@ public struct SubscriptionReducer {
 
             case .productsLoaded(let products):
                 state.products = products
+                state.isLoadingProducts = false
                 // Extract display price from first product
                 if let product = products.first {
                     state.displayPrice = product.displayPrice
@@ -87,30 +90,45 @@ public struct SubscriptionReducer {
                 return .none
 
             case .subscribeTapped:
-                guard let product = state.products.first else {
-                    return .send(.purchaseFailed("Product not available"))
-                }
-
                 state.isPurchasing = true
                 state.error = nil
 
-                return .run { send in
-                    do {
-                        let transaction = try await subscriptionClient.purchase(product)
-                        let status = await subscriptionClient.currentEntitlement()
-                        await send(.purchaseCompleted(status, transaction))
-                    } catch let error as SubscriptionError {
-                        switch error {
-                        case .purchaseCancelled:
-                            // User cancelled - don't show error
-                            await send(.purchaseFailed(""))
-                        default:
+                if let product = state.products.first {
+                    // Real StoreKit purchase
+                    return .run { send in
+                        do {
+                            let transaction = try await subscriptionClient.purchase(product)
+                            let status = await subscriptionClient.currentEntitlement()
+                            await send(.purchaseCompleted(status, transaction))
+                        } catch let error as SubscriptionError {
+                            switch error {
+                            case .purchaseCancelled:
+                                await send(.purchaseFailed(""))
+                            default:
+                                await send(.purchaseFailed(error.localizedDescription))
+                            }
+                        } catch {
                             await send(.purchaseFailed(error.localizedDescription))
                         }
-                    } catch {
-                        await send(.purchaseFailed(error.localizedDescription))
                     }
+                } else {
+                    #if DEBUG
+                    // Simulated purchase when StoreKit Testing is not available (CLI install)
+                    return .run { send in
+                        try await Task.sleep(for: .seconds(1))
+                        await send(.simulatedPurchaseCompleted)
+                    }
+                    #else
+                    return .send(.purchaseFailed("Product not available"))
+                    #endif
                 }
+
+            case .simulatedPurchaseCompleted:
+                let expiresDate = Calendar.current.date(byAdding: .month, value: 1, to: Date()) ?? Date()
+                state.subscriptionStatus = .pro(expiresDate: expiresDate, isInGracePeriod: false)
+                state.isPurchasing = false
+                state.showPaywall = false
+                return .none
 
             case .purchaseCompleted(let status, let transaction):
                 state.subscriptionStatus = status
