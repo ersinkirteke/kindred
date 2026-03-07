@@ -4,12 +4,12 @@ milestone: v2.0
 milestone_name: iOS App
 current_phase: 07
 status: completed
-last_updated: "2026-03-07T10:35:26.042Z"
+last_updated: "2026-03-07T10:43:58.987Z"
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 26
-  completed_plans: 23
+  completed_plans: 24
 ---
 
 # Project State: Kindred
@@ -32,11 +32,11 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 9 of 10 (Monetization & Voice Tiers)
-Plan: 2 of 5 in current phase
-Status: Plan 09-02 complete — AdMob integration with AdClient, AdCardView, and BannerAdView
-Last activity: 2026-03-07 — Completed 09-02: AdMob ad components created
+Plan: 3 of 5 in current phase
+Status: Plan 09-03 complete — Ad integration into feed/detail and voice slot enforcement
+Last activity: 2026-03-07 — Completed 09-03: Ad cards injected into feed, banner in recipe detail, voice slot limits enforced
 
-Progress: [██████████████████░░░░░░░░░░░░] 40% (2 of 5 Phase 9 plans complete)
+Progress: [████████████████████████░░░░░░░░] 60% (3 of 5 Phase 9 plans complete)
 
 ---
 
@@ -82,8 +82,10 @@ Progress: [██████████████████░░░░░
 | Phase 07-voice-playback-streaming P06 | 2 | 2 tasks | 1 files |
 | Phase 08-authentication-onboarding P01 | 4 | 2 tasks | 4 files |
 | Phase 08-authentication-onboarding P02 | 7 | 2 tasks | 7 files |
+| Phase 09 P03 | 5 | 2 tasks | 9 files |
 | Phase 09 P02 | 6 | 2 tasks | 5 files |
 | Phase 09 P01 | 6 | 3 tasks | 7 files |
+| Phase 09 P03 | 5 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -147,6 +149,10 @@ Recent decisions affecting v2.0 iOS work:
 - AdClient TCA @DependencyClient checks UserDefaults 'kindredFirstLaunchComplete' flag for first-launch ad suppression (09-02)
 - AdCardView matches RecipeCardView styling (16:9 media, 340x400 dimensions, CardSurface background, 16pt corners) (09-02)
 - BannerAdView uses adaptive sizing and collapses to zero height when no ad loaded (09-02)
+- SwipeCardStack tracks swipe count internally rather than modifying cardStack array for ad interleaving (09-03)
+- Banner ad hides when voice narration is ACTIVE (playing/loading/buffering), shows when idle/paused/error (09-03)
+- Voice slot limit (1 profile) enforced at UI layer in VoicePickerView with isAtVoiceLimit computed property (09-03)
+- Free tier allows 1 voice profile creation, Pro tier unlimited (09-03)
 
 ### Pending Todos
 
@@ -180,9 +186,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-07
-Stopped at: Completed 09-02-PLAN.md (AdMob Integration)
-Resume file: .planning/phases/09-monetization-voice-tiers/09-02-SUMMARY.md
-Next action: Continue Phase 9 execution (09-03, 09-04, 09-05 remaining)
+Stopped at: Completed 09-03-PLAN.md (Ad Integration & Voice Slot Enforcement)
+Resume file: .planning/phases/09-monetization-voice-tiers/09-03-SUMMARY.md
+Next action: Continue Phase 9 execution (09-04, 09-05 remaining)
 
 ---
 

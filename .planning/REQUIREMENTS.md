@@ -35,7 +35,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 - [x] **VOICE-04**: Voice playback continues in background with lock screen controls
 - [x] **VOICE-05**: Voice profiles are cached locally for offline narration playback
 - [x] **VOICE-06**: User can upload a 30-60 second voice clip to create a voice profile
-- [ ] **VOICE-07**: Free tier users get 1 voice slot; Pro users get unlimited voice slots
+- [x] **VOICE-07**: Free tier users get 1 voice slot; Pro users get unlimited voice slots
 
 ### Personalization
 
@@ -53,7 +53,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 
 ### Monetization
 
-- [ ] **MONET-01**: Free tier displays ads (AdMob) in non-intrusive placements
+- [x] **MONET-01**: Free tier displays ads (AdMob) in non-intrusive placements
 - [x] **MONET-02**: Pro tier ($9.99/mo) removes ads and unlocks unlimited voice slots
 - [x] **MONET-03**: User can subscribe to Pro via App Store billing (StoreKit 2)
 - [ ] **MONET-04**: Subscription status syncs between app and backend via JWS verification
@@ -121,7 +121,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VOICE-04 | Phase 7 | Complete |
 | VOICE-05 | Phase 7 | Complete |
 | VOICE-06 | Phase 7 | Complete |
-| VOICE-07 | Phase 9 | Pending |
+| VOICE-07 | Phase 9 | Complete |
 | PERS-01 | Phase 6 | Complete |
 | PERS-02 | Phase 6 | Complete |
 | PERS-03 | Phase 6 | Complete |
@@ -130,7 +130,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ACCS-03 | Phase 7 | Pending (baked in) |
 | ACCS-04 | Phase 5 | Pending (baked in) |
 | ACCS-05 | Phase 10 | Pending |
-| MONET-01 | Phase 9 | Pending |
+| MONET-01 | Phase 9 | Complete |
 | MONET-02 | Phase 9 | Complete |
 | MONET-03 | Phase 9 | Complete |
 | MONET-04 | Phase 9 | Pending |
