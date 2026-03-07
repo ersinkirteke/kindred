@@ -1,6 +1,8 @@
 import ComposableArchitecture
 import FeedFeature
 import Foundation
+import MonetizationFeature
+import StoreKit
 
 public enum AuthState: Equatable {
     case guest
@@ -19,6 +21,11 @@ public struct ProfileReducer {
         public var interactionCount: Int = 0
         public var isDNAActivated: Bool = false
 
+        // Subscription
+        public var subscriptionStatus: SubscriptionStatus = .unknown
+        public var displayPrice: String = "$9.99"
+        public var subscriptionProducts: [Product] = []
+
         public init() {}
     }
 
@@ -31,10 +38,20 @@ public struct ProfileReducer {
         case resetDietaryPreferences
         case loadCulinaryDNA
         case culinaryDNALoaded([AffinityScore], Int, Bool)
+        case loadSubscriptionStatus
+        case subscriptionStatusLoaded(SubscriptionStatus)
+        case subscriptionProductsLoaded([Product])
+        case subscribeTapped
+        case purchaseCompleted(SubscriptionStatus)
+        case purchaseFailed(String)
+        case manageSubscriptionTapped
+        case restorePurchasesTapped
+        case restoreCompleted(SubscriptionStatus)
     }
 
     @Dependency(\.guestSessionClient) var guestSession
     @Dependency(\.personalizationClient) var personalization
+    @Dependency(\.subscriptionClient) var subscriptionClient
 
     public init() {}
 
@@ -42,10 +59,11 @@ public struct ProfileReducer {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                // Load dietary preferences and culinary DNA on appear
+                // Load dietary preferences, culinary DNA, and subscription status on appear
                 return .merge(
                     .send(.loadDietaryPreferences),
-                    .send(.loadCulinaryDNA)
+                    .send(.loadCulinaryDNA),
+                    .send(.loadSubscriptionStatus)
                 )
 
             case .loadDietaryPreferences:
@@ -91,6 +109,85 @@ public struct ProfileReducer {
 
             case .continueAsGuestTapped:
                 // Placeholder - guest flow in Phase 8
+                return .none
+
+            case .loadSubscriptionStatus:
+                return .run { send in
+                    // Load products and check entitlement in parallel
+                    async let products = try subscriptionClient.loadProducts()
+                    async let status = subscriptionClient.currentEntitlement()
+
+                    let loadedProducts = try await products
+                    await send(.subscriptionProductsLoaded(loadedProducts))
+
+                    let loadedStatus = await status
+                    await send(.subscriptionStatusLoaded(loadedStatus))
+                } catch: { error, send in
+                    // If loading fails, default to free tier
+                    await send(.subscriptionStatusLoaded(.free))
+                }
+
+            case let .subscriptionStatusLoaded(status):
+                state.subscriptionStatus = status
+                return .none
+
+            case let .subscriptionProductsLoaded(products):
+                state.subscriptionProducts = products
+                // Extract display price from first product
+                if let firstProduct = products.first {
+                    state.displayPrice = firstProduct.displayPrice
+                }
+                return .none
+
+            case .subscribeTapped:
+                guard let product = state.subscriptionProducts.first else {
+                    return .send(.purchaseFailed("No subscription product available"))
+                }
+
+                return .run { send in
+                    do {
+                        _ = try await subscriptionClient.purchase(product)
+                        // Re-check entitlement after purchase
+                        let status = await subscriptionClient.currentEntitlement()
+                        await send(.purchaseCompleted(status))
+                    } catch {
+                        await send(.purchaseFailed(error.localizedDescription))
+                    }
+                }
+
+            case let .purchaseCompleted(status):
+                state.subscriptionStatus = status
+                return .none
+
+            case let .purchaseFailed(message):
+                // TODO: Show error alert in Phase 9 Plan 5 (error handling)
+                print("Purchase failed: \(message)")
+                return .none
+
+            case .manageSubscriptionTapped:
+                // Open iOS Settings subscription management
+                if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+                    #if canImport(UIKit)
+                    UIApplication.shared.open(url)
+                    #endif
+                }
+                return .none
+
+            case .restorePurchasesTapped:
+                return .run { send in
+                    do {
+                        try await subscriptionClient.restorePurchases()
+                        // Re-check entitlement after restore
+                        let status = await subscriptionClient.currentEntitlement()
+                        await send(.restoreCompleted(status))
+                    } catch {
+                        // Restore failed, keep current status
+                        print("Restore failed: \(error.localizedDescription)")
+                    }
+                }
+
+            case let .restoreCompleted(status):
+                state.subscriptionStatus = status
                 return .none
             }
         }

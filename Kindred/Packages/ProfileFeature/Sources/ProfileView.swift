@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import DesignSystem
 import FeedFeature
+import MonetizationFeature
 import SwiftUI
 
 public struct ProfileView: View {
@@ -16,12 +17,18 @@ public struct ProfileView: View {
                 switch store.authState {
                 case .guest:
                     guestSignInGate
-                case .authenticated:
-                    // Placeholder - authenticated profile in Phase 8
-                    Text("Profile")
-                        .font(.kindredHeading1())
-                        .foregroundColor(.kindredTextPrimary)
+                case .authenticated(let userId):
+                    authenticatedHeader(userId: userId)
                 }
+
+                // Subscription status section (available for both guest and authenticated)
+                SubscriptionStatusView(
+                    subscriptionStatus: store.subscriptionStatus,
+                    displayPrice: store.displayPrice,
+                    onSubscribe: { store.send(.subscribeTapped) },
+                    onManage: { store.send(.manageSubscriptionTapped) }
+                )
+                .padding(.horizontal, KindredSpacing.md)
 
                 // Dietary Preferences section (available for both guest and authenticated)
                 DietaryPreferencesSection(
@@ -48,6 +55,30 @@ public struct ProfileView: View {
         .onAppear {
             store.send(.onAppear)
         }
+    }
+
+    private func authenticatedHeader(userId: String) -> some View {
+        HStack(spacing: KindredSpacing.sm) {
+            Text("Profile")
+                .font(.kindredHeading1())
+                .foregroundColor(.kindredTextPrimary)
+
+            // PRO badge (only shown if user has Pro subscription)
+            if case .pro = store.subscriptionStatus {
+                Text("PRO")
+                    .font(.kindredCaption())
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, KindredSpacing.sm)
+                    .padding(.vertical, KindredSpacing.xs)
+                    .background(Color.kindredAccent)
+                    .clipShape(Capsule())
+                    .accessibilityLabel("Pro subscriber")
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, KindredSpacing.md)
     }
 
     private var guestSignInGate: some View {

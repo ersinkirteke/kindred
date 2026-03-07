@@ -14,6 +14,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.0.0"),
         .package(name: "DesignSystem", path: "../DesignSystem"),
         .package(name: "FeedFeature", path: "../FeedFeature"),
+        .package(name: "MonetizationFeature", path: "../MonetizationFeature"),
     ],
     targets: [
         .target(
@@ -22,6 +23,7 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 "DesignSystem",
                 "FeedFeature",
+                "MonetizationFeature",
             ]
         ),
     ]
