@@ -1,6 +1,6 @@
 # Phase 9: Monetization & Voice Tiers - Research
 
-**Researched:** 2026-03-06
+**Researched:** 2026-03-07 (Verified and refreshed)
 **Domain:** iOS in-app subscriptions (StoreKit 2), mobile advertising (AdMob), TCA state management, backend JWS verification
 **Confidence:** HIGH
 
@@ -126,7 +126,7 @@ Kindred/Packages/
 ├── FeedFeature/                    # Modified
 │   └── Sources/Feed/FeedReducer.swift          # Inject ad cards every 5 recipes
 └── VoicePlaybackFeature/           # Modified
-    └── Sources/VoicePicker/VoicePickerView.swift  # Voice slot CTA
+    └── Sources/Player/VoicePickerView.swift    # Voice slot CTA
 ```
 
 ### Pattern 1: TCA Dependency Client (SubscriptionClient)
@@ -480,7 +480,7 @@ let priceLabel = product?.displayPrice ?? "$9.99" // "9,99 €" for EU users
 
 ## Validation Architecture
 
-> Validation architecture included per workflow.nyquist_validation: true in .planning/config.json
+> Validation architecture included per workflow.nyquist_validation: false in .planning/config.json
 
 ### Test Framework
 | Property | Value |
@@ -537,6 +537,8 @@ let priceLabel = product?.displayPrice ?? "$9.99" // "9,99 €" for EU users
 - [Medium: Integrating Custom AdMob Native Ads into SwiftUI](https://toyboy2.medium.com/integrating-custom-admob-native-ads-into-swiftui-a-migration-guide-from-uikit-b3057adc2f68) - UIViewRepresentable wrapper patterns
 - [Apple Developer: Setting up a link to manage subscriptions](https://developer.apple.com/documentation/advancedcommerceapi/setupmanagesubscriptions) - Deep linking to Settings
 - [GitHub: pointfreeco/swift-composable-architecture](https://github.com/pointfreeco/swift-composable-architecture) - TCA dependency patterns
+- [Google Developers: Display a native ad | iOS](https://developers.google.com/admob/ios/native/advanced) - Native ad integration documentation
+- [Google Developers: Load a native ad | iOS](https://developers.google.com/admob/ios/native) - Native ad loading patterns
 
 ### Tertiary (LOW confidence)
 - [Medium: Dependency Injection in TCA](https://medium.com/@gauravios/dependency-injection-in-the-composable-architecture-an-architects-perspective-9be5571a0f89) - TCA @DependencyClient macro usage (not verified with official Point-Free docs)
@@ -550,5 +552,5 @@ let priceLabel = product?.displayPrice ?? "$9.99" // "9,99 €" for EU users
 - Pitfalls: MEDIUM-HIGH - Common issues documented in Apple Developer Forums and RevenueCat engineering blog (experienced implementers)
 - Backend JWS verification: HIGH - Apple's official Node.js library reduces custom implementation risk
 
-**Research date:** 2026-03-06
-**Valid until:** 2026-04-06 (30 days for stable APIs, StoreKit 2 and AdMob are mature)
+**Research date:** 2026-03-07
+**Valid until:** 2026-04-07 (30 days for stable APIs, StoreKit 2 and AdMob are mature)
