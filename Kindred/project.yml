@@ -42,6 +42,8 @@ packages:
     path: Packages/ProfileFeature
   KindredAPI:
     path: Packages/KindredAPI
+  MonetizationFeature:
+    path: Packages/MonetizationFeature
 
 targets:
   Kindred:
@@ -59,6 +61,7 @@ targets:
       - package: AuthClient
       - package: FeedFeature
       - package: ProfileFeature
+      - package: MonetizationFeature
     settings:
       base:
         INFOPLIST_FILE: Sources/Info.plist

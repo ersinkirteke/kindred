@@ -1,0 +1,41 @@
+{
+  "identifier": "com.kindred.storekit",
+  "type": "com.apple.product-type.storekit-configuration",
+  "version": 3,
+  "subscriptionGroups": [
+    {
+      "id": "kindred_pro",
+      "localizations": [
+        {
+          "description": "Kindred Pro Subscription",
+          "displayName": "Kindred Pro",
+          "locale": "en_US"
+        }
+      ],
+      "name": "Kindred Pro",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "9.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "com.kindred.pro.monthly",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Ad-free experience with unlimited voice profiles",
+              "displayName": "Kindred Pro Monthly",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "com.kindred.pro.monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kindred Pro Monthly",
+          "subscriptionGroupID": "kindred_pro",
+          "type": "RecurringSubscription"
+        }
+      ]
+    }
+  ]
+}
