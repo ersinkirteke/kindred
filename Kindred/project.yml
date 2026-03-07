@@ -30,6 +30,9 @@ packages:
   swift-dependencies:
     url: https://github.com/pointfreeco/swift-dependencies
     from: "1.0.0"
+  google-mobile-ads-ios:
+    url: https://github.com/googleads/swift-package-manager-google-mobile-ads
+    from: "11.0.0"
   DesignSystem:
     path: Packages/DesignSystem
   NetworkClient:
@@ -56,6 +59,8 @@ targets:
       - package: Kingfisher
       - package: firebase-ios-sdk
         product: FirebaseAnalytics
+      - package: google-mobile-ads-ios
+        product: GoogleMobileAds
       - package: DesignSystem
       - package: NetworkClient
       - package: AuthClient
