@@ -7,6 +7,7 @@ import Foundation
 import KindredAPI
 import NetworkClient
 import AuthClient
+import MonetizationFeature
 import os.log
 
 private let feedLogger = Logger(subsystem: "com.ersinkirteke.kindred", category: "Feed")
@@ -47,6 +48,10 @@ public struct FeedReducer {
         // Location request state
         public var isRequestingLocation = false
 
+        // Subscription and ad state
+        public var subscriptionStatus: SubscriptionStatus = .unknown
+        public var shouldShowAds: Bool = false
+
         public init() {}
     }
 
@@ -83,6 +88,11 @@ public struct FeedReducer {
         // Auth actions
         case authStateUpdated(AuthState)
         case delegate(Delegate)
+
+        // Subscription and ad actions
+        case subscriptionStatusUpdated(SubscriptionStatus)
+        case adVisibilityDetermined(Bool)
+        case showPaywall
 
     public enum Delegate: Equatable {
         case authGateRequested(recipeId: String, recipeName: String, imageUrl: String?, cuisineType: String?, actionType: String)
@@ -146,6 +156,12 @@ public struct FeedReducer {
                 return a1 == a2
             case let (.delegate(d1), .delegate(d2)):
                 return d1 == d2
+            case let (.subscriptionStatusUpdated(s1), .subscriptionStatusUpdated(s2)):
+                return s1 == s2
+            case let (.adVisibilityDetermined(b1), .adVisibilityDetermined(b2)):
+                return b1 == b2
+            case (.showPaywall, .showPaywall):
+                return true
             default:
                 return false
             }
@@ -170,6 +186,8 @@ public struct FeedReducer {
     @Dependency(\.networkMonitorClient) var networkMonitor
     @Dependency(\.personalizationClient) var personalization
     @Dependency(\.locationClient) var locationClient
+    @Dependency(\.subscriptionClient) var subscriptionClient
+    @Dependency(\.adClient) var adClient
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -230,6 +248,18 @@ public struct FeedReducer {
                         group.addTask {
                             let count = await guestSession.bookmarkCount()
                             await send(.bookmarkCountLoaded(count))
+                        }
+
+                        // Task 4: Check subscription status
+                        group.addTask {
+                            let status = await subscriptionClient.currentEntitlement()
+                            await send(.subscriptionStatusUpdated(status))
+                        }
+
+                        // Task 5: Check ad visibility
+                        group.addTask {
+                            let shouldShow = await adClient.shouldShowAds()
+                            await send(.adVisibilityDetermined(shouldShow))
                         }
                     }
                 }
@@ -665,6 +695,29 @@ public struct FeedReducer {
 
             case let .authStateUpdated(authState):
                 state.currentAuthState = authState
+                return .none
+
+            case let .subscriptionStatusUpdated(status):
+                state.subscriptionStatus = status
+                // Compute shouldShowAds based on subscription status and first-launch check
+                if case .free = status {
+                    state.shouldShowAds = adClient.shouldShowAds()
+                } else {
+                    state.shouldShowAds = false
+                }
+                return .none
+
+            case let .adVisibilityDetermined(shouldShow):
+                // Ad visibility determined by AdClient (first-launch check)
+                if case .free = state.subscriptionStatus {
+                    state.shouldShowAds = shouldShow
+                } else {
+                    state.shouldShowAds = false
+                }
+                return .none
+
+            case .showPaywall:
+                // TODO: Present paywall - this will be handled by parent coordinator in Plan 04
                 return .none
 
             case .delegate:

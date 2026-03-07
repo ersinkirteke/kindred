@@ -4,6 +4,7 @@ import KindredAPI
 import Apollo
 import AuthClient
 import VoicePlaybackFeature
+import MonetizationFeature
 
 // MARK: - Recipe Detail Reducer
 
@@ -24,6 +25,8 @@ public struct RecipeDetailReducer {
         public var currentAuthState: AuthState = .guest
         public var playbackStatus: PlaybackStatus = .idle
         public var isMiniPlayerVisible: Bool = false
+        public var subscriptionStatus: SubscriptionStatus = .unknown
+        public var shouldShowAds: Bool = false
 
         public init(recipeId: String) {
             self.recipeId = recipeId
@@ -43,6 +46,8 @@ public struct RecipeDetailReducer {
         case authStateUpdated(AuthState)
         case playbackStatusUpdated(PlaybackStatus)
         case miniPlayerVisibilityChanged(Bool)
+        case subscriptionStatusUpdated(SubscriptionStatus)
+        case adVisibilityDetermined(Bool)
         case delegate(Delegate)
 
     public enum Delegate: Equatable {
@@ -76,6 +81,10 @@ public struct RecipeDetailReducer {
                 return lhs == rhs
             case let (.miniPlayerVisibilityChanged(lhs), .miniPlayerVisibilityChanged(rhs)):
                 return lhs == rhs
+            case let (.subscriptionStatusUpdated(lhs), .subscriptionStatusUpdated(rhs)):
+                return lhs == rhs
+            case let (.adVisibilityDetermined(lhs), .adVisibilityDetermined(rhs)):
+                return lhs == rhs
             case let (.delegate(lhs), .delegate(rhs)):
                 return lhs == rhs
             default:
@@ -88,6 +97,8 @@ public struct RecipeDetailReducer {
 
     @Dependency(\.apolloClient) var apolloClient
     @Dependency(\.guestSessionClient) var guestSession
+    @Dependency(\.subscriptionClient) var subscriptionClient
+    @Dependency(\.adClient) var adClient
 
     // MARK: - Reducer
 
@@ -97,27 +108,44 @@ public struct RecipeDetailReducer {
             case .onAppear:
                 // Load recipe detail from Apollo cache (should be pre-fetched from feed)
                 return .run { [recipeId = state.recipeId] send in
-                    do {
-                        // Use returnCacheDataAndFetch policy for offline-first UX
-                        let query = KindredAPI.RecipeDetailQuery(id: recipeId)
-                        let result = try await apolloClient.fetch(
-                            query: query,
-                            cachePolicy: .cacheFirst
-                        )
+                    await withTaskGroup(of: Void.self) { group in
+                        // Task 1: Load recipe
+                        group.addTask {
+                            do {
+                                // Use returnCacheDataAndFetch policy for offline-first UX
+                                let query = KindredAPI.RecipeDetailQuery(id: recipeId)
+                                let result = try await apolloClient.fetch(
+                                    query: query,
+                                    cachePolicy: .cacheFirst
+                                )
 
-                        guard let recipeData = result.data?.recipe else {
-                            await send(.recipeLoaded(.failure(RecipeDetailError.notFound)))
-                            return
+                                guard let recipeData = result.data?.recipe else {
+                                    await send(.recipeLoaded(.failure(RecipeDetailError.notFound)))
+                                    return
+                                }
+
+                                let recipe = RecipeDetail.from(graphQL: recipeData)
+                                await send(.recipeLoaded(.success(recipe)))
+
+                                // Check bookmark status
+                                let isBookmarked = await guestSession.isBookmarked(recipeId)
+                                await send(.bookmarkStatusLoaded(isBookmarked))
+                            } catch {
+                                await send(.recipeLoaded(.failure(error)))
+                            }
                         }
 
-                        let recipe = RecipeDetail.from(graphQL: recipeData)
-                        await send(.recipeLoaded(.success(recipe)))
+                        // Task 2: Check subscription status
+                        group.addTask {
+                            let status = await subscriptionClient.currentEntitlement()
+                            await send(.subscriptionStatusUpdated(status))
+                        }
 
-                        // Check bookmark status
-                        let isBookmarked = await guestSession.isBookmarked(recipeId)
-                        await send(.bookmarkStatusLoaded(isBookmarked))
-                    } catch {
-                        await send(.recipeLoaded(.failure(error)))
+                        // Task 3: Check ad visibility
+                        group.addTask {
+                            let shouldShow = await adClient.shouldShowAds()
+                            await send(.adVisibilityDetermined(shouldShow))
+                        }
                     }
                 }
 
@@ -200,6 +228,25 @@ public struct RecipeDetailReducer {
 
             case let .miniPlayerVisibilityChanged(visible):
                 state.isMiniPlayerVisible = visible
+                return .none
+
+            case let .subscriptionStatusUpdated(status):
+                state.subscriptionStatus = status
+                // Compute shouldShowAds based on subscription status and first-launch check
+                if case .free = status {
+                    state.shouldShowAds = adClient.shouldShowAds()
+                } else {
+                    state.shouldShowAds = false
+                }
+                return .none
+
+            case let .adVisibilityDetermined(shouldShow):
+                // Ad visibility determined by AdClient (first-launch check)
+                if case .free = state.subscriptionStatus {
+                    state.shouldShowAds = shouldShow
+                } else {
+                    state.shouldShowAds = false
+                }
                 return .none
 
             case .delegate:

@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import DesignSystem
+import MonetizationFeature
 import SwiftUI
 
 public struct FeedView: View {
@@ -133,6 +134,10 @@ public struct FeedView: View {
                 },
                 onTap: { recipeId in
                     store.send(.openRecipeDetail(recipeId))
+                },
+                adFrequency: store.shouldShowAds ? 5 : nil,
+                onAdUpgradeTapped: {
+                    store.send(.showPaywall)
                 }
             )
 

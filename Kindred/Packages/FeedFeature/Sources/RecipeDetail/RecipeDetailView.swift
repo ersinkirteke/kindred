@@ -2,6 +2,7 @@ import SwiftUI
 import ComposableArchitecture
 import DesignSystem
 import VoicePlaybackFeature
+import MonetizationFeature
 
 // MARK: - Recipe Detail View
 
@@ -22,6 +23,12 @@ public struct RecipeDetailView: View {
     /// Whether the mini player is currently visible
     private var isMiniPlayerVisible: Bool {
         playbackObserver.currentPlayback != nil
+    }
+
+    /// Whether banner ad should be shown
+    private var shouldShowBannerAd: Bool {
+        let isNarrationActive = [.playing, .loading, .buffering].contains(effectivePlaybackStatus)
+        return store.shouldShowAds && !isNarrationActive
     }
 
     public init(store: StoreOf<RecipeDetailReducer>) {
@@ -149,6 +156,12 @@ public struct RecipeDetailView: View {
                     store.send(.toggleIngredient(ingredientId))
                 }
             )
+
+            // Banner ad (between ingredients and instructions, hidden during narration)
+            if shouldShowBannerAd {
+                BannerAdView()
+                    .padding(.vertical, KindredSpacing.sm)
+            }
 
             // Instructions section
             sectionHeader("Instructions")
