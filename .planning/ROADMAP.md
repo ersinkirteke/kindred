@@ -33,7 +33,7 @@
 - [x] **Phase 6: Dietary Filtering & Personalization** - Dietary preferences, Culinary DNA learning from implicit feedback
 - [ ] **Phase 7: Voice Playback & Streaming** - Voice narration streaming, background audio, offline caching
 - [x] **Phase 8: Authentication & Onboarding** - Google/Apple OAuth, guest-to-account conversion, sub-90s onboarding
-- [ ] **Phase 9: Monetization & Voice Tiers** - Free tier with ads, Pro subscription, StoreKit 2, voice slot enforcement
+- [x] **Phase 9: Monetization & Voice Tiers** - Free tier with ads, Pro subscription, StoreKit 2, voice slot enforcement
 - [ ] **Phase 10: Accessibility & Polish** - WCAG AAA audit, VoiceOver polish, Dynamic Type testing, production readiness
 
 ## Phase Details
@@ -137,11 +137,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 09-01-PLAN.md -- MonetizationFeature package: SubscriptionClient, SubscriptionReducer, PaywallView, StoreKit config
-- [ ] 09-02-PLAN.md -- AdClient, AdCardView (native), BannerAdView (recipe detail) with Google Mobile Ads SDK
-- [ ] 09-03-PLAN.md -- Feed ad injection, recipe detail banner, voice slot enforcement, paywall wiring
-- [ ] 09-04-PLAN.md -- Profile subscription section, AppDelegate lifecycle listeners, backend JWS verification
-- [ ] 09-05-PLAN.md -- Device verification of complete monetization flow
+- [x] 09-01-PLAN.md -- MonetizationFeature package: SubscriptionClient, SubscriptionReducer, PaywallView, StoreKit config (✓ 2026-03-07)
+- [x] 09-02-PLAN.md -- AdClient, AdCardView (native), BannerAdView (recipe detail) with Google Mobile Ads SDK (✓ 2026-03-07)
+- [x] 09-03-PLAN.md -- Feed ad injection, recipe detail banner, voice slot enforcement, paywall wiring (✓ 2026-03-07)
+- [x] 09-04-PLAN.md -- Profile subscription section, AppDelegate lifecycle listeners, backend JWS verification (✓ 2026-03-07)
+- [x] 09-05-PLAN.md -- Device verification of complete monetization flow (✓ 2026-03-08)
 
 ### Phase 10: Accessibility & Polish
 **Goal**: App meets WCAG AAA standards and is production-ready for App Store submission
