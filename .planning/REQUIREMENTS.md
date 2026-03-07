@@ -54,8 +54,8 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 ### Monetization
 
 - [ ] **MONET-01**: Free tier displays ads (AdMob) in non-intrusive placements
-- [ ] **MONET-02**: Pro tier ($9.99/mo) removes ads and unlocks unlimited voice slots
-- [ ] **MONET-03**: User can subscribe to Pro via App Store billing (StoreKit 2)
+- [x] **MONET-02**: Pro tier ($9.99/mo) removes ads and unlocks unlimited voice slots
+- [x] **MONET-03**: User can subscribe to Pro via App Store billing (StoreKit 2)
 - [ ] **MONET-04**: Subscription status syncs between app and backend via JWS verification
 
 ## Future Requirements
@@ -131,8 +131,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ACCS-04 | Phase 5 | Pending (baked in) |
 | ACCS-05 | Phase 10 | Pending |
 | MONET-01 | Phase 9 | Pending |
-| MONET-02 | Phase 9 | Pending |
-| MONET-03 | Phase 9 | Pending |
+| MONET-02 | Phase 9 | Complete |
+| MONET-03 | Phase 9 | Complete |
 | MONET-04 | Phase 9 | Pending |
 
 **Coverage:**
