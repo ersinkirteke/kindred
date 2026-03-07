@@ -4,12 +4,12 @@ milestone: v2.0
 milestone_name: iOS App
 current_phase: 07
 status: completed
-last_updated: "2026-03-03T22:07:28.111Z"
+last_updated: "2026-03-07T10:35:26.042Z"
 progress:
-  total_phases: 5
-  completed_phases: 4
-  total_plans: 21
-  completed_plans: 20
+  total_phases: 6
+  completed_phases: 5
+  total_plans: 26
+  completed_plans: 23
 ---
 
 # Project State: Kindred
@@ -31,12 +31,12 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 
 ## Current Position
 
-Phase: 8 of 10 (Authentication & Onboarding)
-Plan: 2 of 4 in current phase
-Status: Phase 8 in progress - Onboarding carousel with 4 steps complete
-Last activity: 2026-03-03 — Completed 08-02: Onboarding carousel (sign-in, dietary, location, voice teaser) (2 tasks, 7 min)
+Phase: 9 of 10 (Monetization & Voice Tiers)
+Plan: 2 of 5 in current phase
+Status: Plan 09-02 complete — AdMob integration with AdClient, AdCardView, and BannerAdView
+Last activity: 2026-03-07 — Completed 09-02: AdMob ad components created
 
-Progress: [██████████████████████████░] 50% (2 of 4 Phase 8 plans complete)
+Progress: [██████████████████░░░░░░░░░░░░] 40% (2 of 5 Phase 9 plans complete)
 
 ---
 
@@ -82,6 +82,8 @@ Progress: [███████████████████████
 | Phase 07-voice-playback-streaming P06 | 2 | 2 tasks | 1 files |
 | Phase 08-authentication-onboarding P01 | 4 | 2 tasks | 4 files |
 | Phase 08-authentication-onboarding P02 | 7 | 2 tasks | 7 files |
+| Phase 09 P02 | 6 | 2 tasks | 5 files |
+| Phase 09 P01 | 6 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -141,6 +143,10 @@ Recent decisions affecting v2.0 iOS work:
 - Dietary preferences use SAME UserDefaults key as Phase 6 (dietaryPreferences) for consistency (08-02)
 - OnboardingView uses TabView PageTabViewStyle for horizontal paging carousel with dots indicator (08-02)
 - FeedFeature dependency added to AuthFeature for LocationClient access in onboarding (08-02)
+- GoogleMobileAds SDK 11.0.0+ integrated into MonetizationFeature with test ad unit IDs (09-02)
+- AdClient TCA @DependencyClient checks UserDefaults 'kindredFirstLaunchComplete' flag for first-launch ad suppression (09-02)
+- AdCardView matches RecipeCardView styling (16:9 media, 340x400 dimensions, CardSurface background, 16pt corners) (09-02)
+- BannerAdView uses adaptive sizing and collapses to zero height when no ad loaded (09-02)
 
 ### Pending Todos
 
@@ -173,11 +179,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-03
-Stopped at: Completed Phase 8 Plan 2 (08-02: Onboarding carousel with 4 steps)
-Resume file: .planning/phases/08-authentication-onboarding/08-02-SUMMARY.md
-Next action: Phase 8 in progress (2/4 plans done) - proceed to Plan 03 (Auth gate integration and guest migration)
+Last session: 2026-03-07
+Stopped at: Completed 09-02-PLAN.md (AdMob Integration)
+Resume file: .planning/phases/09-monetization-voice-tiers/09-02-SUMMARY.md
+Next action: Continue Phase 9 execution (09-03, 09-04, 09-05 remaining)
 
 ---
 
-*State updated: 2026-03-03 after completing Phase 8 Plan 2 (Authentication & Onboarding) - Phase 8 in progress (2/4 plans)*
+*State updated: 2026-03-06 after completing Phase 8 (Authentication & Onboarding) — Phase 9 next*
