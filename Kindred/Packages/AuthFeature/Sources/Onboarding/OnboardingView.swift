@@ -22,10 +22,8 @@ public struct OnboardingView: View {
             Group {
                 switch store.currentStep {
                 case 0:
-                    SignInStepView(store: store)
-                case 1:
                     DietaryPrefsStepView(store: store)
-                case 2:
+                case 1:
                     LocationStepView(store: store)
                 default:
                     VoiceTeaserStepView(store: store)

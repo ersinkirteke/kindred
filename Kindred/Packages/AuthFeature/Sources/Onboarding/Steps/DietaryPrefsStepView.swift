@@ -38,12 +38,18 @@ struct DietaryPrefsStepView: View {
 
             Spacer(minLength: 60)
 
-            // Heading
-            Text(String(localized: "onboarding.dietary.title", bundle: .main))
-                .font(.kindredHeading1())
-                .foregroundColor(.kindredTextPrimary)
-                .multilineTextAlignment(.center)
-                .padding(.bottom, KindredSpacing.xs)
+            // Personalized greeting
+            Group {
+                if let firstName = store.firstName, !firstName.isEmpty {
+                    Text("Welcome, \(firstName)! Let's personalize your feed")
+                } else {
+                    Text("Welcome! Let's personalize your feed")
+                }
+            }
+            .font(.kindredHeading1())
+            .foregroundColor(.kindredTextPrimary)
+            .multilineTextAlignment(.center)
+            .padding(.bottom, KindredSpacing.xs)
 
             // Subheading
             Text(String(localized: "onboarding.dietary.subtitle", bundle: .main))

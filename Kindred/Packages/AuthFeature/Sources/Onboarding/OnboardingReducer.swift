@@ -9,13 +9,9 @@ import FeedFeature
 public struct OnboardingReducer {
     @ObservableState
     public struct State: Equatable {
-        public var currentStep: Int = 0
-        public var totalSteps: Int = 4
-
-        // Sign-in step state
-        public var isSigningIn = false
-        public var signInError: String?
-        public var isAuthenticated = false
+        public var firstName: String?
+        public var currentStep: Int
+        public var totalSteps: Int = 3
 
         // Dietary preferences step state
         public var selectedDietaryPrefs: Set<String> = []
@@ -27,7 +23,22 @@ public struct OnboardingReducer {
         public var isRequestingLocation = false
         // Voice teaser step state (no additional state needed)
 
-        public init() {}
+        public init(firstName: String? = nil) {
+            self.firstName = firstName
+
+            // Resume from last step if onboarding was dismissed
+            self.currentStep = UserDefaults.standard.integer(forKey: "onboardingCurrentStep")
+
+            // Pre-fill from guest data
+            if let encoded = UserDefaults.standard.data(forKey: "dietaryPreferences"),
+               let prefs = try? JSONDecoder().decode(Set<String>.self, from: encoded) {
+                self.selectedDietaryPrefs = prefs
+            }
+
+            if let city = UserDefaults.standard.string(forKey: "selectedCity") {
+                self.selectedCity = city
+            }
+        }
     }
 
     public enum LocationAuthStatus: Equatable {
@@ -42,13 +53,6 @@ public struct OnboardingReducer {
         case skipStep
         case completeOnboarding
 
-        // Sign-in step
-        case appleSignInTapped
-        case googleSignInTapped
-        case signInSucceeded
-        case signInFailed(String)
-        case continueAsGuestTapped
-
         // Dietary preferences step
         case toggleDietaryPref(String)
 
@@ -58,12 +62,19 @@ public struct OnboardingReducer {
         case showManualCityPicker
         case dismissCityPicker
         case citySelected(String)
+
         // Voice teaser step
         case tryVoiceNowTapped
         case setupVoiceLaterTapped
+
+        // Delegate
+        case delegate(Delegate)
     }
 
-    @Dependency(\.signInClient) var signInClient
+    public enum Delegate: Equatable {
+        case completed(dietaryPrefs: Set<String>, city: String?, wantsVoiceUpload: Bool)
+    }
+
     @Dependency(\.locationClient) var locationClient
 
     public init() {}
@@ -73,6 +84,10 @@ public struct OnboardingReducer {
             switch action {
             case .nextStep:
                 state.currentStep += 1
+
+                // Save progress
+                UserDefaults.standard.set(state.currentStep, forKey: "onboardingCurrentStep")
+
                 if state.currentStep >= state.totalSteps {
                     return .send(.completeOnboarding)
                 }
@@ -82,55 +97,11 @@ public struct OnboardingReducer {
                 return .send(.nextStep)
 
             case .completeOnboarding:
-                state.currentStep = state.totalSteps
-                return .none
-
-            case .appleSignInTapped:
-                state.isSigningIn = true
-                state.signInError = nil
-                return .run { send in
-                    do {
-                        _ = try await signInClient.signInWithApple()
-                        await send(.signInSucceeded)
-                    } catch SignInError.cancelled {
-                        // User cancelled - just reset loading state, no error
-                        await send(.signInFailed(""))
-                    } catch {
-                        await send(.signInFailed(error.localizedDescription))
-                    }
-                }
-
-            case .googleSignInTapped:
-                state.isSigningIn = true
-                state.signInError = nil
-                return .run { send in
-                    do {
-                        _ = try await signInClient.signInWithGoogle()
-                        await send(.signInSucceeded)
-                    } catch SignInError.cancelled {
-                        // User cancelled - just reset loading state, no error
-                        await send(.signInFailed(""))
-                    } catch {
-                        await send(.signInFailed(error.localizedDescription))
-                    }
-                }
-
-            case .signInSucceeded:
-                state.isSigningIn = false
-                state.isAuthenticated = true
-                // Instantly advance to next step (no delay, no animation per locked decision)
-                return .send(.nextStep)
-
-            case .signInFailed(let errorMessage):
-                state.isSigningIn = false
-                // Empty error message means cancellation - don't show error
-                if !errorMessage.isEmpty {
-                    state.signInError = errorMessage
-                }
-                return .none
-
-            case .continueAsGuestTapped:
-                return .send(.nextStep)
+                return .send(.delegate(.completed(
+                    dietaryPrefs: state.selectedDietaryPrefs,
+                    city: state.selectedCity,
+                    wantsVoiceUpload: false
+                )))
 
             case .toggleDietaryPref(let pref):
                 if state.selectedDietaryPrefs.contains(pref) {
@@ -202,11 +173,21 @@ public struct OnboardingReducer {
                 return .send(.nextStep)
 
             case .tryVoiceNowTapped:
-                // Complete onboarding first, then parent will trigger voice upload
-                return .send(.completeOnboarding)
+                return .send(.delegate(.completed(
+                    dietaryPrefs: state.selectedDietaryPrefs,
+                    city: state.selectedCity,
+                    wantsVoiceUpload: true
+                )))
 
             case .setupVoiceLaterTapped:
-                return .send(.completeOnboarding)
+                return .send(.delegate(.completed(
+                    dietaryPrefs: state.selectedDietaryPrefs,
+                    city: state.selectedCity,
+                    wantsVoiceUpload: false
+                )))
+
+            case .delegate:
+                return .none
             }
         }
     }
