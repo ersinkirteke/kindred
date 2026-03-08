@@ -245,8 +245,9 @@ struct AppReducer {
 
                 // Retry with exponential backoff (2s, 4s, 8s)
                 if state.migrationRetryCount <= 3 {
-                    let delay = pow(2.0, Double(state.migrationRetryCount))
-                    Logger.migration.info("Retry \(state.migrationRetryCount, privacy: .public)/3 in \(delay, privacy: .public)s")
+                    let retryCount = state.migrationRetryCount
+                    let delay = pow(2.0, Double(retryCount))
+                    Logger.migration.info("Retry \(retryCount, privacy: .public)/3 in \(delay, privacy: .public)s")
 
                     return .run { send in
                         try await clock.sleep(for: .seconds(delay))

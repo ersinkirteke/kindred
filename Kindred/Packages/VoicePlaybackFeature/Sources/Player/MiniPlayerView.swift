@@ -14,138 +14,157 @@ public struct MiniPlayerView: View {
 
     public var body: some View {
         if let playback = store.currentPlayback {
-            VStack(spacing: 0) {
-                // Thin progress bar at top
-                GeometryReader { geometry in
-                    Rectangle()
-                        .fill(Color.kindredAccent)
-                        .frame(
-                            width: geometry.size.width * CGFloat(playback.currentTime / max(playback.duration, 1)),
-                            height: 3
-                        )
-                        .animation(.linear(duration: 0.5), value: playback.currentTime)
-                }
-                .frame(height: 3)
+            playerContainer(playback: playback)
+        }
+    }
 
-                // Main player bar
-                HStack(spacing: 12) {
-                    // Recipe artwork thumbnail
-                    if let artworkURL = playback.artworkURL, let url = URL(string: artworkURL) {
-                        KFImage(url)
-                            .placeholder {
-                                Rectangle()
-                                    .fill(Color.kindredDivider)
-                                    .overlay(
-                                        Image(systemName: "photo")
-                                            .foregroundColor(.kindredTextSecondary)
-                                    )
-                            }
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 48, height: 48)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    } else {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.kindredDivider)
-                            .frame(width: 48, height: 48)
-                            .overlay(
-                                Image(systemName: "photo")
-                                    .foregroundColor(.kindredTextSecondary)
-                            )
-                    }
+    private func playerContainer(playback: CurrentPlayback) -> some View {
+        VStack(spacing: 0) {
+            progressBar(playback: playback)
+            playerBar(playback: playback)
+        }
+        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -2)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .animation(.easeInOut(duration: 0.3), value: store.currentPlayback != nil)
+        .sheet(isPresented: Binding(
+            get: { store.isExpanded },
+            set: { _ in store.send(.toggleExpanded) }
+        )) {
+            ExpandedPlayerView(store: store)
+                .presentationDetents([.fraction(0.6), .large])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(20)
+        }
+    }
 
-                    // Recipe name + speaker name / error
-                    VStack(alignment: .leading, spacing: 2) {
-                        if case let .error(message) = playback.status {
-                            Text(String(localized: "Error"))
-                                .font(.kindredBodyBold())
-                                .foregroundColor(.red)
-                                .lineLimit(1)
-                            Text(message)
-                                .font(.kindredCaption())
-                                .foregroundColor(.red)
-                                .lineLimit(2)
-                        } else {
-                            Text(playback.recipeName)
-                                .font(.kindredBodyBold())
-                                .foregroundColor(.kindredTextPrimary)
-                                .lineLimit(1)
-
-                            Text(playback.speakerName)
-                                .font(.kindredBody())
-                                .foregroundColor(.kindredTextSecondary)
-                                .lineLimit(1)
-                        }
-                    }
-
-                    Spacer()
-
-                    // Play/pause button
-                    Button {
-                        if playback.status == .playing || playback.status == .buffering {
-                            store.send(.pause)
-                        } else {
-                            store.send(.play)
-                        }
-                    } label: {
-                        if case .error = playback.status {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(.red)
-                        } else if store.isLoadingNarration || playback.status == .loading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
-                                .frame(width: 20, height: 20)
-                        } else {
-                            Image(systemName: (playback.status == .playing || playback.status == .buffering) ? "pause.fill" : "play.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(.kindredAccent)
-                        }
-                    }
-                    .frame(width: 44, height: 44)
-                    .accessibilityLabel(playback.status == .playing ? String(localized: "Pause") : String(localized: "Play"))
-                    .accessibilityHint(playback.status == .playing ? String(localized: "accessibility.mini_player.pause_hint") : String(localized: "accessibility.mini_player.play_hint"))
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color.kindredCardSurface)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    store.send(.toggleExpanded)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel(
-                    playback.status == .playing
-                        ? String(localized: "Now playing \(playback.recipeName) by \(playback.speakerName)")
-                        : String(localized: "Paused: \(playback.recipeName) by \(playback.speakerName)")
+    private func progressBar(playback: CurrentPlayback) -> some View {
+        GeometryReader { geometry in
+            Rectangle()
+                .fill(Color.kindredAccent)
+                .frame(
+                    width: geometry.size.width * CGFloat(playback.currentTime / max(playback.duration, 1)),
+                    height: 3
                 )
-                .accessibilityAction(named: playback.status == .playing ? String(localized: "Pause") : String(localized: "Play")) {
-                    if playback.status == .playing || playback.status == .buffering {
-                        store.send(.pause)
-                    } else {
-                        store.send(.play)
-                    }
-                }
-                .accessibilityAction(named: String(localized: "Expand player")) {
-                    store.send(.toggleExpanded)
-                }
-                .accessibilityAction(named: String(localized: "Dismiss")) {
-                    store.send(.stop)
-                }
-            }
-            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -2)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
-            .animation(.easeInOut(duration: 0.3), value: store.currentPlayback != nil)
-            .sheet(isPresented: Binding(
-                get: { store.isExpanded },
-                set: { _ in store.send(.toggleExpanded) }
-            )) {
-                ExpandedPlayerView(store: store)
-                    .presentationDetents([.fraction(0.6), .large])
-                    .presentationDragIndicator(.visible)
-                    .presentationCornerRadius(20)
+                .animation(.linear(duration: 0.5), value: playback.currentTime)
+        }
+        .frame(height: 3)
+    }
+
+    private func playerBar(playback: CurrentPlayback) -> some View {
+        HStack(spacing: 12) {
+            artworkThumbnail(playback: playback)
+            trackInfo(playback: playback)
+            Spacer()
+            playPauseButton(playback: playback)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color.kindredCardSurface)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            store.send(.toggleExpanded)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(miniPlayerAccessibilityLabel(playback: playback))
+        .accessibilityAction(named: playback.status == .playing ? String(localized: "Pause") : String(localized: "Play")) {
+            if playback.status == .playing || playback.status == .buffering {
+                store.send(.pause)
+            } else {
+                store.send(.play)
             }
         }
+        .accessibilityAction(named: String(localized: "Expand player")) {
+            store.send(.toggleExpanded)
+        }
+        .accessibilityAction(named: String(localized: "Dismiss")) {
+            store.send(.dismiss)
+        }
+    }
+
+    private func miniPlayerAccessibilityLabel(playback: CurrentPlayback) -> String {
+        playback.status == .playing
+            ? String(localized: "Now playing \(playback.recipeName) by \(playback.speakerName)")
+            : String(localized: "Paused: \(playback.recipeName) by \(playback.speakerName)")
+    }
+
+    @ViewBuilder
+    private func artworkThumbnail(playback: CurrentPlayback) -> some View {
+        if let artworkURL = playback.artworkURL, let url = URL(string: artworkURL) {
+            KFImage(url)
+                .placeholder {
+                    Rectangle()
+                        .fill(Color.kindredDivider)
+                        .overlay(
+                            Image(systemName: "photo")
+                                .foregroundColor(.kindredTextSecondary)
+                        )
+                }
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 48, height: 48)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        } else {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color.kindredDivider)
+                .frame(width: 48, height: 48)
+                .overlay(
+                    Image(systemName: "photo")
+                        .foregroundColor(.kindredTextSecondary)
+                )
+        }
+    }
+
+    @ViewBuilder
+    private func trackInfo(playback: CurrentPlayback) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            if case let .error(message) = playback.status {
+                Text(String(localized: "Error"))
+                    .font(.kindredBodyBold())
+                    .foregroundColor(.red)
+                    .lineLimit(1)
+                Text(message)
+                    .font(.kindredCaption())
+                    .foregroundColor(.red)
+                    .lineLimit(2)
+            } else {
+                Text(playback.recipeName)
+                    .font(.kindredBodyBold())
+                    .foregroundColor(.kindredTextPrimary)
+                    .lineLimit(1)
+                Text(playback.speakerName)
+                    .font(.kindredBody())
+                    .foregroundColor(.kindredTextSecondary)
+                    .lineLimit(1)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func playPauseButton(playback: CurrentPlayback) -> some View {
+        Button {
+            if playback.status == .playing || playback.status == .buffering {
+                store.send(.pause)
+            } else {
+                store.send(.play)
+            }
+        } label: {
+            if case .error = playback.status {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(.red)
+            } else if store.isLoadingNarration || playback.status == .loading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
+                    .frame(width: 20, height: 20)
+            } else {
+                Image(systemName: (playback.status == .playing || playback.status == .buffering) ? "pause.fill" : "play.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(.kindredAccent)
+            }
+        }
+        .frame(width: 44, height: 44)
+        .accessibilityLabel(playback.status == .playing ? String(localized: "Pause") : String(localized: "Play"))
+        .accessibilityHint(playback.status == .playing ? String(localized: "accessibility.mini_player.pause_hint") : String(localized: "accessibility.mini_player.play_hint"))
     }
 }
 

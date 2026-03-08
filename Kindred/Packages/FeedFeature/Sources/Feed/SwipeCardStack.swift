@@ -78,7 +78,7 @@ struct SwipeCardStack: View {
                     heroNamespace: heroNamespace,
                     isPersonalized: isPersonalized(card),
                     onSwipe: { direction in
-                        Logger.swipeStack.debug("onSwipe received: \(card.id, privacy: .private) \(direction.rawValue, privacy: .public)")
+                        Logger.swipeStack.debug("onSwipe received: \(card.id, privacy: .private) \(String(describing: direction), privacy: .public)")
                         // Increment swipe count after recipe card swipe
                         swipeCount += 1
                         // Check if we should show ad after this swipe

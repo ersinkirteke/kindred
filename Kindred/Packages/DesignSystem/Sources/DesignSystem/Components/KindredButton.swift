@@ -1,11 +1,6 @@
 import SwiftUI
 import OSLog
 
-extension Logger {
-    private static var subsystem = Bundle.main.bundleIdentifier!
-    fileprivate static let designSystem = Logger(subsystem: subsystem, category: "design-system")
-}
-
 // MARK: - KindredButton
 // Primary CTA button with 56dp minimum touch target (WCAG AAA compliance)
 

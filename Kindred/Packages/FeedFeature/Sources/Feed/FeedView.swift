@@ -32,16 +32,7 @@ public struct FeedView: View {
                     PaywallView(store: paywallStore)
                 }
                 .navigationDestination(item: $store.scope(state: \.recipeDetail, action: \.recipeDetail)) { detailStore in
-                    if #available(iOS 18.0, *) {
-                        RecipeDetailView(store: detailStore)
-                            .navigationTransition(
-                                reduceMotion
-                                    ? .crossfade
-                                    : .zoom(sourceID: detailStore.recipeId, in: heroNamespace)
-                            )
-                    } else {
-                        RecipeDetailView(store: detailStore)
-                    }
+                    recipeDetailDestination(store: detailStore)
                 }
                 .onChange(of: store.location) { oldValue, newValue in
                     // VoiceOver announcement on location change
@@ -64,6 +55,21 @@ public struct FeedView: View {
         }
         .onAppear {
             store.send(.onAppear)
+        }
+    }
+
+    @ViewBuilder
+    private func recipeDetailDestination(store detailStore: StoreOf<RecipeDetailReducer>) -> some View {
+        if #available(iOS 18.0, *) {
+            if reduceMotion {
+                RecipeDetailView(store: detailStore)
+                    .navigationTransition(.automatic)
+            } else {
+                RecipeDetailView(store: detailStore)
+                    .navigationTransition(.zoom(sourceID: detailStore.recipeId, in: heroNamespace))
+            }
+        } else {
+            RecipeDetailView(store: detailStore)
         }
     }
 
