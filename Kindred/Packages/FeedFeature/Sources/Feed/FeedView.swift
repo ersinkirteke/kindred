@@ -330,26 +330,27 @@ public struct FeedView: View {
     }
 
     private var locationPill: some View {
-        HStack(spacing: KindredSpacing.xs) {
-            Image(systemName: "mappin.circle.fill")
-                .font(.system(size: 16))
-
-            Text(store.location)
-                .font(.kindredBody())
-                .fontWeight(.medium)
-        }
-        .foregroundColor(.kindredTextPrimary)
-        .padding(.horizontal, KindredSpacing.sm)
-        .padding(.vertical, KindredSpacing.xs)
-        .background(
-            Capsule()
-                .fill(Color.kindredCardSurface)
-        )
-        .onTapGesture {
+        Button {
             store.send(.toggleLocationPicker)
+        } label: {
+            HStack(spacing: KindredSpacing.xs) {
+                Image(systemName: "mappin.circle.fill")
+                    .font(.system(size: 16))
+
+                Text(store.location)
+                    .font(.kindredBody())
+                    .fontWeight(.medium)
+            }
+            .foregroundColor(.kindredTextPrimary)
+            .padding(.horizontal, KindredSpacing.sm)
+            .padding(.vertical, KindredSpacing.xs)
+            .background(
+                Capsule()
+                    .fill(Color.kindredCardSurface)
+            )
         }
         .accessibilityLabel("Location: \(store.location)")
-        .accessibilityHint("Tap to change location")
+        .accessibilityHint("Double tap to change location")
     }
 
     private var offlineBanner: some View {

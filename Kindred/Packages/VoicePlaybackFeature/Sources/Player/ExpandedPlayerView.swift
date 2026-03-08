@@ -8,6 +8,13 @@ import SwiftUI
 public struct ExpandedPlayerView: View {
     @Bindable var store: StoreOf<VoicePlaybackReducer>
 
+    // @ScaledMetric for Dynamic Type support
+    @ScaledMetric(relativeTo: .title3) private var heading3Size: CGFloat = 20
+    @ScaledMetric(relativeTo: .title2) private var heading2Size: CGFloat = 22
+    @ScaledMetric(relativeTo: .headline) private var bodySize: CGFloat = 18
+    @ScaledMetric(relativeTo: .caption) private var captionSize: CGFloat = 14
+    @ScaledMetric(relativeTo: .title) private var playButtonSize: CGFloat = 64
+
     public init(store: StoreOf<VoicePlaybackReducer>) {
         self.store = store
     }
@@ -47,17 +54,17 @@ public struct ExpandedPlayerView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         // Recipe name
                         Text(playback.recipeName)
-                            .font(.kindredHeading3())
+                            .font(.kindredHeading3Scaled(size: heading3Size))
                             .foregroundColor(.kindredTextPrimary)
                             .lineLimit(2)
 
                         // Speaker name (prominently displayed)
                         Text(playback.speakerName)
-                            .font(.kindredHeading2())
+                            .font(.kindredHeading2Scaled(size: heading2Size))
                             .foregroundColor(.kindredAccent)
 
                         Text("Narrating")
-                            .font(.kindredCaption())
+                            .font(.kindredCaptionScaled(size: captionSize))
                             .foregroundColor(.kindredTextSecondary)
                     }
 
@@ -71,7 +78,7 @@ public struct ExpandedPlayerView: View {
                    stepIndex < store.recipeSteps.count {
                     ScrollView {
                         Text("Step \(stepIndex + 1): \(store.recipeSteps[stepIndex])")
-                            .font(.kindredBody())
+                            .font(.kindredBodyScaled(size: bodySize))
                             .foregroundColor(.kindredTextSecondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
@@ -94,13 +101,13 @@ public struct ExpandedPlayerView: View {
 
                     HStack {
                         Text(formatTime(playback.currentTime))
-                            .font(.kindredCaption())
+                            .font(.kindredCaptionScaled(size: captionSize))
                             .foregroundColor(.kindredTextSecondary)
 
                         Spacer()
 
                         Text("-\(formatTime(playback.duration - playback.currentTime))")
-                            .font(.kindredCaption())
+                            .font(.kindredCaptionScaled(size: captionSize))
                             .foregroundColor(.kindredTextSecondary)
                     }
                 }
@@ -121,7 +128,7 @@ public struct ExpandedPlayerView: View {
                     .accessibilityLabel("Skip back 15 seconds")
                     .accessibilityHint("Double tap to go back 15 seconds")
 
-                    // Play/pause (64dp per VOICE-02 requirement)
+                    // Play/pause (64dp per VOICE-02 requirement, scaled)
                     Button {
                         if playback.status == .playing || playback.status == .buffering {
                             store.send(.pause)
@@ -134,14 +141,14 @@ public struct ExpandedPlayerView: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
                                 .scaleEffect(2.0)
-                                .frame(width: 64, height: 64)
+                                .frame(width: playButtonSize, height: playButtonSize)
                         } else {
                             Image(systemName: (playback.status == .playing || playback.status == .buffering) ? "pause.circle.fill" : "play.circle.fill")
-                                .font(.system(size: 64))
+                                .font(.system(size: playButtonSize))
                                 .foregroundColor(.kindredAccent)
                         }
                     }
-                    .frame(width: 64, height: 64)
+                    .frame(width: playButtonSize, height: playButtonSize)
                     .accessibilityLabel(playback.status == .playing ? "Pause" : "Play")
                     .accessibilityHint("Double tap to \(playback.status == .playing ? "pause" : "play") narration")
 
@@ -167,7 +174,7 @@ public struct ExpandedPlayerView: View {
                         HapticFeedback.light()
                     } label: {
                         Text("\(String(format: "%.2g", playback.speed.rawValue))×")
-                            .font(.kindredBodyBold())
+                            .font(.kindredBodyBoldScaled(size: bodySize))
                             .foregroundColor(.kindredAccent)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
@@ -189,7 +196,7 @@ public struct ExpandedPlayerView: View {
                                 Image(systemName: "person.2.fill")
                                     .font(.system(size: 14))
                                 Text("Voice")
-                                    .font(.kindredBodyBold())
+                                    .font(.kindredBodyBoldScaled(size: bodySize))
                             }
                             .foregroundColor(.kindredAccent)
                             .padding(.horizontal, 16)
@@ -231,6 +238,11 @@ struct HapticFeedback {
     static func medium() {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
+    }
+
+    static func success() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
     }
 }
 

@@ -10,6 +10,15 @@ public struct RecipeDetailView: View {
 
     @Bindable var store: StoreOf<RecipeDetailReducer>
 
+    // @ScaledMetric for Dynamic Type support
+    @ScaledMetric(relativeTo: .largeTitle) private var titleSize: CGFloat = 34
+    @ScaledMetric(relativeTo: .title3) private var heading3Size: CGFloat = 20
+    @ScaledMetric(relativeTo: .headline) private var bodySize: CGFloat = 18
+    @ScaledMetric(relativeTo: .caption) private var captionSize: CGFloat = 14
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) var reduceMotion
+
     /// Whether banner ad should be shown (hidden during active narration)
     private var shouldShowBannerAd: Bool {
         let isNarrationActive = [.playing, .loading, .buffering].contains(store.playbackStatus)
@@ -28,6 +37,7 @@ public struct RecipeDetailView: View {
                     if let recipe = store.recipe {
                         ParallaxHeader(
                             imageUrl: recipe.imageUrl,
+                            recipeName: recipe.name,
                             isViral: recipe.isViral
                         )
                     }
@@ -76,7 +86,7 @@ public struct RecipeDetailView: View {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
             Text("Loading recipe...")
-                .font(.kindredBody())
+                .font(.kindredBodyScaled(size: bodySize))
                 .foregroundColor(.kindredTextSecondary)
         }
         .frame(maxWidth: .infinity)
@@ -86,19 +96,14 @@ public struct RecipeDetailView: View {
     // MARK: - Error View
 
     private func errorView(_ message: String) -> some View {
-        VStack(spacing: KindredSpacing.md) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 48))
-                .foregroundColor(.kindredError)
-            Text("Error loading recipe")
-                .font(.kindredHeading2())
-                .foregroundColor(.kindredTextPrimary)
-            Text(message)
-                .font(.kindredBody())
-                .foregroundColor(.kindredTextSecondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
+        ErrorStateView(
+            title: "Error loading recipe",
+            message: message,
+            icon: "exclamationmark.triangle",
+            retryAction: {
+                store.send(.onAppear)
+            }
+        )
         .padding(.top, KindredSpacing.xxl)
     }
 
@@ -108,7 +113,7 @@ public struct RecipeDetailView: View {
         VStack(alignment: .leading, spacing: KindredSpacing.lg) {
             // Recipe name
             Text(recipe.name)
-                .font(.kindredHeading1())
+                .font(.kindredLargeTitleScaled(size: titleSize))
                 .foregroundColor(.kindredTextPrimary)
                 .accessibilityAddTraits(.isHeader)
 
@@ -126,7 +131,7 @@ public struct RecipeDetailView: View {
             // Description
             if let description = recipe.description {
                 Text(description)
-                    .font(.kindredBody())
+                    .font(.kindredBodyScaled(size: bodySize))
                     .foregroundColor(.kindredTextSecondary)
                     .multilineTextAlignment(.leading)
             }
@@ -162,7 +167,7 @@ public struct RecipeDetailView: View {
             HStack(spacing: KindredSpacing.sm) {
                 ForEach(tags, id: \.self) { tag in
                     Text(tag.uppercased())
-                        .font(.kindredCaption())
+                        .font(.kindredCaptionScaled(size: captionSize))
                         .foregroundColor(.white)
                         .padding(.horizontal, KindredSpacing.md)
                         .padding(.vertical, KindredSpacing.xs)
@@ -201,9 +206,9 @@ public struct RecipeDetailView: View {
     private func metadataItem(icon: String, text: String) -> some View {
         HStack(spacing: KindredSpacing.xs) {
             Image(systemName: icon)
-                .font(.system(size: 14))
+                .font(.system(size: captionSize))
             Text(text)
-                .font(.kindredCaption())
+                .font(.kindredCaptionScaled(size: captionSize))
         }
         .foregroundColor(.kindredTextSecondary)
     }
@@ -224,7 +229,7 @@ public struct RecipeDetailView: View {
 
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
-            .font(.kindredHeading3())
+            .font(.kindredHeading3Scaled(size: heading3Size))
             .foregroundColor(.kindredTextPrimary)
             .padding(.top, KindredSpacing.sm)
             .accessibilityAddTraits(.isHeader)
@@ -248,22 +253,22 @@ public struct RecipeDetailView: View {
                             ProgressView()
                                 .tint(.kindredAccent)
                             Text("Loading...")
-                                .font(.kindredBodyBold())
+                                .font(.kindredBodyBoldScaled(size: bodySize))
                         case .playing:
                             Image(systemName: "pause.fill")
                                 .font(.system(size: 18))
                             Text("Pause")
-                                .font(.kindredBodyBold())
+                                .font(.kindredBodyBoldScaled(size: bodySize))
                         case .paused:
                             Image(systemName: "play.fill")
                                 .font(.system(size: 18))
                             Text("Resume")
-                                .font(.kindredBodyBold())
+                                .font(.kindredBodyBoldScaled(size: bodySize))
                         default:
                             Image(systemName: "headphones")
                                 .font(.system(size: 18))
                             Text("Listen")
-                                .font(.kindredBodyBold())
+                                .font(.kindredBodyBoldScaled(size: bodySize))
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -289,7 +294,7 @@ public struct RecipeDetailView: View {
                         Image(systemName: store.isBookmarked ? "heart.fill" : "heart")
                             .font(.system(size: 18))
                         Text("Bookmark")
-                            .font(.kindredBodyBold())
+                            .font(.kindredBodyBoldScaled(size: bodySize))
                     }
                     .frame(maxWidth: .infinity)
                     .frame(minHeight: 56)
