@@ -173,7 +173,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. OnboardingReducer is `@Presents` in AppReducer and onboarding carousel triggers for new users after first sign-in
   2. Guest session state (browsed recipes, dietary preferences, bookmarks) persists through account conversion with no data loss — verified on device
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 11-01-PLAN.md -- Wire @Presents onboarding in AppReducer: remove sign-in step, 3-step carousel, delegate completion, firstName greeting
+- [ ] 11-02-PLAN.md -- Harden guest migration: city in payload, pendingMigration persistence, connectivity retry, device verification
 
 ---
 
@@ -191,7 +195,7 @@ Plans:
 | 8. Authentication & Onboarding | v2.0 | 4/4 | Complete | 2026-03-06 |
 | 9. Monetization & Voice Tiers | v2.0 | 0/? | Not started | - |
 | 10. Accessibility & Polish | v2.0 | 7/7 | Complete | 2026-03-08 |
-| 11. Auth Gap Closure | v2.0 | 0/? | Not started | - |
+| 11. Auth Gap Closure | v2.0 | 0/2 | Not started | - |
 
 ---
 
