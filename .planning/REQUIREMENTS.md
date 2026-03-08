@@ -49,7 +49,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 - [x] **ACCS-02**: All body text is minimum 18sp with Dynamic Type support
 - [x] **ACCS-03**: Full VoiceOver support with meaningful labels on all custom controls and gestures
 - [x] **ACCS-04**: Navigation depth is maximum 3 levels from any screen
-- [ ] **ACCS-05**: Color contrast meets WCAG AAA 7:1 ratio
+- [x] **ACCS-05**: Color contrast meets WCAG AAA 7:1 ratio
 
 ### Monetization
 
@@ -129,7 +129,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ACCS-02 | Phase 7 | Pending (baked in) |
 | ACCS-03 | Phase 7 | Pending (baked in) |
 | ACCS-04 | Phase 5 | Pending (baked in) |
-| ACCS-05 | Phase 10 | Pending |
+| ACCS-05 | Phase 10 | Complete |
 | MONET-01 | Phase 9 | Complete |
 | MONET-02 | Phase 9 | Complete |
 | MONET-03 | Phase 9 | Complete |
