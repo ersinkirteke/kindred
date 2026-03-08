@@ -25,7 +25,7 @@ public struct DietaryPreferencesSection: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: KindredSpacing.md) {
-            Text("Dietary Preferences")
+            Text(String(localized: "profile.dietary_prefs.title"))
                 .font(.kindredHeading3())
                 .foregroundColor(.kindredTextPrimary)
 
@@ -40,7 +40,7 @@ public struct DietaryPreferencesSection: View {
                 Button {
                     onReset()
                 } label: {
-                    Text("Reset Dietary Preferences")
+                    Text(String(localized: "profile.dietary_prefs.reset"))
                         .font(.subheadline)
                         .foregroundColor(.red)
                 }
@@ -126,6 +126,6 @@ private struct DietaryChipView: View {
             .onTapGesture(perform: onTap)
             .accessibilityLabel(title)
             .accessibilityAddTraits(isSelected ? .isSelected : [])
-            .accessibilityHint("Double tap to \(isSelected ? "remove" : "add") \(title) filter")
+            .accessibilityHint(String(localized: isSelected ? "accessibility.hint.remove_filter \(title)" : "accessibility.hint.add_filter \(title)"))
     }
 }

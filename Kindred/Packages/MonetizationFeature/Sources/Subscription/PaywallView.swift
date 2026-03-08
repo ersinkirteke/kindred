@@ -25,7 +25,7 @@ public struct PaywallView: View {
 
             VStack(spacing: KindredSpacing.xl) {
                 // Heading
-                Text("Upgrade to Pro")
+                Text(String(localized: "paywall.title"))
                     .font(.kindredHeading1Scaled(size: heading1Size))
                     .foregroundColor(.kindredTextPrimary)
                     .accessibilityAddTraits(.isHeader)
@@ -34,15 +34,15 @@ public struct PaywallView: View {
                 VStack(spacing: KindredSpacing.md) {
                     BenefitRow(
                         icon: "checkmark.seal.fill",
-                        title: "Ad-Free Experience",
-                        description: "No interruptions while cooking",
+                        title: String(localized: "paywall.benefit_adfree_title"),
+                        description: String(localized: "paywall.benefit_adfree_description"),
                         bodySize: bodySize
                     )
 
                     BenefitRow(
                         icon: "mic.badge.plus",
-                        title: "Unlimited Voice Profiles",
-                        description: "Clone any voice you love",
+                        title: String(localized: "paywall.benefit_voice_title"),
+                        description: String(localized: "paywall.benefit_voice_description"),
                         bodySize: bodySize
                     )
                 }
@@ -53,7 +53,7 @@ public struct PaywallView: View {
                         HStack {
                             ProgressView()
                                 .tint(.white)
-                            Text("Loading...")
+                            Text(String(localized: "paywall.loading"))
                                 .font(.kindredBodyScaled(size: bodySize))
                                 .foregroundColor(.white)
                         }
@@ -65,7 +65,7 @@ public struct PaywallView: View {
                         HStack {
                             ProgressView()
                                 .tint(.white)
-                            Text("Processing...")
+                            Text(String(localized: "paywall.processing"))
                                 .font(.kindredBodyScaled(size: bodySize))
                                 .foregroundColor(.white)
                         }
@@ -75,13 +75,13 @@ public struct PaywallView: View {
                         .cornerRadius(16)
                     } else {
                         KindredButton(
-                            "Subscribe for \(store.displayPrice)/month",
+                            String(localized: "paywall.subscribe_button \(store.displayPrice)"),
                             style: .primary
                         ) {
                             store.send(.subscribeTapped)
                         }
-                        .accessibilityLabel("Subscribe for \(store.displayPrice) per month")
-                        .accessibilityHint("Starts monthly subscription")
+                        .accessibilityLabel(String(localized: "accessibility.paywall.subscribe \(store.displayPrice)"))
+                        .accessibilityHint(String(localized: "accessibility.paywall.subscribe_hint"))
                     }
 
                     // Restore purchases link
@@ -92,18 +92,18 @@ public struct PaywallView: View {
                             HStack(spacing: KindredSpacing.xs) {
                                 ProgressView()
                                     .controlSize(.small)
-                                Text("Restoring...")
+                                Text(String(localized: "paywall.restoring"))
                                     .font(.kindredCaptionScaled(size: captionSize))
                                     .foregroundColor(.kindredAccent)
                             }
                         } else {
-                            Text("Restore Purchases")
+                            Text(String(localized: "paywall.restore_purchases"))
                                 .font(.kindredCaptionScaled(size: captionSize))
                                 .foregroundColor(.kindredAccent)
                         }
                     }
-                    .accessibilityLabel("Restore purchases")
-                    .accessibilityHint("Restore previous subscription purchases")
+                    .accessibilityLabel(String(localized: "accessibility.paywall.restore"))
+                    .accessibilityHint(String(localized: "accessibility.paywall.restore_hint"))
                 }
 
                 // Error message
@@ -121,7 +121,7 @@ public struct PaywallView: View {
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Pro subscription upgrade")
+        .accessibilityLabel(String(localized: "accessibility.paywall.label"))
         .onAppear {
             store.send(.onAppear)
         }

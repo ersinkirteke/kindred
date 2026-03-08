@@ -27,7 +27,7 @@ public struct SignInGateView: View {
                         .padding(.bottom, 24)
 
                     // Tagline
-                    Text("Save recipes, hear them narrated,\nmake them yours")
+                    Text(String(localized: "signin_gate.tagline"))
                         .font(.kindredHeading2())
                         .foregroundColor(.kindredTextPrimary)
                         .multilineTextAlignment(.center)
@@ -44,7 +44,7 @@ public struct SignInGateView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "apple.logo")
                                     .font(.system(size: 18, weight: .medium))
-                                Text("Sign in with Apple")
+                                Text(String(localized: "signin_gate.sign_in_apple"))
                                     .font(.kindredBodyBold())
                             }
                             .frame(maxWidth: .infinity)
@@ -53,16 +53,16 @@ public struct SignInGateView: View {
                             .background(Color.black)
                             .cornerRadius(12)
                         }
-                        .accessibilityLabel("Sign in with Apple")
+                        .accessibilityLabel(String(localized: "accessibility.signin_gate.apple_button"))
 
                         // Google Sign In Button
                         KindredButton(
-                            "Continue with Google",
+                            String(localized: "signin_gate.sign_in_google"),
                             style: .secondary
                         ) {
                             viewStore.send(.googleSignInTapped)
                         }
-                        .accessibilityLabel("Sign in with Google")
+                        .accessibilityLabel(String(localized: "accessibility.signin_gate.google_button"))
 
                         // Error text
                         if let error = viewStore.signInError, !error.isEmpty {
@@ -89,13 +89,13 @@ public struct SignInGateView: View {
                     Button {
                         viewStore.send(.continueAsGuestTapped)
                     } label: {
-                        Text("Continue as guest")
+                        Text(String(localized: "signin_gate.continue_guest"))
                             .font(.kindredCaption())
                             .foregroundColor(.kindredTextSecondary)
                             .underline()
                     }
                     .disabled(viewStore.isSigningIn)
-                    .accessibilityLabel("Continue browsing as guest")
+                    .accessibilityLabel(String(localized: "accessibility.signin_gate.continue_guest"))
 
                     Spacer()
                         .frame(height: 40)

@@ -26,7 +26,7 @@ public struct BannerAdView: View {
         }
         .frame(height: 60)
         .cornerRadius(8)
-        .accessibilityLabel("Advertisement")
+        .accessibilityLabel(String(localized: "accessibility.ads.advertisement"))
     }
 }
 

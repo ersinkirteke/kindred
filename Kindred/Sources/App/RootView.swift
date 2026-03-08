@@ -22,7 +22,7 @@ struct RootView: View {
                 )
             )
             .tabItem {
-                Label("Feed", systemImage: "house.fill")
+                Label(String(localized: "tab.feed"), systemImage: "house.fill")
             }
             .tag(AppReducer.Tab.feed)
 
@@ -33,7 +33,7 @@ struct RootView: View {
                 )
             )
             .tabItem {
-                Label("Me", systemImage: "person.fill")
+                Label(String(localized: "tab.me"), systemImage: "person.fill")
             }
             .tag(AppReducer.Tab.me)
             .badge(store.feedState.bookmarkCount > 0 ? store.feedState.bookmarkCount : 0)

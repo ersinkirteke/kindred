@@ -27,26 +27,26 @@ struct DietaryPrefsStepView: View {
                 Button {
                     store.send(.skipStep)
                 } label: {
-                    Text("Skip")
+                    Text(String(localized: "Skip"))
                         .font(.kindredBody())
                         .foregroundColor(.kindredTextSecondary)
                 }
                 .padding(.horizontal, KindredSpacing.lg)
                 .padding(.top, KindredSpacing.md)
-                .accessibilityLabel("Skip dietary preferences")
+                .accessibilityLabel(String(localized: "accessibility.onboarding_dietary.skip"))
             }
 
             Spacer(minLength: 60)
 
             // Heading
-            Text("What do you eat?")
+            Text(String(localized: "onboarding.dietary.title"))
                 .font(.kindredHeading1())
                 .foregroundColor(.kindredTextPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, KindredSpacing.xs)
 
             // Subheading
-            Text("Select any that apply")
+            Text(String(localized: "onboarding.dietary.subtitle"))
                 .font(.kindredBody())
                 .foregroundColor(.kindredTextSecondary)
                 .multilineTextAlignment(.center)
@@ -73,12 +73,12 @@ struct DietaryPrefsStepView: View {
             Spacer()
 
             // Next button
-            KindredButton("Next", style: .primary) {
+            KindredButton(String(localized: "Next"), style: .primary) {
                 store.send(.nextStep)
             }
             .padding(.horizontal, KindredSpacing.lg)
             .padding(.bottom, KindredSpacing.xl)
-            .accessibilityLabel("Continue to next step")
+            .accessibilityLabel(String(localized: "accessibility.onboarding_dietary.next"))
         }
         .background(Color.kindredBackground)
     }
@@ -105,8 +105,8 @@ struct DietaryChip: View {
                         .stroke(Color.kindredAccent, lineWidth: 2)
                 )
         }
-        .accessibilityLabel("\(label), \(isSelected ? "selected" : "not selected")")
+        .accessibilityLabel("\(label), \(isSelected ? String(localized: "accessibility.state.selected") : String(localized: "accessibility.state.not_selected"))")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityHint("Double tap to \(isSelected ? "deselect" : "select")")
+        .accessibilityHint(String(localized: isSelected ? "accessibility.hint.deselect" : "accessibility.hint.select"))
     }
 }

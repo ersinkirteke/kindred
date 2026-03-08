@@ -27,7 +27,7 @@ struct SignInStepView: View {
             }
         }
         .background(Color.kindredBackground)
-        .accessibilityHint("Sign in to save your preferences and voice profiles")
+        .accessibilityHint(String(localized: "accessibility.onboarding_signin.hint"))
     }
 
     private var stepContent: some View {
@@ -38,13 +38,13 @@ struct SignInStepView: View {
                 Button {
                     store.send(.skipStep)
                 } label: {
-                    Text("Skip")
+                    Text(String(localized: "Skip"))
                         .font(.kindredBody())
                         .foregroundColor(.kindredTextSecondary)
                 }
                 .padding(.horizontal, KindredSpacing.lg)
                 .padding(.top, KindredSpacing.md)
-                .accessibilityLabel("Skip sign-in")
+                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.skip"))
             }
 
             Spacer(minLength: 80)
@@ -56,14 +56,14 @@ struct SignInStepView: View {
                 .padding(.bottom, KindredSpacing.lg)
 
             // Welcome heading
-            Text("Welcome to Kindred")
+            Text(String(localized: "onboarding.signin.welcome_heading"))
                 .font(.kindredHeading1())
                 .foregroundColor(.kindredTextPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, KindredSpacing.sm)
 
             // Tagline
-            Text("Save recipes, hear them narrated, make them yours")
+            Text(String(localized: "onboarding.signin.tagline"))
                 .font(.kindredBody())
                 .foregroundColor(.kindredTextSecondary)
                 .multilineTextAlignment(.center)
@@ -80,7 +80,7 @@ struct SignInStepView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "apple.logo")
                             .font(.system(size: 18, weight: .medium))
-                        Text("Sign in with Apple")
+                        Text(String(localized: "onboarding.signin.sign_in_apple"))
                             .font(.kindredBodyBold())
                     }
                     .frame(maxWidth: .infinity)
@@ -89,13 +89,13 @@ struct SignInStepView: View {
                     .background(Color.black)
                     .cornerRadius(12)
                 }
-                .accessibilityLabel("Sign in with Apple")
+                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.apple_button"))
 
                 // Google Sign In button
-                KindredButton("Sign in with Google", style: .secondary) {
+                KindredButton(String(localized: "onboarding.signin.sign_in_google"), style: .secondary) {
                     store.send(.googleSignInTapped)
                 }
-                .accessibilityLabel("Sign in with Google")
+                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.google_button"))
 
                 // Error text
                 if let error = store.signInError, !error.isEmpty {
@@ -115,13 +115,13 @@ struct SignInStepView: View {
                 Button {
                     store.send(.continueAsGuestTapped)
                 } label: {
-                    Text("Continue as guest")
+                    Text(String(localized: "onboarding.signin.continue_guest"))
                         .font(.kindredCaption())
                         .foregroundColor(.kindredTextSecondary)
                         .underline()
                 }
                 .padding(.top, KindredSpacing.sm)
-                .accessibilityLabel("Continue browsing as guest")
+                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.continue_guest_button"))
             }
             .padding(.horizontal, KindredSpacing.lg)
 

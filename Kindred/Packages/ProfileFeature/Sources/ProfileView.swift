@@ -65,13 +65,13 @@ public struct ProfileView: View {
 
     private func authenticatedHeader(userId: String) -> some View {
         HStack(spacing: KindredSpacing.sm) {
-            Text("Profile")
+            Text(String(localized: "profile.title"))
                 .font(.kindredHeading1Scaled(size: heading1Size))
                 .foregroundColor(.kindredTextPrimary)
 
             // PRO badge (only shown if user has Pro subscription)
             if case .pro = store.subscriptionStatus {
-                Text("PRO")
+                Text(String(localized: "profile.pro_badge"))
                     .font(.kindredCaptionScaled(size: captionSize))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -79,7 +79,7 @@ public struct ProfileView: View {
                     .padding(.vertical, KindredSpacing.xs)
                     .background(Color.kindredAccent)
                     .clipShape(Capsule())
-                    .accessibilityLabel("Pro subscriber")
+                    .accessibilityLabel(String(localized: "accessibility.profile.pro_badge"))
             }
 
             Spacer()
@@ -98,12 +98,12 @@ public struct ProfileView: View {
 
             // Message
             VStack(spacing: KindredSpacing.sm) {
-                Text("Sign in to access your profile")
+                Text(String(localized: "profile.guest_gate.title"))
                     .font(.kindredHeading2Scaled(size: heading2Size))
                     .foregroundColor(.kindredTextPrimary)
                     .multilineTextAlignment(.center)
 
-                Text("Save recipes, customize voice settings, and more")
+                Text(String(localized: "profile.guest_gate.subtitle"))
                     .font(.kindredBodyScaled(size: bodySize))
                     .foregroundColor(.kindredTextSecondary)
                     .multilineTextAlignment(.center)
@@ -111,14 +111,14 @@ public struct ProfileView: View {
 
             // Sign In button
             VStack(spacing: KindredSpacing.md) {
-                KindredButton("Sign In", style: .primary) {
+                KindredButton(String(localized: "profile.guest_gate.sign_in"), style: .primary) {
                     store.send(.signInTapped)
                 }
 
                 Button {
                     store.send(.continueAsGuestTapped)
                 } label: {
-                    Text("Continue as Guest")
+                    Text(String(localized: "profile.guest_gate.continue_guest"))
                         .font(.kindredBodyScaled(size: bodySize))
                         .foregroundColor(.kindredAccent)
                 }

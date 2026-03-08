@@ -26,7 +26,7 @@ public struct CulinaryDNASection: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: KindredSpacing.md) {
-            Text("Your Culinary DNA")
+            Text(String(localized: "profile.culinary_dna.title"))
                 .font(.kindredHeading3())
                 .foregroundColor(.kindredTextPrimary)
 
@@ -36,12 +36,12 @@ public struct CulinaryDNASection: View {
                     ProgressView(value: Double(interactionCount), total: Double(threshold))
                         .tint(.kindredAccent)
 
-                    Text("Learning... (\(interactionCount)/\(threshold) interactions)")
+                    Text(String(localized: "profile.culinary_dna.learning \(interactionCount) \(threshold)"))
                         .font(.kindredCaption())
                         .foregroundColor(.kindredTextSecondary)
                 }
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("Culinary DNA learning, \(interactionCount) of \(threshold) interactions")
+                .accessibilityLabel(String(localized: "accessibility.profile.culinary_dna_learning \(interactionCount) \(threshold)"))
             } else {
                 // After activation: affinity bars
                 VStack(alignment: .leading, spacing: KindredSpacing.sm) {
