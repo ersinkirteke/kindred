@@ -195,7 +195,7 @@ Plans:
 | 8. Authentication & Onboarding | v2.0 | 4/4 | Complete | 2026-03-06 |
 | 9. Monetization & Voice Tiers | v2.0 | 0/? | Not started | - |
 | 10. Accessibility & Polish | v2.0 | 7/7 | Complete | 2026-03-08 |
-| 11. Auth Gap Closure | v2.0 | 0/2 | Not started | - |
+| 11. Auth Gap Closure | 1/2 | In Progress|  | - |
 
 ---
 

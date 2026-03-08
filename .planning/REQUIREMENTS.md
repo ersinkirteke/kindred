@@ -14,7 +14,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 - [x] **AUTH-03**: User can sign in with Apple Sign In (one-tap)
 - [x] **AUTH-04**: Guest user is prompted to create account when saving, bookmarking, or using voice features
 - [ ] **AUTH-05**: Guest session state (browsed recipes, preferences) persists through account conversion
-- [ ] **AUTH-06**: User completes onboarding flow in under 90 seconds (dietary prefs, location, optional voice upload)
+- [x] **AUTH-06**: User completes onboarding flow in under 90 seconds (dietary prefs, location, optional voice upload)
 
 ### Feed & Discovery
 
@@ -106,7 +106,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-03 | Phase 8 | Complete |
 | AUTH-04 | Phase 8 | Complete |
 | AUTH-05 | Phase 11 (gap closure) | Pending |
-| AUTH-06 | Phase 11 (gap closure) | Pending |
+| AUTH-06 | Phase 11 (gap closure) | Complete |
 | FEED-01 | Phase 5 | Complete |
 | FEED-02 | Phase 5 | Complete |
 | FEED-03 | Phase 5 | Complete |

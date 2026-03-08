@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: iOS App
-current_phase: 10
-status: completed
-last_updated: "2026-03-08T09:57:28.011Z"
+current_phase: 11
+status: in-progress
+last_updated: "2026-03-08T20:27:34Z"
 progress:
   total_phases: 7
-  completed_phases: 6
-  total_plans: 33
-  completed_plans: 32
+  completed_phases: 7
+  total_plans: 35
+  completed_plans: 34
 ---
 
 # Project State: Kindred
@@ -31,12 +31,12 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 
 ## Current Position
 
-Phase: 9 of 10 — COMPLETE (Monetization & Voice Tiers)
-Plan: 5 of 5 — All plans complete
-Status: Phase 9 verified on device — ads, subscription, voice slots, paywall all working
-Last activity: 2026-03-08 — Completed 09-05: Device verification passed all 18 checks, 6 bugs fixed
+Phase: 11 of 11 — IN PROGRESS (Auth Gap Closure)
+Plan: 2 of 2 — Plan 01 complete
+Status: Onboarding carousel wired via @Presents, Plan 02 next (guest migration trigger)
+Last activity: 2026-03-08 — Completed 11-01: 3-step onboarding with delegate pattern
 
-Progress: [████████████████████████████████████████] 100% (Phase 9 complete, Phase 10 next)
+Progress: [█████████████████████████████████████████] 97% (34/35 plans complete)
 
 ---
 
@@ -93,6 +93,8 @@ Progress: [███████████████████████
 | Phase 10 P03 | 10 | 2 tasks | 12 files |
 | Phase 10 P05 | 10 | 2 tasks | 17 files |
 | Phase 10 P06 | 14 | 3 tasks | 23 files |
+| Phase 10 P07 | 25 | 2 tasks | 0 files |
+| Phase 11 P01 | 21 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -164,6 +166,11 @@ Recent decisions affecting v2.0 iOS work:
 - Base64url JWS decoding for MVP, production will use @apple/app-store-server-library SignedDataVerifier (09-04)
 - Voice slot enforcement only on uploadVoice endpoint, replaceVoice excluded (doesn't consume new slot) (09-04)
 - PRO pill badge shown next to Profile heading for Pro users (capsule shape, .kindredAccent background) (09-04)
+- OnboardingReducer refactored to 3 steps (removed sign-in step - user already authenticated when onboarding shows) (11-01)
+- Onboarding wired via @Presents in AppReducer following same pattern as authGate (11-01)
+- ClerkUser.displayName (not firstName) used for personalized greeting - displayName populated from Clerk user.firstName ?? user.username (11-01)
+- Step persistence in UserDefaults ("onboardingCurrentStep") allows resumable onboarding if dismissed (11-01)
+- Guest data (dietary prefs, city) pre-fills onboarding state from UserDefaults for continuity (11-01)
 
 ### Pending Todos
 
@@ -197,10 +204,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-08
-Stopped at: Phase 9 complete — all 5 plans executed and verified on device
-Resume file: .planning/phases/09-monetization-voice-tiers/09-05-SUMMARY.md
-Next action: Plan and execute Phase 10 (Accessibility & Polish)
+Stopped at: Completed 11-01 — OnboardingReducer refactored to 3 steps with @Presents integration
+Resume file: .planning/phases/11-auth-gap-closure/11-01-SUMMARY.md
+Next action: Execute 11-02 (Guest migration trigger on onboarding completion)
 
 ---
 
-*State updated: 2026-03-06 after completing Phase 8 (Authentication & Onboarding) — Phase 9 next*
+*State updated: 2026-03-08 after completing Plan 11-01 (Onboarding Carousel via @Presents) — Plan 11-02 next*
