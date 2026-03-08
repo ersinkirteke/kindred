@@ -85,7 +85,7 @@ public struct RecipeDetailView: View {
         VStack(spacing: KindredSpacing.lg) {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
-            Text(String(localized: "Loading recipe..."))
+            Text(String(localized: "Loading recipe...", bundle: .main))
                 .font(.kindredBodyScaled(size: bodySize))
                 .foregroundColor(.kindredTextSecondary)
         }
@@ -97,7 +97,7 @@ public struct RecipeDetailView: View {
 
     private func errorView(_ message: String) -> some View {
         ErrorStateView(
-            title: String(localized: "Error loading recipe"),
+            title: String(localized: "Error loading recipe", bundle: .main),
             message: message,
             icon: "exclamationmark.triangle",
             retryAction: {
@@ -137,7 +137,7 @@ public struct RecipeDetailView: View {
             }
 
             // Ingredients section
-            sectionHeader(String(localized: "Ingredients"))
+            sectionHeader(String(localized: "Ingredients", bundle: .main))
 
             IngredientChecklistView(
                 ingredients: recipe.ingredients,
@@ -154,7 +154,7 @@ public struct RecipeDetailView: View {
             }
 
             // Instructions section
-            sectionHeader(String(localized: "Instructions"))
+            sectionHeader(String(localized: "Instructions", bundle: .main))
 
             StepTimelineView(steps: recipe.steps)
         }
@@ -216,12 +216,12 @@ public struct RecipeDetailView: View {
     private func metadataAccessibilityLabel(_ recipe: RecipeDetail) -> String {
         var parts: [String] = []
         if let totalTime = recipe.totalTime {
-            parts.append(String(localized: "\(totalTime) minutes"))
+            parts.append(String(localized: "\(totalTime) minutes", bundle: .main))
         }
         if let calories = recipe.calories {
-            parts.append(String(localized: "\(calories) calories"))
+            parts.append(String(localized: "\(calories) calories", bundle: .main))
         }
-        parts.append(String(localized: "\(recipe.formattedLoves) loves"))
+        parts.append(String(localized: "\(recipe.formattedLoves) loves", bundle: .main))
         return parts.joined(separator: ", ")
     }
 
@@ -252,22 +252,22 @@ public struct RecipeDetailView: View {
                         case .loading, .buffering:
                             ProgressView()
                                 .tint(.kindredAccent)
-                            Text(String(localized: "Loading..."))
+                            Text(String(localized: "Loading...", bundle: .main))
                                 .font(.kindredBodyBoldScaled(size: bodySize))
                         case .playing:
                             Image(systemName: "pause.fill")
                                 .font(.system(size: 18))
-                            Text(String(localized: "Pause"))
+                            Text(String(localized: "Pause", bundle: .main))
                                 .font(.kindredBodyBoldScaled(size: bodySize))
                         case .paused:
                             Image(systemName: "play.fill")
                                 .font(.system(size: 18))
-                            Text(String(localized: "Resume"))
+                            Text(String(localized: "Resume", bundle: .main))
                                 .font(.kindredBodyBoldScaled(size: bodySize))
                         default:
                             Image(systemName: "headphones")
                                 .font(.system(size: 18))
-                            Text(String(localized: "Listen"))
+                            Text(String(localized: "Listen", bundle: .main))
                                 .font(.kindredBodyBoldScaled(size: bodySize))
                         }
                     }
@@ -282,8 +282,8 @@ public struct RecipeDetailView: View {
                     .cornerRadius(12)
                 }
                 .disabled(store.playbackStatus == .loading || store.playbackStatus == .buffering)
-                .accessibilityLabel(store.playbackStatus == .playing ? String(localized: "Pause narration") : String(localized: "Listen to this recipe"))
-                .accessibilityHint(store.playbackStatus == .playing ? String(localized: "accessibility.recipe_detail.pause_hint") : String(localized: "accessibility.recipe_detail.listen_hint"))
+                .accessibilityLabel(store.playbackStatus == .playing ? String(localized: "Pause narration", bundle: .main) : String(localized: "Listen to this recipe", bundle: .main))
+                .accessibilityHint(store.playbackStatus == .playing ? String(localized: "accessibility.recipe_detail.pause_hint", bundle: .main) : String(localized: "accessibility.recipe_detail.listen_hint", bundle: .main))
 
                 // Bookmark button
                 Button(action: {
@@ -293,7 +293,7 @@ public struct RecipeDetailView: View {
                     HStack(spacing: KindredSpacing.sm) {
                         Image(systemName: store.isBookmarked ? "heart.fill" : "heart")
                             .font(.system(size: 18))
-                        Text(String(localized: "Bookmark"))
+                        Text(String(localized: "Bookmark", bundle: .main))
                             .font(.kindredBodyBoldScaled(size: bodySize))
                     }
                     .frame(maxWidth: .infinity)
@@ -302,7 +302,7 @@ public struct RecipeDetailView: View {
                     .background(Color.kindredAccent)
                     .cornerRadius(12)
                 }
-                .accessibilityLabel(store.isBookmarked ? String(localized: "Remove bookmark") : String(localized: "Bookmark recipe"))
+                .accessibilityLabel(store.isBookmarked ? String(localized: "Remove bookmark", bundle: .main) : String(localized: "Bookmark recipe", bundle: .main))
             }
             .padding(.horizontal, KindredSpacing.md)
             .padding(.vertical, KindredSpacing.md)

@@ -38,7 +38,7 @@ public struct FeedView: View {
                     // VoiceOver announcement on location change
                     UIAccessibility.post(
                         notification: .announcement,
-                        argument: String(localized: "Now showing recipes near \(newValue)")
+                        argument: String(localized: "Now showing recipes near \(newValue)", bundle: .main)
                     )
                 }
                 .onChange(of: store.cardStack) { oldStack, newStack in
@@ -48,7 +48,7 @@ public struct FeedView: View {
                         let total = newStack.count
                         UIAccessibility.post(
                             notification: .announcement,
-                            argument: String(localized: "Recipe \(currentIndex) of \(total), \(topCard.name)")
+                            argument: String(localized: "Recipe \(currentIndex) of \(total), \(topCard.name)", bundle: .main)
                         )
                     }
                 }
@@ -183,8 +183,8 @@ public struct FeedView: View {
                     .background(Color.kindredCardSurface)
                     .clipShape(Circle())
             }
-            .accessibilityLabel(String(localized: "Skip"))
-            .accessibilityHint(String(localized: "accessibility.feed.skip_hint"))
+            .accessibilityLabel(String(localized: "Skip", bundle: .main))
+            .accessibilityHint(String(localized: "accessibility.feed.skip_hint", bundle: .main))
 
             // Listen button
             Button {
@@ -199,8 +199,8 @@ public struct FeedView: View {
                     .background(Color.kindredCardSurface)
                     .clipShape(Circle())
             }
-            .accessibilityLabel(String(localized: "Listen"))
-            .accessibilityHint(String(localized: "accessibility.feed.listen_hint"))
+            .accessibilityLabel(String(localized: "Listen", bundle: .main))
+            .accessibilityHint(String(localized: "accessibility.feed.listen_hint", bundle: .main))
 
             // Bookmark button
             Button {
@@ -215,8 +215,8 @@ public struct FeedView: View {
                     .background(Color.kindredAccent)
                     .clipShape(Circle())
             }
-            .accessibilityLabel(String(localized: "Bookmark"))
-            .accessibilityHint(String(localized: "accessibility.feed.bookmark_hint"))
+            .accessibilityLabel(String(localized: "Bookmark", bundle: .main))
+            .accessibilityHint(String(localized: "accessibility.feed.bookmark_hint", bundle: .main))
         }
         .padding(.horizontal, KindredSpacing.xl)
     }
@@ -265,17 +265,17 @@ public struct FeedView: View {
                         .font(.system(size: 48))
                         .foregroundColor(.kindredTextSecondary)
 
-                    Text(String(localized: "No \(filterDescription) recipes nearby"))
+                    Text(String(localized: "No \(filterDescription) recipes nearby", bundle: .main))
                         .font(.kindredHeading2())
                         .foregroundColor(.kindredTextPrimary)
                         .multilineTextAlignment(.center)
 
-                    Text(String(localized: "Try removing a filter or changing your location"))
+                    Text(String(localized: "Try removing a filter or changing your location", bundle: .main))
                         .font(.kindredBody())
                         .foregroundColor(.kindredTextSecondary)
                         .multilineTextAlignment(.center)
 
-                    KindredButton(String(localized: "Clear Filters"), style: .secondary) {
+                    KindredButton(String(localized: "Clear Filters", bundle: .main), style: .secondary) {
                         store.send(.dietaryFilterChanged([]))
                     }
                     .padding(.top, KindredSpacing.sm)
@@ -315,22 +315,22 @@ public struct FeedView: View {
                     .cornerRadius(8)
 
                 // Title line
-                Text(String(localized: "feed.skeleton.title"))
+                Text(String(localized: "feed.skeleton.title", bundle: .main))
                     .font(.kindredHeading2())
                     .foregroundColor(.kindredTextPrimary)
 
                 // Subtitle line
-                Text(String(localized: "feed.skeleton.description"))
+                Text(String(localized: "feed.skeleton.description", bundle: .main))
                     .font(.kindredBody())
                     .foregroundColor(.kindredTextSecondary)
 
                 // Metadata row
                 HStack {
-                    Text(String(localized: "feed.skeleton.time"))
+                    Text(String(localized: "feed.skeleton.time", bundle: .main))
                         .font(.kindredCaption())
                     Text("•")
                         .font(.kindredCaption())
-                    Text(String(localized: "feed.skeleton.difficulty"))
+                    Text(String(localized: "feed.skeleton.difficulty", bundle: .main))
                         .font(.kindredCaption())
                 }
                 .foregroundColor(.kindredTextSecondary)
@@ -360,14 +360,14 @@ public struct FeedView: View {
                     .fill(Color.kindredCardSurface)
             )
         }
-        .accessibilityLabel(String(localized: "Location: \(store.location)"))
-        .accessibilityHint(String(localized: "accessibility.feed.location_hint"))
+        .accessibilityLabel(String(localized: "Location: \(store.location)", bundle: .main))
+        .accessibilityHint(String(localized: "accessibility.feed.location_hint", bundle: .main))
     }
 
     private var offlineBanner: some View {
         HStack {
             Image(systemName: "wifi.slash")
-            Text(String(localized: "You're offline — showing cached recipes"))
+            Text(String(localized: "You're offline — showing cached recipes", bundle: .main))
                 .font(.kindredCaption())
         }
         .foregroundColor(.white)
@@ -379,7 +379,7 @@ public struct FeedView: View {
     private var newRecipesBanner: some View {
         HStack {
             Image(systemName: "arrow.clockwise.circle.fill")
-            Text(String(localized: "New recipes available — pull to refresh"))
+            Text(String(localized: "New recipes available — pull to refresh", bundle: .main))
                 .font(.kindredCaption())
         }
         .foregroundColor(.kindredTextPrimary)
@@ -389,7 +389,7 @@ public struct FeedView: View {
         .onTapGesture {
             store.send(.acknowledgeNewRecipes)
         }
-        .accessibilityLabel(String(localized: "New recipes available"))
-        .accessibilityHint(String(localized: "accessibility.feed.refresh_hint"))
+        .accessibilityLabel(String(localized: "New recipes available", bundle: .main))
+        .accessibilityHint(String(localized: "accessibility.feed.refresh_hint", bundle: .main))
     }
 }

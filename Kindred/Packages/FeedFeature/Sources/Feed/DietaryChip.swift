@@ -23,8 +23,8 @@ struct DietaryChip: View {
                     )
             )
             .onTapGesture(perform: onTap)
-            .accessibilityLabel(String(localized: "\(title) filter"))
+            .accessibilityLabel(String(localized: "\(title) filter", bundle: .main))
             .accessibilityAddTraits(isSelected ? .isSelected : [])
-            .accessibilityHint(String(localized: "accessibility.dietary_chip.toggle_hint"))
+            .accessibilityHint(String(localized: "accessibility.dietary_chip.toggle_hint", bundle: .main))
     }
 }

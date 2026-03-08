@@ -44,7 +44,7 @@ public struct AdCardView: View {
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(String(localized: "accessibility.ads.sponsored_content"))
+        .accessibilityLabel(String(localized: "accessibility.ads.sponsored_content", bundle: .main))
     }
 
     @ViewBuilder
@@ -58,7 +58,7 @@ public struct AdCardView: View {
             .clipped()
             .overlay(alignment: .topTrailing) {
                 // "Sponsored" label
-                Text(String(localized: "ads.sponsored"))
+                Text(String(localized: "ads.sponsored", bundle: .main))
                     .font(.kindredCaption())
                     .foregroundColor(.kindredTextSecondary)
                     .padding(.horizontal, KindredSpacing.sm)
@@ -90,12 +90,12 @@ public struct AdCardView: View {
 
             // "Remove ads with Pro" upsell link
             Button(action: onUpgradeTapped) {
-                Text(String(localized: "ads.remove_ads_pro"))
+                Text(String(localized: "ads.remove_ads_pro", bundle: .main))
                     .font(.kindredCaption())
                     .foregroundColor(.kindredAccent)
                     .underline()
             }
-            .accessibilityLabel(String(localized: "accessibility.ads.remove_ads"))
+            .accessibilityLabel(String(localized: "accessibility.ads.remove_ads", bundle: .main))
         }
         .padding(KindredSpacing.md)
         .frame(height: 120, alignment: .top)

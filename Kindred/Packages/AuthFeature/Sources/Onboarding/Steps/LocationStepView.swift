@@ -15,13 +15,13 @@ struct LocationStepView: View {
                 Button {
                     store.send(.skipStep)
                 } label: {
-                    Text(String(localized: "Skip"))
+                    Text(String(localized: "Skip", bundle: .main))
                         .font(.kindredBody())
                         .foregroundColor(.kindredTextSecondary)
                 }
                 .padding(.horizontal, KindredSpacing.lg)
                 .padding(.top, KindredSpacing.md)
-                .accessibilityLabel(String(localized: "accessibility.onboarding_location.skip"))
+                .accessibilityLabel(String(localized: "accessibility.onboarding_location.skip", bundle: .main))
             }
 
             Spacer()
@@ -33,7 +33,7 @@ struct LocationStepView: View {
                 .padding(.bottom, KindredSpacing.lg)
 
             // Heading
-            Text(String(localized: "onboarding.location.title"))
+            Text(String(localized: "onboarding.location.title", bundle: .main))
                 .font(.kindredHeading1())
                 .foregroundColor(.kindredTextPrimary)
                 .multilineTextAlignment(.center)
@@ -47,30 +47,30 @@ struct LocationStepView: View {
                     HStack(spacing: KindredSpacing.sm) {
                         ProgressView()
                             .tint(.kindredAccent)
-                        Text(String(localized: "onboarding.location.getting_location"))
+                        Text(String(localized: "onboarding.location.getting_location", bundle: .main))
                             .font(.kindredBody())
                             .foregroundColor(.kindredTextSecondary)
                     }
                     .frame(height: 56)
                 } else {
-                    KindredButton(String(localized: "onboarding.location.use_my_location"), style: .primary) {
+                    KindredButton(String(localized: "onboarding.location.use_my_location", bundle: .main), style: .primary) {
                         // Request permission directly from main thread (SwiftUI button action)
                         // before entering TCA effect, to ensure the system dialog shows
                         LocationManager.shared?.requestPermission()
                         store.send(.requestLocationPermission)
                     }
-                    .accessibilityLabel(String(localized: "accessibility.onboarding_location.use_location"))
+                    .accessibilityLabel(String(localized: "accessibility.onboarding_location.use_location", bundle: .main))
                 }
 
                 // Manual city entry button
-                KindredButton(String(localized: "onboarding.location.enter_manually"), style: .secondary) {
+                KindredButton(String(localized: "onboarding.location.enter_manually", bundle: .main), style: .secondary) {
                     store.send(.showManualCityPicker)
                 }
-                .accessibilityLabel(String(localized: "accessibility.onboarding_location.enter_manually"))
+                .accessibilityLabel(String(localized: "accessibility.onboarding_location.enter_manually", bundle: .main))
 
                 // Permission denied explanation
                 if store.locationAuthStatus == .denied {
-                    Text(String(localized: "onboarding.location.permission_denied"))
+                    Text(String(localized: "onboarding.location.permission_denied", bundle: .main))
                         .font(.kindredCaption())
                         .foregroundColor(.kindredTextSecondary)
                         .multilineTextAlignment(.center)
@@ -109,7 +109,7 @@ struct CityPickerView: View {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.kindredTextSecondary)
 
-                    TextField(String(localized: "onboarding.location.search_placeholder"), text: $searchText)
+                    TextField(String(localized: "onboarding.location.search_placeholder", bundle: .main), text: $searchText)
                         .font(.kindredBody())
                         .foregroundColor(.kindredTextPrimary)
                         .textFieldStyle(.plain)
@@ -141,7 +141,7 @@ struct CityPickerView: View {
                     ProgressView()
                         .padding(.top, KindredSpacing.xl)
                 } else if searchResults.isEmpty && !searchText.isEmpty {
-                    Text(String(localized: "onboarding.location.no_cities_found"))
+                    Text(String(localized: "onboarding.location.no_cities_found", bundle: .main))
                         .font(.kindredBody())
                         .foregroundColor(.kindredTextSecondary)
                         .padding(.top, KindredSpacing.xl)
@@ -173,14 +173,14 @@ struct CityPickerView: View {
 
                 Spacer()
             }
-            .navigationTitle(String(localized: "onboarding.location.select_city"))
+            .navigationTitle(String(localized: "onboarding.location.select_city", bundle: .main))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         store.send(.dismissCityPicker)
                     } label: {
-                        Text(String(localized: "Cancel"))
+                        Text(String(localized: "Cancel", bundle: .main))
                             .font(.kindredBody())
                             .foregroundColor(.kindredAccent)
                     }

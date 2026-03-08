@@ -65,13 +65,13 @@ public struct ProfileView: View {
 
     private func authenticatedHeader(userId: String) -> some View {
         HStack(spacing: KindredSpacing.sm) {
-            Text(String(localized: "profile.title"))
+            Text(String(localized: "profile.title", bundle: .main))
                 .font(.kindredHeading1Scaled(size: heading1Size))
                 .foregroundColor(.kindredTextPrimary)
 
             // PRO badge (only shown if user has Pro subscription)
             if case .pro = store.subscriptionStatus {
-                Text(String(localized: "profile.pro_badge"))
+                Text(String(localized: "profile.pro_badge", bundle: .main))
                     .font(.kindredCaptionScaled(size: captionSize))
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -79,7 +79,7 @@ public struct ProfileView: View {
                     .padding(.vertical, KindredSpacing.xs)
                     .background(Color.kindredAccent)
                     .clipShape(Capsule())
-                    .accessibilityLabel(String(localized: "accessibility.profile.pro_badge"))
+                    .accessibilityLabel(String(localized: "accessibility.profile.pro_badge", bundle: .main))
             }
 
             Spacer()
@@ -98,12 +98,12 @@ public struct ProfileView: View {
 
             // Message
             VStack(spacing: KindredSpacing.sm) {
-                Text(String(localized: "profile.guest_gate.title"))
+                Text(String(localized: "profile.guest_gate.title", bundle: .main))
                     .font(.kindredHeading2Scaled(size: heading2Size))
                     .foregroundColor(.kindredTextPrimary)
                     .multilineTextAlignment(.center)
 
-                Text(String(localized: "profile.guest_gate.subtitle"))
+                Text(String(localized: "profile.guest_gate.subtitle", bundle: .main))
                     .font(.kindredBodyScaled(size: bodySize))
                     .foregroundColor(.kindredTextSecondary)
                     .multilineTextAlignment(.center)
@@ -111,14 +111,14 @@ public struct ProfileView: View {
 
             // Sign In button
             VStack(spacing: KindredSpacing.md) {
-                KindredButton(String(localized: "profile.guest_gate.sign_in"), style: .primary) {
+                KindredButton(String(localized: "profile.guest_gate.sign_in", bundle: .main), style: .primary) {
                     store.send(.signInTapped)
                 }
 
                 Button {
                     store.send(.continueAsGuestTapped)
                 } label: {
-                    Text(String(localized: "profile.guest_gate.continue_guest"))
+                    Text(String(localized: "profile.guest_gate.continue_guest", bundle: .main))
                         .font(.kindredBodyScaled(size: bodySize))
                         .foregroundColor(.kindredAccent)
                 }

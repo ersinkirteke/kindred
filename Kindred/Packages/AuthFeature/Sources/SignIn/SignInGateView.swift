@@ -27,7 +27,7 @@ public struct SignInGateView: View {
                         .padding(.bottom, 24)
 
                     // Tagline
-                    Text(String(localized: "signin_gate.tagline"))
+                    Text(String(localized: "signin_gate.tagline", bundle: .main))
                         .font(.kindredHeading2())
                         .foregroundColor(.kindredTextPrimary)
                         .multilineTextAlignment(.center)
@@ -44,7 +44,7 @@ public struct SignInGateView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "apple.logo")
                                     .font(.system(size: 18, weight: .medium))
-                                Text(String(localized: "signin_gate.sign_in_apple"))
+                                Text(String(localized: "signin_gate.sign_in_apple", bundle: .main))
                                     .font(.kindredBodyBold())
                             }
                             .frame(maxWidth: .infinity)
@@ -53,16 +53,16 @@ public struct SignInGateView: View {
                             .background(Color.black)
                             .cornerRadius(12)
                         }
-                        .accessibilityLabel(String(localized: "accessibility.signin_gate.apple_button"))
+                        .accessibilityLabel(String(localized: "accessibility.signin_gate.apple_button", bundle: .main))
 
                         // Google Sign In Button
                         KindredButton(
-                            String(localized: "signin_gate.sign_in_google"),
+                            String(localized: "signin_gate.sign_in_google", bundle: .main),
                             style: .secondary
                         ) {
                             viewStore.send(.googleSignInTapped)
                         }
-                        .accessibilityLabel(String(localized: "accessibility.signin_gate.google_button"))
+                        .accessibilityLabel(String(localized: "accessibility.signin_gate.google_button", bundle: .main))
 
                         // Error text
                         if let error = viewStore.signInError, !error.isEmpty {
@@ -89,13 +89,13 @@ public struct SignInGateView: View {
                     Button {
                         viewStore.send(.continueAsGuestTapped)
                     } label: {
-                        Text(String(localized: "signin_gate.continue_guest"))
+                        Text(String(localized: "signin_gate.continue_guest", bundle: .main))
                             .font(.kindredCaption())
                             .foregroundColor(.kindredTextSecondary)
                             .underline()
                     }
                     .disabled(viewStore.isSigningIn)
-                    .accessibilityLabel(String(localized: "accessibility.signin_gate.continue_guest"))
+                    .accessibilityLabel(String(localized: "accessibility.signin_gate.continue_guest", bundle: .main))
 
                     Spacer()
                         .frame(height: 40)

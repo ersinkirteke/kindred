@@ -66,25 +66,25 @@ public struct MiniPlayerView: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(miniPlayerAccessibilityLabel(playback: playback))
-        .accessibilityAction(named: playback.status == .playing ? String(localized: "Pause") : String(localized: "Play")) {
+        .accessibilityAction(named: playback.status == .playing ? String(localized: "Pause", bundle: .main) : String(localized: "Play", bundle: .main)) {
             if playback.status == .playing || playback.status == .buffering {
                 store.send(.pause)
             } else {
                 store.send(.play)
             }
         }
-        .accessibilityAction(named: String(localized: "Expand player")) {
+        .accessibilityAction(named: String(localized: "Expand player", bundle: .main)) {
             store.send(.toggleExpanded)
         }
-        .accessibilityAction(named: String(localized: "Dismiss")) {
+        .accessibilityAction(named: String(localized: "Dismiss", bundle: .main)) {
             store.send(.dismiss)
         }
     }
 
     private func miniPlayerAccessibilityLabel(playback: CurrentPlayback) -> String {
         playback.status == .playing
-            ? String(localized: "Now playing \(playback.recipeName) by \(playback.speakerName)")
-            : String(localized: "Paused: \(playback.recipeName) by \(playback.speakerName)")
+            ? String(localized: "Now playing \(playback.recipeName) by \(playback.speakerName)", bundle: .main)
+            : String(localized: "Paused: \(playback.recipeName) by \(playback.speakerName)", bundle: .main)
     }
 
     @ViewBuilder
@@ -118,7 +118,7 @@ public struct MiniPlayerView: View {
     private func trackInfo(playback: CurrentPlayback) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             if case let .error(message) = playback.status {
-                Text(String(localized: "Error"))
+                Text(String(localized: "Error", bundle: .main))
                     .font(.kindredBodyBold())
                     .foregroundColor(.red)
                     .lineLimit(1)
@@ -163,8 +163,8 @@ public struct MiniPlayerView: View {
             }
         }
         .frame(width: 44, height: 44)
-        .accessibilityLabel(playback.status == .playing ? String(localized: "Pause") : String(localized: "Play"))
-        .accessibilityHint(playback.status == .playing ? String(localized: "accessibility.mini_player.pause_hint") : String(localized: "accessibility.mini_player.play_hint"))
+        .accessibilityLabel(playback.status == .playing ? String(localized: "Pause", bundle: .main) : String(localized: "Play", bundle: .main))
+        .accessibilityHint(playback.status == .playing ? String(localized: "accessibility.mini_player.pause_hint", bundle: .main) : String(localized: "accessibility.mini_player.play_hint", bundle: .main))
     }
 }
 

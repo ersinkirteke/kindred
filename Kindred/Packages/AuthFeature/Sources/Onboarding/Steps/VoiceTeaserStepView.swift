@@ -16,7 +16,7 @@ struct VoiceTeaserStepView: View {
                 .padding(.bottom, KindredSpacing.lg)
 
             // Heading
-            Text(String(localized: "onboarding.voice_teaser.title"))
+            Text(String(localized: "onboarding.voice_teaser.title", bundle: .main))
                 .font(.kindredHeading1())
                 .foregroundColor(.kindredTextPrimary)
                 .multilineTextAlignment(.center)
@@ -24,7 +24,7 @@ struct VoiceTeaserStepView: View {
                 .padding(.horizontal, KindredSpacing.lg)
 
             // Body text
-            Text(String(localized: "onboarding.voice_teaser.subtitle"))
+            Text(String(localized: "onboarding.voice_teaser.subtitle", bundle: .main))
                 .font(.kindredBody())
                 .foregroundColor(.kindredTextSecondary)
                 .multilineTextAlignment(.center)
@@ -35,16 +35,16 @@ struct VoiceTeaserStepView: View {
             // CTA buttons
             VStack(spacing: KindredSpacing.md) {
                 // Try it now button
-                KindredButton(String(localized: "onboarding.voice_teaser.try_now"), style: .primary) {
+                KindredButton(String(localized: "onboarding.voice_teaser.try_now", bundle: .main), style: .primary) {
                     store.send(.tryVoiceNowTapped)
                 }
-                .accessibilityLabel(String(localized: "accessibility.onboarding_voice.try_now"))
+                .accessibilityLabel(String(localized: "accessibility.onboarding_voice.try_now", bundle: .main))
 
                 // Set up later button
-                KindredButton(String(localized: "onboarding.voice_teaser.setup_later"), style: .secondary) {
+                KindredButton(String(localized: "onboarding.voice_teaser.setup_later", bundle: .main), style: .secondary) {
                     store.send(.setupVoiceLaterTapped)
                 }
-                .accessibilityLabel(String(localized: "accessibility.onboarding_voice.setup_later"))
+                .accessibilityLabel(String(localized: "accessibility.onboarding_voice.setup_later", bundle: .main))
             }
             .padding(.horizontal, KindredSpacing.lg)
             .padding(.bottom, KindredSpacing.xl)

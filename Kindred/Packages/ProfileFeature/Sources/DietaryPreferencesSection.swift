@@ -25,7 +25,7 @@ public struct DietaryPreferencesSection: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: KindredSpacing.md) {
-            Text(String(localized: "profile.dietary_prefs.title"))
+            Text(String(localized: "profile.dietary_prefs.title", bundle: .main))
                 .font(.kindredHeading3())
                 .foregroundColor(.kindredTextPrimary)
 
@@ -40,7 +40,7 @@ public struct DietaryPreferencesSection: View {
                 Button {
                     onReset()
                 } label: {
-                    Text(String(localized: "profile.dietary_prefs.reset"))
+                    Text(String(localized: "profile.dietary_prefs.reset", bundle: .main))
                         .font(.subheadline)
                         .foregroundColor(.red)
                 }

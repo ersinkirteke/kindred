@@ -11,17 +11,17 @@ struct EndOfStackCard: View {
                     .font(.system(size: 64))
                     .foregroundColor(.kindredAccentDecorative)
 
-                Text(String(localized: "You've seen all nearby recipes!"))
+                Text(String(localized: "You've seen all nearby recipes!", bundle: .main))
                     .font(.kindredHeading2())
                     .foregroundColor(.kindredTextPrimary)
                     .multilineTextAlignment(.center)
 
-                Text(String(localized: "Change location to explore more"))
+                Text(String(localized: "Change location to explore more", bundle: .main))
                     .font(.kindredBody())
                     .foregroundColor(.kindredTextSecondary)
                     .multilineTextAlignment(.center)
 
-                KindredButton(String(localized: "Change Location"), style: .primary) {
+                KindredButton(String(localized: "Change Location", bundle: .main), style: .primary) {
                     onChangeLocation()
                 }
             }

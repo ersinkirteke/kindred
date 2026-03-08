@@ -4,7 +4,7 @@ import SwiftUI
 /// Badge displayed on personalized recipe cards (bottom-left placement)
 struct ForYouBadge: View {
     var body: some View {
-        Text(String(localized: "For You"))
+        Text(String(localized: "For You", bundle: .main))
             .font(.kindredCaption())
             .fontWeight(.semibold)
             .foregroundColor(.white)

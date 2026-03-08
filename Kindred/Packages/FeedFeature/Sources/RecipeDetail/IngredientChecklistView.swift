@@ -62,7 +62,7 @@ private struct IngredientRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
-        .accessibilityLabel(isChecked ? String(localized: "Uncheck \(ingredient.name)") : String(localized: "Check \(ingredient.name)"))
+        .accessibilityLabel(isChecked ? String(localized: "Uncheck \(ingredient.name)", bundle: .main) : String(localized: "Check \(ingredient.name)", bundle: .main))
         .accessibilityAddTraits(.isButton)
     }
 }

@@ -3,13 +3,14 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		01EEA3FEAC764CFD5AE95F03 /* AuthFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 4570807330C3DE35914BC7B5 /* AuthFeature */; };
 		0D6F14EFF9B37E2E487CA01D /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1D24BEB16D5667E125AB4E70 /* Kingfisher */; };
 		2A6D51CE56EFA78DCE67B757 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD8617476EEC6D057886A1 /* AppDelegate.swift */; };
+		30925BD06E2949F53536F0C5 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7B4A0EBF9F3DBA5EE5E3691A /* Localizable.xcstrings */; };
 		320ED449D03AE01022D086C6 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EE1509997A85428D90FEB0 /* SplashView.swift */; };
 		72DF1A34B1919B36BCE0081C /* ProfileFeature in Frameworks */ = {isa = PBXBuildFile; productRef = B450ED7410537AB3996299C9 /* ProfileFeature */; };
 		7CAEB444EC2EB7E5A59B1B9C /* NetworkClient in Frameworks */ = {isa = PBXBuildFile; productRef = 6E6199357BF415DFAC6C6F50 /* NetworkClient */; };
@@ -34,7 +35,8 @@
 		3496CDC3F3645B70903E4225 /* AppReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReducer.swift; sourceTree = "<group>"; };
 		371276036F9FB016888AC7B0 /* FeedFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FeedFeature; path = Packages/FeedFeature; sourceTree = SOURCE_ROOT; };
 		5BEE4F0AD67E9ECB04B2AB48 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
-		776F85584ADFADA9DD5079BB /* Kindred.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kindred.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		776F85584ADFADA9DD5079BB /* Kindred.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Kindred.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B4A0EBF9F3DBA5EE5E3691A /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A421752DCF7C006925165741 /* MonetizationFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = MonetizationFeature; path = Packages/MonetizationFeature; sourceTree = SOURCE_ROOT; };
 		A81A2B1EB1B9D33DFF070A4D /* NetworkClient */ = {isa = PBXFileReference; lastKnownFileType = folder; name = NetworkClient; path = Packages/NetworkClient; sourceTree = SOURCE_ROOT; };
 		D6EE1509997A85428D90FEB0 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
@@ -111,6 +113,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		84DA41B7C8377500FC5CB25C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7B4A0EBF9F3DBA5EE5E3691A /* Localizable.xcstrings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		91DD7457927349B154FB3B0A /* Launch */ = {
 			isa = PBXGroup;
 			children = (
@@ -125,6 +135,7 @@
 			children = (
 				FC53AED7A785DD7EFA50B1BC /* Info.plist */,
 				4AA43D9FBF360132427994C2 /* App */,
+				84DA41B7C8377500FC5CB25C /* Resources */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -137,6 +148,7 @@
 			buildConfigurationList = AD14E7691EF2A3D90409D2BC /* Build configuration list for PBXNativeTarget "Kindred" */;
 			buildPhases = (
 				351D0973FF7575FFB4F0B8F5 /* Sources */,
+				E3FFD51ECFC50E0711EBEB66 /* Resources */,
 				23B6081A1E96DD7013580DB9 /* Frameworks */,
 			);
 			buildRules = (
@@ -169,6 +181,11 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					4BC8B10CCFC26A3C4AF7B1D6 = {
+						DevelopmentTeam = CV9G42QVG4;
+					};
+				};
 			};
 			buildConfigurationList = EB33AAF8AE6611F4F186CFED /* Build configuration list for PBXProject "Kindred" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -177,6 +194,7 @@
 			knownRegions = (
 				Base,
 				en,
+				tr,
 			);
 			mainGroup = 09BC69C670FE39E727F8D21C;
 			minimizedProjectReferenceProxies = 1;
@@ -197,6 +215,7 @@
 				59121B9B84E3D462E8BD9511 /* XCLocalSwiftPackageReference "Packages/NetworkClient" */,
 				3AB35058B2D32E755056685A /* XCLocalSwiftPackageReference "Packages/ProfileFeature" */,
 			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -204,6 +223,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E3FFD51ECFC50E0711EBEB66 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30925BD06E2949F53536F0C5 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		351D0973FF7575FFB4F0B8F5 /* Sources */ = {
@@ -228,7 +258,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CV9G42QVG4;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -247,7 +276,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CV9G42QVG4;
 				INFOPLIST_FILE = Sources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -295,7 +323,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = CV9G42QVG4;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -359,7 +387,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = CV9G42QVG4;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

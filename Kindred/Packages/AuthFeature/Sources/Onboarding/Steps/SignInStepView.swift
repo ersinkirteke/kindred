@@ -27,7 +27,7 @@ struct SignInStepView: View {
             }
         }
         .background(Color.kindredBackground)
-        .accessibilityHint(String(localized: "accessibility.onboarding_signin.hint"))
+        .accessibilityHint(String(localized: "accessibility.onboarding_signin.hint", bundle: .main))
     }
 
     private var stepContent: some View {
@@ -38,13 +38,13 @@ struct SignInStepView: View {
                 Button {
                     store.send(.skipStep)
                 } label: {
-                    Text(String(localized: "Skip"))
+                    Text(String(localized: "Skip", bundle: .main))
                         .font(.kindredBody())
                         .foregroundColor(.kindredTextSecondary)
                 }
                 .padding(.horizontal, KindredSpacing.lg)
                 .padding(.top, KindredSpacing.md)
-                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.skip"))
+                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.skip", bundle: .main))
             }
 
             Spacer(minLength: 80)
@@ -56,14 +56,14 @@ struct SignInStepView: View {
                 .padding(.bottom, KindredSpacing.lg)
 
             // Welcome heading
-            Text(String(localized: "onboarding.signin.welcome_heading"))
+            Text(String(localized: "onboarding.signin.welcome_heading", bundle: .main))
                 .font(.kindredHeading1())
                 .foregroundColor(.kindredTextPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, KindredSpacing.sm)
 
             // Tagline
-            Text(String(localized: "onboarding.signin.tagline"))
+            Text(String(localized: "onboarding.signin.tagline", bundle: .main))
                 .font(.kindredBody())
                 .foregroundColor(.kindredTextSecondary)
                 .multilineTextAlignment(.center)
@@ -80,7 +80,7 @@ struct SignInStepView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "apple.logo")
                             .font(.system(size: 18, weight: .medium))
-                        Text(String(localized: "onboarding.signin.sign_in_apple"))
+                        Text(String(localized: "onboarding.signin.sign_in_apple", bundle: .main))
                             .font(.kindredBodyBold())
                     }
                     .frame(maxWidth: .infinity)
@@ -89,13 +89,13 @@ struct SignInStepView: View {
                     .background(Color.black)
                     .cornerRadius(12)
                 }
-                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.apple_button"))
+                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.apple_button", bundle: .main))
 
                 // Google Sign In button
-                KindredButton(String(localized: "onboarding.signin.sign_in_google"), style: .secondary) {
+                KindredButton(String(localized: "onboarding.signin.sign_in_google", bundle: .main), style: .secondary) {
                     store.send(.googleSignInTapped)
                 }
-                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.google_button"))
+                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.google_button", bundle: .main))
 
                 // Error text
                 if let error = store.signInError, !error.isEmpty {
@@ -115,13 +115,13 @@ struct SignInStepView: View {
                 Button {
                     store.send(.continueAsGuestTapped)
                 } label: {
-                    Text(String(localized: "onboarding.signin.continue_guest"))
+                    Text(String(localized: "onboarding.signin.continue_guest", bundle: .main))
                         .font(.kindredCaption())
                         .foregroundColor(.kindredTextSecondary)
                         .underline()
                 }
                 .padding(.top, KindredSpacing.sm)
-                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.continue_guest_button"))
+                .accessibilityLabel(String(localized: "accessibility.onboarding_signin.continue_guest_button", bundle: .main))
             }
             .padding(.horizontal, KindredSpacing.lg)
 

@@ -27,26 +27,26 @@ struct DietaryPrefsStepView: View {
                 Button {
                     store.send(.skipStep)
                 } label: {
-                    Text(String(localized: "Skip"))
+                    Text(String(localized: "Skip", bundle: .main))
                         .font(.kindredBody())
                         .foregroundColor(.kindredTextSecondary)
                 }
                 .padding(.horizontal, KindredSpacing.lg)
                 .padding(.top, KindredSpacing.md)
-                .accessibilityLabel(String(localized: "accessibility.onboarding_dietary.skip"))
+                .accessibilityLabel(String(localized: "accessibility.onboarding_dietary.skip", bundle: .main))
             }
 
             Spacer(minLength: 60)
 
             // Heading
-            Text(String(localized: "onboarding.dietary.title"))
+            Text(String(localized: "onboarding.dietary.title", bundle: .main))
                 .font(.kindredHeading1())
                 .foregroundColor(.kindredTextPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, KindredSpacing.xs)
 
             // Subheading
-            Text(String(localized: "onboarding.dietary.subtitle"))
+            Text(String(localized: "onboarding.dietary.subtitle", bundle: .main))
                 .font(.kindredBody())
                 .foregroundColor(.kindredTextSecondary)
                 .multilineTextAlignment(.center)
@@ -73,12 +73,12 @@ struct DietaryPrefsStepView: View {
             Spacer()
 
             // Next button
-            KindredButton(String(localized: "Next"), style: .primary) {
+            KindredButton(String(localized: "Next", bundle: .main), style: .primary) {
                 store.send(.nextStep)
             }
             .padding(.horizontal, KindredSpacing.lg)
             .padding(.bottom, KindredSpacing.xl)
-            .accessibilityLabel(String(localized: "accessibility.onboarding_dietary.next"))
+            .accessibilityLabel(String(localized: "accessibility.onboarding_dietary.next", bundle: .main))
         }
         .background(Color.kindredBackground)
     }
@@ -105,7 +105,7 @@ struct DietaryChip: View {
                         .stroke(Color.kindredAccent, lineWidth: 2)
                 )
         }
-        .accessibilityLabel("\(label), \(isSelected ? String(localized: "accessibility.state.selected") : String(localized: "accessibility.state.not_selected"))")
+        .accessibilityLabel("\(label), \(isSelected ? String(localized: "accessibility.state.selected", bundle: .main) : String(localized: "accessibility.state.not_selected", bundle: .main))")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityHint(String(localized: isSelected ? "accessibility.hint.deselect" : "accessibility.hint.select"))
     }

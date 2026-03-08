@@ -80,7 +80,7 @@ private struct StepRow: View {
                     HStack(spacing: KindredSpacing.xs) {
                         Image(systemName: "clock")
                             .font(.system(size: 12))
-                        Text(String(localized: "~\(duration) min"))
+                        Text(String(localized: "~\(duration) min", bundle: .main))
                             .font(.kindredCaption())
                     }
                     .foregroundColor(.kindredTextSecondary)
@@ -103,10 +103,10 @@ private struct StepRow: View {
     }
 
     private var stepAccessibilityLabel: String {
-        var label = isCurrentStep ? String(localized: "Currently playing: Step \(step.orderIndex), ") : String(localized: "Step \(step.orderIndex), ")
+        var label = isCurrentStep ? String(localized: "Currently playing: Step \(step.orderIndex), ", bundle: .main) : String(localized: "Step \(step.orderIndex), ", bundle: .main)
         label += step.text
         if let duration = step.duration {
-            label += String(localized: ", approximately \(duration) minutes")
+            label += String(localized: ", approximately \(duration) minutes", bundle: .main)
         }
         return label
     }

@@ -1,0 +1,417 @@
+{
+  "builtTestProducts" : [
+
+  ],
+  "copyCommands" : {
+    "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem_DesignSystem.bundle/Colors.xcassets" : {
+      "inputs" : [
+        {
+          "kind" : "directory",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Resources/Colors.xcassets"
+        }
+      ],
+      "outputs" : [
+        {
+          "kind" : "directory",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem_DesignSystem.bundle/Colors.xcassets"
+        }
+      ]
+    }
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.DesignSystem-arm64-apple-macosx26.0-debug.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/sources",
+      "importPath" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Colors.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/CardSurface.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/EmptyStateView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/ErrorStateView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/KindredButton.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/OfflineBanner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/SkeletonShimmer.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/ToastNotification.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Spacing.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Typography.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Utilities/HapticFeedback.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/DerivedSources/resource_bundle_accessor.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "virtual",
+          "name" : "<DesignSystem-arm64-apple-macosx26.0-debug.module-resources>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "DesignSystem",
+      "moduleOutputPath" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/Modules/DesignSystem.swiftmodule",
+      "objects" : [
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/Colors.swift.o",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/CardSurface.swift.o",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/EmptyStateView.swift.o",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/ErrorStateView.swift.o",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/KindredButton.swift.o",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/OfflineBanner.swift.o",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/SkeletonShimmer.swift.o",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/ToastNotification.swift.o",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/Spacing.swift.o",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/Typography.swift.o",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/HapticFeedback.swift.o",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/resource_bundle_accessor.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx13.0",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-j8",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_AVAILABLE",
+        "-module-cache-path",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/include/DesignSystem-Swift.h",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "designsystem"
+      ],
+      "outputFileMapPath" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/Colors.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/CardSurface.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/EmptyStateView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/ErrorStateView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/KindredButton.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/OfflineBanner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/SkeletonShimmer.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/ToastNotification.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/Spacing.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/Typography.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/HapticFeedback.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/resource_bundle_accessor.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/Modules/DesignSystem.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Colors.swift",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/CardSurface.swift",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/EmptyStateView.swift",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/ErrorStateView.swift",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/KindredButton.swift",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/OfflineBanner.swift",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/SkeletonShimmer.swift",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/ToastNotification.swift",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Spacing.swift",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Typography.swift",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Utilities/HapticFeedback.swift",
+        "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/DerivedSources/resource_bundle_accessor.swift"
+      ],
+      "tempsPath" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build",
+      "wholeModuleOptimization" : false
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "DesignSystem" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "DesignSystem",
+      "-package-name",
+      "designsystem",
+      "-c",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Colors.swift",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/CardSurface.swift",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/EmptyStateView.swift",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/ErrorStateView.swift",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/KindredButton.swift",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/OfflineBanner.swift",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/SkeletonShimmer.swift",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/ToastNotification.swift",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Spacing.swift",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Typography.swift",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Utilities/HapticFeedback.swift",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/DerivedSources/resource_bundle_accessor.swift",
+      "-I",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/Modules",
+      "-target",
+      "arm64-apple-macosx13.0",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-j8",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_AVAILABLE",
+      "-module-cache-path",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/include/DesignSystem-Swift.h",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "designsystem",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "DesignSystem" : [
+
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+
+  },
+  "traitConfiguration" : {
+    "default" : {
+
+    }
+  },
+  "writeCommands" : {
+    "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Colors.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/CardSurface.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/EmptyStateView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/ErrorStateView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/KindredButton.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/OfflineBanner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/SkeletonShimmer.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Components/ToastNotification.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Spacing.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Typography.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/Sources/DesignSystem/Utilities/HapticFeedback.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/DerivedSources/resource_bundle_accessor.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/DesignSystem.build/sources"
+    },
+    "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/Users/ersinkirteke/Workspaces/Kindred/Kindred/Packages/DesignSystem/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+    }
+  }
+}

@@ -45,7 +45,7 @@ private struct LoadingStateView: View {
     var body: some View {
         VStack(spacing: KindredSpacing.md) {
             ProgressView()
-            Text(String(localized: "subscription.loading_status"))
+            Text(String(localized: "subscription.loading_status", bundle: .main))
                 .kindredBody()
                 .foregroundColor(.kindredTextSecondary)
         }
@@ -62,21 +62,21 @@ private struct FreeStateView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: KindredSpacing.md) {
-            Text(String(localized: "subscription.unlock_pro"))
+            Text(String(localized: "subscription.unlock_pro", bundle: .main))
                 .kindredHeading2()
                 .foregroundColor(.kindredTextPrimary)
                 .accessibilityAddTraits(.isHeader)
 
             VStack(alignment: .leading, spacing: KindredSpacing.sm) {
-                BenefitItem(text: String(localized: "subscription.benefit_adfree"))
-                BenefitItem(text: String(localized: "subscription.benefit_voice"))
+                BenefitItem(text: String(localized: "subscription.benefit_adfree", bundle: .main))
+                BenefitItem(text: String(localized: "subscription.benefit_voice", bundle: .main))
             }
 
-            KindredButton(String(localized: "subscription.subscribe_button \(displayPrice)"), style: .primary) {
+            KindredButton(String(localized: "subscription.subscribe_button \(displayPrice)", bundle: .main), style: .primary) {
                 onSubscribe()
             }
-            .accessibilityLabel(String(localized: "accessibility.subscription.subscribe \(displayPrice)"))
-            .accessibilityHint(String(localized: "accessibility.subscription.subscribe_hint"))
+            .accessibilityLabel(String(localized: "accessibility.subscription.subscribe \(displayPrice)", bundle: .main))
+            .accessibilityHint(String(localized: "accessibility.subscription.subscribe_hint", bundle: .main))
         }
         .padding(KindredSpacing.lg)
     }
@@ -93,7 +93,7 @@ private struct ProStateView: View {
         VStack(alignment: .leading, spacing: KindredSpacing.md) {
             // Header with badge
             HStack {
-                Text(String(localized: "subscription.kindred_pro"))
+                Text(String(localized: "subscription.kindred_pro", bundle: .main))
                     .kindredHeading2()
                     .foregroundColor(.kindredTextPrimary)
                     .accessibilityAddTraits(.isHeader)
@@ -101,7 +101,7 @@ private struct ProStateView: View {
                 Spacer()
 
                 // PRO badge
-                Text(String(localized: "subscription.pro_badge"))
+                Text(String(localized: "subscription.pro_badge", bundle: .main))
                     .kindredCaption()
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -109,7 +109,7 @@ private struct ProStateView: View {
                     .padding(.vertical, KindredSpacing.xs)
                     .background(Color.kindredAccent)
                     .clipShape(Capsule())
-                    .accessibilityLabel(String(localized: "accessibility.subscription.pro_badge"))
+                    .accessibilityLabel(String(localized: "accessibility.subscription.pro_badge", bundle: .main))
             }
 
             // Grace period warning
@@ -119,17 +119,17 @@ private struct ProStateView: View {
                         .foregroundColor(.orange)
                         .accessibilityHidden(true)
 
-                    Text(String(localized: "subscription.payment_issue"))
+                    Text(String(localized: "subscription.payment_issue", bundle: .main))
                         .kindredCaption()
                         .foregroundColor(.orange)
                 }
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel(String(localized: "accessibility.subscription.payment_warning"))
+                .accessibilityLabel(String(localized: "accessibility.subscription.payment_warning", bundle: .main))
             }
 
             // Renewal date
             VStack(alignment: .leading, spacing: KindredSpacing.xs) {
-                Text(String(localized: "subscription.renews_on"))
+                Text(String(localized: "subscription.renews_on", bundle: .main))
                     .kindredCaption()
                     .foregroundColor(.kindredTextSecondary)
 
@@ -138,18 +138,18 @@ private struct ProStateView: View {
                     .foregroundColor(.kindredTextPrimary)
             }
             .accessibilityElement(children: .combine)
-            .accessibilityLabel(String(localized: "accessibility.subscription.renews_on \(expiresDate.formatted(date: .long, time: .omitted))"))
+            .accessibilityLabel(String(localized: "accessibility.subscription.renews_on \(expiresDate.formatted(date: .long, time: .omitted))", bundle: .main))
 
             // Manage subscription button
             Button {
                 onManage()
             } label: {
-                Text(String(localized: "subscription.manage_button"))
+                Text(String(localized: "subscription.manage_button", bundle: .main))
                     .kindredBody()
                     .foregroundColor(.kindredAccent)
             }
-            .accessibilityLabel(String(localized: "accessibility.subscription.manage"))
-            .accessibilityHint(String(localized: "accessibility.subscription.manage_hint"))
+            .accessibilityLabel(String(localized: "accessibility.subscription.manage", bundle: .main))
+            .accessibilityHint(String(localized: "accessibility.subscription.manage_hint", bundle: .main))
         }
         .padding(KindredSpacing.lg)
     }
