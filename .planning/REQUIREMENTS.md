@@ -14,7 +14,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 - [x] **AUTH-03**: User can sign in with Apple Sign In (one-tap)
 - [x] **AUTH-04**: Guest user is prompted to create account when saving, bookmarking, or using voice features
 - [ ] **AUTH-05**: Guest session state (browsed recipes, preferences) persists through account conversion
-- [x] **AUTH-06**: User completes onboarding flow in under 90 seconds (dietary prefs, location, optional voice upload)
+- [ ] **AUTH-06**: User completes onboarding flow in under 90 seconds (dietary prefs, location, optional voice upload)
 
 ### Feed & Discovery
 
@@ -105,8 +105,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-02 | Phase 8 | Complete |
 | AUTH-03 | Phase 8 | Complete |
 | AUTH-04 | Phase 8 | Complete |
-| AUTH-05 | Phase 8 | Pending |
-| AUTH-06 | Phase 8 | Complete |
+| AUTH-05 | Phase 11 (gap closure) | Pending |
+| AUTH-06 | Phase 11 (gap closure) | Pending |
 | FEED-01 | Phase 5 | Complete |
 | FEED-02 | Phase 5 | Complete |
 | FEED-03 | Phase 5 | Complete |
@@ -140,13 +140,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 - Mapped to phases: 33
 - Unmapped: 0
 - Infrastructure phase (Phase 4): 0 requirements (foundation only)
-- Requirements distributed: Phase 5 (8), Phase 6 (4), Phase 7 (6), Phase 8 (5), Phase 9 (5), Phase 10 (1), Accessibility baked in (4)
+- Requirements distributed: Phase 5 (8), Phase 6 (4), Phase 7 (6), Phase 8 (3), Phase 9 (5), Phase 10 (1), Phase 11 (2 gap closure), Accessibility baked in (4)
 
 **Notes:**
 - ACCS-01, ACCS-02, ACCS-03, ACCS-04 are integrated into phases 5 and 7 (not deferred to Phase 10)
 - Phase 4 is infrastructure only (no functional requirements)
 - Phase 10 focuses on ACCS-05 (color contrast) audit and final polish
+- Phase 11 is gap closure for AUTH-05 (guest migration verification) and AUTH-06 (onboarding wiring)
 
 ---
 *Requirements defined: 2026-03-01*
-*Last updated: 2026-03-01 after v2.0 roadmap creation*
+*Last updated: 2026-03-08 after v2.0 milestone audit gap closure*

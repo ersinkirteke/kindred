@@ -7,7 +7,7 @@
 ## Milestones
 
 - ✅ **v1.5 Backend & AI Pipeline** — Phases 1-3 (shipped 2026-03-01)
-- 🚧 **v2.0 iOS App** — Phases 4-10 (in progress)
+- 🚧 **v2.0 iOS App** — Phases 4-11 (in progress)
 - 📋 **v2.1 Pantry & Android** — TBD
 
 ## Phases
@@ -35,6 +35,7 @@
 - [x] **Phase 8: Authentication & Onboarding** - Google/Apple OAuth, guest-to-account conversion, sub-90s onboarding
 - [x] **Phase 9: Monetization & Voice Tiers** - Free tier with ads, Pro subscription, StoreKit 2, voice slot enforcement
 - [x] **Phase 10: Accessibility & Polish** - WCAG AAA audit, VoiceOver polish, Dynamic Type testing, production readiness (completed 2026-03-08)
+- [ ] **Phase 11: Auth Gap Closure** - [GAP CLOSURE] Wire onboarding flow, verify guest data migration persistence
 
 ## Phase Details
 
@@ -164,6 +165,16 @@ Plans:
 - [ ] 10-06-PLAN.md -- Localization (Auth + Monetization + Profile): String(localized:) extraction, Localizable.xcstrings String Catalog with Turkish, Logger migration
 - [ ] 10-07-PLAN.md -- WCAG AAA color contrast audit + device verification checkpoint
 
+### Phase 11: Auth Gap Closure
+**Goal**: Close audit gaps — wire onboarding presentation and verify guest data migration
+**Depends on**: Phase 8, Phase 10
+**Requirements**: AUTH-05, AUTH-06
+**Gap Closure**: Closes gaps from v2.0 milestone audit (2026-03-08)
+**Success Criteria** (what must be TRUE):
+  1. OnboardingReducer is `@Presents` in AppReducer and onboarding carousel triggers for new users after first sign-in
+  2. Guest session state (browsed recipes, dietary preferences, bookmarks) persists through account conversion with no data loss — verified on device
+**Plans**: TBD
+
 ---
 
 ## Progress Table
@@ -179,14 +190,15 @@ Plans:
 | 7. Voice Playback & Streaming | v2.0 | 6/6 | Complete | 2026-03-03 |
 | 8. Authentication & Onboarding | v2.0 | 4/4 | Complete | 2026-03-06 |
 | 9. Monetization & Voice Tiers | v2.0 | 0/? | Not started | - |
-| 10. Accessibility & Polish | 7/7 | Complete   | 2026-03-08 | - |
+| 10. Accessibility & Polish | v2.0 | 7/7 | Complete | 2026-03-08 |
+| 11. Auth Gap Closure | v2.0 | 0/? | Not started | - |
 
 ---
 
 ## Notes
 
 **v2.0 iOS App Strategy:**
-- Phase 4-10 deliver complete iOS experience (7 phases, 33 requirements)
+- Phase 4-11 deliver complete iOS experience (8 phases, 33 requirements; Phase 11 is gap closure)
 - Accessibility integrated throughout (ACCS-01-04 in Phases 5, 7) + final audit (Phase 10)
 - Guest browsing enables immediate value delivery (no forced signup)
 - Onboarding deferred until Phase 8 (users experience product before converting)
