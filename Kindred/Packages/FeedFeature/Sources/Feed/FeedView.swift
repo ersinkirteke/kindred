@@ -47,7 +47,7 @@ public struct FeedView: View {
                     // VoiceOver announcement on location change
                     UIAccessibility.post(
                         notification: .announcement,
-                        argument: "Now showing recipes near \(newValue)"
+                        argument: String(localized: "Now showing recipes near \(newValue)")
                     )
                 }
                 .onChange(of: store.cardStack) { oldStack, newStack in
@@ -57,7 +57,7 @@ public struct FeedView: View {
                         let total = newStack.count
                         UIAccessibility.post(
                             notification: .announcement,
-                            argument: "Recipe \(currentIndex) of \(total), \(topCard.name)"
+                            argument: String(localized: "Recipe \(currentIndex) of \(total), \(topCard.name)")
                         )
                     }
                 }
@@ -177,8 +177,8 @@ public struct FeedView: View {
                     .background(Color.kindredCardSurface)
                     .clipShape(Circle())
             }
-            .accessibilityLabel("Skip")
-            .accessibilityHint("Skip this recipe - or swipe left")
+            .accessibilityLabel(String(localized: "Skip"))
+            .accessibilityHint(String(localized: "accessibility.feed.skip_hint"))
 
             // Listen button
             Button {
@@ -193,8 +193,8 @@ public struct FeedView: View {
                     .background(Color.kindredCardSurface)
                     .clipShape(Circle())
             }
-            .accessibilityLabel("Listen")
-            .accessibilityHint("Double tap to listen to this recipe")
+            .accessibilityLabel(String(localized: "Listen"))
+            .accessibilityHint(String(localized: "accessibility.feed.listen_hint"))
 
             // Bookmark button
             Button {
@@ -209,8 +209,8 @@ public struct FeedView: View {
                     .background(Color.kindredAccent)
                     .clipShape(Circle())
             }
-            .accessibilityLabel("Bookmark")
-            .accessibilityHint("Save this recipe - or swipe right")
+            .accessibilityLabel(String(localized: "Bookmark"))
+            .accessibilityHint(String(localized: "accessibility.feed.bookmark_hint"))
         }
         .padding(.horizontal, KindredSpacing.xl)
     }
@@ -259,17 +259,17 @@ public struct FeedView: View {
                         .font(.system(size: 48))
                         .foregroundColor(.kindredTextSecondary)
 
-                    Text("No \(filterDescription) recipes nearby")
+                    Text(String(localized: "No \(filterDescription) recipes nearby"))
                         .font(.kindredHeading2())
                         .foregroundColor(.kindredTextPrimary)
                         .multilineTextAlignment(.center)
 
-                    Text("Try removing a filter or changing your location")
+                    Text(String(localized: "Try removing a filter or changing your location"))
                         .font(.kindredBody())
                         .foregroundColor(.kindredTextSecondary)
                         .multilineTextAlignment(.center)
 
-                    KindredButton("Clear Filters", style: .secondary) {
+                    KindredButton(String(localized: "Clear Filters"), style: .secondary) {
                         store.send(.dietaryFilterChanged([]))
                     }
                     .padding(.top, KindredSpacing.sm)
@@ -309,22 +309,22 @@ public struct FeedView: View {
                     .cornerRadius(8)
 
                 // Title line
-                Text("Recipe Title Placeholder Text")
+                Text(String(localized: "feed.skeleton.title"))
                     .font(.kindredHeading2())
                     .foregroundColor(.kindredTextPrimary)
 
                 // Subtitle line
-                Text("Recipe description that shows placeholder content")
+                Text(String(localized: "feed.skeleton.description"))
                     .font(.kindredBody())
                     .foregroundColor(.kindredTextSecondary)
 
                 // Metadata row
                 HStack {
-                    Text("30 min")
+                    Text(String(localized: "feed.skeleton.time"))
                         .font(.kindredCaption())
                     Text("•")
                         .font(.kindredCaption())
-                    Text("Medium")
+                    Text(String(localized: "feed.skeleton.difficulty"))
                         .font(.kindredCaption())
                 }
                 .foregroundColor(.kindredTextSecondary)
@@ -354,14 +354,14 @@ public struct FeedView: View {
                     .fill(Color.kindredCardSurface)
             )
         }
-        .accessibilityLabel("Location: \(store.location)")
-        .accessibilityHint("Double tap to change location")
+        .accessibilityLabel(String(localized: "Location: \(store.location)"))
+        .accessibilityHint(String(localized: "accessibility.feed.location_hint"))
     }
 
     private var offlineBanner: some View {
         HStack {
             Image(systemName: "wifi.slash")
-            Text("You're offline — showing cached recipes")
+            Text(String(localized: "You're offline — showing cached recipes"))
                 .font(.kindredCaption())
         }
         .foregroundColor(.white)
@@ -373,7 +373,7 @@ public struct FeedView: View {
     private var newRecipesBanner: some View {
         HStack {
             Image(systemName: "arrow.clockwise.circle.fill")
-            Text("New recipes available — pull to refresh")
+            Text(String(localized: "New recipes available — pull to refresh"))
                 .font(.kindredCaption())
         }
         .foregroundColor(.kindredTextPrimary)
@@ -383,7 +383,7 @@ public struct FeedView: View {
         .onTapGesture {
             store.send(.acknowledgeNewRecipes)
         }
-        .accessibilityLabel("New recipes available")
-        .accessibilityHint("Pull down to refresh")
+        .accessibilityLabel(String(localized: "New recipes available"))
+        .accessibilityHint(String(localized: "accessibility.feed.refresh_hint"))
     }
 }

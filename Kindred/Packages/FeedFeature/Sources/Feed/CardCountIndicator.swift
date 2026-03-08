@@ -6,7 +6,7 @@ struct CardCountIndicator: View {
     let total: Int
 
     var body: some View {
-        Text("\(current) of \(total)")
+        Text(String(localized: "\(current) of \(total)"))
             .font(.kindredCaption())
             .foregroundColor(.kindredTextSecondary)
     }

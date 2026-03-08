@@ -34,7 +34,7 @@ struct DietaryChipBar: View {
                                 .foregroundColor(.secondary)
                                 .frame(width: 44, height: 44)
                         }
-                        .accessibilityLabel("Clear all dietary filters")
+                        .accessibilityLabel(String(localized: "accessibility.dietary_filter.clear_all"))
                     }
                 }
                 .padding(.horizontal, 16)
@@ -62,7 +62,7 @@ struct DietaryChipBar: View {
                                     .foregroundColor(.secondary)
                                     .frame(width: 44, height: 44)
                             }
-                            .accessibilityLabel("Clear all dietary filters")
+                            .accessibilityLabel(String(localized: "accessibility.dietary_filter.clear_all"))
                         }
                     }
                     .padding(.horizontal, 16)
@@ -71,7 +71,7 @@ struct DietaryChipBar: View {
 
             // Filter count text below chips (when filters active)
             if !activeFilters.isEmpty {
-                Text("Showing \(chipDescription) recipes")
+                Text(String(localized: "Showing \(chipDescription) recipes"))
                     .font(.kindredCaption())
                     .foregroundColor(.kindredTextSecondary)
                     .padding(.horizontal, 16)

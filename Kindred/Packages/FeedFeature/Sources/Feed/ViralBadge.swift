@@ -3,7 +3,7 @@ import SwiftUI
 
 struct ViralBadge: View {
     var body: some View {
-        Text("VIRAL")
+        Text(String(localized: "VIRAL"))
             .font(.kindredCaption())
             .fontWeight(.bold)
             .foregroundColor(.white)

@@ -42,11 +42,11 @@ public struct LocationPickerView: View {
                     }
                 }
             }
-            .navigationTitle("Choose Location")
+            .navigationTitle(String(localized: "Choose Location"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
+                    Button(String(localized: "Done")) {
                         dismiss()
                     }
                 }
@@ -92,14 +92,14 @@ public struct LocationPickerView: View {
 
     private var useMyLocationButton: some View {
         KindredButton(
-            store.isRequestingLocation ? "Locating..." : "Use my location",
+            store.isRequestingLocation ? String(localized: "Locating...") : String(localized: "Use my location"),
             style: .secondary
         ) {
             store.send(.useMyLocation)
         }
         .disabled(store.isRequestingLocation)
-        .accessibilityLabel("Use my location")
-        .accessibilityHint("Get recipes near your current location")
+        .accessibilityLabel(String(localized: "Use my location"))
+        .accessibilityHint(String(localized: "accessibility.location_picker.use_location_hint"))
     }
 
     // MARK: - Search Field
@@ -109,7 +109,7 @@ public struct LocationPickerView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.kindredTextSecondary)
 
-            TextField("Search cities...", text: $searchText)
+            TextField(String(localized: "Search cities..."), text: $searchText)
                 .font(.kindredBody())
                 .foregroundColor(.kindredTextPrimary)
                 .autocorrectionDisabled()
@@ -121,7 +121,7 @@ public struct LocationPickerView: View {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.kindredTextSecondary)
                 }
-                .accessibilityLabel("Clear search")
+                .accessibilityLabel(String(localized: "Clear search"))
             }
         }
         .padding(KindredSpacing.sm)
@@ -135,7 +135,7 @@ public struct LocationPickerView: View {
 
     private var popularCitiesSection: some View {
         VStack(alignment: .leading, spacing: KindredSpacing.sm) {
-            Text("Popular Cities")
+            Text(String(localized: "Popular Cities"))
                 .font(.kindredHeading3())
                 .foregroundColor(.kindredTextPrimary)
                 .padding(.horizontal, KindredSpacing.md)
@@ -168,7 +168,7 @@ public struct LocationPickerView: View {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 48))
                             .foregroundColor(.kindredTextSecondary)
-                        Text("No cities found")
+                        Text(String(localized: "No cities found"))
                             .font(.kindredBody())
                             .foregroundColor(.kindredTextSecondary)
                     }
@@ -214,8 +214,8 @@ public struct LocationPickerView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(city.name), \(city.fullName)")
-        .accessibilityHint("Select this city")
+        .accessibilityLabel(String(localized: "\(city.name), \(city.fullName)"))
+        .accessibilityHint(String(localized: "accessibility.location_picker.select_city_hint"))
     }
 
     // MARK: - Actions

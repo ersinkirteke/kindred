@@ -85,7 +85,7 @@ public struct RecipeDetailView: View {
         VStack(spacing: KindredSpacing.lg) {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
-            Text("Loading recipe...")
+            Text(String(localized: "Loading recipe..."))
                 .font(.kindredBodyScaled(size: bodySize))
                 .foregroundColor(.kindredTextSecondary)
         }
@@ -97,7 +97,7 @@ public struct RecipeDetailView: View {
 
     private func errorView(_ message: String) -> some View {
         ErrorStateView(
-            title: "Error loading recipe",
+            title: String(localized: "Error loading recipe"),
             message: message,
             icon: "exclamationmark.triangle",
             retryAction: {
@@ -137,7 +137,7 @@ public struct RecipeDetailView: View {
             }
 
             // Ingredients section
-            sectionHeader("Ingredients")
+            sectionHeader(String(localized: "Ingredients"))
 
             IngredientChecklistView(
                 ingredients: recipe.ingredients,
@@ -154,7 +154,7 @@ public struct RecipeDetailView: View {
             }
 
             // Instructions section
-            sectionHeader("Instructions")
+            sectionHeader(String(localized: "Instructions"))
 
             StepTimelineView(steps: recipe.steps)
         }
@@ -179,7 +179,7 @@ public struct RecipeDetailView: View {
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Dietary tags: \(tags.joined(separator: ", "))")
+        .accessibilityLabel(String(localized: "Dietary tags: \(tags.joined(separator: ", "))"))
     }
 
     // MARK: - Metadata Bar
@@ -216,12 +216,12 @@ public struct RecipeDetailView: View {
     private func metadataAccessibilityLabel(_ recipe: RecipeDetail) -> String {
         var parts: [String] = []
         if let totalTime = recipe.totalTime {
-            parts.append("\(totalTime) minutes")
+            parts.append(String(localized: "\(totalTime) minutes"))
         }
         if let calories = recipe.calories {
-            parts.append("\(calories) calories")
+            parts.append(String(localized: "\(calories) calories"))
         }
-        parts.append("\(recipe.formattedLoves) loves")
+        parts.append(String(localized: "\(recipe.formattedLoves) loves"))
         return parts.joined(separator: ", ")
     }
 
@@ -252,22 +252,22 @@ public struct RecipeDetailView: View {
                         case .loading, .buffering:
                             ProgressView()
                                 .tint(.kindredAccent)
-                            Text("Loading...")
+                            Text(String(localized: "Loading..."))
                                 .font(.kindredBodyBoldScaled(size: bodySize))
                         case .playing:
                             Image(systemName: "pause.fill")
                                 .font(.system(size: 18))
-                            Text("Pause")
+                            Text(String(localized: "Pause"))
                                 .font(.kindredBodyBoldScaled(size: bodySize))
                         case .paused:
                             Image(systemName: "play.fill")
                                 .font(.system(size: 18))
-                            Text("Resume")
+                            Text(String(localized: "Resume"))
                                 .font(.kindredBodyBoldScaled(size: bodySize))
                         default:
                             Image(systemName: "headphones")
                                 .font(.system(size: 18))
-                            Text("Listen")
+                            Text(String(localized: "Listen"))
                                 .font(.kindredBodyBoldScaled(size: bodySize))
                         }
                     }
@@ -282,8 +282,8 @@ public struct RecipeDetailView: View {
                     .cornerRadius(12)
                 }
                 .disabled(store.playbackStatus == .loading || store.playbackStatus == .buffering)
-                .accessibilityLabel(store.playbackStatus == .playing ? "Pause narration" : "Listen to this recipe")
-                .accessibilityHint(store.playbackStatus == .playing ? "Double tap to pause" : "Double tap to listen to this recipe narrated")
+                .accessibilityLabel(store.playbackStatus == .playing ? String(localized: "Pause narration") : String(localized: "Listen to this recipe"))
+                .accessibilityHint(store.playbackStatus == .playing ? String(localized: "accessibility.recipe_detail.pause_hint") : String(localized: "accessibility.recipe_detail.listen_hint"))
 
                 // Bookmark button
                 Button(action: {
@@ -293,7 +293,7 @@ public struct RecipeDetailView: View {
                     HStack(spacing: KindredSpacing.sm) {
                         Image(systemName: store.isBookmarked ? "heart.fill" : "heart")
                             .font(.system(size: 18))
-                        Text("Bookmark")
+                        Text(String(localized: "Bookmark"))
                             .font(.kindredBodyBoldScaled(size: bodySize))
                     }
                     .frame(maxWidth: .infinity)
@@ -302,7 +302,7 @@ public struct RecipeDetailView: View {
                     .background(Color.kindredAccent)
                     .cornerRadius(12)
                 }
-                .accessibilityLabel(store.isBookmarked ? "Remove bookmark" : "Bookmark recipe")
+                .accessibilityLabel(store.isBookmarked ? String(localized: "Remove bookmark") : String(localized: "Bookmark recipe"))
             }
             .padding(.horizontal, KindredSpacing.md)
             .padding(.vertical, KindredSpacing.md)

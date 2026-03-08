@@ -83,13 +83,13 @@ struct RecipeCardView: View {
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabelText)
-        .accessibilityAction(named: "Bookmark") {
+        .accessibilityAction(named: String(localized: "Bookmark")) {
             onSwipe(.right)
         }
-        .accessibilityAction(named: "Skip") {
+        .accessibilityAction(named: String(localized: "Skip")) {
             onSwipe(.left)
         }
-        .accessibilityAction(named: "View details") {
+        .accessibilityAction(named: String(localized: "View details")) {
             onTap()
         }
     }
@@ -162,7 +162,7 @@ struct RecipeCardView: View {
                 .fade(duration: 0.25)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .accessibilityLabel("Photo of \(recipe.name)")
+                .accessibilityLabel(String(localized: "Photo of \(recipe.name)"))
         } else {
             Rectangle()
                 .fill(Color.kindredDivider)
@@ -171,7 +171,7 @@ struct RecipeCardView: View {
                         .font(.system(size: 48))
                         .foregroundColor(.kindredTextSecondary)
                 )
-                .accessibilityLabel("Photo of \(recipe.name)")
+                .accessibilityLabel(String(localized: "Photo of \(recipe.name)"))
         }
     }
 
@@ -182,7 +182,7 @@ struct RecipeCardView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "clock")
                         .font(.system(size: iconSize))
-                    Text("\(totalTime) min")
+                    Text(String(localized: "\(totalTime) min"))
                 }
             }
 
@@ -191,7 +191,7 @@ struct RecipeCardView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "flame")
                         .font(.system(size: iconSize))
-                    Text("\(calories) cal")
+                    Text(String(localized: "\(calories) cal"))
                 }
             }
 
@@ -210,19 +210,19 @@ struct RecipeCardView: View {
         var label = recipe.name
 
         if let time = recipe.totalTime {
-            label += ", \(time) minutes"
+            label += String(localized: ", \(time) minutes")
         }
 
         if let calories = recipe.calories {
-            label += ", \(calories) calories"
+            label += String(localized: ", \(calories) calories")
         }
 
         if recipe.isViral {
-            label += ", Viral recipe"
+            label += String(localized: ", Viral recipe")
         }
 
         if isPersonalized {
-            label += ", Personalized for you"
+            label += String(localized: ", Personalized for you")
         }
 
         return label
