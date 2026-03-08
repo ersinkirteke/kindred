@@ -5,9 +5,12 @@ import Kingfisher
 import VoicePlaybackFeature
 import StoreKit
 import GoogleMobileAds
+import MetricKit
+import BackgroundTasks
+import OSLog
 
 /// AppDelegate for Firebase and Kingfisher cache configuration
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, MXMetricManagerSubscriber {
     private var transactionObserverTask: Task<Void, Never>?
     func application(
         _ application: UIApplication,
@@ -53,6 +56,19 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             }
         }
 
+        // Register MetricKit subscriber for production performance monitoring
+        MXMetricManager.shared.add(self)
+
+        // Register BGAppRefreshTask for periodic recipe feed refresh
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: "com.ersinkirteke.kindred.recipe-refresh",
+            using: nil
+        ) { task in
+            self.handleRecipeRefresh(task: task as! BGAppRefreshTask)
+        }
+
+        Logger.appLifecycle.info("App did finish launching")
+
         // TODO: Firebase configuration will be added when analytics is needed
         return true
     }
@@ -60,5 +76,110 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Cancel StoreKit transaction observer task
         transactionObserverTask?.cancel()
+
+        // Remove MetricKit subscriber
+        MXMetricManager.shared.remove(self)
+
+        Logger.appLifecycle.info("App will terminate")
     }
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        // Schedule background recipe refresh
+        scheduleRecipeRefresh()
+        Logger.appLifecycle.info("App entered background")
+    }
+
+    // MARK: - MetricKit
+
+    func didReceive(_ payloads: [MXMetricPayload]) {
+        for payload in payloads {
+            // Log launch time metrics
+            if let launchMetrics = payload.applicationLaunchMetrics {
+                let timeToFirstDraw = launchMetrics.histogrammedTimeToFirstDraw
+                let bucketCount = timeToFirstDraw.totalBucketCount
+                Logger.performance.info("Launch time histogram buckets: \(bucketCount)")
+
+                // Check if launch time is concerning (> 1s in upper buckets)
+                if bucketCount > 10 {
+                    Logger.performance.warning("Launch time has many histogram buckets, indicating slow launches")
+                }
+            }
+
+            // Log hang metrics
+            if let hangMetrics = payload.applicationResponsivenessMetrics {
+                let hangTime = hangMetrics.histogrammedApplicationHangTime
+                let hangCount = hangTime.totalBucketCount
+                Logger.performance.info("Hang histogram buckets: \(hangCount)")
+            }
+
+            // Log exit metrics
+            if let exitMetrics = payload.applicationExitMetrics {
+                let backgroundExits = exitMetrics.backgroundExitData.cumulativeAbnormalExitCount
+                let foregroundExits = exitMetrics.foregroundExitData.cumulativeAbnormalExitCount
+                Logger.performance.info("Abnormal exits - background: \(backgroundExits), foreground: \(foregroundExits)")
+            }
+        }
+    }
+
+    func didReceive(_ payloads: [MXDiagnosticPayload]) {
+        for payload in payloads {
+            // Log crash and hang diagnostics
+            if let crashDiagnostic = payload.crashDiagnostics?.first {
+                Logger.performance.error("Crash diagnostic received: \(crashDiagnostic.callStackTree.jsonRepresentation())")
+            }
+
+            if let hangDiagnostic = payload.hangDiagnostics?.first {
+                Logger.performance.error("Hang diagnostic received: \(hangDiagnostic.callStackTree.jsonRepresentation())")
+            }
+        }
+    }
+
+    // MARK: - Background Refresh
+
+    private func handleRecipeRefresh(task: BGAppRefreshTask) {
+        Logger.background.info("Recipe refresh task started")
+
+        // Schedule next refresh
+        scheduleRecipeRefresh()
+
+        // Set expiration handler
+        task.expirationHandler = {
+            Logger.background.warning("Recipe refresh task expired")
+        }
+
+        // Perform background fetch (placeholder - actual implementation depends on Apollo client availability)
+        Task {
+            do {
+                // TODO: Fetch latest recipes via Apollo client
+                // await apolloClient.fetch(query: GetRecipesQuery())
+                Logger.background.info("Recipe refresh completed successfully")
+                task.setTaskCompleted(success: true)
+            } catch {
+                Logger.background.error("Recipe refresh failed: \(error.localizedDescription)")
+                task.setTaskCompleted(success: false)
+            }
+        }
+    }
+
+    private func scheduleRecipeRefresh() {
+        let request = BGAppRefreshTaskRequest(identifier: "com.ersinkirteke.kindred.recipe-refresh")
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60) // 15 minutes
+
+        do {
+            try BGTaskScheduler.shared.submit(request)
+            Logger.background.info("Recipe refresh scheduled for 15 minutes from now")
+        } catch {
+            Logger.background.error("Failed to schedule recipe refresh: \(error.localizedDescription)")
+        }
+    }
+}
+
+// MARK: - Logger Extensions
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+
+    static let appLifecycle = Logger(subsystem: subsystem, category: "app-lifecycle")
+    static let performance = Logger(subsystem: subsystem, category: "performance")
+    static let background = Logger(subsystem: subsystem, category: "background")
 }

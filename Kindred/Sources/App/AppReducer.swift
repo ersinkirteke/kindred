@@ -110,7 +110,7 @@ struct AppReducer {
 
                 // Auto-refresh feed when connectivity returns
                 if wasOffline && !isOffline {
-                    return .send(.feed(.fetchRecipes))
+                    return .send(.feed(.refreshFeed))
                 }
 
                 return .none

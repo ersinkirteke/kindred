@@ -36,6 +36,11 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
+		<string>fetch</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.ersinkirteke.kindred.recipe-refresh</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Kindred uses your location to show trending recipes near you.</string>
