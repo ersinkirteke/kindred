@@ -5,3 +5,6 @@ import Foundation
 public enum DesignSystem {
     // Placeholder - design tokens will be added in subsequent plans
 }
+
+// Export components
+@_exported import struct DesignSystem.OfflineBanner

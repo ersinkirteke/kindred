@@ -9,7 +9,12 @@ import AuthFeature
 struct RootView: View {
     @Bindable var store: StoreOf<AppReducer>
     var body: some View {
-        TabView(selection: $store.selectedTab.sending(\.tabSelected)) {
+        VStack(spacing: 0) {
+            if store.isOffline {
+                OfflineBanner()
+            }
+
+            TabView(selection: $store.selectedTab.sending(\.tabSelected)) {
             FeedView(
                 store: store.scope(
                     state: \.feedState,
@@ -32,6 +37,7 @@ struct RootView: View {
             }
             .tag(AppReducer.Tab.me)
             .badge(store.feedState.bookmarkCount > 0 ? store.feedState.bookmarkCount : 0)
+            }
         }
         .tint(.kindredAccent)
         .toolbarBackground(Color.kindredCardSurface, for: .tabBar)
@@ -94,6 +100,7 @@ struct RootView: View {
         }
         .onAppear {
             store.send(.observeAuth)
+            store.send(.startConnectivityMonitor)
         }
     }
 }

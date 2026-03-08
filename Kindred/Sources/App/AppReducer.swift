@@ -5,6 +5,7 @@ import ProfileFeature
 import VoicePlaybackFeature
 import AuthClient
 import AuthFeature
+import UIKit
 
 @Reducer
 struct AppReducer {
@@ -21,6 +22,9 @@ struct AppReducer {
         var isMigrating: Bool = false
         var migrationRetryCount: Int = 0
         var pendingGatedAction: GatedAction? = nil
+
+        // Connectivity state
+        var isOffline: Bool = false
     }
 
     enum Tab: Int, Equatable {
@@ -52,12 +56,17 @@ struct AppReducer {
         case migrationSucceeded
         case migrationFailed
         case retryMigration
+
+        // Connectivity actions
+        case startConnectivityMonitor
+        case connectivityChanged(Bool)
     }
 
     @Dependency(\.signInClient) var signInClient
     @Dependency(\.guestMigrationClient) var guestMigrationClient
     @Dependency(\.guestSessionClient) var guestSession
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.networkMonitorClient) var networkMonitor
 
     var body: some ReducerOf<Self> {
         Scope(state: \.feedState, action: \.feed) {
@@ -81,6 +90,30 @@ struct AppReducer {
                         await send(.authStateChanged(authState))
                     }
                 }
+
+            case .startConnectivityMonitor:
+                return .run { send in
+                    for await isConnected in await networkMonitor.connectivityStream() {
+                        await send(.connectivityChanged(!isConnected))
+                    }
+                }
+
+            case let .connectivityChanged(isOffline):
+                let wasOffline = state.isOffline
+                state.isOffline = isOffline
+
+                // VoiceOver announcement for connectivity changes
+                UIAccessibility.post(
+                    notification: .announcement,
+                    argument: isOffline ? "You're offline" : "Back online"
+                )
+
+                // Auto-refresh feed when connectivity returns
+                if wasOffline && !isOffline {
+                    return .send(.feed(.fetchRecipes))
+                }
+
+                return .none
 
             case let .authStateChanged(authState):
                 state.currentAuthState = authState
