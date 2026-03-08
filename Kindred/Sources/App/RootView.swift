@@ -98,6 +98,9 @@ struct RootView: View {
         .fullScreenCover(item: $store.scope(state: \.authGate, action: \.authGate)) { gateStore in
             SignInGateView(store: gateStore)
         }
+        .fullScreenCover(item: $store.scope(state: \.onboarding, action: \.onboarding)) { onboardingStore in
+            OnboardingView(store: onboardingStore)
+        }
         .onAppear {
             store.send(.observeAuth)
             store.send(.startConnectivityMonitor)

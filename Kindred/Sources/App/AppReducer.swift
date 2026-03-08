@@ -25,6 +25,8 @@ struct AppReducer {
         // Auth state management
         var currentAuthState: AuthClient.AuthState = .guest
         @Presents var authGate: SignInGateReducer.State?
+        @Presents var onboarding: OnboardingReducer.State?
+        var hasCompletedOnboarding: Bool = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
         var isMigrating: Bool = false
         var migrationRetryCount: Int = 0
         var pendingGatedAction: GatedAction? = nil
@@ -56,6 +58,11 @@ struct AppReducer {
         case authGate(PresentationAction<SignInGateReducer.Action>)
         case authGateRequested(GatedAction)
         case observeAuth
+
+        // Onboarding actions
+        case onboarding(PresentationAction<OnboardingReducer.Action>)
+        case presentOnboarding
+        case persistOnboardingCompletion
 
         // Migration actions
         case startMigration
@@ -123,6 +130,19 @@ struct AppReducer {
 
             case let .authStateChanged(authState):
                 state.currentAuthState = authState
+
+                // Trigger onboarding after first sign-in
+                if case .authenticated = authState, !state.hasCompletedOnboarding {
+                    // Delay to let auth gate dismiss animation finish
+                    return .concatenate(
+                        .send(.feed(.authStateUpdated(authState))),
+                        .send(.feed(.recipeDetail(.presented(.authStateUpdated(authState))))),
+                        .run { send in
+                            try await clock.sleep(for: .milliseconds(300))
+                            await send(.presentOnboarding)
+                        }
+                    )
+                }
 
                 // Forward auth state to child reducers
                 return .merge(
@@ -218,6 +238,61 @@ struct AppReducer {
             case .authGate:
                 // Other auth gate actions handled by child reducer
                 return .none
+
+            case .presentOnboarding:
+                guard !state.hasCompletedOnboarding else { return .none }
+                state.authGate = nil  // Ensure auth gate is dismissed
+
+                // Get displayName from authenticated user
+                var firstName: String? = nil
+                if case .authenticated(let user) = state.currentAuthState {
+                    firstName = user.displayName.isEmpty ? nil : user.displayName
+                }
+                state.onboarding = OnboardingReducer.State(firstName: firstName)
+                return .none
+
+            case .onboarding(.presented(.delegate(.completed(let prefs, let city, let wantsVoiceUpload)))):
+                state.hasCompletedOnboarding = true
+                state.onboarding = nil
+
+                var effects: [Effect<Action>] = [
+                    .send(.persistOnboardingCompletion)
+                ]
+
+                if !prefs.isEmpty {
+                    effects.append(.send(.feed(.dietaryFilterChanged(prefs))))
+                }
+
+                if let city = city {
+                    effects.append(.send(.feed(.changeLocation(city))))
+                } else {
+                    effects.append(.send(.feed(.refreshFeed)))
+                }
+
+                // If user wants voice upload, present it after onboarding dismisses
+                if wantsVoiceUpload {
+                    effects.append(.run { send in
+                        try await clock.sleep(for: .milliseconds(300))
+                        await send(.voicePlayback(.showVoiceUpload))
+                    })
+                }
+
+                return .concatenate(effects)
+
+            case .onboarding(.dismiss):
+                // User dismissed onboarding — save current step progress, will reappear next launch
+                // Don't set hasCompletedOnboarding = true — it reappears
+                return .none
+
+            case .onboarding:
+                return .none
+
+            case .persistOnboardingCompletion:
+                return .run { _ in
+                    UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+                    // Clean up step persistence
+                    UserDefaults.standard.removeObject(forKey: "onboardingCurrentStep")
+                }
 
             case .startMigration:
                 state.isMigrating = true
@@ -381,6 +456,9 @@ struct AppReducer {
         }
         .ifLet(\.$authGate, action: \.authGate) {
             SignInGateReducer()
+        }
+        .ifLet(\.$onboarding, action: \.onboarding) {
+            OnboardingReducer()
         }
     }
 
