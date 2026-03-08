@@ -4,6 +4,21 @@ import SwiftUI
 // SF Pro font styles with Dynamic Type support
 // Per locked decision: Medium weight for headings, Light weight for body text
 
+// MARK: - @ScaledMetric Pattern
+// For views that need Dynamic Type scaling at AX1-AX5 sizes, use the scaled variants:
+//
+// Usage in views:
+// @ScaledMetric(relativeTo: .body) private var bodySize: CGFloat = 18
+// Text("...").font(.kindredBodyScaled(size: bodySize))
+//
+// relativeTo mapping guide:
+// - .largeTitle -> kindredLargeTitle (34pt)
+// - .title -> kindredHeading1 (28pt)
+// - .title2 -> kindredHeading2 (22pt)
+// - .headline -> kindredHeading3 (18pt), kindredBody (18pt)
+// - .subheadline -> kindredBodyBold (18pt)
+// - .caption -> kindredCaption (14pt), kindredSmall (14pt)
+
 public extension Font {
 
     // MARK: Headings (Medium Weight)
@@ -55,10 +70,54 @@ public extension Font {
         .system(size: 14, weight: .light, design: .default)
     }
 
-    /// Small text style (12pt, light)
+    /// Small text style (14pt, light)
+    /// UPDATED: Bumped from 12pt to 14pt minimum per accessibility requirements
     /// Use for: Fine print, legal text, minimal labels
     static func kindredSmall() -> Font {
-        .system(size: 12, weight: .light, design: .default)
+        .system(size: 14, weight: .light, design: .default)
+    }
+
+    // MARK: - @ScaledMetric-Compatible Scaled Variants
+    // These methods accept a CGFloat size parameter from @ScaledMetric in views
+
+    /// Scaled large title style — accepts size from @ScaledMetric(relativeTo: .largeTitle)
+    static func kindredLargeTitleScaled(size: CGFloat) -> Font {
+        .system(size: size, weight: .medium, design: .default)
+    }
+
+    /// Scaled heading 1 style — accepts size from @ScaledMetric(relativeTo: .title)
+    static func kindredHeading1Scaled(size: CGFloat) -> Font {
+        .system(size: size, weight: .medium, design: .default)
+    }
+
+    /// Scaled heading 2 style — accepts size from @ScaledMetric(relativeTo: .title2)
+    static func kindredHeading2Scaled(size: CGFloat) -> Font {
+        .system(size: size, weight: .medium, design: .default)
+    }
+
+    /// Scaled heading 3 style — accepts size from @ScaledMetric(relativeTo: .headline)
+    static func kindredHeading3Scaled(size: CGFloat) -> Font {
+        .system(size: size, weight: .medium, design: .default)
+    }
+
+    /// Scaled body style — accepts size from @ScaledMetric(relativeTo: .body)
+    static func kindredBodyScaled(size: CGFloat) -> Font {
+        .system(size: size, weight: .light, design: .default)
+    }
+
+    /// Scaled bold body style — accepts size from @ScaledMetric(relativeTo: .subheadline)
+    static func kindredBodyBoldScaled(size: CGFloat) -> Font {
+        .system(size: size, weight: .medium, design: .default)
+    }
+
+    /// Scaled caption style — accepts size from @ScaledMetric(relativeTo: .caption)
+    static func kindredCaptionScaled(size: CGFloat) -> Font {
+        .system(size: size, weight: .light, design: .default)
+    }
+
+    /// Scaled small style — accepts size from @ScaledMetric(relativeTo: .caption)
+    static func kindredSmallScaled(size: CGFloat) -> Font {
+        .system(size: size, weight: .light, design: .default)
     }
 }
 
