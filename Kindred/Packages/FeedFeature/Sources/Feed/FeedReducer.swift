@@ -9,6 +9,7 @@ import NetworkClient
 import AuthClient
 import MonetizationFeature
 import os.log
+import UIKit
 
 private let feedLogger = Logger(subsystem: "com.ersinkirteke.kindred", category: "Feed")
 
@@ -625,6 +626,16 @@ public struct FeedReducer {
                 if let encoded = try? JSONEncoder().encode(newFilters) {
                     UserDefaults.standard.set(encoded, forKey: "dietaryPreferences")
                 }
+
+                // VoiceOver announcement for filter changes
+                let announcement: String
+                if newFilters.isEmpty {
+                    announcement = "Showing all recipes"
+                } else {
+                    let filterNames = newFilters.sorted().joined(separator: ", ")
+                    announcement = "Showing \(filterNames) recipes"
+                }
+                UIAccessibility.post(notification: .announcement, argument: announcement)
 
                 // Client-side filtering — no server round-trip needed
                 // Exclude already-swiped cards to prevent reappearance

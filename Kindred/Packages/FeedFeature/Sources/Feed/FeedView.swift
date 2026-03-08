@@ -6,6 +6,7 @@ import SwiftUI
 public struct FeedView: View {
     @Bindable var store: StoreOf<FeedReducer>
     @Namespace private var heroNamespace
+    @Environment(\.accessibilityReduceMotion) var reduceMotion
 
     public init(store: StoreOf<FeedReducer>) {
         self.store = store
@@ -33,7 +34,11 @@ public struct FeedView: View {
                 .navigationDestination(item: $store.scope(state: \.recipeDetail, action: \.recipeDetail)) { detailStore in
                     if #available(iOS 18.0, *) {
                         RecipeDetailView(store: detailStore)
-                            .navigationTransition(.zoom(sourceID: detailStore.recipeId, in: heroNamespace))
+                            .navigationTransition(
+                                reduceMotion
+                                    ? .crossfade
+                                    : .zoom(sourceID: detailStore.recipeId, in: heroNamespace)
+                            )
                     } else {
                         RecipeDetailView(store: detailStore)
                     }

@@ -13,10 +13,12 @@ struct SwipeCardStack: View {
 
     @State private var swipeCount: Int = 0
     @State private var showingAd: Bool = false
+    @Environment(\.accessibilityReduceMotion) var reduceMotion
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
 
     var body: some View {
         ZStack {
-            // Show next card/ad behind current for smooth transition
+            // Show next card/ad behind current for smooth transition (single card mode at AX sizes)
             if showingAd {
                 // Next card shows behind ad
                 if let nextCard = cards.first {
@@ -29,8 +31,10 @@ struct SwipeCardStack: View {
                     )
                     .id(nextCard.id)
                     .allowsHitTesting(false)
+                    .opacity(dynamicTypeSize.isAccessibilitySize ? 0 : 1) // Hide peeking card at AX sizes
                 }
-            } else if cards.count > 1 {
+            } else if cards.count > 1 && !dynamicTypeSize.isAccessibilitySize {
+                // Only show peeking card at non-AX sizes (single card mode at AX1+)
                 let nextCard = cards[1]
                 RecipeCardView(
                     recipe: nextCard,
@@ -47,7 +51,7 @@ struct SwipeCardStack: View {
             if showingAd {
                 AdCardView(onUpgradeTapped: onAdUpgradeTapped)
                     .frame(width: 340, height: 400)
-                    .transition(.asymmetric(
+                    .transition(reduceMotion ? .opacity : .asymmetric(
                         insertion: .scale(scale: 0.95).combined(with: .opacity),
                         removal: .opacity
                     ))
@@ -84,7 +88,7 @@ struct SwipeCardStack: View {
                     }
                 )
                 .id(card.id)
-                .transition(.asymmetric(
+                .transition(reduceMotion ? .opacity : .asymmetric(
                     insertion: .scale(scale: 0.95).combined(with: .opacity),
                     removal: .opacity
                 ))

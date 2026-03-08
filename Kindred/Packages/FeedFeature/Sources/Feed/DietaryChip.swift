@@ -23,8 +23,8 @@ struct DietaryChip: View {
                     )
             )
             .onTapGesture(perform: onTap)
-            .accessibilityLabel(title)
+            .accessibilityLabel("\(title) filter")
             .accessibilityAddTraits(isSelected ? .isSelected : [])
-            .accessibilityHint("Double tap to \(isSelected ? "remove" : "add") \(title) filter")
+            .accessibilityHint("Double tap to toggle")
     }
 }

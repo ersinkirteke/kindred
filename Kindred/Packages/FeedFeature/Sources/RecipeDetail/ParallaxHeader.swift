@@ -7,6 +7,7 @@ import DesignSystem
 struct ParallaxHeader: View {
 
     let imageUrl: String?
+    let recipeName: String
     let isViral: Bool
     let height: CGFloat = 300
 
@@ -35,11 +36,13 @@ struct ParallaxHeader: View {
                         )
                         .offset(y: offset > 0 ? -offset : offset * 0.5)  // Parallax: move at 0.5x speed
                         .clipped()
+                        .accessibilityLabel("Photo of \(recipeName)")
                 } else {
                     // Fallback if no image
                     Rectangle()
                         .fill(Color.kindredCardSurface)
                         .frame(width: geometry.size.width, height: height)
+                        .accessibilityLabel("Photo of \(recipeName)")
                 }
 
                 // Bottom gradient for readability
