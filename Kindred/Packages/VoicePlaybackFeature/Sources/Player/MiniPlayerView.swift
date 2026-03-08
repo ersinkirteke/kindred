@@ -57,7 +57,7 @@ public struct MiniPlayerView: View {
                     // Recipe name + speaker name / error
                     VStack(alignment: .leading, spacing: 2) {
                         if case let .error(message) = playback.status {
-                            Text("Error")
+                            Text(String(localized: "Error"))
                                 .font(.kindredBodyBold())
                                 .foregroundColor(.red)
                                 .lineLimit(1)
@@ -103,8 +103,8 @@ public struct MiniPlayerView: View {
                         }
                     }
                     .frame(width: 44, height: 44)
-                    .accessibilityLabel(playback.status == .playing ? "Pause" : "Play")
-                    .accessibilityHint(playback.status == .playing ? "Double tap to pause narration" : "Double tap to play narration")
+                    .accessibilityLabel(playback.status == .playing ? String(localized: "Pause") : String(localized: "Play"))
+                    .accessibilityHint(playback.status == .playing ? String(localized: "accessibility.mini_player.pause_hint") : String(localized: "accessibility.mini_player.play_hint"))
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
@@ -116,20 +116,20 @@ public struct MiniPlayerView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(
                     playback.status == .playing
-                        ? "Now playing \(playback.recipeName) by \(playback.speakerName)"
-                        : "Paused: \(playback.recipeName) by \(playback.speakerName)"
+                        ? String(localized: "Now playing \(playback.recipeName) by \(playback.speakerName)")
+                        : String(localized: "Paused: \(playback.recipeName) by \(playback.speakerName)")
                 )
-                .accessibilityAction(named: playback.status == .playing ? "Pause" : "Play") {
+                .accessibilityAction(named: playback.status == .playing ? String(localized: "Pause") : String(localized: "Play")) {
                     if playback.status == .playing || playback.status == .buffering {
                         store.send(.pause)
                     } else {
                         store.send(.play)
                     }
                 }
-                .accessibilityAction(named: "Expand player") {
+                .accessibilityAction(named: String(localized: "Expand player")) {
                     store.send(.toggleExpanded)
                 }
-                .accessibilityAction(named: "Dismiss") {
+                .accessibilityAction(named: String(localized: "Dismiss")) {
                     store.send(.stop)
                 }
             }

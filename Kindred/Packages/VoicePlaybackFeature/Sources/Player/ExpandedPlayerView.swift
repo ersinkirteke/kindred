@@ -65,7 +65,7 @@ public struct ExpandedPlayerView: View {
                             .font(.kindredHeading2Scaled(size: heading2Size))
                             .foregroundColor(.kindredAccent)
 
-                        Text("Narrating")
+                        Text(String(localized: "Narrating"))
                             .font(.kindredCaptionScaled(size: captionSize))
                             .foregroundColor(.kindredTextSecondary)
                     }
@@ -79,7 +79,7 @@ public struct ExpandedPlayerView: View {
                 if let stepIndex = playback.currentStepIndex,
                    stepIndex < store.recipeSteps.count {
                     ScrollView {
-                        Text("Step \(stepIndex + 1): \(store.recipeSteps[stepIndex])")
+                        Text(String(localized: "Step \(stepIndex + 1): \(store.recipeSteps[stepIndex])"))
                             .font(.kindredBodyScaled(size: bodySize))
                             .foregroundColor(.kindredTextSecondary)
                             .multilineTextAlignment(.center)
@@ -98,8 +98,8 @@ public struct ExpandedPlayerView: View {
                         in: 0...max(playback.duration, 1)
                     )
                     .tint(.kindredAccent)
-                    .accessibilityLabel("Playback position")
-                    .accessibilityValue("\(formatTime(playback.currentTime)) of \(formatTime(playback.duration))")
+                    .accessibilityLabel(String(localized: "Playback position"))
+                    .accessibilityValue(String(localized: "\(formatTime(playback.currentTime)) of \(formatTime(playback.duration))"))
 
                     HStack {
                         Text(formatTime(playback.currentTime))
@@ -145,8 +145,8 @@ public struct ExpandedPlayerView: View {
                                     .stroke(Color.kindredAccent, lineWidth: 1.5)
                             )
                     }
-                    .accessibilityLabel("Playback speed \(String(format: "%.2g", playback.speed.rawValue)) times")
-                    .accessibilityHint("Double tap to cycle through playback speeds")
+                    .accessibilityLabel(String(localized: "Playback speed \(String(format: "%.2g", playback.speed.rawValue)) times"))
+                    .accessibilityHint(String(localized: "accessibility.expanded_player.cycle_speed_hint"))
 
                     // Voice switch button (if multiple voices available)
                     if store.voiceProfiles.count > 1 {
@@ -157,7 +157,7 @@ public struct ExpandedPlayerView: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "person.2.fill")
                                     .font(.system(size: 14))
-                                Text("Voice")
+                                Text(String(localized: "Voice"))
                                     .font(.kindredBodyBoldScaled(size: bodySize))
                             }
                             .foregroundColor(.kindredAccent)
@@ -168,8 +168,8 @@ public struct ExpandedPlayerView: View {
                                     .stroke(Color.kindredAccent, lineWidth: 1.5)
                             )
                         }
-                        .accessibilityLabel("Switch narrator voice")
-                        .accessibilityHint("Double tap to choose a different voice")
+                        .accessibilityLabel(String(localized: "Switch narrator voice"))
+                        .accessibilityHint(String(localized: "accessibility.expanded_player.switch_voice_hint"))
                     }
                 }
 
@@ -194,8 +194,8 @@ public struct ExpandedPlayerView: View {
                 .foregroundColor(.kindredAccent)
                 .frame(width: 56, height: 56)
         }
-        .accessibilityLabel("Skip back 15 seconds")
-        .accessibilityHint("Double tap to go back 15 seconds")
+        .accessibilityLabel(String(localized: "Skip back 15 seconds"))
+        .accessibilityHint(String(localized: "accessibility.expanded_player.skip_back_hint"))
 
         // Play/pause (64dp per VOICE-02 requirement, scaled)
         Button {
@@ -218,8 +218,8 @@ public struct ExpandedPlayerView: View {
             }
         }
         .frame(width: playButtonSize, height: playButtonSize)
-        .accessibilityLabel(playback.status == .playing ? "Pause" : "Play")
-        .accessibilityHint("Double tap to \(playback.status == .playing ? "pause" : "play") narration")
+        .accessibilityLabel(playback.status == .playing ? String(localized: "Pause") : String(localized: "Play"))
+        .accessibilityHint(String(localized: "accessibility.expanded_player.playback_hint"))
 
         // Skip forward 30s
         Button {
@@ -231,8 +231,8 @@ public struct ExpandedPlayerView: View {
                 .foregroundColor(.kindredAccent)
                 .frame(width: 56, height: 56)
         }
-        .accessibilityLabel("Skip forward 30 seconds")
-        .accessibilityHint("Double tap to skip ahead 30 seconds")
+        .accessibilityLabel(String(localized: "Skip forward 30 seconds"))
+        .accessibilityHint(String(localized: "accessibility.expanded_player.skip_forward_hint"))
     }
 
     private func formatTime(_ seconds: TimeInterval) -> String {
