@@ -358,7 +358,7 @@ public struct FeedReducer {
                         }
                     } catch {
                         // Silently fail - local persistence errors shouldn't block UX
-                        print("Failed to persist swipe: \(error)")
+                        feedLogger.error("Failed to persist swipe: \(error.localizedDescription, privacy: .public)")
                     }
 
                     // Trigger pagination if needed
@@ -395,7 +395,7 @@ public struct FeedReducer {
                             try await guestSession.undoSkip(swipedRecipe.recipe.id)
                         }
                     } catch {
-                        print("Failed to undo swipe: \(error)")
+                        feedLogger.error("Failed to undo swipe: \(error.localizedDescription, privacy: .public)")
                     }
                 }
 

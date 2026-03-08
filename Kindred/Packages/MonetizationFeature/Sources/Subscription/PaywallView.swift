@@ -6,6 +6,11 @@ import DesignSystem
 public struct PaywallView: View {
     let store: StoreOf<SubscriptionReducer>
 
+    // @ScaledMetric for Dynamic Type support
+    @ScaledMetric(relativeTo: .largeTitle) private var heading1Size: CGFloat = 34
+    @ScaledMetric(relativeTo: .headline) private var bodySize: CGFloat = 18
+    @ScaledMetric(relativeTo: .caption) private var captionSize: CGFloat = 14
+
     public init(store: StoreOf<SubscriptionReducer>) {
         self.store = store
     }
@@ -21,7 +26,7 @@ public struct PaywallView: View {
             VStack(spacing: KindredSpacing.xl) {
                 // Heading
                 Text("Upgrade to Pro")
-                    .kindredHeading1()
+                    .font(.kindredHeading1Scaled(size: heading1Size))
                     .foregroundColor(.kindredTextPrimary)
                     .accessibilityAddTraits(.isHeader)
 
@@ -30,13 +35,15 @@ public struct PaywallView: View {
                     BenefitRow(
                         icon: "checkmark.seal.fill",
                         title: "Ad-Free Experience",
-                        description: "No interruptions while cooking"
+                        description: "No interruptions while cooking",
+                        bodySize: bodySize
                     )
 
                     BenefitRow(
                         icon: "mic.badge.plus",
                         title: "Unlimited Voice Profiles",
-                        description: "Clone any voice you love"
+                        description: "Clone any voice you love",
+                        bodySize: bodySize
                     )
                 }
 
@@ -47,7 +54,7 @@ public struct PaywallView: View {
                             ProgressView()
                                 .tint(.white)
                             Text("Loading...")
-                                .kindredBody()
+                                .font(.kindredBodyScaled(size: bodySize))
                                 .foregroundColor(.white)
                         }
                         .frame(maxWidth: .infinity)
@@ -59,7 +66,7 @@ public struct PaywallView: View {
                             ProgressView()
                                 .tint(.white)
                             Text("Processing...")
-                                .kindredBody()
+                                .font(.kindredBodyScaled(size: bodySize))
                                 .foregroundColor(.white)
                         }
                         .frame(maxWidth: .infinity)
@@ -86,12 +93,12 @@ public struct PaywallView: View {
                                 ProgressView()
                                     .controlSize(.small)
                                 Text("Restoring...")
-                                    .kindredCaption()
+                                    .font(.kindredCaptionScaled(size: captionSize))
                                     .foregroundColor(.kindredAccent)
                             }
                         } else {
                             Text("Restore Purchases")
-                                .kindredCaption()
+                                .font(.kindredCaptionScaled(size: captionSize))
                                 .foregroundColor(.kindredAccent)
                         }
                     }
@@ -102,7 +109,7 @@ public struct PaywallView: View {
                 // Error message
                 if let error = store.error, !error.isEmpty {
                     Text(error)
-                        .kindredCaption()
+                        .font(.kindredCaptionScaled(size: captionSize))
                         .foregroundColor(.red)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, KindredSpacing.md)
@@ -127,6 +134,7 @@ private struct BenefitRow: View {
     let icon: String
     let title: String
     let description: String
+    let bodySize: CGFloat
 
     var body: some View {
         HStack(alignment: .top, spacing: KindredSpacing.md) {
@@ -138,11 +146,11 @@ private struct BenefitRow: View {
 
             VStack(alignment: .leading, spacing: KindredSpacing.xs) {
                 Text(title)
-                    .kindredBodyBold()
+                    .font(.kindredBodyBoldScaled(size: bodySize))
                     .foregroundColor(.kindredTextPrimary)
 
                 Text(description)
-                    .kindredBody()
+                    .font(.kindredBodyScaled(size: bodySize))
                     .foregroundColor(.kindredTextSecondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)

@@ -5,6 +5,11 @@ import DesignSystem
 public struct OnboardingView: View {
     @Bindable var store: StoreOf<OnboardingReducer>
 
+    // @ScaledMetric for Dynamic Type support
+    @ScaledMetric(relativeTo: .title2) private var heading2Size: CGFloat = 22
+    @ScaledMetric(relativeTo: .headline) private var bodySize: CGFloat = 18
+    @ScaledMetric(relativeTo: .caption) private var captionSize: CGFloat = 14
+
     public init(store: StoreOf<OnboardingReducer>) {
         self.store = store
     }
