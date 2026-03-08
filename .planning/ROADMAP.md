@@ -153,11 +153,15 @@ Plans:
   3. All text scales correctly with Dynamic Type at accessibility sizes (AX1-AX5) without layout breaking
   4. App handles offline mode gracefully with cached content and clear indicators across all features
   5. App passes App Store review requirements (privacy labels, ATT consent, metadata complete)
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- [ ] 10-01: TBD
-- [ ] 10-02: TBD
+- [ ] 10-01-PLAN.md -- DesignSystem foundation: @ScaledMetric typography, Reduce Motion shimmer, HapticFeedback expansion, OfflineBanner + ToastNotification components
+- [ ] 10-02-PLAN.md -- App infrastructure: AppReducer shared connectivity state, MetricKit, BGAppRefreshTask, os.log Logger
+- [ ] 10-03-PLAN.md -- VoiceOver + Reduce Motion: accessibility labels/hints/actions across all views, motion fallbacks, layout adaptations
+- [ ] 10-04-PLAN.md -- Dynamic Type @ScaledMetric adoption, error/empty state consistency, offline handling
+- [ ] 10-05-PLAN.md -- Localization: String(localized:) extraction, String Catalog with Turkish translations, print()-to-Logger migration
+- [ ] 10-06-PLAN.md -- WCAG AAA color contrast audit + device verification checkpoint
 
 ---
 
