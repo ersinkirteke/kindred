@@ -3,6 +3,12 @@ import Dependencies
 import DependenciesMacros
 import FeedFeature
 import AuthClient
+import OSLog
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+    static let guestMigration = Logger(subsystem: subsystem, category: "guest-migration")
+}
 
 /// TCA dependency client for migrating guest data to authenticated account
 @DependencyClient
@@ -38,10 +44,10 @@ extension GuestMigrationClient: DependencyKey {
 
                 // TODO: Execute GraphQL mutation when backend endpoint is ready
                 // For now, log the migration data and mark as successful
-                print("🔄 [GuestMigration] Migrating data for guest: \(guestUserId)")
-                print("📚 Bookmarks: \(bookmarks.count)")
-                print("⏭️ Skips: \(skips.count)")
-                print("🍽️ Dietary preferences: \(dietaryPreferences.joined(separator: ", "))")
+                Logger.guestMigration.info("Migrating data for guest: \(guestUserId, privacy: .private)")
+                Logger.guestMigration.info("Bookmarks: \(bookmarks.count, privacy: .public)")
+                Logger.guestMigration.info("Skips: \(skips.count, privacy: .public)")
+                Logger.guestMigration.info("Dietary preferences: \(dietaryPreferences.joined(separator: ", "), privacy: .public)")
 
                 // Simulate GraphQL mutation (placeholder until backend is ready)
                 // let mutation = MigrateGuestDataMutation(
@@ -64,7 +70,7 @@ extension GuestMigrationClient: DependencyKey {
                 // Keep guestUserId for analytics continuity, but mark as migrated
                 UserDefaults.standard.set(true, forKey: "guestMigrated")
 
-                print("✅ [GuestMigration] Migration complete")
+                Logger.guestMigration.notice("Migration complete")
             },
             hasPendingMigration: {
                 let bookmarks = await guestSessionClient.allBookmarks()

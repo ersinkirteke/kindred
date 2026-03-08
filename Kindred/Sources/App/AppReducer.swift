@@ -6,6 +6,12 @@ import VoicePlaybackFeature
 import AuthClient
 import AuthFeature
 import UIKit
+import OSLog
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+    static let migration = Logger(subsystem: subsystem, category: "migration")
+}
 
 @Reducer
 struct AppReducer {
@@ -222,7 +228,7 @@ struct AppReducer {
                         try await guestMigrationClient.migrateGuestData()
                         await send(.migrationSucceeded)
                     } catch {
-                        print("❌ [Migration] Failed: \(error)")
+                        Logger.migration.error("Failed: \(error.localizedDescription, privacy: .public)")
                         await send(.migrationFailed)
                     }
                 }
@@ -230,7 +236,7 @@ struct AppReducer {
             case .migrationSucceeded:
                 state.isMigrating = false
                 state.migrationRetryCount = 0
-                print("✅ [Migration] Guest data migration succeeded")
+                Logger.migration.notice("Guest data migration succeeded")
                 return .none
 
             case .migrationFailed:
@@ -240,14 +246,14 @@ struct AppReducer {
                 // Retry with exponential backoff (2s, 4s, 8s)
                 if state.migrationRetryCount <= 3 {
                     let delay = pow(2.0, Double(state.migrationRetryCount))
-                    print("⏱️ [Migration] Retry \(state.migrationRetryCount)/3 in \(delay)s")
+                    Logger.migration.info("Retry \(state.migrationRetryCount, privacy: .public)/3 in \(delay, privacy: .public)s")
 
                     return .run { send in
                         try await clock.sleep(for: .seconds(delay))
                         await send(.retryMigration)
                     }
                 } else {
-                    print("⚠️ [Migration] Max retries exceeded - data remains local")
+                    Logger.migration.warning("Max retries exceeded - data remains local")
                     return .none
                 }
 
@@ -257,7 +263,7 @@ struct AppReducer {
                         try await guestMigrationClient.migrateGuestData()
                         await send(.migrationSucceeded)
                     } catch {
-                        print("❌ [Migration] Retry failed: \(error)")
+                        Logger.migration.error("Retry failed: \(error.localizedDescription, privacy: .public)")
                         await send(.migrationFailed)
                     }
                 }

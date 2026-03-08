@@ -1,6 +1,12 @@
 import DesignSystem
 import MonetizationFeature
 import SwiftUI
+import OSLog
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+    fileprivate static let swipeStack = Logger(subsystem: subsystem, category: "swipe-stack")
+}
 
 struct SwipeCardStack: View {
     let cards: [RecipeCard]
@@ -72,7 +78,7 @@ struct SwipeCardStack: View {
                     heroNamespace: heroNamespace,
                     isPersonalized: isPersonalized(card),
                     onSwipe: { direction in
-                        print("🃏 [Stack] onSwipe received: \(card.id) \(direction)")
+                        Logger.swipeStack.debug("onSwipe received: \(card.id, privacy: .private) \(direction.rawValue, privacy: .public)")
                         // Increment swipe count after recipe card swipe
                         swipeCount += 1
                         // Check if we should show ad after this swipe

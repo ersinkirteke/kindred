@@ -1,5 +1,11 @@
 import DesignSystem
 import SwiftUI
+import OSLog
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+    fileprivate static let feed = Logger(subsystem: subsystem, category: "feed")
+}
 
 /// One-time celebratory card that appears when Culinary DNA activates (50+ interactions)
 struct DNAActivationCard: View {
@@ -37,6 +43,6 @@ struct DNAActivationCard: View {
 
 #Preview {
     DNAActivationCard {
-        print("Dismissed")
+        Logger.feed.debug("Dismissed")
     }
 }

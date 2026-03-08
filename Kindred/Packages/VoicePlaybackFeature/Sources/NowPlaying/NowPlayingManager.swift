@@ -2,6 +2,12 @@ import AVFoundation
 import MediaPlayer
 import Kingfisher
 import UIKit
+import OSLog
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+    static let nowPlaying = Logger(subsystem: subsystem, category: "now-playing")
+}
 
 /// Manages MPNowPlayingInfoCenter and MPRemoteCommandCenter for lock screen and Control Center integration
 public final class NowPlayingManager {
@@ -109,7 +115,7 @@ public final class NowPlayingManager {
                     self?.infoCenter.nowPlayingInfo = nowPlayingInfo
 
                 case .failure(let error):
-                    print("⚠️ Failed to load artwork for Now Playing: \(error.localizedDescription)")
+                    Logger.nowPlaying.warning("Failed to load artwork for Now Playing: \(error.localizedDescription, privacy: .public)")
                     // Set info without artwork
                     self?.infoCenter.nowPlayingInfo = nowPlayingInfo
                 }

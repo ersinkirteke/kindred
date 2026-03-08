@@ -1,4 +1,10 @@
 import SwiftUI
+import OSLog
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+    static let designSystem = Logger(subsystem: subsystem, category: "design-system")
+}
 
 // MARK: - ErrorStateView
 // Warm, friendly error display for failed states
@@ -120,17 +126,17 @@ struct ErrorStateView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             ErrorStateView.networkError {
-                print("Retry tapped")
+                Logger.designSystem.debug("Retry tapped")
             }
             .previewDisplayName("Network Error")
 
             ErrorStateView.genericError {
-                print("Retry tapped")
+                Logger.designSystem.debug("Retry tapped")
             }
             .previewDisplayName("Generic Error")
 
             ErrorStateView.locationError {
-                print("Open settings tapped")
+                Logger.designSystem.debug("Open settings tapped")
             }
             .previewDisplayName("Location Error")
 

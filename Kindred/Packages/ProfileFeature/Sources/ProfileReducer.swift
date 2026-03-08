@@ -3,6 +3,12 @@ import FeedFeature
 import Foundation
 import MonetizationFeature
 import StoreKit
+import OSLog
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+    static let profile = Logger(subsystem: subsystem, category: "profile")
+}
 
 // Resolve SubscriptionStatus ambiguity between FeedFeature and MonetizationFeature
 public typealias SubscriptionStatus = MonetizationFeature.SubscriptionStatus
@@ -177,7 +183,7 @@ public struct ProfileReducer {
                 return .none
 
             case let .purchaseFailed(message):
-                print("Purchase failed: \(message)")
+                Logger.profile.error("Purchase failed: \(message, privacy: .public)")
                 return .none
 
             case .manageSubscriptionTapped:
@@ -198,7 +204,7 @@ public struct ProfileReducer {
                         await send(.restoreCompleted(status))
                     } catch {
                         // Restore failed, keep current status
-                        print("Restore failed: \(error.localizedDescription)")
+                        Logger.profile.error("Restore failed: \(error.localizedDescription, privacy: .public)")
                     }
                 }
 

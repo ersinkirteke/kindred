@@ -1,4 +1,10 @@
 import SwiftUI
+import OSLog
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+    fileprivate static let designSystem = Logger(subsystem: subsystem, category: "design-system")
+}
 
 // MARK: - KindredButton
 // Primary CTA button with 56dp minimum touch target (WCAG AAA compliance)
@@ -122,15 +128,15 @@ struct KindredButton_Previews: PreviewProvider {
         Group {
             VStack(spacing: KindredSpacing.md) {
                 KindredButton("Listen", style: .primary) {
-                    print("Primary tapped")
+                    Logger.designSystem.debug("Primary tapped")
                 }
 
                 KindredButton("Listen", style: .primary, isLoading: true) {
-                    print("Loading")
+                    Logger.designSystem.debug("Loading")
                 }
 
                 KindredButton("Listen", style: .primary, isDisabled: true) {
-                    print("Disabled")
+                    Logger.designSystem.debug("Disabled")
                 }
             }
             .padding()
@@ -138,11 +144,11 @@ struct KindredButton_Previews: PreviewProvider {
 
             VStack(spacing: KindredSpacing.md) {
                 KindredButton("Skip", style: .secondary) {
-                    print("Secondary tapped")
+                    Logger.designSystem.debug("Secondary tapped")
                 }
 
                 KindredButton("Skip", style: .secondary, isDisabled: true) {
-                    print("Disabled")
+                    Logger.designSystem.debug("Disabled")
                 }
             }
             .padding()
@@ -150,7 +156,7 @@ struct KindredButton_Previews: PreviewProvider {
 
             VStack(spacing: KindredSpacing.md) {
                 KindredButton("Learn More", style: .text) {
-                    print("Text tapped")
+                    Logger.designSystem.debug("Text tapped")
                 }
             }
             .padding()

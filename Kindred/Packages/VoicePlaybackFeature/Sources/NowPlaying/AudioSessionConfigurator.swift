@@ -1,5 +1,11 @@
 import AVFoundation
 import Foundation
+import OSLog
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+    static let audioSession = Logger(subsystem: subsystem, category: "audio-session")
+}
 
 /// Configures AVAudioSession for background audio playback with interruption and route change handling
 public enum AudioSessionConfigurator {
@@ -34,7 +40,7 @@ public enum AudioSessionConfigurator {
             }
 
         } catch {
-            print("⚠️ Failed to configure AVAudioSession: \(error.localizedDescription)")
+            Logger.audioSession.error("Failed to configure AVAudioSession: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -51,7 +57,7 @@ public enum AudioSessionConfigurator {
         case .began:
             // Interruption began (phone call, Siri, etc.)
             // AVPlayer automatically pauses - no action needed
-            print("🔇 Audio session interrupted")
+            Logger.audioSession.info("Audio session interrupted")
 
         case .ended:
             // Interruption ended - check if we should resume
@@ -60,10 +66,10 @@ public enum AudioSessionConfigurator {
                 if options.contains(.shouldResume) {
                     // System recommends resuming playback
                     // AVPlayer will handle resume via MPRemoteCommandCenter
-                    print("🔊 Audio session interruption ended - resume recommended")
+                    Logger.audioSession.info("Audio session interruption ended - resume recommended")
                 } else {
                     // System recommends NOT resuming (user declined call, etc.)
-                    print("🔊 Audio session interruption ended - resume NOT recommended")
+                    Logger.audioSession.info("Audio session interruption ended - resume NOT recommended")
                 }
             }
 
@@ -85,16 +91,16 @@ public enum AudioSessionConfigurator {
         case .oldDeviceUnavailable:
             // Audio route changed because a device was removed (headphones unplugged)
             // Pause playback to prevent unexpected audio through device speaker
-            print("🎧 Audio device disconnected - pausing playback")
+            Logger.audioSession.info("Audio device disconnected - pausing playback")
             // AVPlayer will receive pause command via MPRemoteCommandCenter
 
         case .newDeviceAvailable:
             // New audio route available (headphones plugged in, Bluetooth connected)
-            print("🎧 New audio device connected")
+            Logger.audioSession.info("New audio device connected")
 
         case .categoryChange:
             // Audio session category changed by another app
-            print("🔄 Audio session category changed")
+            Logger.audioSession.info("Audio session category changed")
 
         default:
             break
