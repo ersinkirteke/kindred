@@ -2,6 +2,15 @@ import ComposableArchitecture
 import Foundation
 import MonetizationFeature
 import SwiftUI
+import UIKit
+import OSLog
+
+// MARK: - Logger Extension
+
+extension Logger {
+    private static var subsystem = Bundle.main.bundleIdentifier!
+    static let voicePlayback = Logger(subsystem: subsystem, category: "voice-playback")
+}
 
 // MARK: - VoicePlaybackReducer
 
@@ -413,6 +422,13 @@ public struct VoicePlaybackReducer {
                     status: .playing,
                     currentStepIndex: shouldRestart ? 0 : currentPlayback.currentStepIndex
                 )
+
+                // VoiceOver announcement
+                UIAccessibility.post(
+                    notification: .announcement,
+                    argument: "Now playing: \(currentPlayback.recipeName) by \(currentPlayback.speakerName)"
+                )
+
                 return .run { _ in
                     if shouldRestart {
                         await audioPlayer.seek(0)
@@ -435,6 +451,13 @@ public struct VoicePlaybackReducer {
                     status: .paused,
                     currentStepIndex: currentPlayback.currentStepIndex
                 )
+
+                // VoiceOver announcement
+                UIAccessibility.post(
+                    notification: .announcement,
+                    argument: "Paused"
+                )
+
                 return .run { _ in
                     await audioPlayer.pause()
                 }
@@ -697,7 +720,7 @@ public struct VoicePlaybackReducer {
 
             case let .cachingFailed(errorMessage):
                 // Non-critical failure - log but don't block playback
-                print("Caching failed (non-critical): \(errorMessage)")
+                Logger.voicePlayback.warning("Caching failed (non-critical): \(errorMessage, privacy: .public)")
                 return .none
 
             case .checkSubscriptionStatus:

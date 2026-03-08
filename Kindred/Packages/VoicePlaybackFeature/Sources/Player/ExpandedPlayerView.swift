@@ -15,6 +15,8 @@ public struct ExpandedPlayerView: View {
     @ScaledMetric(relativeTo: .caption) private var captionSize: CGFloat = 14
     @ScaledMetric(relativeTo: .title) private var playButtonSize: CGFloat = 64
 
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
+
     public init(store: StoreOf<VoicePlaybackReducer>) {
         self.store = store
     }
@@ -113,57 +115,17 @@ public struct ExpandedPlayerView: View {
                 }
                 .padding(.horizontal, 24)
 
-                // Transport controls
-                HStack(spacing: 40) {
-                    // Skip back 15s
-                    Button {
-                        store.send(.skipBackward)
-                        HapticFeedback.light()
-                    } label: {
-                        Image(systemName: "gobackward.15")
-                            .font(.title2)
-                            .foregroundColor(.kindredAccent)
-                            .frame(width: 56, height: 56)
-                    }
-                    .accessibilityLabel("Skip back 15 seconds")
-                    .accessibilityHint("Double tap to go back 15 seconds")
-
-                    // Play/pause (64dp per VOICE-02 requirement, scaled)
-                    Button {
-                        if playback.status == .playing || playback.status == .buffering {
-                            store.send(.pause)
-                        } else {
-                            store.send(.play)
+                // Transport controls (vertical stack at AX sizes)
+                Group {
+                    if dynamicTypeSize.isAccessibilitySize {
+                        VStack(spacing: 24) {
+                            transportControlButtons(playback: playback)
                         }
-                        HapticFeedback.medium()
-                    } label: {
-                        if store.isLoadingNarration || playback.status == .loading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
-                                .scaleEffect(2.0)
-                                .frame(width: playButtonSize, height: playButtonSize)
-                        } else {
-                            Image(systemName: (playback.status == .playing || playback.status == .buffering) ? "pause.circle.fill" : "play.circle.fill")
-                                .font(.system(size: playButtonSize))
-                                .foregroundColor(.kindredAccent)
+                    } else {
+                        HStack(spacing: 40) {
+                            transportControlButtons(playback: playback)
                         }
                     }
-                    .frame(width: playButtonSize, height: playButtonSize)
-                    .accessibilityLabel(playback.status == .playing ? "Pause" : "Play")
-                    .accessibilityHint("Double tap to \(playback.status == .playing ? "pause" : "play") narration")
-
-                    // Skip forward 30s
-                    Button {
-                        store.send(.skipForward)
-                        HapticFeedback.light()
-                    } label: {
-                        Image(systemName: "goforward.30")
-                            .font(.title2)
-                            .foregroundColor(.kindredAccent)
-                            .frame(width: 56, height: 56)
-                    }
-                    .accessibilityLabel("Skip forward 30 seconds")
-                    .accessibilityHint("Double tap to skip ahead 30 seconds")
                 }
 
                 // Speed control + voice switch
@@ -219,6 +181,59 @@ public struct ExpandedPlayerView: View {
     }
 
     // MARK: - Helpers
+
+    @ViewBuilder
+    private func transportControlButtons(playback: CurrentPlayback) -> some View {
+        // Skip back 15s
+        Button {
+            store.send(.skipBackward)
+            HapticFeedback.light()
+        } label: {
+            Image(systemName: "gobackward.15")
+                .font(.title2)
+                .foregroundColor(.kindredAccent)
+                .frame(width: 56, height: 56)
+        }
+        .accessibilityLabel("Skip back 15 seconds")
+        .accessibilityHint("Double tap to go back 15 seconds")
+
+        // Play/pause (64dp per VOICE-02 requirement, scaled)
+        Button {
+            if playback.status == .playing || playback.status == .buffering {
+                store.send(.pause)
+            } else {
+                store.send(.play)
+            }
+            HapticFeedback.medium()
+        } label: {
+            if store.isLoadingNarration || playback.status == .loading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
+                    .scaleEffect(2.0)
+                    .frame(width: playButtonSize, height: playButtonSize)
+            } else {
+                Image(systemName: (playback.status == .playing || playback.status == .buffering) ? "pause.circle.fill" : "play.circle.fill")
+                    .font(.system(size: playButtonSize))
+                    .foregroundColor(.kindredAccent)
+            }
+        }
+        .frame(width: playButtonSize, height: playButtonSize)
+        .accessibilityLabel(playback.status == .playing ? "Pause" : "Play")
+        .accessibilityHint("Double tap to \(playback.status == .playing ? "pause" : "play") narration")
+
+        // Skip forward 30s
+        Button {
+            store.send(.skipForward)
+            HapticFeedback.light()
+        } label: {
+            Image(systemName: "goforward.30")
+                .font(.title2)
+                .foregroundColor(.kindredAccent)
+                .frame(width: 56, height: 56)
+        }
+        .accessibilityLabel("Skip forward 30 seconds")
+        .accessibilityHint("Double tap to skip ahead 30 seconds")
+    }
 
     private func formatTime(_ seconds: TimeInterval) -> String {
         let minutes = Int(seconds) / 60

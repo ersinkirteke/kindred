@@ -114,9 +114,23 @@ public struct MiniPlayerView: View {
                     store.send(.toggleExpanded)
                 }
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("Now playing \(playback.recipeName) by \(playback.speakerName)")
+                .accessibilityLabel(
+                    playback.status == .playing
+                        ? "Now playing \(playback.recipeName) by \(playback.speakerName)"
+                        : "Paused: \(playback.recipeName) by \(playback.speakerName)"
+                )
+                .accessibilityAction(named: playback.status == .playing ? "Pause" : "Play") {
+                    if playback.status == .playing || playback.status == .buffering {
+                        store.send(.pause)
+                    } else {
+                        store.send(.play)
+                    }
+                }
                 .accessibilityAction(named: "Expand player") {
                     store.send(.toggleExpanded)
+                }
+                .accessibilityAction(named: "Dismiss") {
+                    store.send(.stop)
                 }
             }
             .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -2)

@@ -4,8 +4,33 @@ import DesignSystem
 
 struct SignInStepView: View {
     let store: StoreOf<OnboardingReducer>
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
 
     var body: some View {
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                ScrollView {
+                    stepContent
+                }
+                .overlay(alignment: .bottom) {
+                    // Gradient fade indicator for scroll-for-more
+                    LinearGradient(
+                        colors: [Color.kindredBackground.opacity(0), Color.kindredBackground],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 40)
+                    .allowsHitTesting(false)
+                }
+            } else {
+                stepContent
+            }
+        }
+        .background(Color.kindredBackground)
+        .accessibilityHint("Sign in to save your preferences and voice profiles")
+    }
+
+    private var stepContent: some View {
         VStack(spacing: 0) {
             // Skip button at top-right
             HStack {
@@ -102,6 +127,5 @@ struct SignInStepView: View {
 
             Spacer(minLength: 40)
         }
-        .background(Color.kindredBackground)
     }
 }
