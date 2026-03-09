@@ -69,6 +69,7 @@ struct AppReducer {
         case migrationSucceeded
         case migrationFailed
         case retryMigration
+        case checkPendingMigration
 
         // Connectivity actions
         case startConnectivityMonitor
@@ -121,15 +122,33 @@ struct AppReducer {
                     argument: isOffline ? "You're offline" : "Back online"
                 )
 
-                // Auto-refresh feed when connectivity returns
+                // Auto-refresh feed and retry pending migration when connectivity returns
                 if wasOffline && !isOffline {
-                    return .send(.feed(.refreshFeed))
+                    var effects: [Effect<Action>] = [.send(.feed(.refreshFeed))]
+
+                    // Retry pending migration when connectivity returns
+                    if UserDefaults.standard.bool(forKey: "pendingMigration"),
+                       !state.isMigrating,
+                       state.migrationRetryCount < 3 {
+                        effects.append(.send(.startMigration))
+                    }
+
+                    return .merge(effects)
                 }
 
                 return .none
 
             case let .authStateChanged(authState):
                 state.currentAuthState = authState
+
+                // Check for pending migration on authenticated app launch
+                if case .authenticated = authState, state.hasCompletedOnboarding {
+                    return .merge(
+                        .send(.feed(.authStateUpdated(authState))),
+                        .send(.feed(.recipeDetail(.presented(.authStateUpdated(authState))))),
+                        .send(.checkPendingMigration)
+                    )
+                }
 
                 // Trigger onboarding after first sign-in
                 if case .authenticated = authState, !state.hasCompletedOnboarding {
@@ -294,13 +313,22 @@ struct AppReducer {
                     UserDefaults.standard.removeObject(forKey: "onboardingCurrentStep")
                 }
 
+            case .checkPendingMigration:
+                if UserDefaults.standard.bool(forKey: "pendingMigration"),
+                   case .authenticated = state.currentAuthState,
+                   !state.isMigrating {
+                    return .send(.startMigration)
+                }
+                return .none
+
             case .startMigration:
                 state.isMigrating = true
                 state.migrationRetryCount = 0
 
                 return .run { send in
                     do {
-                        try await guestMigrationClient.migrateGuestData()
+                        let result = try await guestMigrationClient.migrateGuestData()
+                        Logger.migration.notice("Migrated \(result.migratedBookmarks, privacy: .public) bookmarks, \(result.migratedSkips, privacy: .public) skips")
                         await send(.migrationSucceeded)
                     } catch {
                         Logger.migration.error("Failed: \(error.localizedDescription, privacy: .public)")
@@ -312,7 +340,9 @@ struct AppReducer {
                 state.isMigrating = false
                 state.migrationRetryCount = 0
                 Logger.migration.notice("Guest data migration succeeded")
-                return .none
+                return .run { _ in
+                    UserDefaults.standard.removeObject(forKey: "pendingMigration")
+                }
 
             case .migrationFailed:
                 state.isMigrating = false
@@ -336,7 +366,8 @@ struct AppReducer {
             case .retryMigration:
                 return .run { send in
                     do {
-                        try await guestMigrationClient.migrateGuestData()
+                        let result = try await guestMigrationClient.migrateGuestData()
+                        Logger.migration.notice("Retry succeeded: \(result.migratedBookmarks, privacy: .public) bookmarks, \(result.migratedSkips, privacy: .public) skips")
                         await send(.migrationSucceeded)
                     } catch {
                         Logger.migration.error("Retry failed: \(error.localizedDescription, privacy: .public)")
