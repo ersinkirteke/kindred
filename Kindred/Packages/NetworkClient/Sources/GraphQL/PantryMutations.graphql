@@ -1,0 +1,57 @@
+mutation AddPantryItem($input: AddPantryItemInput!) {
+  addPantryItem(input: $input) {
+    id
+    name
+    normalizedName
+    quantity
+    unit
+    storageLocation
+    foodCategory
+    photoUrl
+    notes
+    source
+    expiryDate
+    isDeleted
+    createdAt
+    updatedAt
+  }
+}
+
+mutation BulkAddPantryItems($input: BulkAddPantryItemsInput!) {
+  bulkAddPantryItems(input: $input) {
+    id
+    name
+    normalizedName
+    quantity
+    unit
+    storageLocation
+    foodCategory
+    source
+    createdAt
+    updatedAt
+  }
+}
+
+mutation UpdatePantryItem($id: String!, $userId: String!, $input: UpdatePantryItemInput!) {
+  updatePantryItem(id: $id, userId: $userId, input: $input) {
+    id
+    name
+    normalizedName
+    quantity
+    unit
+    storageLocation
+    foodCategory
+    photoUrl
+    notes
+    expiryDate
+    updatedAt
+  }
+}
+
+mutation DeletePantryItem($id: String!, $userId: String!) {
+  deletePantryItem(id: $id, userId: $userId) {
+    id
+    isDeleted
+    updatedAt
+  }
+}

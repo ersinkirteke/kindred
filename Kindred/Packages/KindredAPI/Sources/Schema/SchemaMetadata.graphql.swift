@@ -21,7 +21,10 @@ public enum SchemaMetadata: ApolloAPI.SchemaMetadata {
   @_spi(Execution) public static func objectType(forTypename typename: String) -> ApolloAPI.Object? {
     switch typename {
     case "Ingredient": return KindredAPI.Objects.Ingredient
+    case "IngredientCatalogEntry": return KindredAPI.Objects.IngredientCatalogEntry
+    case "Mutation": return KindredAPI.Objects.Mutation
     case "PageInfo": return KindredAPI.Objects.PageInfo
+    case "PantryItemModel": return KindredAPI.Objects.PantryItemModel
     case "Query": return KindredAPI.Objects.Query
     case "Recipe": return KindredAPI.Objects.Recipe
     case "RecipeCard": return KindredAPI.Objects.RecipeCard

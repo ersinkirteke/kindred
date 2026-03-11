@@ -1,0 +1,29 @@
+query PantryItems($userId: String!, $sinceTimestamp: DateTime) {
+  pantryItems(userId: $userId, sinceTimestamp: $sinceTimestamp) {
+    id
+    name
+    normalizedName
+    quantity
+    unit
+    storageLocation
+    foodCategory
+    photoUrl
+    notes
+    source
+    expiryDate
+    isDeleted
+    createdAt
+    updatedAt
+  }
+}
+
+query IngredientSearch($query: String!, $lang: String = "en") {
+  ingredientSearch(query: $query, lang: $lang) {
+    id
+    canonicalName
+    canonicalNameTR
+    aliases
+    defaultCategory
+    defaultShelfLifeDays
+  }
+}
