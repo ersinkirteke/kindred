@@ -41,7 +41,7 @@
 
 **Milestone Goal:** Add ingredient intelligence — fridge scanning, receipt scanning, persistent pantry, expiry tracking, and recipe-ingredient matching to transform Kindred from recipe discovery into a complete cooking companion.
 
-- [ ] **Phase 12: Pantry Infrastructure** - Backend GraphQL schema, ingredient normalization, PantryFeature SPM package foundation
+- [x] **Phase 12: Pantry Infrastructure** - Backend GraphQL schema, ingredient normalization, PantryFeature SPM package foundation (completed 2026-03-11)
 - [ ] **Phase 13: Manual Pantry Management** - Local-first CRUD with SwiftData, offline-first sync, storage categorization
 - [ ] **Phase 14: Camera Capture** - Progressive permission request, photo capture, R2 upload, memory-safe processing
 - [ ] **Phase 15: AI Scanning** - Fridge photo recognition (Pro), receipt OCR (Pro), Gemini analysis, Pro paywall
@@ -162,7 +162,7 @@ Phases execute in numeric order: 12 → 13 → 14 → 15 → 16 → 17
 | 9. Monetization & Voice Tiers | v2.0 | 5/5 | Complete | 2026-03-08 |
 | 10. Accessibility & Polish | v2.0 | 7/7 | Complete | 2026-03-08 |
 | 11. Auth Gap Closure | v2.0 | 2/2 | Complete | 2026-03-09 |
-| 12. Pantry Infrastructure | 2/3 | In Progress|  | - |
+| 12. Pantry Infrastructure | 3/3 | Complete   | 2026-03-11 | - |
 | 13. Manual Pantry Management | v3.0 | 0/? | Not started | - |
 | 14. Camera Capture | v3.0 | 0/? | Not started | - |
 | 15. AI Scanning | v3.0 | 0/? | Not started | - |
