@@ -83,38 +83,38 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PANTRY-01 | — | Pending |
-| PANTRY-02 | — | Pending |
-| PANTRY-03 | — | Pending |
-| PANTRY-04 | — | Pending |
-| PANTRY-05 | — | Pending |
-| PANTRY-06 | — | Pending |
-| PANTRY-07 | — | Pending |
-| SCAN-01 | — | Pending |
-| SCAN-02 | — | Pending |
-| SCAN-03 | — | Pending |
-| SCAN-04 | — | Pending |
-| SCAN-05 | — | Pending |
-| SCAN-06 | — | Pending |
-| MATCH-01 | — | Pending |
-| MATCH-02 | — | Pending |
-| MATCH-03 | — | Pending |
-| MATCH-04 | — | Pending |
-| EXPIRY-01 | — | Pending |
-| EXPIRY-02 | — | Pending |
-| EXPIRY-03 | — | Pending |
-| EXPIRY-04 | — | Pending |
-| EXPIRY-05 | — | Pending |
-| INFRA-01 | — | Pending |
-| INFRA-02 | — | Pending |
-| INFRA-03 | — | Pending |
-| INFRA-04 | — | Pending |
+| PANTRY-01 | Phase 13 | Pending |
+| PANTRY-02 | Phase 13 | Pending |
+| PANTRY-03 | Phase 13 | Pending |
+| PANTRY-04 | Phase 13 | Pending |
+| PANTRY-05 | Phase 13 | Pending |
+| PANTRY-06 | Phase 13 | Pending |
+| PANTRY-07 | Phase 13 | Pending |
+| SCAN-01 | Phase 15 | Pending |
+| SCAN-02 | Phase 15 | Pending |
+| SCAN-03 | Phase 15 | Pending |
+| SCAN-04 | Phase 15 | Pending |
+| SCAN-05 | Phase 15 | Pending |
+| SCAN-06 | Phase 14 | Pending |
+| MATCH-01 | Phase 16 | Pending |
+| MATCH-02 | Phase 16 | Pending |
+| MATCH-03 | Phase 16 | Pending |
+| MATCH-04 | Phase 16 | Pending |
+| EXPIRY-01 | Phase 17 | Pending |
+| EXPIRY-02 | Phase 17 | Pending |
+| EXPIRY-03 | Phase 17 | Pending |
+| EXPIRY-04 | Phase 17 | Pending |
+| EXPIRY-05 | Phase 17 | Pending |
+| INFRA-01 | Phase 12 | Pending |
+| INFRA-02 | Phase 12 | Pending |
+| INFRA-03 | Phase 12 | Pending |
+| INFRA-04 | Phase 14 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 24 total
-- Mapped to phases: 0
-- Unmapped: 24 ⚠️
+- Mapped to phases: 24 (100%)
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-11*
-*Last updated: 2026-03-11 after initial definition*
+*Last updated: 2026-03-11 after roadmap creation*
