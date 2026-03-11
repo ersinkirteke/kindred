@@ -25,7 +25,8 @@ public struct PantryView: View {
                     pantryList
                 }
             }
-            .navigationTitle("Pantry")
+            .navigationTitle(String(localized: "pantry.title", bundle: .main))
+            .searchable(text: $store.searchText.sending(\.searchTextChanged), prompt: String(localized: "pantry.search.prompt", defaultValue: "Search items", bundle: .main))
             .toolbar {
                 if store.userId != nil && !store.isEmpty {
                     ToolbarItem(placement: .primaryAction) {
@@ -34,7 +35,7 @@ public struct PantryView: View {
                         } label: {
                             Image(systemName: "plus")
                         }
-                        .accessibilityLabel("Add pantry item")
+                        .accessibilityLabel(String(localized: "accessibility.pantry.add_item", bundle: .main))
                     }
                 }
             }
@@ -55,11 +56,15 @@ public struct PantryView: View {
                 }
                 .padding(.trailing, 20)
                 .padding(.bottom, 20)
-                .accessibilityLabel("Add pantry item")
+                .accessibilityLabel(String(localized: "accessibility.pantry.add_item", bundle: .main))
             }
         }
         .onAppear {
             store.send(.onAppear)
+        }
+        .alert($store.scope(state: \.alert, action: \.alert))
+        .sheet(item: $store.scope(state: \.addEditForm, action: \.addEditForm)) { formStore in
+            AddEditItemFormView(store: formStore)
         }
     }
 
@@ -69,64 +74,104 @@ public struct PantryView: View {
             if !store.fridgeItems.isEmpty {
                 Section {
                     ForEach(store.fridgeItems) { item in
-                        PantryItemRow(item: item)
+                        Button {
+                            store.send(.editItemTapped(item.id))
+                        } label: {
+                            PantryItemRow(item: item)
+                        }
+                        .buttonStyle(.plain)
                     }
                     .onDelete { indexSet in
                         for index in indexSet {
                             let item = store.fridgeItems[index]
-                            store.send(.deleteItem(item.id))
+                            store.send(.confirmDeleteItem(item.id))
                         }
                     }
                 } header: {
-                    Label("Fridge", systemImage: StorageLocation.fridge.iconName)
+                    Label {
+                        Text("\(StorageLocation.fridge.displayName) (\(store.fridgeItems.count) items)")
+                    } icon: {
+                        Image(systemName: StorageLocation.fridge.iconName)
+                    }
                 }
             }
 
             if !store.freezerItems.isEmpty {
                 Section {
                     ForEach(store.freezerItems) { item in
-                        PantryItemRow(item: item)
+                        Button {
+                            store.send(.editItemTapped(item.id))
+                        } label: {
+                            PantryItemRow(item: item)
+                        }
+                        .buttonStyle(.plain)
                     }
                     .onDelete { indexSet in
                         for index in indexSet {
                             let item = store.freezerItems[index]
-                            store.send(.deleteItem(item.id))
+                            store.send(.confirmDeleteItem(item.id))
                         }
                     }
                 } header: {
-                    Label("Freezer", systemImage: StorageLocation.freezer.iconName)
+                    Label {
+                        Text("\(StorageLocation.freezer.displayName) (\(store.freezerItems.count) items)")
+                    } icon: {
+                        Image(systemName: StorageLocation.freezer.iconName)
+                    }
                 }
             }
 
             if !store.pantryItems.isEmpty {
                 Section {
                     ForEach(store.pantryItems) { item in
-                        PantryItemRow(item: item)
+                        Button {
+                            store.send(.editItemTapped(item.id))
+                        } label: {
+                            PantryItemRow(item: item)
+                        }
+                        .buttonStyle(.plain)
                     }
                     .onDelete { indexSet in
                         for index in indexSet {
                             let item = store.pantryItems[index]
-                            store.send(.deleteItem(item.id))
+                            store.send(.confirmDeleteItem(item.id))
                         }
                     }
                 } header: {
-                    Label("Pantry", systemImage: StorageLocation.pantry.iconName)
+                    Label {
+                        Text("\(StorageLocation.pantry.displayName) (\(store.pantryItems.count) items)")
+                    } icon: {
+                        Image(systemName: StorageLocation.pantry.iconName)
+                    }
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .refreshable {
+            store.send(.refreshTriggered)
+        }
     }
 }
 
-// Simple item row - detailed editing deferred to Phase 13
 private struct PantryItemRow: View {
     let item: PantryItemState
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text(item.name)
-                    .font(.body)
+                HStack(spacing: 6) {
+                    Text(item.name)
+                        .font(.body)
+                    if let badge = expiryBadge {
+                        Text(badge.text)
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(badge.color.opacity(0.15), in: Capsule())
+                            .foregroundStyle(badge.color)
+                    }
+                }
 
                 HStack(spacing: 4) {
                     Text(item.quantity)
@@ -141,6 +186,14 @@ private struct PantryItemRow: View {
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
+
+                // Subtitle: expiry date and/or notes
+                if let subtitle = subtitleText {
+                    Text(subtitle)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                        .lineLimit(1)
+                }
             }
 
             Spacer()
@@ -149,9 +202,34 @@ private struct PantryItemRow: View {
                 Image(systemName: "icloud.slash")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
-                    .accessibilityLabel("Not synced")
+                    .accessibilityLabel(String(localized: "accessibility.pantry.not_synced", bundle: .main))
             }
         }
         .accessibilityElement(children: .combine)
+    }
+
+    private var expiryBadge: (text: String, color: Color)? {
+        guard let expiry = item.expiryDate else { return nil }
+        let now = Date()
+        if expiry < now {
+            return (String(localized: "pantry.badge.expired", defaultValue: "Expired", bundle: .main), .red)
+        }
+        let threeDays = Calendar.current.date(byAdding: .day, value: 3, to: now)!
+        if expiry < threeDays {
+            return (String(localized: "pantry.badge.expiring_soon", defaultValue: "Exp. soon", bundle: .main), .orange)
+        }
+        return nil
+    }
+
+    private var subtitleText: String? {
+        var parts: [String] = []
+        if let expiry = item.expiryDate {
+            parts.append("Exp: \(expiry.formatted(.dateTime.month(.abbreviated).day()))")
+        }
+        if let notes = item.notes, !notes.isEmpty {
+            let firstLine = notes.components(separatedBy: .newlines).first ?? notes
+            parts.append(firstLine)
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 }
