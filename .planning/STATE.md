@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Smart Pantry
 status: completed
-last_updated: "2026-03-11T20:40:50.053Z"
+last_updated: "2026-03-11T22:07:29.255Z"
 progress:
   total_phases: 10
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 41
-  completed_plans: 37
+  completed_plans: 39
 ---
 
 # Project State: Kindred
@@ -68,6 +68,7 @@ Progress: [███████████████████████
 *Updated after each plan completion*
 | Phase 12 P03 | 9 | 3 tasks | 4 files |
 | Phase 13 P01 | 15 | 2 tasks | 7 files |
+| Phase 13 P03 | 9 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,10 @@ Recent decisions affecting v3.0:
 - **Plan 01:** Map GraphQL defaultCategory to FoodCategory enum in PantryClient (keeps reducer decoupled from Apollo)
 - **Plan 02:** Floating action button only — removed duplicate toolbar + button for cleaner UI
 - **Plan 02:** Reset original state values after batch add to prevent false "unsaved changes" alert
+- [Phase 13]: Use last-write-wins conflict resolution (compare updatedAt timestamps)
+- [Phase 13]: Store last sync timestamp in UserDefaults (simple, no SwiftData schema change)
+- [Phase 13]: Use heuristic to detect new vs updated items: createdAt ~= updatedAt means new
+- [Phase 13]: Exponential backoff: 30s, 60s, 120s max (balance retry frequency vs server load)
 
 ### Pending Todos
 

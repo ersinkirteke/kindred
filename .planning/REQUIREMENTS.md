@@ -13,9 +13,9 @@ Requirements for Smart Pantry milestone. Each maps to roadmap phases.
 - [x] **PANTRY-02**: User can edit existing pantry items (name, quantity, unit, category)
 - [ ] **PANTRY-03**: User can delete pantry items individually
 - [x] **PANTRY-04**: User can categorize items by storage location (fridge, freezer, pantry)
-- [ ] **PANTRY-05**: Pantry data persists locally and syncs to backend across devices
+- [x] **PANTRY-05**: Pantry data persists locally and syncs to backend across devices
 - [ ] **PANTRY-06**: User can view their pantry as a list grouped by storage location
-- [ ] **PANTRY-07**: Pantry works offline with changes synced when connectivity returns
+- [x] **PANTRY-07**: Pantry works offline with changes synced when connectivity returns
 
 ### Smart Scanning
 
@@ -87,9 +87,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PANTRY-02 | Phase 13 | Complete |
 | PANTRY-03 | Phase 13 | Pending |
 | PANTRY-04 | Phase 13 | Complete |
-| PANTRY-05 | Phase 13 | Pending |
+| PANTRY-05 | Phase 13 | Complete |
 | PANTRY-06 | Phase 13 | Pending |
-| PANTRY-07 | Phase 13 | Pending |
+| PANTRY-07 | Phase 13 | Complete |
 | SCAN-01 | Phase 15 | Pending |
 | SCAN-02 | Phase 15 | Pending |
 | SCAN-03 | Phase 15 | Pending |
