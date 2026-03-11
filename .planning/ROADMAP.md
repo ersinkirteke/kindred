@@ -59,10 +59,12 @@
   2. Ingredient normalization maps user input to canonical forms (handles "eggs" vs "large eggs")
   3. PantryFeature SPM package exists following TCA architecture patterns (reducers, clients, models)
   4. PantryItem SwiftData model persists locally with validation and migrations
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 12-01: TBD
+- [ ] 12-01-PLAN.md — Backend Prisma schema + NestJS PantryModule + ingredient normalization + seed
+- [ ] 12-02-PLAN.md — iOS PantryFeature SPM package + SwiftData models + PantryClient + tab bar
+- [ ] 12-03-PLAN.md — GraphQL operations + Apollo codegen + NetworkClient + device verification
 
 ### Phase 13: Manual Pantry Management
 **Goal**: Users can manually add, edit, delete, and view their pantry inventory with offline-first persistence
