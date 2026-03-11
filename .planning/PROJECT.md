@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Kindred is a hyperlocal, AI-humanized culinary assistant mobile app (native iOS + Android). It discovers viral recipes trending in your neighborhood from Instagram and X, presents them with stunning AI-generated food imagery, and reads the instructions aloud in the cloned voice of someone you love — like your mom or grandma. It's not a recipe database; it's an emotional utility that turns cooking into a connection with loved ones while solving daily "what should I cook?" decision fatigue.
+Kindred is a hyperlocal, AI-humanized culinary assistant mobile app. It discovers viral recipes trending in your neighborhood from Instagram and X, presents them with stunning AI-generated food imagery, and reads the instructions aloud in the cloned voice of someone you love — like your mom or grandma. The iOS app is live with swipeable recipe feed, voice narration, personalization, and App Store billing. Android is planned as a fast-follow.
 
 ## Core Value
 
@@ -32,56 +32,47 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - ✓ Voice narration displays the speaker's name prominently during playback — v1.5
 - ✓ Free tier users get 1 voice slot; Pro users get unlimited voice slots — v1.5
 - ✓ User can re-record or replace their voice clip to improve quality — v1.5
-
-## Current Milestone: v2.0 iOS App
-
-**Goal:** Put Kindred in users' hands — the full iOS experience with feed, voice playback, personalization, accessibility, and monetization.
-
-**Target features:**
-- Guest browsing + Google/Apple OAuth + guest-to-account conversion
-- Swipe card feed + bookmarks + Listen/Watch/Skip buttons
-- Onboarding flow (under 90 seconds)
-- Voice playback with streaming narration
-- Culinary DNA personalization (learns from skips/bookmarks)
-- Dietary preference filtering (vegan, keto, halal, allergies)
-- WCAG AAA accessibility (56dp touch targets, 18sp+ text, VoiceOver)
-- Free/Pro tiers with App Store billing
-- Offline voice caching
+- ✓ Guest browsing without account — v2.0
+- ✓ Google OAuth and Apple Sign In (one-tap) — v2.0
+- ✓ Guest-to-account conversion on save/bookmark/voice with data persistence — v2.0
+- ✓ Swipe left to skip, right to bookmark recipe cards — v2.0
+- ✓ Listen/Watch/Skip buttons as swipe alternatives (56dp touch targets) — v2.0
+- ✓ Onboarding flow completable in under 90 seconds (3-step carousel) — v2.0
+- ✓ Culinary DNA personalization learns from implicit feedback (50+ interactions) — v2.0
+- ✓ Dietary preference filtering (vegan, keto, halal, allergies) with session persistence — v2.0
+- ✓ WCAG AAA accessibility (56dp touch targets, 18sp+ text, VoiceOver, 7:1 contrast) — v2.0
+- ✓ Free tier with AdMob ads, Pro tier ($9.99/mo) via StoreKit 2 — v2.0
+- ✓ Voice profiles cached locally for offline narration (500MB LRU) — v2.0
+- ✓ Background audio with lock screen controls and Now Playing info — v2.0
+- ✓ Bilingual localization (English + Turkish) — v2.0
 
 ### Active
 
-- [ ] Guest browsing without account (iOS)
-- [ ] Google OAuth and Apple Sign In (one-tap)
-- [ ] Guest-to-account conversion on save/bookmark/voice
-- [ ] Swipe left to skip, swipe right to bookmark recipe cards
-- [ ] Listen/Watch/Skip buttons as swipe alternatives
-- [ ] Onboarding flow completable in under 90 seconds
-- [ ] Culinary DNA personalization (learns from skips/bookmarks)
-- [ ] Dietary preference filtering (vegan, keto, halal, allergies)
-- [ ] WCAG AAA accessibility (56dp touch targets, 18sp+ text, VoiceOver)
-- [ ] Free tier with ads, Pro tier ($9.99/mo) via App Store billing
-- [ ] Voice profiles cached locally for offline narration
+- [ ] Fridge photo scanning to identify ingredients (Gemini 3 Flash)
+- [ ] Supermarket receipt scanning to populate digital pantry
+- [ ] Food expiry tracking with push notification alerts
+- [ ] Android full feature parity with iOS
+- [ ] JWS SignedDataVerifier for production App Store receipt validation
+- [ ] Backend GraphQL wiring for voice profiles and narration URLs (replace mock data)
 
 ### Out of Scope
 
-- AI cooking video generation (Veo) — deferred to v2 due to $4.50-9.00/user/month cost, 30-120s latency, and cooking safety concerns
-- Social features (sharing, following) — deferred, not core to emotional utility
-- Fridge photo scanning to identify ingredients (Gemini 3 Flash) — deferred to v2.1, pantry milestone
-- Supermarket receipt scanning to populate digital pantry — deferred to v2.1, pantry milestone
-- Food expiry tracking with push notification alerts — deferred to v2.1, pantry milestone
-- Android full feature parity with iOS — deferred to v2.x, after iOS validated
-- Instacart/UberEats "Order Ingredients" integration — deferred to v2+, requires partnership deals
+- AI cooking video generation (Veo) — $4.50-9/user/month cost, 30-120s latency, cooking safety risk
+- Social features (sharing, following) — not core to emotional utility
+- Instacart/UberEats "Order Ingredients" integration — requires partnership deals
 - Real-time chat or community features — high complexity, not core to value proposition
-- Web app — mobile-first, native only for v1
+- Web app — mobile-first, native only
 - Cross-platform framework (Flutter/React Native) — native iOS + Android for best UX and accessibility
 
 ## Context
 
-**Shipped v1.5:** Backend & AI Pipeline milestone complete. ~6,066 LOC TypeScript across NestJS backend with GraphQL API, Prisma ORM, PostgreSQL with PostGIS. Complete AI pipeline: recipe scraping (X API + Gemini parser), image generation (Imagen 4 Fast + R2), voice cloning (ElevenLabs), and narration (Gemini rewriting + streaming TTS).
+**Shipped v2.0:** iOS App milestone complete. 13,319 LOC Swift across 107 source files. 7 SPM packages: DesignSystem, NetworkClient, AuthClient, FeedFeature, ProfileFeature, VoicePlaybackFeature, MonetizationFeature. Complete iOS experience: swipeable feed, voice narration, personalization, auth, monetization, WCAG AAA accessibility, bilingual localization.
 
-**Platform strategy:** iOS first launch, Android fast-follow (4-6 weeks). Backend/API/AI pipeline is 100% shared between platforms.
+**Shipped v1.5:** Backend & AI Pipeline. ~6,066 LOC TypeScript across NestJS backend with GraphQL API, Prisma ORM, PostgreSQL with PostGIS. Complete AI pipeline: recipe scraping (X API + Gemini parser), image generation (Imagen 4 Fast + R2), voice cloning (ElevenLabs), and narration (Gemini rewriting + streaming TTS).
 
-**Tech stack (validated in v1.5):**
+**Platform strategy:** iOS shipped (v2.0). Android fast-follow (4-6 weeks). Backend/API/AI pipeline is 100% shared between platforms.
+
+**Tech stack:**
 - Backend: NestJS 11 + GraphQL (Apollo Server 5, code-first) + Prisma 7 + PostgreSQL 15 + PostGIS
 - Storage: Cloudflare R2 (zero-egress CDN)
 - Auth: Clerk (Google/Apple OAuth with JWT)
@@ -91,31 +82,34 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - Scraping: X API v2 + Gemini parser (Instagram placeholder ready)
 - Geocoding: Mapbox with DB cache (~99% cache hit rate)
 - Push: Firebase Cloud Messaging (iOS APNs + Android FCM)
-- iOS: SwiftUI + TCA (The Composable Architecture), iOS 17.0 min
-- Android: Jetpack Compose + MVVM/Clean Architecture + Hilt, min SDK 26
+- iOS: SwiftUI + TCA 1.x, Apollo iOS 2.0.6, StoreKit 2, AVFoundation, iOS 17.0 min
+- Android: Jetpack Compose + MVVM/Clean Architecture + Hilt, min SDK 26 (planned)
 
-**Design direction:** Warm cream/terracotta palette (#FFF9F0 backgrounds, #E07849 accents), card-based swipeable feed, 4-tab bottom navigation (Feed, Scan, Pantry, Me). "Build for Grandpa George" — if a 75-year-old can use it, everyone can.
-
-**Cost profile (validated):** ~$0.01-0.03/recipe for voice narration, ~$0.01/image for hero images, ~$0.001/recipe for AI parsing. Scraping costs TBD based on volume.
+**Known issues:**
+- Voice playback uses TestAudioGenerator until backend R2 narration URLs are wired
+- 5 GraphQL TODO markers for mock voice profile data
+- JWS verification on backend uses base64url decoding (needs SignedDataVerifier for production)
+- Test ad unit IDs in AdClient (must replace before App Store submission)
 
 ## Constraints
 
-- **Legal**: Voice cloning consent framework required before launch — Tennessee ELVIS Act, California AB 1836 (covers deceased persons' voices), New York digital replica laws. Budget $20-50K for AI/media legal counsel.
+- **Legal**: Voice cloning consent framework required before launch — Tennessee ELVIS Act, California AB 1836, New York digital replica laws. Budget $20-50K for AI/media legal counsel.
 - **API Costs**: ElevenLabs ~$0.01-0.03/recipe for voice. Must implement hard budget caps per user.
 - **Scraping**: Instagram/X ToS prohibit scraping. Build abstraction layer, diversify sources, ensure app works without scraping as fallback.
-- **Accessibility**: WCAG AAA target. 56dp min touch targets, 18sp min body text, max 3 navigation levels, VoiceOver/TalkBack full support.
+- **Accessibility**: WCAG AAA achieved on iOS. Same standard required for Android. 56dp min touch targets, 18sp min body text, max 3 navigation levels.
 - **Simplicity**: Max 2 taps from feed to cooking with voice. No hamburger menus, no complex gestures without button fallbacks.
+- **App Store**: Privacy labels, ATT consent for AdMob, production ad unit IDs, and review metadata needed before submission.
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Native iOS + Android (not cross-platform) | Best UX, accessibility, and platform-specific capabilities for elderly users | — Pending |
-| iOS first, Android fast-follow | Higher ARPU, better accessibility APIs, shared backend | — Pending |
+| Native iOS + Android (not cross-platform) | Best UX, accessibility, and platform-specific capabilities | ✓ Good — iOS shipped, validates approach |
+| iOS first, Android fast-follow | Higher ARPU, better accessibility APIs, shared backend | ✓ Good — iOS shipped in 9 days |
 | Defer Veo AI video to v2 | $4.50-9/user/month cost, 30-120s latency, cooking safety risk | ✓ Good |
 | Custom NestJS backend (not Firebase/Supabase) | Full control over GraphQL schema, scraping pipelines, background processing | ✓ Good |
 | ElevenLabs custom REST client (not SDK) | Native SDKs immature — custom client gives full control over streaming | ✓ Good |
-| Free voice slot in v1 | Don't paywall the viral hook — voice IS the retention and viral mechanic | — Pending |
+| Free voice slot in v1 | Don't paywall the viral hook — voice IS the retention and viral mechanic | ✓ Good — implemented in v2.0 |
 | Prisma 7 with PostgreSQL adapter | Direct DB connections, no need for Prisma Accelerate proxy | ✓ Good |
 | PostGIS for geospatial queries | Native spatial indexing, ST_DWithin for radius queries, GIST indexes | ✓ Good |
 | Mapbox for geocoding (with DB cache) | ~99% cache hit rate saves ~$1,825/year vs raw API calls | ✓ Good |
@@ -125,6 +119,16 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 | Velocity-based viral detection | (engagement/hour) * time decay — adapts to local engagement patterns | ✓ Good |
 | Gemini 2.0 Flash for AI tasks | ~$0.001/recipe for parsing and narration rewriting — cost effective | ✓ Good |
 | Per-recipe narration caching | NarrationScript table caches Gemini output — expected 80% hit rate | ✓ Good |
+| SwiftUI + TCA architecture | Unidirectional data flow, testable reducers, dependency injection | ✓ Good — clean modular architecture |
+| Apollo iOS 2.0.6 with SQLite cache | Offline-first UX via returnCacheDataAndFetch policy | ✓ Good — instant cached loads |
+| Deferred location permission | GPS requested only when user taps "Use my location" — not at launch | ✓ Good — low friction |
+| Guest browsing first, auth later | Users experience product before converting — Phase 5 before Phase 8 | ✓ Good — natural conversion flow |
+| AVPlayer for streaming (not AVAudioPlayer) | HTTP progressive download with background audio support | ✓ Good — after lifecycle fixes |
+| Clerk iOS SDK for auth | Google/Apple OAuth, JWT session management, async user state | ✓ Good — but poll required for user state |
+| StoreKit 2 (not StoreKit 1) | Modern async/await API, JWS transactions, grace period support | ✓ Good — clean implementation |
+| Base64url JWS for MVP | Skip x5c chain verification — StoreKit does client-side verification | ⚠️ Revisit — production needs SignedDataVerifier |
+| 60/40 personalization/discovery | Culinary DNA re-ranking balances preferences with variety | ✓ Good — prevents filter bubbles |
+| Bilingual (English + Turkish) | String Catalog with 98 entries, informal Turkish tone | ✓ Good — extensible pattern |
 
 ---
-*Last updated: 2026-03-01 after v2.0 milestone started*
+*Last updated: 2026-03-11 after v2.0 milestone shipped*

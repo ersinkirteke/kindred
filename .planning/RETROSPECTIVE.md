@@ -2,6 +2,50 @@
 
 *A living document updated after each milestone. Lessons feed forward into future planning.*
 
+## Milestone: v2.0 — iOS App
+
+**Shipped:** 2026-03-11
+**Phases:** 8 | **Plans:** 35
+
+### What Was Built
+- SwiftUI + TCA modular architecture with 7 SPM packages
+- Swipeable recipe feed with guest browsing, location discovery, offline support
+- AI voice narration streaming with background audio, lock screen controls, 500MB LRU cache
+- Culinary DNA personalization (60/40 split after 50+ interactions)
+- Google/Apple OAuth with guest-to-account conversion and sub-90s onboarding
+- Free/Pro tiers with StoreKit 2, AdMob ads, voice slot enforcement
+- WCAG AAA accessibility (VoiceOver, Dynamic Type, 7:1 contrast, Reduce Motion)
+- Bilingual localization (English + Turkish, 98 strings)
+
+### What Worked
+- Modular SPM packages kept features isolated and fast to build
+- TCA unidirectional data flow managed complex state (playback, auth, subscriptions)
+- "Guest first, auth later" produced natural conversion flow
+- Accessibility baked into feature phases (not just Phase 10)
+- Gap closure pattern — audit found real gaps, Phase 11 closed them
+- Device verification plans caught 6+ bugs that builds missed
+
+### What Was Inefficient
+- Phase 5 took ~17 hours vs Phase 4 at ~52 min — feed complexity underestimated
+- AVPlayer debugging required 2 gap-closure plans (07-05, 07-06)
+- VERIFICATION.md deferred for 4 phases, requiring retroactive writing
+- ROADMAP progress table drifted out of sync during execution
+
+### Patterns Established
+- `#if DEBUG` URL pattern for backend endpoints
+- TCA @DependencyClient for all external services (9 clients)
+- @Presents for modal presentation (auth gate, onboarding, paywall)
+- String(localized:) with Localizable.xcstrings String Catalog
+
+### Key Lessons
+1. Write VERIFICATION.md immediately after phase completion
+2. Device verification plans are essential — standard practice going forward
+3. Gap closure phases work well: audit → plan → execute → re-verify
+4. AVPlayer requires waitForReadyToPlay before play()
+5. Check project.yml INFOPLIST_FILE to find the real Info.plist
+
+---
+
 ## Milestone: v1.5 — Backend & AI Pipeline
 
 **Shipped:** 2026-03-01
@@ -55,13 +99,18 @@
 | Milestone | Sessions | Phases | Key Change |
 |-----------|----------|--------|------------|
 | v1.5 | ~4 | 3 | First milestone — established patterns for verification, archival, retrospective |
+| v2.0 | ~12 | 8 | Gap closure pattern, device verification standard, retroactive verification |
 
 ### Cumulative Quality
 
 | Milestone | Tests | Coverage | Tech Debt Items |
 |-----------|-------|----------|-----------------|
 | v1.5 | 13 (velocity scorer) | Partial (unit tests only) | 4 (in-memory queues, stale schema, tier field TODO, Instagram placeholder) |
+| v2.0 | 0 (UI app) | N/A | 3 (JWS SignedDataVerifier, GraphQL mock data, test ad IDs) |
 
 ### Top Lessons (Verified Across Milestones)
 
-1. (First milestone — lessons to be cross-validated in future milestones)
+1. Run phase verification immediately after execution (confirmed in both milestones)
+2. Device verification on physical device catches bugs builds miss (v2.0)
+3. Gap closure phases are effective for catching integration issues post-audit (v2.0)
+4. ROADMAP progress tables drift — automate or update per-plan (both milestones)
