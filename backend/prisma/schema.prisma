@@ -95,6 +95,7 @@ model User {
   deviceTokens  DeviceToken[]
   voiceProfiles VoiceProfile[]
   subscription  Subscription?
+  pantryItems   PantryItem[]
 
   @@index([email])
 }
@@ -169,12 +170,14 @@ model Ingredient {
   recipe     Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   // Normalized ingredient data
-  name       String // normalized (e.g., "chicken breast")
-  quantity   String // "2"
-  unit       String // "cups"
-  orderIndex Int    // display order
+  name           String  // normalized (e.g., "chicken breast")
+  normalizedName String? // link to IngredientCatalog for recipe matching
+  quantity       String  // "2"
+  unit           String  // "cups"
+  orderIndex     Int     // display order
 
   @@index([recipeId])
+  @@index([normalizedName])
 }
 
 // RecipeStep model - AI-parsed structured steps
@@ -281,4 +284,43 @@ model Subscription {
 
   @@index([userId])
   @@index([isActive])
+}
+
+// PantryItem model - user's pantry inventory
+model PantryItem {
+  id              String   @id @default(cuid())
+  userId          String
+  name            String
+  normalizedName  String?
+  quantity        String
+  unit            String?
+  storageLocation String   // "fridge" | "freezer" | "pantry"
+  foodCategory    String?  // "dairy" | "produce" | "meat" | "seafood" | "grains" | "baking" | "spices" | "beverages" | "snacks" | "condiments"
+  photoUrl        String?
+  notes           String?
+  source          String   @default("manual")  // "manual" | "fridge_scan" | "receipt_scan"
+  expiryDate      DateTime?
+  isDeleted       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isDeleted])
+  @@index([normalizedName])
+  @@index([expiryDate])
+}
+
+// IngredientCatalog model - bilingual ingredient normalization
+model IngredientCatalog {
+  id                   String   @id @default(cuid())
+  canonicalName        String   @unique
+  canonicalNameTR      String
+  aliases              String[]
+  defaultCategory      String
+  defaultShelfLifeDays Int?
+  createdAt            DateTime @default(now())
+
+  @@index([canonicalName])
+  @@index([canonicalNameTR])
 }
