@@ -45,7 +45,7 @@ Requirements for Smart Pantry milestone. Each maps to roadmap phases.
 
 - [ ] **INFRA-01**: Backend GraphQL schema supports pantry CRUD operations
 - [ ] **INFRA-02**: Ingredient normalization maps items to canonical forms
-- [ ] **INFRA-03**: PantryFeature SPM package follows existing TCA architecture patterns
+- [x] **INFRA-03**: PantryFeature SPM package follows existing TCA architecture patterns
 - [ ] **INFRA-04**: Camera permission requested with progressive disclosure (not at launch)
 
 ## Future Requirements
@@ -107,7 +107,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXPIRY-05 | Phase 17 | Pending |
 | INFRA-01 | Phase 12 | Pending |
 | INFRA-02 | Phase 12 | Pending |
-| INFRA-03 | Phase 12 | Pending |
+| INFRA-03 | Phase 12 | Complete |
 | INFRA-04 | Phase 14 | Pending |
 
 **Coverage:**
