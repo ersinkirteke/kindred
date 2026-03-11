@@ -77,10 +77,12 @@ Plans:
   4. User sees pantry list grouped by storage location with item counts
   5. Pantry data persists locally via SwiftData and syncs to backend when online
   6. Pantry works offline with changes queued and synced when connectivity returns
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 13-01: TBD
+- [ ] 13-01-PLAN.md — AddEditItem form reducer + view + PantryClient extensions (autocomplete, duplicate check, category suggest)
+- [ ] 13-02-PLAN.md — Wire form into PantryReducer/PantryView + search, sort, expiry badges, delete confirmation, localization
+- [ ] 13-03-PLAN.md — Offline-first sync worker (push/pull, retry, connectivity monitoring, UI indicators)
 
 ### Phase 14: Camera Capture
 **Goal**: Users can capture photos from camera with progressive permission request and memory-safe processing
