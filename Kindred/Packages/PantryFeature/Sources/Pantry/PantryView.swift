@@ -27,18 +27,7 @@ public struct PantryView: View {
             }
             .navigationTitle(String(localized: "pantry.title", bundle: .main))
             .searchable(text: $store.searchText.sending(\.searchTextChanged), prompt: String(localized: "pantry.search.prompt", defaultValue: "Search items", bundle: .main))
-            .toolbar {
-                if store.userId != nil && !store.isEmpty {
-                    ToolbarItem(placement: .primaryAction) {
-                        Button {
-                            store.send(.addItemTapped)
-                        } label: {
-                            Image(systemName: "plus")
-                        }
-                        .accessibilityLabel(String(localized: "accessibility.pantry.add_item", bundle: .main))
-                    }
-                }
-            }
+            .toolbar {}
         }
         .overlay(alignment: .bottomTrailing) {
             // Floating + button per user decision

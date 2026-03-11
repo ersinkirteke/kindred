@@ -306,6 +306,14 @@ public struct AddEditItemReducer {
                 state.suggestions = []
                 state.duplicateWarning = nil
                 state.suggestedCategory = nil
+                // Reset originals so isDirty returns false after successful add
+                state.originalName = ""
+                state.originalQuantity = "1"
+                state.originalUnit = nil
+                state.originalStorageLocation = retainStorage
+                state.originalFoodCategory = nil
+                state.originalExpiryDate = nil
+                state.originalNotes = ""
                 return .none
 
             case .cancelTapped:
