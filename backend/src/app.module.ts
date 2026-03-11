@@ -17,6 +17,7 @@ import { PushModule } from './push/push.module';
 import { GeocodingModule } from './geocoding/geocoding.module';
 import { FeedModule } from './feed/feed.module';
 import { VoiceModule } from './voice/voice.module';
+import { PantryModule } from './pantry/pantry.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { VoiceModule } from './voice/voice.module';
     GeocodingModule,
     FeedModule,
     VoiceModule,
+    PantryModule,
   ],
 })
 export class AppModule {}
