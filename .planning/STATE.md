@@ -30,11 +30,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 ## Current Position
 
 Phase: 13 of 17 (Manual Pantry Management)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In Progress
-Last activity: 2026-03-11 — Completed plan 13-01 (AddEditItem Form Infrastructure)
+Last activity: 2026-03-11 — Completed plan 13-02 (Pantry List Enhancement and Sheet Integration)
 
-Progress: [████████████                        ] 33% (1/3 phase 13 plans complete)
+Progress: [████████████████████████            ] 67% (2/3 phase 13 plans complete)
 
 ---
 
@@ -98,6 +98,8 @@ Recent decisions affecting v3.0:
 - **Plan 01:** SwiftData predicates don't support .lowercased() — filter in Swift code for case-insensitive matching
 - **Plan 01:** 300ms debounce for autocomplete/duplicate/category search (balance responsiveness vs efficiency)
 - **Plan 01:** Map GraphQL defaultCategory to FoodCategory enum in PantryClient (keeps reducer decoupled from Apollo)
+- **Plan 02:** Floating action button only — removed duplicate toolbar + button for cleaner UI
+- **Plan 02:** Reset original state values after batch add to prevent false "unsaved changes" alert
 
 ### Pending Todos
 
