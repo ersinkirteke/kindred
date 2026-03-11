@@ -16,6 +16,7 @@
 		7CAEB444EC2EB7E5A59B1B9C /* NetworkClient in Frameworks */ = {isa = PBXBuildFile; productRef = 6E6199357BF415DFAC6C6F50 /* NetworkClient */; };
 		845EF0A4F0C4BEE620283BD6 /* WelcomeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 289D9F05375F81D3894469AB /* WelcomeCardView.swift */; };
 		8BD8FE27792C4D33DC7D6EAA /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 0A97151FE41F3FFF96275F39 /* DesignSystem */; };
+		94ADBFDB14CD5C5F9713E428 /* PantryFeature in Frameworks */ = {isa = PBXBuildFile; productRef = A635F8BF5D91BA944941B19E /* PantryFeature */; };
 		99094B0770A0716CCDC586F1 /* AppReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3496CDC3F3645B70903E4225 /* AppReducer.swift */; };
 		B3C6F95655D8C25FEFD8D6B3 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 2CCFE3A0A6F704E23D34BF87 /* FirebaseAnalytics */; };
 		D376666C5C0300F25A9F0D23 /* AuthClient in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF62527EDE9E5CC238BE4E0 /* AuthClient */; };
@@ -37,6 +38,8 @@
 		5BEE4F0AD67E9ECB04B2AB48 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		776F85584ADFADA9DD5079BB /* Kindred.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Kindred.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B4A0EBF9F3DBA5EE5E3691A /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		8809884D7C9AD91D6A79A1C6 /* Kindred.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Kindred.entitlements; sourceTree = "<group>"; };
+		A1B8C8D069EE1E87A5A333A0 /* PantryFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = PantryFeature; path = Packages/PantryFeature; sourceTree = SOURCE_ROOT; };
 		A421752DCF7C006925165741 /* MonetizationFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = MonetizationFeature; path = Packages/MonetizationFeature; sourceTree = SOURCE_ROOT; };
 		A81A2B1EB1B9D33DFF070A4D /* NetworkClient */ = {isa = PBXFileReference; lastKnownFileType = folder; name = NetworkClient; path = Packages/NetworkClient; sourceTree = SOURCE_ROOT; };
 		D6EE1509997A85428D90FEB0 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
@@ -63,6 +66,7 @@
 				FCF3EB76FAC14E4B016EF78A /* FeedFeature in Frameworks */,
 				72DF1A34B1919B36BCE0081C /* ProfileFeature in Frameworks */,
 				F867E09E0F6329B6E1D0E437 /* MonetizationFeature in Frameworks */,
+				94ADBFDB14CD5C5F9713E428 /* PantryFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +92,7 @@
 				DDB7118C7A4026DD1E4A8A62 /* KindredAPI */,
 				A421752DCF7C006925165741 /* MonetizationFeature */,
 				A81A2B1EB1B9D33DFF070A4D /* NetworkClient */,
+				A1B8C8D069EE1E87A5A333A0 /* PantryFeature */,
 				037416CD7B126DDDA615EA95 /* ProfileFeature */,
 			);
 			path = Packages;
@@ -134,6 +139,7 @@
 			isa = PBXGroup;
 			children = (
 				FC53AED7A785DD7EFA50B1BC /* Info.plist */,
+				8809884D7C9AD91D6A79A1C6 /* Kindred.entitlements */,
 				4AA43D9FBF360132427994C2 /* App */,
 				84DA41B7C8377500FC5CB25C /* Resources */,
 			);
@@ -168,6 +174,7 @@
 				066BAEDC6DA6B6119976424F /* FeedFeature */,
 				B450ED7410537AB3996299C9 /* ProfileFeature */,
 				E6E7A5DAB0E4917619A3938F /* MonetizationFeature */,
+				A635F8BF5D91BA944941B19E /* PantryFeature */,
 			);
 			productName = Kindred;
 			productReference = 776F85584ADFADA9DD5079BB /* Kindred.app */;
@@ -213,6 +220,7 @@
 				6346B7592D34E435361B4541 /* XCLocalSwiftPackageReference "Packages/KindredAPI" */,
 				8D30CB2B6E15133ED8CC146A /* XCLocalSwiftPackageReference "Packages/MonetizationFeature" */,
 				59121B9B84E3D462E8BD9511 /* XCLocalSwiftPackageReference "Packages/NetworkClient" */,
+				5357E830ED2C48FDFF86D67A /* XCLocalSwiftPackageReference "Packages/PantryFeature" */,
 				3AB35058B2D32E755056685A /* XCLocalSwiftPackageReference "Packages/ProfileFeature" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -256,6 +264,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/Kindred.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = Sources/Info.plist;
@@ -274,6 +283,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Sources/Kindred.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = Sources/Info.plist;
@@ -437,6 +447,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/ProfileFeature;
 		};
+		5357E830ED2C48FDFF86D67A /* XCLocalSwiftPackageReference "Packages/PantryFeature" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PantryFeature;
+		};
 		59121B9B84E3D462E8BD9511 /* XCLocalSwiftPackageReference "Packages/NetworkClient" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/NetworkClient;
@@ -566,6 +580,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 44EC5B296A6D43A5AE10AB0C /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
+		};
+		A635F8BF5D91BA944941B19E /* PantryFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PantryFeature;
 		};
 		B450ED7410537AB3996299C9 /* ProfileFeature */ = {
 			isa = XCSwiftPackageProductDependency;

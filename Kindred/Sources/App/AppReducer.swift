@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import FeedFeature
 import Foundation
+import PantryFeature
 import ProfileFeature
 import VoicePlaybackFeature
 import AuthClient
@@ -18,6 +19,7 @@ struct AppReducer {
     @ObservableState
     struct State: Equatable {
         var feedState = FeedReducer.State()
+        var pantryState = PantryReducer.State()
         var profileState = ProfileReducer.State()
         var voicePlaybackState = VoicePlaybackReducer.State()
         var selectedTab: Tab = .feed
@@ -37,7 +39,8 @@ struct AppReducer {
 
     enum Tab: Int, Equatable {
         case feed = 0
-        case me = 1
+        case pantry = 1
+        case me = 2
     }
 
     /// Gated actions that require authentication
@@ -49,6 +52,7 @@ struct AppReducer {
 
     enum Action {
         case feed(FeedReducer.Action)
+        case pantry(PantryReducer.Action)
         case profile(ProfileReducer.Action)
         case voicePlayback(VoicePlaybackReducer.Action)
         case tabSelected(Tab)
@@ -85,6 +89,9 @@ struct AppReducer {
     var body: some ReducerOf<Self> {
         Scope(state: \.feedState, action: \.feed) {
             FeedReducer()
+        }
+        Scope(state: \.pantryState, action: \.pantry) {
+            PantryReducer()
         }
         Scope(state: \.profileState, action: \.profile) {
             ProfileReducer()
@@ -142,20 +149,34 @@ struct AppReducer {
                 state.currentAuthState = authState
 
                 // Check for pending migration on authenticated app launch
+                // Map to profile auth state
+                let profileAuthState: ProfileFeature.AuthState
+                let pantryUserId: String?
+                if case .authenticated(let user) = authState {
+                    profileAuthState = .authenticated(userId: user.id)
+                    pantryUserId = user.id
+                } else {
+                    profileAuthState = .guest
+                    pantryUserId = nil
+                }
+
                 if case .authenticated = authState, state.hasCompletedOnboarding {
                     return .merge(
                         .send(.feed(.authStateUpdated(authState))),
                         .send(.feed(.recipeDetail(.presented(.authStateUpdated(authState))))),
+                        .send(.pantry(.authStateUpdated(pantryUserId))),
+                        .send(.profile(.authStateUpdated(profileAuthState))),
                         .send(.checkPendingMigration)
                     )
                 }
 
                 // Trigger onboarding after first sign-in
                 if case .authenticated = authState, !state.hasCompletedOnboarding {
-                    // Delay to let auth gate dismiss animation finish
                     return .concatenate(
                         .send(.feed(.authStateUpdated(authState))),
                         .send(.feed(.recipeDetail(.presented(.authStateUpdated(authState))))),
+                        .send(.pantry(.authStateUpdated(pantryUserId))),
+                        .send(.profile(.authStateUpdated(profileAuthState))),
                         .run { send in
                             try await clock.sleep(for: .milliseconds(300))
                             await send(.presentOnboarding)
@@ -166,7 +187,9 @@ struct AppReducer {
                 // Forward auth state to child reducers
                 return .merge(
                     .send(.feed(.authStateUpdated(authState))),
-                    .send(.feed(.recipeDetail(.presented(.authStateUpdated(authState)))))
+                    .send(.feed(.recipeDetail(.presented(.authStateUpdated(authState))))),
+                    .send(.pantry(.authStateUpdated(pantryUserId))),
+                    .send(.profile(.authStateUpdated(profileAuthState)))
                 )
 
             case let .authGateRequested(gatedAction):
@@ -228,19 +251,17 @@ struct AppReducer {
                 return .none
 
             case .authGate(.presented(.signInSucceeded(let user))):
-                // Update auth state
-                state.currentAuthState = .authenticated(user)
-
-                // Dismiss auth gate
+                // Dismiss auth gate first
                 state.authGate = nil
 
                 // Execute pending gated action
                 let pendingAction = state.pendingGatedAction
                 state.pendingGatedAction = nil
 
-                // Start migration
+                // Route through authStateChanged so onboarding check runs
                 let executePending = executePendingGatedAction(pendingAction)
                 return .merge(
+                    .send(.authStateChanged(.authenticated(user))),
                     .send(.startMigration),
                     executePending
                 )
@@ -479,6 +500,30 @@ struct AppReducer {
                         .send(.feed(.recipeDetail(.presented(.miniPlayerVisibilityChanged(isMiniPlayerVisible)))))
                     )
                 }
+                return .none
+
+            case .profile(.signInTapped):
+                // Present auth gate from profile tab
+                state.authGate = SignInGateReducer.State()
+                return .none
+
+            case .pantry(.delegate(.authGateRequested)):
+                // Present auth gate from pantry tab
+                state.authGate = SignInGateReducer.State()
+                return .none
+
+            case .profile(.signOutTapped):
+                return .run { send in
+                    try await signInClient.signOut()
+                    // Reset onboarding so it triggers again on next sign-in
+                    UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+                    UserDefaults.standard.removeObject(forKey: "onboardingCurrentStep")
+                    UserDefaults.standard.removeObject(forKey: "guestMigrated")
+                    UserDefaults.standard.removeObject(forKey: "pendingMigration")
+                    await send(.authStateChanged(.guest))
+                }
+
+            case .pantry:
                 return .none
 
             case .feed, .profile:

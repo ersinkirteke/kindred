@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import DesignSystem
 import FeedFeature
+import PantryFeature
 import ProfileFeature
 import SwiftUI
 import VoicePlaybackFeature
@@ -25,6 +26,18 @@ struct RootView: View {
                 Label(String(localized: "tab.feed"), systemImage: "house.fill")
             }
             .tag(AppReducer.Tab.feed)
+
+            PantryView(
+                store: store.scope(
+                    state: \.pantryState,
+                    action: \.pantry
+                )
+            )
+            .tabItem {
+                Label(String(localized: "tab.pantry"), systemImage: "refrigerator.fill")
+            }
+            .tag(AppReducer.Tab.pantry)
+            .badge(store.pantryState.expiringCount > 0 ? store.pantryState.expiringCount : 0)
 
             ProfileView(
                 store: store.scope(

@@ -49,6 +49,8 @@ packages:
     path: Packages/KindredAPI
   MonetizationFeature:
     path: Packages/MonetizationFeature
+  PantryFeature:
+    path: Packages/PantryFeature
 
 targets:
   Kindred:
@@ -70,9 +72,11 @@ targets:
       - package: FeedFeature
       - package: ProfileFeature
       - package: MonetizationFeature
+      - package: PantryFeature
     settings:
       base:
         INFOPLIST_FILE: Sources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/Kindred.entitlements
         PRODUCT_BUNDLE_IDENTIFIER: com.ersinkirteke.kindred
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
