@@ -1,463 +1,808 @@
-# Stack Research: iOS App Additions
+# Stack Research — Smart Pantry Features
 
-**Domain:** Native iOS App (SwiftUI + TCA)
-**Researched:** 2026-03-01
+**Domain:** Smart Pantry (fridge scanning, receipt OCR, expiry tracking, ingredient matching)
+**Researched:** 2026-03-11
 **Confidence:** HIGH
 
 ## Executive Summary
 
-For the Kindred iOS app, the core framework decisions (SwiftUI + TCA) are already made. This research identifies specific libraries needed for GraphQL client communication, voice streaming playback, offline caching, App Store billing, accessibility, and supporting features. The focus is on mature, actively maintained libraries with native SwiftUI support and minimal overlap with TCA's built-in capabilities.
+Smart Pantry features build on Kindred's validated stack with minimal new dependencies. The existing iOS architecture (SwiftUI + TCA), backend (NestJS + GraphQL + Prisma + PostgreSQL), and AI infrastructure (Gemini 2.0 Flash, Firebase AI Logic SDK) support all Smart Pantry capabilities. Key additions: iOS VisionKit's DataScannerViewController for live receipt OCR, new Prisma models for pantry data, and GraphQL schema extensions.
 
-**Key Recommendation:** Leverage iOS 17+ native capabilities wherever possible (URLSession async/await, Core Location, AVFoundation) and add targeted libraries only where native frameworks fall short (GraphQL client, image caching, swipe cards).
+**What's already validated (DO NOT add):**
+- iOS: SwiftUI + TCA 1.x, Apollo iOS 2.0.6, AVFoundation, iOS 17.0+
+- Backend: NestJS 11 + GraphQL (Apollo Server 5) + Prisma 7 + PostgreSQL 15
+- AI: Gemini 2.0 Flash via Firebase AI Logic SDK, already integrated for image analysis
+- Storage: Cloudflare R2, SwiftData for local persistence
 
-## Core Technologies (Already Decided)
+---
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| SwiftUI | iOS 17.0+ | Declarative UI framework | Apple's modern UI framework with native async/await, observable state, and NavigationStack |
-| TCA (The Composable Architecture) | Latest (1.x) | State management & architecture | Provides @ObservableState, @Dependency, @Shared macros; handles side effects, testability, and composability out-of-box |
-| iOS | 17.0+ minimum | Target platform | Clerk iOS SDK v1 requires iOS 17+; aligns with modern SwiftUI features and async/await |
+## Recommended Stack Additions
 
-## GraphQL Client
+### iOS Framework Additions
 
-| Library | Version | Purpose | Why Recommended |
+| Framework | Version | Purpose | Why Recommended |
+|-----------|---------|---------|-----------------|
+| **VisionKit** | Built-in (iOS 17+) | Live receipt scanning with DataScannerViewController | Apple-native live OCR with currency detection (iOS 17+). Replaces need for custom AVFoundation + Vision pipeline. No dependencies, zero cost, on-device processing. |
+| **PhotosUI** | Built-in (iOS 17+) | Photo picker for fridge scanning | Already listed in existing architecture but confirming for pantry camera flows. Replaces UIImagePickerController with native SwiftUI PhotosPicker. |
+
+**No new third-party iOS dependencies required.** All camera, OCR, and vision capabilities use Apple frameworks already in the validated stack.
+
+### Backend Package Additions
+
+| Package | Version | Purpose | Why Recommended |
 |---------|---------|---------|-----------------|
-| **Apollo iOS** | **2.0.6** | GraphQL client with code generation | Industry-leading Swift GraphQL client; native async/await support; strongly-typed query/mutation results; built-in caching; actively maintained (released Feb 6, 2026) |
+| **class-validator** | ^0.14.x | GraphQL input validation for pantry mutations | Standard NestJS validation library. Works seamlessly with code-first GraphQL @InputType decorators. Already used in similar NestJS projects for DTO validation. |
+| **class-transformer** | ^0.5.x | Transform and validate nested pantry item inputs | Required peer dependency for class-validator. Enables automatic transformation of plain objects to validated class instances. |
 
-**Why Apollo iOS:**
-- Code-first type safety: Generates operation-specific Swift types from your GraphQL schema
-- Built for Swift concurrency: Apollo iOS 2.0 rebuilt from ground up for modern async/await patterns
-- Native SwiftUI integration: Works seamlessly with @ObservableObject and TCA's @Dependency
-- Caching built-in: InMemoryNormalizedCache and SQLiteNormalizedCache for offline support
-- Active maintenance: Version 2.0.6 released Feb 2026, fully supports iOS 17+
+**Note:** Prisma 7, PostgreSQL 15, and NestJS 11 are already validated. No ORM or database changes needed.
 
-**Installation:**
-```swift
-// Swift Package Manager
-dependencies: [
-    .package(url: "https://github.com/apollographql/apollo-ios.git", from: "2.0.6")
-]
+---
+
+## New Data Models (Prisma Schema Extensions)
+
+### PantryItem Model
+
+```prisma
+enum PantryCategory {
+  PRODUCE
+  DAIRY
+  PROTEIN
+  GRAINS
+  CONDIMENTS
+  BEVERAGES
+  FROZEN
+  CANNED
+  SPICES
+  OTHER
+}
+
+enum PantryItemSource {
+  MANUAL
+  FRIDGE_SCAN
+  RECEIPT_SCAN
+}
+
+model PantryItem {
+  id           String            @id @default(cuid())
+  userId       String
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name         String            // normalized ingredient name
+  quantity     String?           // "2", "1.5", "500g" (flexible string)
+  unit         String?           // "cups", "lbs", "pieces", etc.
+  category     PantryCategory    @default(OTHER)
+
+  // Expiry tracking
+  addedDate    DateTime          @default(now())
+  expiryDate   DateTime?         // null = no expiry or unknown
+  estimatedExpiryDays Int?       // AI-estimated shelf life from add date
+
+  // Metadata
+  source       PantryItemSource  @default(MANUAL)
+  notes        String?           // user notes
+  imageUrl     String?           // optional photo of item
+
+  // Matching
+  normalizedName String          // lowercase, stripped for matching (e.g., "chicken breast")
+
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([userId, expiryDate])
+  @@index([userId, normalizedName])
+  @@index([userId, category])
+}
 ```
 
-**Minimum Requirements:** iOS 15+, but recommend iOS 17+ for full async/await support
+### PantryScanHistory Model (optional, for analytics)
 
-## Voice Streaming & Playback
+```prisma
+enum ScanType {
+  FRIDGE
+  RECEIPT
+}
 
-| Library | Version | Purpose | Why Recommended |
-|---------|---------|---------|-----------------|
-| **AVFoundation** | Native (iOS 17) | Audio streaming & playback | Apple's native framework; AVPlayer handles streaming from network URLs; no third-party dependency needed |
-| **ElevenLabsKit** (optional) | Latest | Swift SDK for ElevenLabs streaming | Provides Swift-native PCM stream handling for ElevenLabs TTS; alternative to custom REST client |
+model PantryScanHistory {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-**Why AVFoundation (Native):**
-- Native iOS framework optimized for audio streaming
-- AVPlayer supports streaming from network URLs out-of-box
-- Background audio playback and media controls (lock screen integration)
-- Configurable audio session for playback category
-- No external dependencies, maximum compatibility
+  scanType      ScanType
+  itemsDetected Int       // count of items AI detected
+  itemsAdded    Int       // count user confirmed
+  imageUrl      String?   // R2 URL (optional, for debugging)
 
-**ElevenLabs Integration:**
-- Backend already uses custom REST client for ElevenLabs (validated in v1.5)
-- For iOS: Stream MP3 URL from backend → play via AVPlayer
-- Alternative: Use ElevenLabsKit Swift SDK for direct client-side streaming (adds dependency but simplifies integration)
-- Latency: ElevenLabs Flash v2.5 = ~75ms, streaming typically responds <500ms
+  scannedAt     DateTime  @default(now())
 
-**Recommendation:** Start with AVPlayer streaming MP3 URLs from your NestJS backend. Only add ElevenLabsKit if client-side streaming proves necessary.
-
-## Image Loading & Caching
-
-| Library | Version | Purpose | Why Recommended |
-|---------|---------|---------|-----------------|
-| **Kingfisher** | **8.0+** | Async image downloading & caching | Pure Swift, native SwiftUI support via KFImage, lightweight, actively maintained, excellent performance |
-
-**Why Kingfisher:**
-- Native SwiftUI support: KFImage component integrates seamlessly with SwiftUI views
-- Pure Swift: Written in Swift, better type safety and interop than Objective-C alternatives
-- Multi-layer caching: Memory + disk cache with configurable TTL
-- Modern async/await: Supports Swift concurrency patterns
-- Lightweight: Smaller footprint than SDWebImage
-- Active maintenance: Version 8.0 released with full SwiftUI support
-
-**Installation:**
-```swift
-// Swift Package Manager
-dependencies: [
-    .package(url: "https://github.com/onevcat/Kingfisher.git", from: "8.0.0")
-]
+  @@index([userId, scannedAt])
+}
 ```
 
-**Minimum Requirements:** iOS 13.0+ for UIKit, iOS 14.0+ for SwiftUI (your app targets iOS 17+)
+### User Model Extension
 
-**Usage Pattern:**
-```swift
-import Kingfisher
+Add to existing `User` model:
+```prisma
+model User {
+  // ... existing fields ...
 
-KFImage(URL(string: recipe.heroImageUrl))
-    .placeholder { ProgressView() }
-    .retry(maxCount: 3)
-    .cacheOriginalImage()
-    .resizable()
-    .aspectRatio(contentMode: .fill)
+  // NEW relations for Smart Pantry
+  pantryItems       PantryItem[]
+  pantryScanHistory PantryScanHistory[]
+}
 ```
 
-## Swipe Card UI
+---
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| **Custom SwiftUI DragGesture** | Native | Swipe gestures for card stack | **Recommended**: Full control, no dependencies, TCA-friendly |
-| **SwipeCardsKit** (alternative) | Latest | Tinder-like swipe cards | If you need pre-built card stack with depth effects |
+## GraphQL Schema Extensions
 
-**Why Custom Implementation:**
-- SwiftUI's DragGesture provides all primitives needed
-- Full control over swipe thresholds, animations, and TCA state integration
-- No external dependency = smaller binary, fewer breaking changes
-- TCA makes state management trivial: track card index, swipe direction in reducer
+### Type Definitions (Code-First NestJS)
 
-**If Using Library:**
-- SwipeCardsKit: Lightweight, customizable, automatic depth effect for top 4 cards
-- Supports LeftRight, FourDirections, EightDirections predefined modes
-- Easy integration with SwiftUI environment values
+```typescript
+// PantryItem.entity.ts
+import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
+import { PantryCategory, PantryItemSource } from '@prisma/client';
 
-**Recommendation:** Build custom swipe with DragGesture unless you need complex depth animations. Estimated implementation: 2-3 hours for basic swipe left/right with rotation.
+registerEnumType(PantryCategory, { name: 'PantryCategory' });
+registerEnumType(PantryItemSource, { name: 'PantryItemSource' });
 
-## Offline Data Caching
+@ObjectType()
+export class PantryItem {
+  @Field(() => ID)
+  id: string;
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| **Apollo iOS Cache** | Built-in | GraphQL response caching | SQLiteNormalizedCache for persistent offline GraphQL data; automatic query result caching |
-| **Core Data** (optional) | Native (iOS 17) | Voice profile caching | Native iOS persistence; use for large binary data (voice clips); integrates with SwiftUI @FetchRequest |
-| **UserDefaults** | Native | Simple key-value storage | Lightweight persistence for user preferences, feed state, last location |
+  @Field()
+  name: string;
 
-**Why This Combination:**
-- **Apollo Cache:** Already included with Apollo iOS; handles GraphQL offline caching automatically
-- **Core Data:** Best for structured data + binary blobs (voice clips); native SwiftUI integration
-- **UserDefaults:** Zero-setup persistence for small data (user preferences, feed position)
+  @Field({ nullable: true })
+  quantity?: string;
 
-**Voice Caching Strategy:**
-- Cache voice narration MP3 files in Documents directory
-- Store file paths + metadata in Core Data
-- Cache key: recipeId + voiceProfileId + narrationScriptHash
-- Estimated size: ~500KB-1MB per 2-minute recipe narration
-- Expiration: 30 days or LRU eviction when storage >100MB
+  @Field({ nullable: true })
+  unit?: string;
 
-**Apollo Cache Setup:**
-```swift
-import Apollo
-import ApolloSQLite
+  @Field(() => PantryCategory)
+  category: PantryCategory;
 
-let sqliteCache = try! SQLiteNormalizedCache(fileURL: cacheFileURL)
-let store = ApolloStore(cache: sqliteCache)
-let client = ApolloClient(networkTransport: transport, store: store)
+  @Field()
+  addedDate: Date;
+
+  @Field({ nullable: true })
+  expiryDate?: Date;
+
+  @Field(() => Int, { nullable: true })
+  estimatedExpiryDays?: number;
+
+  @Field(() => PantryItemSource)
+  source: PantryItemSource;
+
+  @Field({ nullable: true })
+  notes?: string;
+
+  @Field({ nullable: true })
+  imageUrl?: string;
+}
 ```
 
-## App Store Billing (StoreKit 2)
+### Input Types with Validation
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| **StoreKit 2** | Native (iOS 17) | In-app subscriptions & purchases | Apple's modern subscription API; async/await native; serverless validation; 2x faster than StoreKit 1 |
+```typescript
+// CreatePantryItemInput.dto.ts
+import { InputType, Field } from '@nestjs/graphql';
+import { IsNotEmpty, IsOptional, IsEnum, IsDateString, MinLength } from 'class-validator';
+import { PantryCategory, PantryItemSource } from '@prisma/client';
 
-**Why StoreKit 2:**
-- **Native async/await:** Built for Swift concurrency (iOS 15+)
-- **SwiftUI components:** SubscriptionOfferView for merchandising auto-renewable subscriptions (iOS 18.4+)
-- **Serverless validation:** On-device transaction validation via App Store Server API
-- **Transaction tracking:** appTransactionID provides globally unique user identifier
-- **Performance:** 2x faster than StoreKit 1; off-main-thread transactions
+@InputType()
+export class CreatePantryItemInput {
+  @Field()
+  @IsNotEmpty()
+  @MinLength(2)
+  name: string;
 
-**Clerk + StoreKit Integration:**
-- Clerk handles authentication (Google/Apple OAuth)
-- StoreKit 2 handles subscription state (Free vs Pro tier)
-- Sync subscription status to backend GraphQL mutation: `updateUserSubscription(tier: SubscriptionTier!)`
-- Backend validates receipt via App Store Server API (JWS verification)
+  @Field({ nullable: true })
+  @IsOptional()
+  quantity?: string;
 
-**Key APIs:**
-- `Product.SubscriptionInfo`: Query subscription products
-- `Transaction.currentEntitlements`: Check active subscriptions
-- `Transaction.updates`: Listen for subscription changes
-- `SubscriptionOfferView`: SwiftUI view for subscription UI (iOS 18.4+)
+  @Field({ nullable: true })
+  @IsOptional()
+  unit?: string;
 
-**Installation:** No package needed — StoreKit 2 is native to iOS 15+.
+  @Field(() => PantryCategory)
+  @IsEnum(PantryCategory)
+  category: PantryCategory;
 
-**Minimum Requirements:** iOS 15.0+, SwiftUI support in iOS 17+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsDateString()
+  expiryDate?: string;
 
-## Authentication
+  @Field(() => PantryItemSource)
+  @IsEnum(PantryItemSource)
+  source: PantryItemSource;
 
-| Library | Version | Purpose | Why Recommended |
-|---------|---------|---------|-----------------|
-| **Clerk iOS SDK** | **1.0+** | Authentication (Google/Apple OAuth) | Official Clerk SDK; SwiftUI-first design; prebuilt UI components; unified auth API; released Feb 2026 |
-
-**Why Clerk iOS SDK v1:**
-- **Just released (Feb 2026):** v1.0 stable with improved DX and simplified API
-- **SwiftUI-native:** Built with SwiftUI in mind; split into ClerkKit (core) + ClerkKitUI (prebuilt views)
-- **Unified auth API:** All auth methods under `.auth` namespace
-- **Prebuilt components:** SignInView, SignUpView, UserProfileView — no custom forms needed
-- **Easy configuration:** `Clerk.configure(...)` at launch, inject via `@Environment(Clerk.self)`
-- **Supports backend integration:** Works with your existing Clerk + NestJS GraphQL backend (JWT validation)
-
-**Installation:**
-```swift
-// Swift Package Manager only (no CocoaPods)
-dependencies: [
-    .package(url: "https://github.com/clerk/clerk-ios", from: "1.0.0")
-]
-
-// Import both
-import ClerkKit       // Core auth APIs
-import ClerkKitUI     // Prebuilt SwiftUI views
+  @Field({ nullable: true })
+  @IsOptional()
+  notes?: string;
+}
 ```
 
-**Minimum Requirements:** iOS 17.0+, Xcode 16+, Swift 5.10+
+### Mutations & Queries
 
-**Backend Integration:**
-- iOS app sends Clerk JWT in GraphQL Authorization header
-- NestJS backend validates JWT via Clerk webhook/API
-- Existing backend auth already configured (validated in v1.5)
+```typescript
+// pantry.resolver.ts
+@Resolver(() => PantryItem)
+export class PantryResolver {
+  @Query(() => [PantryItem])
+  @UseGuards(ClerkAuthGuard)
+  async pantryItems(@CurrentUser() user: User): Promise<PantryItem[]> {
+    return this.pantryService.findAllByUser(user.id);
+  }
 
-## Push Notifications
+  @Query(() => [PantryItem])
+  @UseGuards(ClerkAuthGuard)
+  async expiringItems(
+    @CurrentUser() user: User,
+    @Args('withinDays', { type: () => Int, defaultValue: 7 }) withinDays: number,
+  ): Promise<PantryItem[]> {
+    return this.pantryService.findExpiringItems(user.id, withinDays);
+  }
 
-| Library | Version | Purpose | Why Recommended |
-|---------|---------|---------|-----------------|
-| **Firebase Cloud Messaging (FCM)** | **12.10.0** | Push notification delivery | Already validated in backend (v1.5); handles iOS APNs routing; SwiftUI compatible |
+  @Mutation(() => PantryItem)
+  @UseGuards(ClerkAuthGuard)
+  async addPantryItem(
+    @CurrentUser() user: User,
+    @Args('input') input: CreatePantryItemInput,
+  ): Promise<PantryItem> {
+    return this.pantryService.create(user.id, input);
+  }
 
-**Why FCM:**
-- **Backend integration:** NestJS backend already uses Firebase Admin SDK (validated in v1.5)
-- **APNs routing:** FCM handles APNs token management and message delivery to iOS
-- **SwiftUI integration:** Use UIApplicationDelegateAdaptor to register APNs token with FCM
-- **Cross-platform:** Same FCM setup works for future Android app
+  @Mutation(() => [PantryItem])
+  @UseGuards(ClerkAuthGuard)
+  async addPantryItemsBulk(
+    @CurrentUser() user: User,
+    @Args({ name: 'items', type: () => [CreatePantryItemInput] }) items: CreatePantryItemInput[],
+  ): Promise<PantryItem[]> {
+    return this.pantryService.createBulk(user.id, items);
+  }
 
-**Installation:**
-```swift
-// Swift Package Manager or CocoaPods
-dependencies: [
-    .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "12.10.0")
-]
-
-// Import
-import FirebaseMessaging
+  @Mutation(() => Boolean)
+  @UseGuards(ClerkAuthGuard)
+  async deletePantryItem(
+    @CurrentUser() user: User,
+    @Args('id', { type: () => ID }) id: string,
+  ): Promise<boolean> {
+    return this.pantryService.delete(user.id, id);
+  }
+}
 ```
 
-**Minimum Requirements:** iOS 13.0+, Xcode 16.2+
+---
 
-**SwiftUI Integration Pattern:**
+## iOS Swift Package Structure
+
+### New Package: PantryFeature
+
 ```swift
-@main
-struct KindredApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+// Packages/PantryFeature/Package.swift
+let package = Package(
+    name: "PantryFeature",
+    platforms: [.iOS(.v17)],
+    products: [
+        .library(name: "PantryFeature", targets: ["PantryFeature"]),
+    ],
+    dependencies: [
+        .package(name: "ComposableArchitecture", ...),
+        .package(name: "KindredAPI", ...),  // Apollo iOS GraphQL
+        .package(name: "DesignSystem", ...),
+    ],
+    targets: [
+        .target(
+            name: "PantryFeature",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "ComposableArchitecture"),
+                "KindredAPI",
+                "DesignSystem",
+            ]
+        ),
+    ]
+)
+```
 
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
+### Camera Integration (already exists, extend for pantry)
+
+Extend existing `CameraFeature` or create `PantryScanFeature`:
+
+```swift
+// TCA Reducer for pantry scanning
+@Reducer
+struct PantryScanReducer {
+    @ObservableState
+    struct State {
+        var scanMode: ScanMode = .fridge
+        var capturedImage: UIImage?
+        var isAnalyzing = false
+        var detectedItems: [DetectedPantryItem] = []
+        var errorMessage: String?
+
+        enum ScanMode {
+            case fridge
+            case receipt
+        }
+    }
+
+    enum Action {
+        case capturePhoto(UIImage)
+        case analyzeImage
+        case imageAnalyzed(Result<[DetectedPantryItem], Error>)
+        case confirmItems([DetectedPantryItem])
+        case itemsConfirmed
+    }
+
+    @Dependency(\.geminiClient) var geminiClient
+    @Dependency(\.pantryClient) var pantryClient
+
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            // Implementation using Gemini for image analysis
         }
     }
 }
-
-class AppDelegate: NSObject, UIApplicationDelegate, MessagingDelegate {
-    func application(_ application: UIApplication,
-                    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        Messaging.messaging().apnsToken = deviceToken
-    }
-}
 ```
 
-## Location Services
+---
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| **Core Location** | Native (iOS 17) | User location & geocoding | Apple's native framework; handles GPS, Wi-Fi, cellular triangulation; SwiftUI integration via CLLocationManager |
-| **MapKit** (optional) | Native (iOS 17) | Map display | Only if showing map UI; not required for location-only features |
+## AI Integration Patterns
 
-**Why Core Location (Native):**
-- Native iOS framework optimized for location services
-- Handles all location sources: GPS, Wi-Fi, Bluetooth, cellular
-- Privacy-first: System permissions, location accuracy controls
-- No external dependencies
+### Gemini Prompts for Pantry Features
 
-**SwiftUI Integration:**
-- Create `LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate`
-- Inject via `@StateObject` or TCA `@Dependency`
-- Request `whenInUseAuthorization` for feed location
-- Send location to backend GraphQL query: `feed(latitude: Float!, longitude: Float!, radius: Float!)`
+#### Fridge Scanning Prompt
 
-**Location Strategy:**
-- **On app launch:** Request location permission, get current location
-- **Feed query:** Pass lat/lng to GraphQL `feed` query (backend filters with PostGIS ST_DWithin)
-- **Manual location change:** Let user search city → geocode via backend Mapbox API (already cached)
-- **Background location:** Not needed for v2.0 (feed is foreground-only)
+```typescript
+// backend/src/gemini/prompts/fridge-scan.prompt.ts
+export const FRIDGE_SCAN_PROMPT = `
+Analyze this photo of a refrigerator's contents.
 
-**Installation:** No package needed — Core Location is native to iOS.
-
-## Ad SDK (Free Tier)
-
-| Library | Version | Purpose | Why Recommended |
-|---------|---------|---------|-----------------|
-| **Google Mobile Ads SDK (AdMob)** | **13.1.0** | Banner/interstitial ads for free tier | Industry-standard iOS ad platform; native SwiftUI integration via UIViewRepresentable; highest eCPM |
-
-**Why AdMob:**
-- **Industry standard:** Highest fill rates and eCPMs for iOS
-- **SwiftUI compatible:** Wrap GADBannerView in UIViewRepresentable for SwiftUI views
-- **Easy integration:** SPM or CocoaPods, simple Info.plist configuration
-- **Active maintenance:** Version 13.1.0 released Feb 24, 2026
-
-**Installation:**
-```swift
-// Swift Package Manager or CocoaPods
-dependencies: [
-    .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads.git", from: "13.1.0")
+Return a JSON array of visible food items with the following structure:
+[
+  {
+    "name": "chicken breast",
+    "estimatedQuantity": "2 pieces",
+    "category": "PROTEIN",
+    "freshnessDays": 3,
+    "confidence": 0.95
+  }
 ]
 
-// Import
-import GoogleMobileAds
+Rules:
+- Only list clearly visible items
+- Normalize names (e.g., "boneless chicken breast" → "chicken breast")
+- Categories: PRODUCE, DAIRY, PROTEIN, GRAINS, CONDIMENTS, BEVERAGES, FROZEN, CANNED, SPICES, OTHER
+- freshnessDays: estimated days until spoilage from TODAY
+- confidence: 0.0-1.0 (only include if > 0.7)
+- Quantity: use common units (pieces, lbs, oz, cups)
+
+Return ONLY the JSON array, no explanation.
+`;
 ```
 
-**Minimum Requirements:** iOS 13.0+, Xcode 16.0+
+#### Receipt OCR Prompt
 
-**Key Changes in v13:**
-- Removed dependency on GoogleAppMeasurement (use Firebase Analytics separately)
-- Many deprecated APIs removed (check migration guide)
-- String-only `neighboringContentURLStrings` enforcement
+```typescript
+// backend/src/gemini/prompts/receipt-scan.prompt.ts
+export const RECEIPT_SCAN_PROMPT = `
+Analyze this supermarket receipt photo.
 
-**SwiftUI Integration:**
+Extract purchased food items as a JSON array:
+[
+  {
+    "name": "milk",
+    "quantity": "1 gallon",
+    "category": "DAIRY",
+    "price": 4.99,
+    "estimatedExpiryDays": 10
+  }
+]
+
+Rules:
+- Only extract food items (skip toiletries, household goods)
+- Normalize product names to generic ingredients
+- Use common units (gallon, lbs, oz, count)
+- Categories: PRODUCE, DAIRY, PROTEIN, GRAINS, CONDIMENTS, BEVERAGES, FROZEN, CANNED, SPICES, OTHER
+- estimatedExpiryDays: shelf life estimate from purchase date
+- Include price if visible
+
+Return ONLY the JSON array, no explanation.
+`;
+```
+
+### iOS Gemini Client Extension
+
 ```swift
-struct BannerView: UIViewRepresentable {
-    func makeUIView(context: Context) -> GADBannerView {
-        let banner = GADBannerView(adSize: GADAdSizeBanner)
-        banner.adUnitID = "ca-app-pub-xxxxx"
-        banner.rootViewController = UIApplication.shared.keyWindow?.rootViewController
-        banner.load(GADRequest())
-        return banner
+// Extend existing GeminiClient dependency
+extension GeminiClient {
+    func analyzeFridgePhoto(_ image: UIImage) async throws -> [DetectedPantryItem] {
+        let compressed = try image.compressForAPI() // max 1024x1024, 80% JPEG
+        let base64 = compressed.base64EncodedString()
+
+        let response = try await generateContent(
+            model: "gemini-2.0-flash",
+            prompt: FridgeScanPrompt.text,
+            imageData: base64
+        )
+
+        return try JSONDecoder().decode([DetectedPantryItem].self, from: response)
     }
 
-    func updateUIView(_ uiView: GADBannerView, context: Context) {}
+    func analyzeReceiptPhoto(_ image: UIImage) async throws -> [DetectedPantryItem] {
+        let compressed = try image.compressForAPI()
+        let base64 = compressed.base64EncodedString()
+
+        let response = try await generateContent(
+            model: "gemini-2.0-flash",
+            prompt: ReceiptScanPrompt.text,
+            imageData: base64
+        )
+
+        return try JSONDecoder().decode([DetectedPantryItem].self, from: response)
+    }
 }
 ```
 
-## Accessibility
+---
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| **SwiftUI Accessibility APIs** | Native (iOS 17) | VoiceOver, Dynamic Type, WCAG AAA | Native accessibility modifiers; no library needed; Apple's WCAG-compliant primitives |
+## iOS VisionKit Integration (Alternative for Receipt OCR)
 
-**Why Native SwiftUI:**
-- **Built-in modifiers:** `.accessibilityLabel()`, `.accessibilityHint()`, `.accessibilityAction()`, `.accessibilityValue()`
-- **VoiceOver support:** SwiftUI views are accessible by default; customize with modifiers
-- **Dynamic Type:** Automatic font scaling with `.font(.body)`, `.font(.title)`, etc.
-- **Touch targets:** SwiftUI respects minimum 44pt (56dp Android) touch targets automatically
-- **Trait support:** `.accessibilityAddTraits(.isButton)` for semantic roles
+### DataScannerViewController for Live Receipt Scanning
 
-**WCAG AAA Requirements:**
-- **Touch targets:** 56dp minimum (SwiftUI buttons already meet this)
-- **Text size:** 18sp minimum body text (use `.font(.body)` with Dynamic Type)
-- **Contrast:** 7:1 for normal text, 4.5:1 for large text (validate with Xcode Accessibility Inspector)
-- **Navigation depth:** Max 3 levels (enforce with tab bar + modal sheets)
+```swift
+import VisionKit
 
-**Resources:**
-- CVS Health iOS SwiftUI Accessibility Techniques (open-source examples)
-- Apple WWDC23: "SwiftUI Accessibility: Beyond the basics"
-- Orange Digital Accessibility Guidelines for iOS
+// Use DataScannerViewController for live receipt text extraction (iOS 17+)
+struct ReceiptScannerView: UIViewControllerRepresentable {
+    @Binding var recognizedItems: [RecognizedItem]
 
-**No library needed** — SwiftUI provides all accessibility primitives natively.
+    func makeUIViewController(context: Context) -> DataScannerViewController {
+        let scanner = DataScannerViewController(
+            recognizedDataTypes: [
+                .text(languages: ["en", "tr"]),
+                .text(textContentType: .currency) // iOS 17 feature
+            ],
+            qualityLevel: .accurate,
+            recognizesMultipleItems: true,
+            isHighFrameRateTrackingEnabled: false
+        )
+        scanner.delegate = context.coordinator
+        return scanner
+    }
+
+    func updateUIViewController(_ uiViewController: DataScannerViewController, context: Context) {
+        try? uiViewController.startScanning()
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(recognizedItems: $recognizedItems)
+    }
+
+    class Coordinator: NSObject, DataScannerViewControllerDelegate {
+        @Binding var recognizedItems: [RecognizedItem]
+
+        init(recognizedItems: Binding<[RecognizedItem]>) {
+            _recognizedItems = recognizedItems
+        }
+
+        func dataScanner(_ dataScanner: DataScannerViewController, didAdd addedItems: [RecognizedItem], allItems: [RecognizedItem]) {
+            recognizedItems = allItems
+        }
+    }
+}
+```
+
+**When to use VisionKit vs Gemini:**
+- **VisionKit (DataScannerViewController)**: Live receipt scanning with on-device OCR. Instant feedback, zero API cost, works offline. Best for **text extraction only**.
+- **Gemini 2.0 Flash**: Image → structured pantry items with categories, quantities, and expiry estimates. Best for **fridge scanning** and **intelligent receipt parsing** (not just OCR but semantic understanding).
+
+**Recommendation:** Use **VisionKit for live preview feedback** during receipt capture, then send image to **Gemini for final parsing and categorization**.
+
+---
+
+## Ingredient Matching Algorithm
+
+### Recipe Card Enhancement: Match Percentage
+
+```swift
+// Calculate ingredient match between pantry and recipe
+struct IngredientMatcher {
+    static func calculateMatch(
+        pantryItems: [PantryItem],
+        recipeIngredients: [Ingredient]
+    ) -> MatchResult {
+        let pantryNames = Set(pantryItems.map { $0.normalizedName.lowercased() })
+
+        var matchedCount = 0
+        var partialMatches: [String] = []
+
+        for ingredient in recipeIngredients {
+            let normalized = ingredient.name.lowercased()
+
+            // Exact match
+            if pantryNames.contains(normalized) {
+                matchedCount += 1
+            }
+            // Partial match (e.g., "chicken" matches "chicken breast")
+            else if pantryNames.contains(where: { $0.contains(normalized) || normalized.contains($0) }) {
+                partialMatches.append(ingredient.name)
+                matchedCount += 1
+            }
+        }
+
+        let percentage = Int((Double(matchedCount) / Double(recipeIngredients.count)) * 100)
+
+        return MatchResult(
+            percentage: percentage,
+            matchedCount: matchedCount,
+            totalCount: recipeIngredients.count,
+            partialMatches: partialMatches
+        )
+    }
+}
+
+struct MatchResult {
+    let percentage: Int
+    let matchedCount: Int
+    let totalCount: Int
+    let partialMatches: [String]
+
+    var displayText: String {
+        "\(percentage)% match • \(matchedCount)/\(totalCount) ingredients"
+    }
+}
+```
+
+### Recipe Feed Query Extension
+
+```graphql
+# Add pantry match to feed query
+query FeedRecipes($latitude: Float!, $longitude: Float!, $pantryItemIds: [ID!]) {
+  feedRecipes(latitude: $latitude, longitude: $longitude) {
+    id
+    name
+    ingredients {
+      id
+      name
+    }
+    pantryMatch(pantryItemIds: $pantryItemIds) {
+      percentage
+      matchedCount
+      totalCount
+      missingIngredients
+    }
+  }
+}
+```
+
+Backend resolver:
+```typescript
+@ResolveField(() => PantryMatch)
+async pantryMatch(
+  @Parent() recipe: Recipe,
+  @Args({ name: 'pantryItemIds', type: () => [ID], nullable: true }) pantryItemIds?: string[],
+): Promise<PantryMatch> {
+  if (!pantryItemIds || pantryItemIds.length === 0) {
+    return { percentage: 0, matchedCount: 0, totalCount: recipe.ingredients.length };
+  }
+
+  return this.pantryService.calculateRecipeMatch(recipe.id, pantryItemIds);
+}
+```
+
+---
+
+## Expiry Estimation AI Logic
+
+### Default Expiry Estimates by Category
+
+```typescript
+// backend/src/pantry/expiry-estimator.service.ts
+export class ExpiryEstimatorService {
+  private readonly DEFAULT_EXPIRY_DAYS: Record<PantryCategory, number> = {
+    PRODUCE: 5,
+    DAIRY: 10,
+    PROTEIN: 3,
+    GRAINS: 365,
+    CONDIMENTS: 180,
+    BEVERAGES: 30,
+    FROZEN: 90,
+    CANNED: 365,
+    SPICES: 730,
+    OTHER: 30,
+  };
+
+  estimateExpiryDays(
+    name: string,
+    category: PantryCategory,
+    context?: 'fridge' | 'freezer' | 'pantry',
+  ): number {
+    // Use Gemini for intelligent estimates
+    // Fallback to category defaults
+    const baseEstimate = this.DEFAULT_EXPIRY_DAYS[category];
+
+    // Adjust based on storage context
+    if (context === 'freezer') {
+      return baseEstimate * 3; // freeze extends life
+    }
+
+    return baseEstimate;
+  }
+
+  async estimateWithAI(name: string, category: PantryCategory): Promise<number> {
+    const prompt = `Estimate shelf life in days for "${name}" (${category}).
+    Consider typical refrigerator storage. Return only a number.`;
+
+    const response = await this.geminiService.generateText(prompt);
+    const days = parseInt(response.trim());
+
+    return isNaN(days) ? this.DEFAULT_EXPIRY_DAYS[category] : days;
+  }
+}
+```
+
+---
+
+## Installation
+
+### Backend (NestJS)
+
+```bash
+cd backend
+
+# New validation dependencies
+npm install class-validator@^0.14.1 class-transformer@^0.5.1
+
+# Run Prisma migration for new models
+npx prisma migrate dev --name add_pantry_models
+
+# Generate Prisma Client
+npx prisma generate
+```
+
+### iOS (Swift Package Manager)
+
+No new external dependencies. VisionKit and PhotosUI are built-in frameworks.
+
+```swift
+// In project.yml or Xcode, ensure frameworks are linked:
+frameworks:
+  - VisionKit
+  - PhotosUI
+  - AVFoundation  // (already present)
+```
+
+Update `Info.plist`:
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Kindred needs camera access to scan your fridge and receipts for smart pantry management.</string>
+
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Kindred needs photo access to analyze fridge images for ingredient detection.</string>
+```
+
+---
+
+## Alternatives Considered
+
+| Recommended | Alternative | When to Use Alternative |
+|-------------|-------------|-------------------------|
+| VisionKit DataScannerViewController | Custom AVFoundation + Vision | If targeting iOS 16 (but we're on iOS 17+) |
+| Gemini 2.0 Flash for image analysis | OpenAI GPT-4 Vision | If switching away from Google AI ecosystem |
+| On-device expiry estimation | External food database API | If extremely high accuracy needed (adds cost + latency) |
+| Prisma + PostgreSQL | MongoDB for pantry items | If pantry data doesn't need relations (but it does — user, recipes) |
+
+---
 
 ## What NOT to Use
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| **Alamofire** | URLSession + async/await is native and sufficient for GraphQL via Apollo | URLSession (native) + Apollo iOS |
-| **RealmSwift** | Adds 10MB+ to binary; Apollo cache + Core Data cover all persistence needs | Apollo SQLite cache + Core Data |
-| **SwiftLint** (optional) | Not critical for v2.0; focus on feature delivery | Add in v2.1+ for code quality |
-| **Lottie** (animations) | Adds complexity; SwiftUI animations sufficient for card swipes and transitions | SwiftUI native animations |
-| **Custom navigation libraries** | SwiftUI NavigationStack (iOS 16+) + TCA handle all navigation needs | SwiftUI NavigationStack + TCA |
-| **PromiseKit/Combine** | Swift async/await is the modern standard; TCA uses async/await | Swift async/await + TCA Effects |
+| **Third-party OCR SDKs** (Tesseract, ML Kit OCR) | VisionKit provides superior live OCR with currency detection in iOS 17. No dependencies, free, on-device. | VisionKit DataScannerViewController |
+| **Separate food recognition APIs** (Clarifai, Calorie Mama) | Gemini 2.0 Flash already integrated, handles multimodal well, and costs ~$0.001/image vs $0.02+/image for specialized APIs. | Gemini 2.0 Flash via Firebase AI Logic SDK |
+| **UIImagePickerController** for camera | Deprecated in favor of PHPickerViewController and custom AVFoundation. Poor accessibility. | PHPickerViewController for gallery, AVCaptureSession for custom camera UI |
+| **Custom expiry date databases** | Maintenance burden, licensing costs. AI estimation + category defaults cover 90% of use cases. | Gemini AI estimation + fallback category defaults |
+| **Apollo iOS 1.x** | Apollo iOS 2.0+ (already validated) uses modern Swift concurrency, improved cache. | Apollo iOS 2.0.6+ (already in stack) |
 
-## What TCA Already Provides (Don't Re-Add)
+---
 
-TCA includes these capabilities — no additional libraries needed:
+## Version Compatibility
 
-| Feature | TCA Provides | Don't Add |
-|---------|--------------|-----------|
-| **State management** | @ObservableState, @Shared macros | Redux libraries, MobX-style state |
-| **Dependency injection** | @Dependency property wrapper | Swinject, Resolver |
-| **Side effects** | Effect type with async/await support | RxSwift, ReactiveSwift, Combine publishers |
-| **Navigation** | NavigationStack integration, @PresentationState | Coordinator pattern libraries |
-| **Testing** | TestStore for reducer testing | Additional mocking frameworks |
-| **Persistence** | @Shared supports UserDefaults, file storage | Custom persistence wrappers |
+| Package A | Compatible With | Notes |
+|-----------|-----------------|-------|
+| class-validator@^0.14.x | NestJS 11, class-transformer@^0.5.x | Peer dependency required |
+| VisionKit (iOS 17+) | iOS 17.0+ only | DataScannerViewController unavailable on iOS 16 |
+| Apollo iOS 2.0.6 | iOS 17+, Swift 6 concurrency | Already validated in existing stack |
+| Gemini 2.0 Flash | Firebase AI Logic SDK 11.x | Use firebase-ios-sdk, NOT deprecated generative-ai-swift |
+| Prisma 7.x | PostgreSQL 15+ | Already validated, supports array fields for tags |
 
-## What SwiftUI Already Provides (Don't Re-Add)
+---
 
-| Feature | SwiftUI Provides | Don't Add |
-|---------|------------------|-----------|
-| **Networking** | URLSession + async/await | Alamofire (Apollo handles GraphQL) |
-| **Image caching** | Built-in AsyncImage (but limited) | Use Kingfisher for advanced caching |
-| **Animations** | Native animation modifiers | Lottie (unless specific animation assets) |
-| **Forms** | Form, TextField, Toggle, Picker | Third-party form builders |
-| **Gestures** | DragGesture, TapGesture, LongPressGesture | Custom gesture libraries |
-| **Accessibility** | Full VoiceOver, Dynamic Type support | Third-party accessibility libraries |
+## Integration with Existing Stack
 
-## Installation Summary
+### Reuse Existing Components
 
-```bash
-# Add to Xcode project via Swift Package Manager
+| Existing Component | How Pantry Uses It |
+|--------------------|---------------------|
+| **GeminiClient** (already exists) | Extend with `analyzeFridgePhoto()` and `analyzeReceiptPhoto()` methods |
+| **CameraFeature** (already exists) | Reuse AVCaptureSession setup, add pantry-specific capture flows |
+| **Apollo iOS GraphQL** (already exists) | Add pantry queries/mutations to schema, auto-generate Swift types |
+| **SwiftData** (already exists) | Cache pantry items locally for offline access |
+| **TCA @Dependency system** (already exists) | Register PantryClient for testability |
+| **DesignSystem** (already exists) | Reuse KNCard, KNButton, KNBadge for pantry UI |
+| **UNUserNotificationCenter** (already exists) | Schedule expiry alerts (already used for other notifications) |
 
-# GraphQL Client
-https://github.com/apollographql/apollo-ios.git (2.0.6+)
+### New Components to Build
 
-# Image Loading & Caching
-https://github.com/onevcat/Kingfisher.git (8.0+)
+| New Component | Purpose |
+|---------------|---------|
+| **PantryFeature** (iOS SPM) | TCA reducer, views, and client for pantry management |
+| **PantryScanFeature** (iOS SPM) | Camera capture + Gemini analysis for fridge/receipt scanning |
+| **PantryModule** (NestJS) | GraphQL resolvers, Prisma service, expiry estimator |
+| **IngredientMatcher** (shared logic) | Calculate recipe-pantry match percentage (iOS + backend) |
 
-# Authentication
-https://github.com/clerk/clerk-ios (1.0+)
+---
 
-# Push Notifications
-https://github.com/firebase/firebase-ios-sdk (12.10.0+)
+## Cost Implications
 
-# Ad SDK
-https://github.com/googleads/swift-package-manager-google-mobile-ads.git (13.1.0+)
+| Feature | Cost per Use | Monthly Estimate (10K users) |
+|---------|--------------|------------------------------|
+| Fridge scan (Gemini 2.0 Flash) | ~$0.001/image | $300 (3 scans/user/month) |
+| Receipt scan (Gemini 2.0 Flash) | ~$0.001/image | $200 (2 scans/user/month) |
+| VisionKit OCR | $0 (on-device) | $0 |
+| Expiry AI estimation (Gemini text) | ~$0.0001/item | $30 (3 items/scan × 3 scans × 10K) |
+| Pantry data storage (PostgreSQL) | Negligible | ~50KB/user = 500MB total |
+| **Total monthly cost** | | **~$530 at 10K users** |
 
-# Native Frameworks (No Installation)
-- AVFoundation (voice playback)
-- Core Location (location services)
-- StoreKit 2 (subscriptions)
-- Core Data (offline persistence)
-- SwiftUI Accessibility APIs
-```
+**Conclusion:** Smart Pantry features add minimal cost. Primary expense is Gemini image analysis (~$500/month at 10K users), which is 4x cheaper than voice narration costs.
 
-## Version Compatibility Matrix
-
-| Library | Version | iOS Min | Xcode Min | Notes |
-|---------|---------|---------|-----------|-------|
-| Apollo iOS | 2.0.6 | 15.0 | 15.0 | Recommend iOS 17+ for full async/await |
-| Kingfisher | 8.0+ | 13.0 (UIKit), 14.0 (SwiftUI) | 15.0 | SwiftUI support requires iOS 14+ |
-| Clerk iOS SDK | 1.0+ | **17.0** | **16.0** | **Drives minimum iOS version** |
-| Firebase iOS SDK | 12.10.0 | 13.0 | 16.2 | FCM + Analytics modules |
-| Google Mobile Ads | 13.1.0 | 13.0 | 16.0 | Breaking changes in v13 (check migration guide) |
-
-**Minimum iOS Version for Kindred v2.0:** **iOS 17.0** (driven by Clerk iOS SDK requirement)
-
-## Backend Integration Points
-
-| iOS Component | Backend Integration | Notes |
-|---------------|-------------------|-------|
-| **Apollo iOS** | NestJS GraphQL API (Apollo Server 5) | Code generation from backend schema; JWT auth in headers |
-| **Clerk iOS** | Clerk JWT validation in NestJS | Backend validates JWT via Clerk API; already configured in v1.5 |
-| **Firebase FCM** | Firebase Admin SDK in NestJS | Backend sends push notifications; iOS receives via APNs |
-| **StoreKit 2** | App Store Server API (JWS validation) | iOS sends receipt → backend validates → updates subscription tier |
-| **Core Location** | GraphQL query with lat/lng | `feed(latitude: Float!, longitude: Float!, radius: Float!)` |
-| **Voice Playback** | ElevenLabs MP3 URLs from backend | Backend generates narration → stores in R2 → returns URL → iOS streams via AVPlayer |
+---
 
 ## Sources
 
-**High Confidence (Official Documentation + Recent Releases):**
-- [Apollo iOS 2.0.6 Release](https://github.com/apollographql/apollo-ios) — GraphQL client, Feb 6, 2026
-- [Kingfisher 8.0 Documentation](https://github.com/onevcat/Kingfisher) — Image caching, SwiftUI support
-- [Clerk iOS SDK v1 Changelog](https://clerk.com/changelog/2026-02-10-ios-android-sdk-v1) — Auth SDK, Feb 10, 2026
-- [Google Mobile Ads SDK 13.1.0 Release Notes](https://developers.google.com/admob/ios/rel-notes) — AdMob SDK, Feb 24, 2026
-- [Firebase iOS SDK 12.10.0](https://firebase.google.com/support/release-notes/ios) — FCM for iOS
-- [StoreKit 2 Documentation](https://developer.apple.com/storekit/) — Apple official docs
-- [TCA GitHub Repository](https://github.com/pointfreeco/swift-composable-architecture) — Architecture framework
+### Apple Official Documentation
+- [VisionKit DataScannerViewController](https://developer.apple.com/documentation/visionkit/datascannerviewcontroller) — Live OCR with currency detection (iOS 17+)
+- [VNRecognizeTextRequest](https://developer.apple.com/documentation/vision/vnrecognizetextrequest) — On-device text recognition API
+- [WWDC22: Capture machine-readable codes and text with VisionKit](https://developer.apple.com/videos/play/wwdc2022/10025/) — DataScannerViewController introduction
+- [WWDC23: What's new in VisionKit](https://developer.apple.com/videos/play/wwdc2023/10048/) — iOS 17 enhancements (currency, optical flow)
 
-**Medium Confidence (Community Best Practices):**
-- [SwiftUI Accessibility Techniques (CVS Health)](https://github.com/cvs-health/ios-swiftui-accessibility-techniques) — WCAG compliance examples
-- [Modern iOS Architecture Comparison](https://7span.com/blog/mvvm-vs-clean-architecture-vs-tca) — TCA vs alternatives
-- [AVFoundation Streaming Guide](https://developer.apple.com/documentation/avfoundation) — Apple official docs
+### Google AI Documentation
+- [Gemini 2.0 Flash Documentation](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash) — Image understanding capabilities
+- [Firebase AI Logic SDK](https://firebase.google.com/docs/ai-logic/get-started) — Official Firebase SDK for Gemini on iOS
+- [Gemini API Image Understanding](https://ai.google.dev/gemini-api/docs/image-understanding) — Multimodal image analysis guide
+
+### NestJS & GraphQL
+- [NestJS GraphQL Documentation](https://docs.nestjs.com/graphql/resolvers) — Code-first resolvers
+- [NestJS Input Validation Guide](https://www.dsebastien.net/2020-07-23-input-validation-with-nestjs/) — class-validator integration
+- [Type-Safe GraphQL with NestJS](https://oneuptime.com/blog/post/2026-01-25-type-safe-graphql-nestjs/view) — 2026 best practices
+
+### Apollo iOS
+- [Apollo iOS 2.0 Documentation](https://www.apollographql.com/docs/ios) — Swift concurrency, cache normalization
+- [Apollo iOS Pagination](https://github.com/apollographql/apollo-ios-pagination) — Pagination library for Apollo cache
+
+### Food Recognition & AI
+- [AI-Powered Food Recognition API](https://easyflow.tech/food-recognition-api/) — Computer vision for food detection
+- [AI for Food Shelf-Life Prediction (2026)](https://www.sciencedirect.com/science/article/abs/pii/S0924224425001256) — Recent research on AI-driven expiry estimation
+- [Deep Learning in Food Image Recognition](https://www.mdpi.com/2076-3417/15/14/7626) — ResNet50, EfficientNet architectures
+
+### TCA Architecture
+- [TCA GitHub Repository](https://github.com/pointfreeco/swift-composable-architecture) — Official Composable Architecture library
+- [SwiftUI TCA Camera Demo](https://github.com/never-better/SwiftUI-TCA-Camera-Demo) — Example camera integration with TCA
+
+### iOS Camera & SwiftUI
+- [iOS 18 New Camera APIs](https://zoewave.medium.com/ios-18-17-new-camera-apis-645f7a1e54e8) — AVFoundation and PhotoKit updates
+- [Camera Capture in SwiftUI](https://www.createwithswift.com/camera-capture-setup-in-a-swiftui-app/) — Modern SwiftUI camera patterns
+- [VisionKit Live Data Scanning](https://medium.com/ciandt-techblog/live-data-scanning-on-ios-a-quick-look-at-apples-visionkit-framework-682ea50fa04b) — Real-time OCR implementation
+
+### Database & ORM
+- [Prisma PostgreSQL Quickstart](https://www.prisma.io/docs/prisma-orm/quickstart/postgresql) — Prisma 7 with PostgreSQL 15+
+- [Prisma Schema Reference](https://www.prisma.io/docs/orm/reference/prisma-schema-reference) — Schema syntax and patterns
 
 ---
-*Stack research for: Kindred iOS App (v2.0)*
-*Researched: 2026-03-01*
+
+*Stack research for: Smart Pantry Features*
+*Researched: 2026-03-11*
 *Confidence: HIGH*
