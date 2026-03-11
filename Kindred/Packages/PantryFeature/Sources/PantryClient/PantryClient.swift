@@ -1,6 +1,7 @@
 import Apollo
 import Dependencies
 import Foundation
+import Network
 import NetworkClient
 
 public struct PantryClient {
@@ -15,6 +16,13 @@ public struct PantryClient {
     public var fetchSuggestions: @Sendable (String, String) async -> [(name: String, unit: String?, category: FoodCategory?)]
     public var checkDuplicate: @Sendable (String, String, StorageLocation) async -> Bool
     public var searchIngredientCategory: @Sendable (String) async -> FoodCategory?
+
+    // Sync infrastructure
+    public var fetchUnsyncedItems: @Sendable (String) async -> [PantryItem]
+    public var mergeServerItems: @Sendable (String, [ServerPantryItem]) async throws -> Void
+    public var lastSyncTimestamp: @Sendable (String) async -> Date?
+    public var updateSyncTimestamp: @Sendable (String, Date) async -> Void
+    public var isNetworkAvailable: @Sendable () async -> Bool
 }
 
 extension PantryClient: DependencyKey {
@@ -48,6 +56,29 @@ extension PantryClient: DependencyKey {
                 } catch {
                     return nil
                 }
+            },
+            fetchUnsyncedItems: { @MainActor userId in
+                await PantryStore.shared.fetchUnsyncedItems(userId: userId)
+            },
+            mergeServerItems: { @MainActor userId, serverItems in
+                try await PantryStore.shared.mergeServerItems(userId: userId, serverItems: serverItems)
+            },
+            lastSyncTimestamp: { @MainActor userId in
+                await PantryStore.shared.lastSyncTimestamp(userId: userId)
+            },
+            updateSyncTimestamp: { @MainActor userId, timestamp in
+                await PantryStore.shared.updateSyncTimestamp(userId: userId, timestamp: timestamp)
+            },
+            isNetworkAvailable: {
+                let monitor = NWPathMonitor()
+                let queue = DispatchQueue(label: "network.monitor.check")
+                return await withCheckedContinuation { continuation in
+                    monitor.pathUpdateHandler = { path in
+                        continuation.resume(returning: path.status == .satisfied)
+                        monitor.cancel()
+                    }
+                    monitor.start(queue: queue)
+                }
             }
         )
     }
@@ -64,7 +95,12 @@ extension PantryClient: DependencyKey {
             markAsSynced: { _ in },
             fetchSuggestions: { _, _ in [] },
             checkDuplicate: { _, _, _ in false },
-            searchIngredientCategory: { _ in nil }
+            searchIngredientCategory: { _ in nil },
+            fetchUnsyncedItems: { _ in [] },
+            mergeServerItems: { _, _ in },
+            lastSyncTimestamp: { _ in nil },
+            updateSyncTimestamp: { _, _ in },
+            isNetworkAvailable: { false }
         )
     }
 }

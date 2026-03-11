@@ -1,6 +1,50 @@
 import Foundation
 import SwiftData
 
+/// Server-side pantry item representation for sync operations
+public struct ServerPantryItem: Equatable, Sendable {
+    public var id: UUID
+    public var name: String
+    public var quantity: String
+    public var unit: String?
+    public var storageLocation: StorageLocation
+    public var foodCategory: FoodCategory?
+    public var normalizedName: String?
+    public var notes: String?
+    public var source: ItemSource
+    public var expiryDate: Date?
+    public var isDeleted: Bool
+    public var updatedAt: Date
+
+    public init(
+        id: UUID,
+        name: String,
+        quantity: String,
+        unit: String?,
+        storageLocation: StorageLocation,
+        foodCategory: FoodCategory?,
+        normalizedName: String?,
+        notes: String?,
+        source: ItemSource,
+        expiryDate: Date?,
+        isDeleted: Bool,
+        updatedAt: Date
+    ) {
+        self.id = id
+        self.name = name
+        self.quantity = quantity
+        self.unit = unit
+        self.storageLocation = storageLocation
+        self.foodCategory = foodCategory
+        self.normalizedName = normalizedName
+        self.notes = notes
+        self.source = source
+        self.expiryDate = expiryDate
+        self.isDeleted = isDeleted
+        self.updatedAt = updatedAt
+    }
+}
+
 public struct PantryItemInput: Equatable, Sendable {
     public var userId: String
     public var name: String
@@ -230,5 +274,109 @@ class PantryStore {
         } catch {
             return false
         }
+    }
+
+    // MARK: - Sync Infrastructure
+
+    /// Fetch all unsynced items for a user (including soft-deleted items that need deletion synced to server)
+    /// Returns items ordered by updatedAt ascending (oldest first)
+    func fetchUnsyncedItems(userId: String) async -> [PantryItem] {
+        let descriptor = FetchDescriptor<PantryItem>(
+            predicate: #Predicate<PantryItem> { item in
+                item.userId == userId && !item.isSynced
+            },
+            sortBy: [SortDescriptor(\PantryItem.updatedAt, order: .forward)]
+        )
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            return []
+        }
+    }
+
+    /// Merge server items into local storage using last-write-wins conflict resolution
+    /// - Parameters:
+    ///   - userId: User ID for filtering
+    ///   - serverItems: Array of server pantry items to merge
+    func mergeServerItems(userId: String, serverItems: [ServerPantryItem]) async throws {
+        // Fetch all local items for this user once to avoid repeated fetches
+        let descriptor = FetchDescriptor<PantryItem>(
+            predicate: #Predicate<PantryItem> { item in
+                item.userId == userId
+            }
+        )
+        let allLocalItems = try modelContext.fetch(descriptor)
+
+        // Create a dictionary for quick lookup by ID
+        var localItemsById = [UUID: PantryItem]()
+        for item in allLocalItems {
+            localItemsById[item.id] = item
+        }
+
+        for serverItem in serverItems {
+            if let localItem = localItemsById[serverItem.id] {
+                // Item exists locally - use last-write-wins
+                if serverItem.updatedAt > localItem.updatedAt {
+                    // Server is newer - update local with server data
+                    localItem.name = serverItem.name
+                    localItem.quantity = serverItem.quantity
+                    localItem.unit = serverItem.unit
+                    localItem.storageLocation = serverItem.storageLocation.rawValue
+                    localItem.foodCategory = serverItem.foodCategory?.rawValue
+                    localItem.normalizedName = serverItem.normalizedName
+                    localItem.notes = serverItem.notes
+                    localItem.source = serverItem.source.rawValue
+                    localItem.expiryDate = serverItem.expiryDate
+                    localItem.isDeleted = serverItem.isDeleted
+                    localItem.updatedAt = serverItem.updatedAt
+                    localItem.isSynced = true
+                }
+                // If local is newer, skip (local will push in next sync)
+            } else if !serverItem.isDeleted {
+                // New item from server (not deleted) - insert into local storage
+                let newItem = PantryItem(
+                    id: serverItem.id,
+                    userId: userId,
+                    name: serverItem.name,
+                    quantity: serverItem.quantity,
+                    unit: serverItem.unit,
+                    storageLocation: serverItem.storageLocation,
+                    foodCategory: serverItem.foodCategory,
+                    normalizedName: serverItem.normalizedName,
+                    notes: serverItem.notes,
+                    source: serverItem.source,
+                    expiryDate: serverItem.expiryDate,
+                    isDeleted: false,
+                    isSynced: true,
+                    createdAt: serverItem.updatedAt,
+                    updatedAt: serverItem.updatedAt
+                )
+                modelContext.insert(newItem)
+            }
+        }
+
+        // Save all changes at once
+        try modelContext.save()
+    }
+
+    /// Get the most recent updatedAt timestamp from synced items for incremental sync
+    func lastSyncTimestamp(userId: String) async -> Date? {
+        let descriptor = FetchDescriptor<PantryItem>(
+            predicate: #Predicate<PantryItem> { item in
+                item.userId == userId && item.isSynced
+            },
+            sortBy: [SortDescriptor(\PantryItem.updatedAt, order: .reverse)]
+        )
+        do {
+            let items = try modelContext.fetch(descriptor)
+            return items.first?.updatedAt
+        } catch {
+            return nil
+        }
+    }
+
+    /// Update the last successful sync timestamp in UserDefaults
+    func updateSyncTimestamp(userId: String, timestamp: Date) async {
+        UserDefaults.standard.set(timestamp, forKey: "pantry.lastSync.\(userId)")
     }
 }
