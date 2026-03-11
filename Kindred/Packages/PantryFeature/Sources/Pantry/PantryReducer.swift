@@ -10,6 +10,7 @@ public struct PantryReducer {
         public var isEmpty: Bool { items.isEmpty && !isLoading }
         public var userId: String? = nil
         public var expiringCount: Int = 0
+        @Presents public var alert: AlertState<Action.Alert>?
 
         // Group items by storage location for list display
         public var fridgeItems: [PantryItemState] {
@@ -33,6 +34,9 @@ public struct PantryReducer {
         case deleteItem(UUID)
         case itemDeleted
         case authStateUpdated(String?)
+        case alert(PresentationAction<Alert>)
+
+        public enum Alert: Equatable {}
 
         // Delegate actions for parent reducer
         case delegate(Delegate)
@@ -76,7 +80,15 @@ public struct PantryReducer {
                 guard state.userId != nil else {
                     return .send(.delegate(.authGateRequested))
                 }
-                // Phase 13 will implement AddItem flow
+                // Phase 13 will implement full AddItem flow
+                state.alert = AlertState {
+                    TextState(String(localized: "pantry.coming_soon_title", bundle: .main))
+                } message: {
+                    TextState(String(localized: "pantry.coming_soon_message", bundle: .main))
+                }
+                return .none
+
+            case .alert:
                 return .none
 
             case let .deleteItem(id):
@@ -104,30 +116,6 @@ public struct PantryReducer {
                 return .none
             }
         }
-    }
-}
-
-// View-layer state for IdentifiedArray
-public struct PantryItemState: Equatable, Identifiable, Sendable {
-    public let id: UUID
-    public let name: String
-    public let quantity: String
-    public let unit: String?
-    public let storageLocation: StorageLocation
-    public let foodCategory: FoodCategory?
-    public let expiryDate: Date?
-    public let isSynced: Bool
-    public let source: ItemSource
-
-    public init(from item: PantryItem) {
-        self.id = item.id
-        self.name = item.name
-        self.quantity = item.quantity
-        self.unit = item.unit
-        self.storageLocation = item.storageLocationEnum
-        self.foodCategory = item.foodCategoryEnum
-        self.expiryDate = item.expiryDate
-        self.isSynced = item.isSynced
-        self.source = item.sourceEnum
+        .ifLet(\.$alert, action: \.alert)
     }
 }

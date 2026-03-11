@@ -174,4 +174,61 @@ class PantryStore {
         item.isSynced = true
         try modelContext.save()
     }
+
+    /// Fetch distinct item names that match the given prefix for autocomplete suggestions
+    /// Returns unique names with their most recent unit and category
+    func fetchDistinctItemNames(userId: String, prefix: String) async -> [(name: String, unit: String?, category: FoodCategory?)] {
+        let descriptor = FetchDescriptor<PantryItem>(
+            predicate: #Predicate<PantryItem> { item in
+                item.userId == userId && !item.isDeleted
+            },
+            sortBy: [SortDescriptor(\PantryItem.updatedAt, order: .reverse)]
+        )
+
+        do {
+            let items = try modelContext.fetch(descriptor)
+            // Filter by prefix in Swift code (SwiftData predicate doesn't support .localizedStandardContains)
+            let filtered = items.filter { $0.name.localizedStandardContains(prefix) }
+
+            // Group by unique name (case-insensitive), keep most recent entry's metadata
+            var seen = Set<String>()
+            var results: [(name: String, unit: String?, category: FoodCategory?)] = []
+
+            for item in filtered {
+                let lowercaseName = item.name.lowercased()
+                if !seen.contains(lowercaseName) {
+                    seen.insert(lowercaseName)
+                    results.append((
+                        name: item.name,
+                        unit: item.unit,
+                        category: item.foodCategoryEnum
+                    ))
+                }
+            }
+
+            return results
+        } catch {
+            return []
+        }
+    }
+
+    /// Check if a duplicate item exists (same name in same storage location)
+    /// Uses case-insensitive comparison
+    func checkDuplicate(userId: String, name: String, storageLocation: StorageLocation) async -> Bool {
+        let locationRaw = storageLocation.rawValue
+        let descriptor = FetchDescriptor<PantryItem>(
+            predicate: #Predicate<PantryItem> { item in
+                item.userId == userId && !item.isDeleted && item.storageLocation == locationRaw
+            }
+        )
+
+        do {
+            let items = try modelContext.fetch(descriptor)
+            let lowercaseName = name.lowercased()
+            // SwiftData predicates don't support .lowercased(), so compare in Swift code
+            return items.contains { $0.name.lowercased() == lowercaseName }
+        } catch {
+            return false
+        }
+    }
 }
