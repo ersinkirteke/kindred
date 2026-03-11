@@ -31,11 +31,11 @@
 - [x] **Phase 4: Foundation & Architecture** - SwiftUI + TCA structure, Apollo iOS GraphQL client, theme system
 - [x] **Phase 5: Guest Browsing & Feed** - Guest mode, swipe cards, recipe discovery, location-based feed
 - [x] **Phase 6: Dietary Filtering & Personalization** - Dietary preferences, Culinary DNA learning from implicit feedback
-- [ ] **Phase 7: Voice Playback & Streaming** - Voice narration streaming, background audio, offline caching
+- [x] **Phase 7: Voice Playback & Streaming** - Voice narration streaming, background audio, offline caching
 - [x] **Phase 8: Authentication & Onboarding** - Google/Apple OAuth, guest-to-account conversion, sub-90s onboarding
 - [x] **Phase 9: Monetization & Voice Tiers** - Free tier with ads, Pro subscription, StoreKit 2, voice slot enforcement
 - [x] **Phase 10: Accessibility & Polish** - WCAG AAA audit, VoiceOver polish, Dynamic Type testing, production readiness (completed 2026-03-08)
-- [ ] **Phase 11: Auth Gap Closure** - [GAP CLOSURE] Wire onboarding flow, verify guest data migration persistence
+- [x] **Phase 11: Auth Gap Closure** - [GAP CLOSURE] Wire onboarding flow, verify guest data migration persistence
 
 ## Phase Details
 
@@ -53,8 +53,8 @@
 Plans:
 - [x] 04-01-PLAN.md — Xcode project + SPM modules + TCA root navigation (✓ 2026-03-01, 12 min)
 - [x] 04-02-PLAN.md — Design system (colors, typography, reusable components) (✓ 2026-03-01, 13 min)
-- [ ] 04-03-PLAN.md — Apollo GraphQL client + Clerk auth + Kingfisher config
-- [ ] 04-04-PLAN.md — App shell (splash, welcome card, themed tabs, visual verification)
+- [x] 04-03-PLAN.md — Apollo GraphQL client + Clerk auth + Kingfisher config
+- [x] 04-04-PLAN.md — App shell (splash, welcome card, themed tabs, visual verification)
 
 ### Phase 5: Guest Browsing & Feed
 **Goal**: Users can browse viral recipes and explore the feed without creating an account
@@ -69,10 +69,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Guest session infrastructure, location/network TCA dependencies, domain types
-- [ ] 05-02-PLAN.md — Swipe card stack, FeedReducer, RecipeCardView, action buttons, accessibility
-- [ ] 05-03-PLAN.md — Recipe detail view with parallax hero, ingredients checklist, step timeline
-- [ ] 05-04-PLAN.md — Location picker, feed-to-detail navigation, Me tab badge, visual verification
+- [x] 05-01-PLAN.md — Guest session infrastructure, location/network TCA dependencies, domain types
+- [x] 05-02-PLAN.md — Swipe card stack, FeedReducer, RecipeCardView, action buttons, accessibility
+- [x] 05-03-PLAN.md — Recipe detail view with parallax hero, ingredients checklist, step timeline
+- [x] 05-04-PLAN.md — Location picker, feed-to-detail navigation, Me tab badge, visual verification
 
 ### Phase 6: Dietary Filtering & Personalization
 **Goal**: Feed adapts to user dietary preferences and learns taste from implicit feedback
@@ -157,13 +157,13 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 10-01-PLAN.md -- DesignSystem foundation: @ScaledMetric typography, Reduce Motion shimmer, HapticFeedback expansion, OfflineBanner + ToastNotification components
-- [ ] 10-02-PLAN.md -- App infrastructure: AppReducer shared connectivity state, MetricKit, BGAppRefreshTask, os.log Logger
-- [ ] 10-03-PLAN.md -- VoiceOver + Reduce Motion: accessibility labels/hints/actions across all views, motion fallbacks, layout adaptations
-- [ ] 10-04-PLAN.md -- Dynamic Type @ScaledMetric adoption, error/empty state consistency, offline handling
-- [ ] 10-05-PLAN.md -- Localization (FeedFeature + VoicePlayback): String(localized:) extraction for 18 Feed/RecipeDetail/Location/VoicePlayback views
-- [ ] 10-06-PLAN.md -- Localization (Auth + Monetization + Profile): String(localized:) extraction, Localizable.xcstrings String Catalog with Turkish, Logger migration
-- [ ] 10-07-PLAN.md -- WCAG AAA color contrast audit + device verification checkpoint
+- [x] 10-01-PLAN.md -- DesignSystem foundation: @ScaledMetric typography, Reduce Motion shimmer, HapticFeedback expansion, OfflineBanner + ToastNotification components
+- [x] 10-02-PLAN.md -- App infrastructure: AppReducer shared connectivity state, MetricKit, BGAppRefreshTask, os.log Logger
+- [x] 10-03-PLAN.md -- VoiceOver + Reduce Motion: accessibility labels/hints/actions across all views, motion fallbacks, layout adaptations
+- [x] 10-04-PLAN.md -- Dynamic Type @ScaledMetric adoption, error/empty state consistency, offline handling
+- [x] 10-05-PLAN.md -- Localization (FeedFeature + VoicePlayback): String(localized:) extraction for 18 Feed/RecipeDetail/Location/VoicePlayback views
+- [x] 10-06-PLAN.md -- Localization (Auth + Monetization + Profile): String(localized:) extraction, Localizable.xcstrings String Catalog with Turkish, Logger migration
+- [x] 10-07-PLAN.md -- WCAG AAA color contrast audit + device verification checkpoint
 
 ### Phase 11: Auth Gap Closure
 **Goal**: Close audit gaps — wire onboarding presentation and verify guest data migration
@@ -176,8 +176,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 11-01-PLAN.md -- Wire @Presents onboarding in AppReducer: remove sign-in step, 3-step carousel, delegate completion, firstName greeting
-- [ ] 11-02-PLAN.md -- Harden guest migration: city in payload, pendingMigration persistence, connectivity retry, device verification
+- [x] 11-01-PLAN.md -- Wire @Presents onboarding in AppReducer: remove sign-in step, 3-step carousel, delegate completion, firstName greeting
+- [x] 11-02-PLAN.md -- Harden guest migration: city in payload, pendingMigration persistence, connectivity retry, device verification
 
 ---
 
@@ -193,9 +193,9 @@ Plans:
 | 6. Dietary Filtering & Personalization | v2.0 | 3/3 | Complete | 2026-03-03 |
 | 7. Voice Playback & Streaming | v2.0 | 6/6 | Complete | 2026-03-03 |
 | 8. Authentication & Onboarding | v2.0 | 4/4 | Complete | 2026-03-06 |
-| 9. Monetization & Voice Tiers | v2.0 | 0/? | Not started | - |
+| 9. Monetization & Voice Tiers | v2.0 | 5/5 | Complete | 2026-03-08 |
 | 10. Accessibility & Polish | v2.0 | 7/7 | Complete | 2026-03-08 |
-| 11. Auth Gap Closure | 1/2 | In Progress|  | - |
+| 11. Auth Gap Closure | v2.0 | 2/2 | Complete | 2026-03-09 |
 
 ---
 

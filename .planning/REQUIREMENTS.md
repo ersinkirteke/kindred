@@ -13,7 +13,7 @@ Requirements for iOS App milestone. Each maps to roadmap phases.
 - [x] **AUTH-02**: User can sign in with Google OAuth (one-tap)
 - [x] **AUTH-03**: User can sign in with Apple Sign In (one-tap)
 - [x] **AUTH-04**: Guest user is prompted to create account when saving, bookmarking, or using voice features
-- [ ] **AUTH-05**: Guest session state (browsed recipes, preferences) persists through account conversion
+- [x] **AUTH-05**: Guest session state (browsed recipes, preferences) persists through account conversion
 - [x] **AUTH-06**: User completes onboarding flow in under 90 seconds (dietary prefs, location, optional voice upload)
 
 ### Feed & Discovery
@@ -105,7 +105,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-02 | Phase 8 | Complete |
 | AUTH-03 | Phase 8 | Complete |
 | AUTH-04 | Phase 8 | Complete |
-| AUTH-05 | Phase 11 (gap closure) | Pending |
+| AUTH-05 | Phase 11 (gap closure) | Complete |
 | AUTH-06 | Phase 11 (gap closure) | Complete |
 | FEED-01 | Phase 5 | Complete |
 | FEED-02 | Phase 5 | Complete |
@@ -125,10 +125,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PERS-01 | Phase 6 | Complete |
 | PERS-02 | Phase 6 | Complete |
 | PERS-03 | Phase 6 | Complete |
-| ACCS-01 | Phase 5 | Pending (baked in) |
-| ACCS-02 | Phase 7 | Pending (baked in) |
-| ACCS-03 | Phase 7 | Pending (baked in) |
-| ACCS-04 | Phase 5 | Pending (baked in) |
+| ACCS-01 | Phase 5 | Complete |
+| ACCS-02 | Phase 7 | Complete |
+| ACCS-03 | Phase 7 | Complete |
+| ACCS-04 | Phase 5 | Complete |
 | ACCS-05 | Phase 10 | Complete |
 | MONET-01 | Phase 9 | Complete |
 | MONET-02 | Phase 9 | Complete |

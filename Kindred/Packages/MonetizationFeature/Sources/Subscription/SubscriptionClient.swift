@@ -125,9 +125,13 @@ extension SubscriptionClient: DependencyKey {
                 return transaction.jsonRepresentation.base64EncodedString()
             },
             syncSubscriptionToBackend: { jws in
-                // Get backend URL from environment
-                // TODO: Replace with actual backend URL configuration
-                guard let url = URL(string: "http://localhost:3000/graphql") else {
+                // Backend URL matches Apollo client configuration
+                #if DEBUG
+                let urlString = "http://192.168.0.162:3001/v1/graphql"
+                #else
+                let urlString = "https://api.kindred.app/graphql"
+                #endif
+                guard let url = URL(string: urlString) else {
                     throw SubscriptionError.networkError("Invalid backend URL")
                 }
 
