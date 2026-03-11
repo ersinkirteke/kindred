@@ -48,12 +48,18 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 
 ### Active
 
-- [ ] Fridge photo scanning to identify ingredients (Gemini 3 Flash)
-- [ ] Supermarket receipt scanning to populate digital pantry
-- [ ] Food expiry tracking with push notification alerts
-- [ ] Android full feature parity with iOS
-- [ ] JWS SignedDataVerifier for production App Store receipt validation
-- [ ] Backend GraphQL wiring for voice profiles and narration URLs (replace mock data)
+- [ ] Persistent digital pantry with manual add/remove/edit of items
+- [ ] Fridge photo scanning to identify ingredients and suggest matching recipes (Gemini 3 Flash, Pro)
+- [ ] Supermarket receipt scanning to populate digital pantry (Pro)
+- [ ] AI-estimated food expiry tracking with push notification alerts
+- [ ] Ingredient match % badge on recipe cards based on pantry contents
+- [ ] Backend API and data model for pantry items, expiry dates, and ingredient matching
+
+### Future
+
+- Android full feature parity with iOS
+- JWS SignedDataVerifier for production App Store receipt validation
+- Backend GraphQL wiring for voice profiles and narration URLs (replace mock data)
 
 ### Out of Scope
 
@@ -63,6 +69,17 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - Real-time chat or community features — high complexity, not core to value proposition
 - Web app — mobile-first, native only
 - Cross-platform framework (Flutter/React Native) — native iOS + Android for best UX and accessibility
+
+## Current Milestone: v3.0 Smart Pantry
+
+**Goal:** Add ingredient intelligence — fridge scanning, receipt scanning, persistent pantry, expiry tracking, and recipe-ingredient matching to transform Kindred from recipe discovery into a complete cooking companion.
+
+**Target features:**
+- Persistent digital pantry with manual and scan-based item management
+- Fridge photo scanning (Pro) — quick "what can I cook?" with AI ingredient recognition
+- Receipt scanning (Pro) — camera scans supermarket receipts to auto-populate pantry
+- AI-estimated expiry tracking with push notification alerts
+- Ingredient match % badge on recipe cards based on pantry inventory
 
 ## Context
 
@@ -131,4 +148,4 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 | Bilingual (English + Turkish) | String Catalog with 98 entries, informal Turkish tone | ✓ Good — extensible pattern |
 
 ---
-*Last updated: 2026-03-11 after v2.0 milestone shipped*
+*Last updated: 2026-03-11 after v3.0 Smart Pantry milestone started*

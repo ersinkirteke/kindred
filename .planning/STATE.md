@@ -1,21 +1,21 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: iOS App
-current_phase: 11
-status: completed
+milestone: v3.0
+milestone_name: Smart Pantry
+current_phase: 12
+status: defining_requirements
 last_updated: "2026-03-11T12:00:00Z"
 progress:
-  total_phases: 8
-  completed_phases: 8
-  total_plans: 35
-  completed_plans: 35
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State: Kindred
 
 **Last Updated:** 2026-03-11
-**Status:** v2.0 iOS App milestone shipped
+**Status:** Defining requirements for v3.0 Smart Pantry
 
 ---
 
@@ -24,16 +24,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
-**Current focus:** Planning next milestone
+**Current focus:** v3.0 Smart Pantry — ingredient intelligence features
 
 ---
 
 ## Current Position
 
-Milestone v2.0 iOS App: SHIPPED 2026-03-11
-All 8 phases complete (35/35 plans, 33/33 requirements verified)
-
-Progress: [████████████████████████████████████████████] 100%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-11 — Milestone v3.0 started
 
 ---
 
@@ -56,4 +56,4 @@ None.
 
 ---
 
-*State updated: 2026-03-11 — v2.0 milestone shipped*
+*State updated: 2026-03-11 — v3.0 Smart Pantry milestone started*
