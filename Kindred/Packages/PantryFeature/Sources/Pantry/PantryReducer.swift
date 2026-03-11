@@ -1,5 +1,7 @@
+import Apollo
 import ComposableArchitecture
 import Foundation
+import NetworkClient
 
 @Reducer
 public struct PantryReducer {
@@ -14,6 +16,12 @@ public struct PantryReducer {
         @Presents public var addEditForm: AddEditItemReducer.State?
         public var searchText: String = ""
         public var itemToDelete: PantryItemState? = nil
+
+        // Sync state
+        public var isSyncing: Bool = false
+        public var syncRetryCount: Int = 0
+        public var showSyncFailureBanner: Bool = false
+        public var isOffline: Bool = false
 
         // Group items by storage location for list display with search filter and alphabetical sort
         public var fridgeItems: [PantryItemState] {
@@ -53,6 +61,14 @@ public struct PantryReducer {
         case alert(PresentationAction<Alert>)
         case addEditForm(PresentationAction<AddEditItemReducer.Action>)
 
+        // Sync actions
+        case syncPendingItems
+        case syncCompleted(SyncResult)
+        case syncFailed
+        case dismissSyncBanner
+        case connectivityChanged(Bool)
+        case appEnteredForeground
+
         public enum Alert: Equatable {
             case confirmDelete
         }
@@ -65,6 +81,9 @@ public struct PantryReducer {
     }
 
     @Dependency(\.pantryClient) var pantryClient
+    @Dependency(\.apolloClient) var apolloClient
+
+    private enum CancelID { case syncRetry }
 
     public init() {}
 
@@ -82,6 +101,11 @@ public struct PantryReducer {
                     await send(.itemsLoaded(items))
                     let count = await pantryClient.expiringItemCount(userId)
                     await send(.expiringCountLoaded(count))
+
+                    // Check connectivity and trigger sync
+                    let isConnected = await pantryClient.isNetworkAvailable()
+                    await send(.connectivityChanged(isConnected))
+                    await send(.syncPendingItems)
                 }
 
             case let .itemsLoaded(items):
@@ -139,7 +163,10 @@ public struct PantryReducer {
 
             case .addEditForm(.presented(.delegate(.itemSaved))):
                 state.addEditForm = nil
-                return .send(.onAppear)
+                return .merge(
+                    .send(.onAppear),
+                    .send(.syncPendingItems)
+                )
 
             case .addEditForm(.presented(.delegate(.cancelled))):
                 state.addEditForm = nil
@@ -148,7 +175,10 @@ public struct PantryReducer {
             case let .addEditForm(.presented(.delegate(.itemDeleted(id)))):
                 state.addEditForm = nil
                 state.items.remove(id: id)
-                return .send(.onAppear)
+                return .merge(
+                    .send(.onAppear),
+                    .send(.syncPendingItems)
+                )
 
             case .addEditForm:
                 return .none
@@ -174,6 +204,7 @@ public struct PantryReducer {
                 return .run { send in
                     try await pantryClient.deleteItem(id)
                     await send(.itemDeleted)
+                    await send(.syncPendingItems)
                 }
 
             case .itemDeleted:
@@ -188,6 +219,68 @@ public struct PantryReducer {
                     state.expiringCount = 0
                 }
                 return .none
+
+            case .syncPendingItems:
+                guard let userId = state.userId, !state.isSyncing, !state.isOffline else {
+                    return .none
+                }
+                state.isSyncing = true
+                return .run { [userId, pantryClient, apolloClient] send in
+                    do {
+                        let result = try await PantrySyncWorker.performSync(
+                            userId: userId,
+                            pantryClient: pantryClient,
+                            apolloClient: apolloClient
+                        )
+                        await send(.syncCompleted(result))
+                    } catch {
+                        print("Sync failed: \(error)")
+                        await send(.syncFailed)
+                    }
+                }
+
+            case let .syncCompleted(result):
+                state.isSyncing = false
+                state.syncRetryCount = 0
+                state.showSyncFailureBanner = false
+                if result.pulled > 0 {
+                    // Server had changes - re-fetch local items to reflect merged data
+                    return .send(.onAppear)
+                }
+                return .none
+
+            case .syncFailed:
+                state.isSyncing = false
+                state.syncRetryCount += 1
+                if state.syncRetryCount >= 3 {
+                    state.showSyncFailureBanner = true
+                }
+                // Schedule retry with exponential backoff (30s, 60s, 120s max)
+                let delay = Double(min(30 * Int(pow(2.0, Double(state.syncRetryCount - 1))), 120))
+                return .run { send in
+                    try await Task.sleep(for: .seconds(delay))
+                    await send(.syncPendingItems)
+                }
+                .cancellable(id: CancelID.syncRetry, cancelInFlight: true)
+
+            case .dismissSyncBanner:
+                state.showSyncFailureBanner = false
+                return .none
+
+            case let .connectivityChanged(isConnected):
+                state.isOffline = !isConnected
+                if isConnected && state.syncRetryCount > 0 {
+                    // Back online - retry sync
+                    return .send(.syncPendingItems)
+                }
+                return .none
+
+            case .appEnteredForeground:
+                return .run { send in
+                    let isConnected = await pantryClient.isNetworkAvailable()
+                    await send(.connectivityChanged(isConnected))
+                    await send(.syncPendingItems)
+                }
 
             case .delegate:
                 return .none

@@ -27,7 +27,33 @@ public struct PantryView: View {
             }
             .navigationTitle(String(localized: "pantry.title", bundle: .main))
             .searchable(text: $store.searchText.sending(\.searchTextChanged), prompt: String(localized: "pantry.search.prompt", defaultValue: "Search items", bundle: .main))
-            .toolbar {}
+            .toolbar {
+                // Sync indicator in toolbar
+                if store.isSyncing {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                }
+
+                // Offline indicator
+                if store.isOffline {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Label {
+                            Text(String(localized: "pantry.offline", defaultValue: "Offline", bundle: .main))
+                        } icon: {
+                            Image(systemName: "wifi.slash")
+                        }
+                        .font(.caption2)
+                        .foregroundStyle(.orange)
+                    }
+                }
+            }
+            .safeAreaInset(edge: .top, spacing: 0) {
+                if store.showSyncFailureBanner {
+                    syncFailureBanner
+                }
+            }
         }
         .overlay(alignment: .bottomTrailing) {
             // Floating + button per user decision
@@ -51,10 +77,34 @@ public struct PantryView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            store.send(.appEnteredForeground)
+        }
         .alert($store.scope(state: \.alert, action: \.alert))
         .sheet(item: $store.scope(state: \.addEditForm, action: \.addEditForm)) { formStore in
             AddEditItemFormView(store: formStore)
         }
+    }
+
+    @ViewBuilder
+    private var syncFailureBanner: some View {
+        HStack {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+            Text(String(localized: "pantry.sync.failure", defaultValue: "Unable to sync. Will retry.", bundle: .main))
+                .font(.footnote)
+            Spacer()
+            Button {
+                store.send(.dismissSyncBanner)
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.orange.opacity(0.1))
     }
 
     @ViewBuilder
