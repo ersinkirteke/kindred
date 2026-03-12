@@ -13,7 +13,7 @@ progress:
 
 # Project State: Kindred
 
-**Last Updated:** 2026-03-11
+**Last Updated:** 2026-03-12
 **Status:** Milestone complete
 
 ---
@@ -94,6 +94,10 @@ Recent decisions affecting v3.0:
 - [Phase 12-03]: Use .graphql.disabled extension for future migration operation instead of deleting
 - [Phase 12-03]: Map DateTime custom scalar to Swift Date in NetworkClient operations
 
+**Phase 08 Decisions:**
+- **Plan 04:** Device testing required for Clerk OAuth verification (simulator not sufficient)
+- **Plan 04:** Both verification checkpoints approved: onboarding carousel and auth gate flows work correctly on physical device
+
 **Phase 13 Decisions:**
 - **Plan 01:** Extract PantryItemState to Models directory with notes field for edit form
 - **Plan 01:** SwiftData predicates don't support .lowercased() — filter in Swift code for case-insensitive matching
@@ -128,12 +132,12 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-11 22:39
-Stopped at: Completed Phase 13 Plan 01 (AddEditItem Form Infrastructure)
-Resume file: .planning/phases/13-manual-pantry-management/13-01-SUMMARY.md
+Last session: 2026-03-12 18:50
+Stopped at: Completed Phase 08 Plan 04 (Device Verification - Auth & Onboarding)
+Resume file: .planning/phases/08-authentication-onboarding/08-04-SUMMARY.md
 
-**Next action:** Execute plan 13-02 (Pantry List Enhancement and Sheet Integration)
+**Next action:** Resume Phase 13 work or continue with other pending phases
 
 ---
 
-*State updated: 2026-03-11 — Completed 12-01 (Backend pantry infrastructure with normalization)*
+*State updated: 2026-03-12 — Completed 08-04 (Device Verification - Auth & Onboarding)*
