@@ -1,0 +1,9 @@
+mutation UploadScanPhoto($userId: String!, $scanType: ScanType!, $photoData: String!) {
+  uploadScanPhoto(userId: $userId, scanType: $scanType, photoData: $photoData) {
+    id
+    status
+    photoUrl
+    scanType
+    createdAt
+  }
+}
