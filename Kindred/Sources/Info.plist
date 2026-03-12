@@ -44,6 +44,8 @@
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Kindred uses your location to show trending recipes near you.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Kindred uses your camera to scan ingredients from fridge photos and receipts.</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-3940256099942544~1458002511</string>
 	<key>SKAdNetworkItems</key>

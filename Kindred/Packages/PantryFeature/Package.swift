@@ -14,6 +14,7 @@ let package = Package(
         .package(name: "NetworkClient", path: "../NetworkClient"),
         .package(name: "KindredAPI", path: "../KindredAPI"),
         .package(name: "AuthClient", path: "../AuthClient"),
+        .package(name: "MonetizationFeature", path: "../MonetizationFeature"),
     ],
     targets: [
         .target(
@@ -25,6 +26,7 @@ let package = Package(
                 "NetworkClient",
                 .product(name: "KindredAPI", package: "KindredAPI"),
                 "AuthClient",
+                "MonetizationFeature",
             ]
         ),
     ]
