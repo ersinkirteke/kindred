@@ -12,118 +12,156 @@ public struct PantryView: View {
     }
 
     public var body: some View {
-        NavigationStack {
-            Group {
-                if store.isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if store.isEmpty {
-                    PantryEmptyStateView(
-                        isGuest: store.userId == nil,
-                        onAddTapped: { store.send(.addItemTapped) },
-                        onSignInTapped: { store.send(.delegate(.authGateRequested)) }
-                    )
-                } else {
-                    pantryList
+        ZStack {
+            mainContent
+                .alert($store.scope(state: \.alert, action: \.alert))
+                .sheet(item: $store.scope(state: \.addEditForm, action: \.addEditForm)) { formStore in
+                    AddEditItemFormView(store: formStore)
                 }
-            }
-            .navigationTitle(String(localized: "pantry.title", bundle: .main))
-            .searchable(text: $store.searchText.sending(\.searchTextChanged), prompt: String(localized: "pantry.search.prompt", defaultValue: "Search items", bundle: .main))
-            .toolbar {
-                // Sync indicator in toolbar
-                if store.isSyncing {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        ProgressView()
-                            .controlSize(.small)
-                    }
+                .fullScreenCover(item: $store.scope(state: \.scanUpload, action: \.scanUpload)) { uploadStore in
+                    ScanUploadView(store: uploadStore)
                 }
-
-                // Offline indicator
-                if store.isOffline {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Label {
-                            Text(String(localized: "pantry.offline", defaultValue: "Offline", bundle: .main))
-                        } icon: {
-                            Image(systemName: "wifi.slash")
-                        }
-                        .font(.caption2)
-                        .foregroundStyle(.orange)
-                    }
-                }
-            }
-            .safeAreaInset(edge: .top, spacing: 0) {
-                if store.showSyncFailureBanner {
-                    syncFailureBanner
-                }
-            }
         }
-        .overlay(alignment: .bottomTrailing) {
-            // Expandable FAB for authenticated users (even on empty state)
-            if store.userId != nil {
-                ExpandableFAB(
-                    isExpanded: $store.isFABExpanded.sending(\.fabToggled),
-                    onAddManual: { store.send(.addItemTapped) },
-                    onScanItems: { store.send(.scanItemsTapped) },
-                    showProBadge: shouldShowProBadge(store: store)
-                )
-                .padding(.trailing, 20)
-                .padding(.bottom, 20)
-            }
-        }
+        .overlay(alignment: .bottomTrailing) { fabOverlay }
         .contentShape(Rectangle())
-        .onTapGesture {
-            if store.isFABExpanded {
-                withAnimation {
-                    store.send(.fabToggled)
-                }
-            }
-        }
-        .onAppear {
-            store.send(.onAppear)
-        }
+        .onTapGesture { handleBackgroundTap() }
+        .onAppear { store.send(.onAppear) }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             store.send(.appEnteredForeground)
         }
-        .alert($store.scope(state: \.alert, action: \.alert))
-        .sheet(item: $store.scope(state: \.addEditForm, action: \.addEditForm)) { formStore in
-            AddEditItemFormView(store: formStore)
+        .fullScreenCover(isPresented: Binding(
+            get: { store.showCamera },
+            set: { if !$0 { store.send(.cameraDismissed) } }
+        )) {
+            cameraWrapperView
         }
-        .fullScreenCover(isPresented: $store.showCamera.sending(\.cameraDismissed)) {
-            CameraView(
-                store: Store(
-                    initialState: CameraReducer.State()
-                ) {
-                    CameraReducer()
-                } withDependencies: {
-                    $0.continuousClock = ContinuousClock()
-                }
-                .scope(state: { $0 }, action: { action in
-                    switch action {
-                    case .delegate(.dismissed):
-                        return .cameraDismissed
-                    case let .delegate(.photoReady(image, scanType)):
-                        return .cameraPhotoReady(image, scanType)
-                    default:
-                        // Internal camera actions don't propagate to PantryReducer
-                        return nil
-                    }
-                })
-            )
-        }
-        .alert(
-            String(localized: "pantry.camera.permission.title", defaultValue: "Camera Access Required", bundle: .main),
-            isPresented: $store.showSettingsRedirect.sending(\.settingsRedirectDismissed)
-        ) {
-            Button(String(localized: "pantry.camera.permission.settings", defaultValue: "Open Settings", bundle: .main)) {
-                if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(settingsUrl)
-                }
-            }
-            Button(String(localized: "common.cancel", defaultValue: "Cancel", bundle: .main), role: .cancel) {
-                store.send(.settingsRedirectDismissed)
-            }
+        .alert(cameraPermissionAlertTitle, isPresented: Binding(
+            get: { store.showSettingsRedirect },
+            set: { if !$0 { store.send(.settingsRedirectDismissed) } }
+        )) {
+            Button(cameraPermissionSettingsButton) { openSettings() }
+            Button(cameraPermissionCancelButton, role: .cancel) { store.send(.settingsRedirectDismissed) }
         } message: {
-            Text(String(localized: "pantry.camera.permission.message", defaultValue: "Kindred needs camera access to scan your ingredients. Please enable it in Settings.", bundle: .main))
+            Text(cameraPermissionMessage)
+        }
+    }
+
+    private var mainContent: some View {
+        NavigationStack {
+            contentGroup
+                .navigationTitle(String(localized: "pantry.title", bundle: .main))
+                .searchable(text: $store.searchText.sending(\.searchTextChanged), prompt: String(localized: "pantry.search.prompt", defaultValue: "Search items", bundle: .main))
+                .toolbar { toolbarContent }
+                .safeAreaInset(edge: .top, spacing: 0) { bannerStack }
+        }
+    }
+
+    @ViewBuilder
+    private var contentGroup: some View {
+        Group {
+            if store.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if store.isEmpty {
+                PantryEmptyStateView(
+                    isGuest: store.userId == nil,
+                    onAddTapped: { store.send(.addItemTapped) },
+                    onSignInTapped: { store.send(.delegate(.authGateRequested)) }
+                )
+            } else {
+                pantryList
+            }
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        if store.isSyncing {
+            ToolbarItem(placement: .topBarTrailing) {
+                ProgressView()
+                    .controlSize(.small)
+            }
+        }
+
+        if store.isOffline {
+            ToolbarItem(placement: .topBarLeading) {
+                Label {
+                    Text(String(localized: "pantry.offline", defaultValue: "Offline", bundle: .main))
+                } icon: {
+                    Image(systemName: "wifi.slash")
+                }
+                .font(.caption2)
+                .foregroundStyle(.orange)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var fabOverlay: some View {
+        if store.userId != nil {
+            ExpandableFAB(
+                isExpanded: Binding(
+                    get: { store.isFABExpanded },
+                    set: { _ in store.send(.fabToggled) }
+                ),
+                onAddManual: { store.send(.addItemTapped) },
+                onScanItems: { store.send(.scanItemsTapped) },
+                showProBadge: shouldShowProBadge(store: store)
+            )
+            .padding(.trailing, 20)
+            .padding(.bottom, 20)
+        }
+    }
+
+    @ViewBuilder
+    private var cameraWrapperView: some View {
+        CameraViewWrapper(
+            onDismissed: { store.send(.cameraDismissed) },
+            onPhotoReady: { image, scanType in
+                store.send(.cameraPhotoReady(image, scanType))
+            }
+        )
+    }
+
+    private func handleBackgroundTap() {
+        if store.isFABExpanded {
+            withAnimation {
+                store.send(.fabToggled)
+            }
+        }
+    }
+
+    private func openSettings() {
+        if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(settingsUrl)
+        }
+    }
+
+    private var cameraPermissionAlertTitle: String {
+        String(localized: "pantry.camera.permission.title", defaultValue: "Camera Access Required", bundle: .main)
+    }
+
+    private var cameraPermissionSettingsButton: String {
+        String(localized: "pantry.camera.permission.settings", defaultValue: "Open Settings", bundle: .main)
+    }
+
+    private var cameraPermissionCancelButton: String {
+        String(localized: "common.cancel", defaultValue: "Cancel", bundle: .main)
+    }
+
+    private var cameraPermissionMessage: String {
+        String(localized: "pantry.camera.permission.message", defaultValue: "Kindred needs camera access to scan your ingredients. Please enable it in Settings.", bundle: .main)
+    }
+
+    @ViewBuilder
+    private var bannerStack: some View {
+        VStack(spacing: 0) {
+            if store.showSyncFailureBanner {
+                syncFailureBanner
+            }
+            if store.showUploadCompleteBanner {
+                uploadCompleteBanner
+            }
         }
     }
 
@@ -146,6 +184,33 @@ public struct PantryView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.orange.opacity(0.1))
+    }
+
+    @ViewBuilder
+    private var uploadCompleteBanner: some View {
+        HStack {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+            Text(String(localized: "scan.upload.success_banner", defaultValue: "Scan uploaded successfully", bundle: .main))
+                .font(.footnote)
+            Spacer()
+            Button {
+                store.send(.dismissUploadCompleteBanner)
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.green.opacity(0.1))
+        .onAppear {
+            // Auto-dismiss after 3 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                store.send(.dismissUploadCompleteBanner)
+            }
+        }
     }
 
     @ViewBuilder
@@ -237,6 +302,37 @@ public struct PantryView: View {
         // This is a simplified check - in real implementation, we'd check subscription status
         // For now, always show Pro badge to indicate it's a premium feature
         return true
+    }
+}
+
+private struct CameraViewWrapper: View {
+    let onDismissed: () -> Void
+    let onPhotoReady: (UIImage, ScanType) -> Void
+    @State private var cameraStore: StoreOf<CameraReducer>
+
+    init(
+        onDismissed: @escaping () -> Void,
+        onPhotoReady: @escaping (UIImage, ScanType) -> Void
+    ) {
+        self.onDismissed = onDismissed
+        self.onPhotoReady = onPhotoReady
+        self._cameraStore = State(initialValue: Store(initialState: CameraReducer.State()) {
+            CameraReducer()
+        })
+    }
+
+    var body: some View {
+        CameraView(store: cameraStore)
+            .onChange(of: cameraStore.selectedScanType) { _, scanType in
+                if let scanType, let image = cameraStore.capturedImage {
+                    onPhotoReady(image, scanType)
+                }
+            }
+            .onDisappear {
+                if cameraStore.selectedScanType == nil {
+                    onDismissed()
+                }
+            }
     }
 }
 

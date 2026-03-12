@@ -32,6 +32,8 @@ public struct PantryReducer {
         public var showSettingsRedirect: Bool = false
         public var showCamera: Bool = false
         public var cameraPermissionStatus: AVAuthorizationStatus? = nil
+        @Presents public var scanUpload: ScanUploadReducer.State?
+        public var showUploadCompleteBanner: Bool = false
 
         // Group items by storage location for list display with search filter and alphabetical sort
         public var fridgeItems: [PantryItemState] {
@@ -89,6 +91,8 @@ public struct PantryReducer {
         case settingsRedirectDismissed
         case cameraDismissed
         case cameraPhotoReady(UIImage, ScanType)
+        case scanUpload(PresentationAction<ScanUploadReducer.Action>)
+        case dismissUploadCompleteBanner
 
         public enum Alert: Equatable {
             case confirmDelete
@@ -292,11 +296,19 @@ public struct PantryReducer {
 
             case let .connectivityChanged(isConnected):
                 state.isOffline = !isConnected
+                var effects: [Effect<Action>] = []
+
                 if isConnected && state.syncRetryCount > 0 {
                     // Back online - retry sync
-                    return .send(.syncPendingItems)
+                    effects.append(.send(.syncPendingItems))
                 }
-                return .none
+
+                // Auto-retry queued upload when connectivity returns
+                if isConnected, let scanUpload = state.scanUpload, scanUpload.isOfflineQueued {
+                    effects.append(.send(.scanUpload(.presented(.retryUpload))))
+                }
+
+                return effects.isEmpty ? .none : .merge(effects)
 
             case .appEnteredForeground:
                 return .run { send in
@@ -371,10 +383,32 @@ public struct PantryReducer {
                 return .none
 
             case let .cameraPhotoReady(image, scanType):
-                // Store captured image and scan type for Phase 14-03 upload pipeline
+                // Dismiss camera and create upload state
                 state.showCamera = false
-                // TODO: Phase 14-03 will implement upload mutation and pantry item creation
-                print("Camera photo ready: \(scanType.displayName), image size: \(image.size)")
+                guard let userId = state.userId else { return .none }
+
+                // Create ScanUploadReducer state and present upload view
+                state.scanUpload = ScanUploadReducer.State(
+                    image: image,
+                    scanType: scanType,
+                    userId: userId
+                )
+                return .none
+
+            case .scanUpload(.presented(.delegate(.dismissed))):
+                state.scanUpload = nil
+                return .none
+
+            case let .scanUpload(.presented(.delegate(.uploadStarted(scanJob)))):
+                // Upload completed - store scan job for future status tracking
+                print("Scan job started: \(scanJob.id), status: \(scanJob.status)")
+                return .none
+
+            case .scanUpload:
+                return .none
+
+            case .dismissUploadCompleteBanner:
+                state.showUploadCompleteBanner = false
                 return .none
 
             case .delegate:
@@ -383,6 +417,9 @@ public struct PantryReducer {
         }
         .ifLet(\.$addEditForm, action: \.addEditForm) {
             AddEditItemReducer()
+        }
+        .ifLet(\.$scanUpload, action: \.scanUpload) {
+            ScanUploadReducer()
         }
         .ifLet(\.$alert, action: \.alert)
     }
