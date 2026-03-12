@@ -1,6 +1,8 @@
 import ComposableArchitecture
 import DesignSystem
+import MonetizationFeature
 import SwiftUI
+import UIKit
 
 public struct PantryView: View {
     @Bindable var store: StoreOf<PantryReducer>
@@ -56,22 +58,24 @@ public struct PantryView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            // Floating + button per user decision
-            if store.userId != nil && !store.isEmpty {
-                Button {
-                    store.send(.addItemTapped)
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .frame(width: 56, height: 56)
-                        .background(Color.accentColor, in: Circle())
-                        .shadow(radius: 4, y: 2)
-                }
+            // Expandable FAB for authenticated users (even on empty state)
+            if store.userId != nil {
+                ExpandableFAB(
+                    isExpanded: $store.isFABExpanded.sending(\.fabToggled),
+                    onAddManual: { store.send(.addItemTapped) },
+                    onScanItems: { store.send(.scanItemsTapped) },
+                    showProBadge: shouldShowProBadge(store: store)
+                )
                 .padding(.trailing, 20)
                 .padding(.bottom, 20)
-                .accessibilityLabel(String(localized: "accessibility.pantry.add_item", bundle: .main))
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if store.isFABExpanded {
+                withAnimation {
+                    store.send(.fabToggled)
+                }
             }
         }
         .onAppear {
@@ -83,6 +87,37 @@ public struct PantryView: View {
         .alert($store.scope(state: \.alert, action: \.alert))
         .sheet(item: $store.scope(state: \.addEditForm, action: \.addEditForm)) { formStore in
             AddEditItemFormView(store: formStore)
+        }
+        .fullScreenCover(isPresented: $store.showCamera.sending(\.cameraDismissed)) {
+            // Placeholder for camera view (Plan 14-02)
+            ZStack {
+                Color.black.ignoresSafeArea()
+                VStack {
+                    Text("Camera Placeholder")
+                        .foregroundStyle(.white)
+                        .font(.headline)
+                    Button("Close") {
+                        store.send(.cameraDismissed)
+                    }
+                    .foregroundStyle(.white)
+                    .padding()
+                }
+            }
+        }
+        .alert(
+            String(localized: "pantry.camera.permission.title", defaultValue: "Camera Access Required", bundle: .main),
+            isPresented: $store.showSettingsRedirect.sending(\.settingsRedirectDismissed)
+        ) {
+            Button(String(localized: "pantry.camera.permission.settings", defaultValue: "Open Settings", bundle: .main)) {
+                if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(settingsUrl)
+                }
+            }
+            Button(String(localized: "common.cancel", defaultValue: "Cancel", bundle: .main), role: .cancel) {
+                store.send(.settingsRedirectDismissed)
+            }
+        } message: {
+            Text(String(localized: "pantry.camera.permission.message", defaultValue: "Kindred needs camera access to scan your ingredients. Please enable it in Settings.", bundle: .main))
         }
     }
 
@@ -189,6 +224,13 @@ public struct PantryView: View {
         .refreshable {
             store.send(.refreshTriggered)
         }
+    }
+
+    /// Determine if Pro badge should be shown on Scan items button
+    private func shouldShowProBadge(store: StoreOf<PantryReducer>) -> Bool {
+        // This is a simplified check - in real implementation, we'd check subscription status
+        // For now, always show Pro badge to indicate it's a premium feature
+        return true
     }
 }
 

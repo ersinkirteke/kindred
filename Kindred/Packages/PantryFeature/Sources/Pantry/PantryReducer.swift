@@ -1,6 +1,8 @@
 import Apollo
+import AVFoundation
 import ComposableArchitecture
 import Foundation
+import MonetizationFeature
 import NetworkClient
 
 @Reducer
@@ -22,6 +24,13 @@ public struct PantryReducer {
         public var syncRetryCount: Int = 0
         public var showSyncFailureBanner: Bool = false
         public var isOffline: Bool = false
+
+        // Camera and paywall state
+        public var isFABExpanded: Bool = false
+        public var showPaywall: Bool = false
+        public var showSettingsRedirect: Bool = false
+        public var showCamera: Bool = false
+        public var cameraPermissionStatus: AVAuthorizationStatus? = nil
 
         // Group items by storage location for list display with search filter and alphabetical sort
         public var fridgeItems: [PantryItemState] {
@@ -69,6 +78,16 @@ public struct PantryReducer {
         case connectivityChanged(Bool)
         case appEnteredForeground
 
+        // Camera and paywall actions
+        case fabToggled
+        case scanItemsTapped
+        case paywallDismissed
+        case paywallPurchaseCompleted
+        case checkCameraPermission
+        case cameraPermissionResult(AVAuthorizationStatus)
+        case settingsRedirectDismissed
+        case cameraDismissed
+
         public enum Alert: Equatable {
             case confirmDelete
         }
@@ -82,6 +101,8 @@ public struct PantryReducer {
 
     @Dependency(\.pantryClient) var pantryClient
     @Dependency(\.apolloClient) var apolloClient
+    @Dependency(\.cameraClient) var cameraClient
+    @Dependency(\.subscriptionClient) var subscriptionClient
 
     private enum CancelID { case syncRetry }
 
@@ -281,6 +302,71 @@ public struct PantryReducer {
                     await send(.connectivityChanged(isConnected))
                     await send(.syncPendingItems)
                 }
+
+            case .fabToggled:
+                state.isFABExpanded.toggle()
+                return .none
+
+            case .scanItemsTapped:
+                // Check subscription status first
+                return .run { send in
+                    let status = await subscriptionClient.currentEntitlement()
+                    switch status {
+                    case .free, .unknown:
+                        await send(.paywallPurchaseCompleted) // For now, proceed to camera (paywall presentation TBD)
+                    case .pro:
+                        await send(.checkCameraPermission)
+                    }
+                }
+
+            case .paywallDismissed:
+                state.showPaywall = false
+                state.isFABExpanded = false
+                return .none
+
+            case .paywallPurchaseCompleted:
+                state.showPaywall = false
+                return .send(.checkCameraPermission)
+
+            case .checkCameraPermission:
+                let currentStatus = cameraClient.authorizationStatus()
+                state.cameraPermissionStatus = currentStatus
+
+                switch currentStatus {
+                case .authorized:
+                    state.showCamera = true
+                    return .none
+                case .notDetermined:
+                    // Request authorization
+                    return .run { send in
+                        let status = await cameraClient.requestAuthorization()
+                        await send(.cameraPermissionResult(status))
+                    }
+                case .denied, .restricted:
+                    state.showSettingsRedirect = true
+                    return .none
+                @unknown default:
+                    state.showSettingsRedirect = true
+                    return .none
+                }
+
+            case let .cameraPermissionResult(status):
+                state.cameraPermissionStatus = status
+                if status == .authorized {
+                    state.showCamera = true
+                    state.isFABExpanded = false
+                } else {
+                    state.showSettingsRedirect = true
+                }
+                return .none
+
+            case .settingsRedirectDismissed:
+                state.showSettingsRedirect = false
+                return .none
+
+            case .cameraDismissed:
+                state.showCamera = false
+                return .none
 
             case .delegate:
                 return .none
