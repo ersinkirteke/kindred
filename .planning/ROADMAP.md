@@ -85,19 +85,21 @@ Plans:
 - [ ] 13-03-PLAN.md — Offline-first sync worker (push/pull, retry, connectivity monitoring, UI indicators)
 
 ### Phase 14: Camera Capture
-**Goal**: Users can capture photos from camera with progressive permission request and memory-safe processing
+**Goal**: Users can capture photos from camera with progressive permission request, custom AVCaptureSession viewfinder, memory-safe photo processing, and R2 upload via backend GraphQL mutation
 **Depends on**: Phase 13
 **Requirements**: INFRA-04, SCAN-06
 **Success Criteria** (what must be TRUE):
-  1. Camera permission requested with progressive disclosure (not at launch, with explanation)
-  2. User can capture photos using UIImagePickerController with live preview
-  3. Captured photos upload to Cloudflare R2 with streaming (no memory buffering)
-  4. Photo processing handles batch uploads without memory explosion (autoreleasepool, sequential)
-  5. Pro paywall appears for free-tier users when accessing camera scanning features
-**Plans**: TBD
+  1. Camera permission requested with progressive disclosure (not at launch, on first Scan items tap)
+  2. User can capture photos using custom AVCaptureSession with edge-to-edge viewfinder, flash toggle, pinch-to-zoom
+  3. Captured photos compress to JPEG 80% quality (max 2048px) and upload to Cloudflare R2 via backend GraphQL mutation
+  4. Photo processing uses autoreleasepool for memory-safe compression of 48MP+ camera photos
+  5. Pro paywall appears for free-tier users when tapping Scan items in expandable FAB
+**Plans**: 3 plans
 
 Plans:
-- [ ] 14-01: TBD
+- [ ] 14-01-PLAN.md — Camera infrastructure: CameraClient dependency, expandable FAB, Pro paywall gate, backend scan upload mutation
+- [ ] 14-02-PLAN.md — Camera capture experience: CameraManager, viewfinder, capture UI, photo preview, blur detection, scan classification
+- [ ] 14-03-PLAN.md — Upload pipeline: JPEG compression, GraphQL multipart upload, progress UI, offline queue, device verification
 
 ### Phase 15: AI Scanning
 **Goal**: Pro users can scan fridge photos or supermarket receipts to auto-populate their pantry inventory
