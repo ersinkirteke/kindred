@@ -4,6 +4,7 @@ import ComposableArchitecture
 import Foundation
 import MonetizationFeature
 import NetworkClient
+import UIKit
 
 @Reducer
 public struct PantryReducer {
@@ -87,6 +88,7 @@ public struct PantryReducer {
         case cameraPermissionResult(AVAuthorizationStatus)
         case settingsRedirectDismissed
         case cameraDismissed
+        case cameraPhotoReady(UIImage, ScanType)
 
         public enum Alert: Equatable {
             case confirmDelete
@@ -366,6 +368,13 @@ public struct PantryReducer {
 
             case .cameraDismissed:
                 state.showCamera = false
+                return .none
+
+            case let .cameraPhotoReady(image, scanType):
+                // Store captured image and scan type for Phase 14-03 upload pipeline
+                state.showCamera = false
+                // TODO: Phase 14-03 will implement upload mutation and pantry item creation
+                print("Camera photo ready: \(scanType.displayName), image size: \(image.size)")
                 return .none
 
             case .delegate:

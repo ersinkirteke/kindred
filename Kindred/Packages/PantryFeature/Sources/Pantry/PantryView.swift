@@ -89,20 +89,26 @@ public struct PantryView: View {
             AddEditItemFormView(store: formStore)
         }
         .fullScreenCover(isPresented: $store.showCamera.sending(\.cameraDismissed)) {
-            // Placeholder for camera view (Plan 14-02)
-            ZStack {
-                Color.black.ignoresSafeArea()
-                VStack {
-                    Text("Camera Placeholder")
-                        .foregroundStyle(.white)
-                        .font(.headline)
-                    Button("Close") {
-                        store.send(.cameraDismissed)
-                    }
-                    .foregroundStyle(.white)
-                    .padding()
+            CameraView(
+                store: Store(
+                    initialState: CameraReducer.State()
+                ) {
+                    CameraReducer()
+                } withDependencies: {
+                    $0.continuousClock = ContinuousClock()
                 }
-            }
+                .scope(state: { $0 }, action: { action in
+                    switch action {
+                    case .delegate(.dismissed):
+                        return .cameraDismissed
+                    case let .delegate(.photoReady(image, scanType)):
+                        return .cameraPhotoReady(image, scanType)
+                    default:
+                        // Internal camera actions don't propagate to PantryReducer
+                        return nil
+                    }
+                })
+            )
         }
         .alert(
             String(localized: "pantry.camera.permission.title", defaultValue: "Camera Access Required", bundle: .main),
