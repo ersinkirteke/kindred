@@ -18,6 +18,7 @@ import { GeocodingModule } from './geocoding/geocoding.module';
 import { FeedModule } from './feed/feed.module';
 import { VoiceModule } from './voice/voice.module';
 import { PantryModule } from './pantry/pantry.module';
+import { ScanModule } from './scan/scan.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { PantryModule } from './pantry/pantry.module';
     FeedModule,
     VoiceModule,
     PantryModule,
+    ScanModule,
   ],
 })
 export class AppModule {}
