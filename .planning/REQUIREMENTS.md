@@ -24,7 +24,7 @@ Requirements for Smart Pantry milestone. Each maps to roadmap phases.
 - [ ] **SCAN-03**: After fridge scan, user sees matching recipes based on identified ingredients
 - [ ] **SCAN-04**: Pro user can scan a supermarket receipt to extract purchased items
 - [ ] **SCAN-05**: Receipt scan extracts item names and quantities, adding them to the pantry
-- [ ] **SCAN-06**: Scanning features show Pro paywall for free-tier users
+- [x] **SCAN-06**: Scanning features show Pro paywall for free-tier users
 
 ### Recipe Integration
 
@@ -46,7 +46,7 @@ Requirements for Smart Pantry milestone. Each maps to roadmap phases.
 - [x] **INFRA-01**: Backend GraphQL schema supports pantry CRUD operations
 - [x] **INFRA-02**: Ingredient normalization maps items to canonical forms
 - [x] **INFRA-03**: PantryFeature SPM package follows existing TCA architecture patterns
-- [ ] **INFRA-04**: Camera permission requested with progressive disclosure (not at launch)
+- [x] **INFRA-04**: Camera permission requested with progressive disclosure (not at launch)
 
 ## Future Requirements
 
@@ -95,7 +95,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCAN-03 | Phase 15 | Pending |
 | SCAN-04 | Phase 15 | Pending |
 | SCAN-05 | Phase 15 | Pending |
-| SCAN-06 | Phase 14 | Pending |
+| SCAN-06 | Phase 14 | Complete |
 | MATCH-01 | Phase 16 | Pending |
 | MATCH-02 | Phase 16 | Pending |
 | MATCH-03 | Phase 16 | Pending |
@@ -108,7 +108,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFRA-01 | Phase 12 | Complete |
 | INFRA-02 | Phase 12 | Complete |
 | INFRA-03 | Phase 12 | Complete |
-| INFRA-04 | Phase 14 | Pending |
+| INFRA-04 | Phase 14 | Complete |
 
 **Coverage:**
 - v3.0 requirements: 24 total

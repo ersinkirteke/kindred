@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Smart Pantry
 status: completed
-last_updated: "2026-03-12T18:45:34.765Z"
+last_updated: "2026-03-12T20:18:01.383Z"
 progress:
-  total_phases: 10
-  completed_phases: 8
-  total_plans: 41
-  completed_plans: 39
+  total_phases: 11
+  completed_phases: 9
+  total_plans: 44
+  completed_plans: 41
 ---
 
 # Project State: Kindred
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 ## Current Position
 
-Phase: 13 of 17 (Manual Pantry Management)
-Plan: 2 of 3 complete
+Phase: 14 of 17 (Camera Capture)
+Plan: 1 of 3 complete
 Status: In Progress
-Last activity: 2026-03-11 — Completed plan 13-02 (Pantry List Enhancement and Sheet Integration)
+Last activity: 2026-03-12 — Completed plan 14-01 (Camera Infrastructure)
 
-Progress: [████████████████████████            ] 67% (2/3 phase 13 plans complete)
+Progress: [████████████████████████████        ] 33% (1/3 phase 14 plans complete)
 
 ---
 
@@ -69,6 +69,7 @@ Progress: [███████████████████████
 | Phase 12 P03 | 9 | 3 tasks | 4 files |
 | Phase 13 P01 | 15 | 2 tasks | 7 files |
 | Phase 13 P03 | 9 | 2 tasks | 5 files |
+| Phase 14 P01 | 8 | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,12 @@ Recent decisions affecting v3.0:
 - **Plan 02:** Floating action button only — removed duplicate toolbar + button for cleaner UI
 - **Plan 02:** Reset original state values after batch add to prevent false "unsaved changes" alert
 - [Phase 13]: Use last-write-wins conflict resolution (compare updatedAt timestamps)
+
+**Phase 14 Decisions:**
+- **Plan 01:** Poll-based camera permission pattern (mirrors LocationClient, checks status every 500ms for up to 30s after MainActor requestAccess)
+- **Plan 01:** Base64 upload for GraphQL mutation (Apollo iOS compatibility, avoids graphql-upload dependency and multipart complexity)
+- **Plan 01:** Expandable FAB with Pro badge for free users (progressive disclosure, all authenticated users see FAB even on empty pantry)
+- **Plan 01:** R2 key pattern scans/{userId}/{timestamp}.jpg (follows voice-samples pattern, user-scoped directories enable efficient cleanup)
 - [Phase 13]: Store last sync timestamp in UserDefaults (simple, no SwiftData schema change)
 - [Phase 13]: Use heuristic to detect new vs updated items: createdAt ~= updatedAt means new
 - [Phase 13]: Exponential backoff: 30s, 60s, 120s max (balance retry frequency vs server load)
