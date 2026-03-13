@@ -19,11 +19,11 @@ Requirements for Smart Pantry milestone. Each maps to roadmap phases.
 
 ### Smart Scanning
 
-- [ ] **SCAN-01**: Pro user can photograph their fridge and get identified ingredients (Gemini 2.0 Flash)
+- [x] **SCAN-01**: Pro user can photograph their fridge and get identified ingredients (Gemini 2.0 Flash)
 - [ ] **SCAN-02**: Fridge scan results show editable ingredient list with confidence indicators
 - [ ] **SCAN-03**: After fridge scan, user sees matching recipes based on identified ingredients
-- [ ] **SCAN-04**: Pro user can scan a supermarket receipt to extract purchased items
-- [ ] **SCAN-05**: Receipt scan extracts item names and quantities, adding them to the pantry
+- [x] **SCAN-04**: Pro user can scan a supermarket receipt to extract purchased items
+- [x] **SCAN-05**: Receipt scan extracts item names and quantities, adding them to the pantry
 - [x] **SCAN-06**: Scanning features show Pro paywall for free-tier users
 
 ### Recipe Integration
@@ -90,11 +90,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PANTRY-05 | Phase 13 | Complete |
 | PANTRY-06 | Phase 13 | Pending |
 | PANTRY-07 | Phase 13 | Complete |
-| SCAN-01 | Phase 15 | Pending |
+| SCAN-01 | Phase 15 | Complete |
 | SCAN-02 | Phase 15 | Pending |
 | SCAN-03 | Phase 15 | Pending |
-| SCAN-04 | Phase 15 | Pending |
-| SCAN-05 | Phase 15 | Pending |
+| SCAN-04 | Phase 15 | Complete |
+| SCAN-05 | Phase 15 | Complete |
 | SCAN-06 | Phase 14 | Complete |
 | MATCH-01 | Phase 16 | Pending |
 | MATCH-02 | Phase 16 | Pending |

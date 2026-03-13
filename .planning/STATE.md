@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Smart Pantry
 status: completed
-last_updated: "2026-03-13T19:26:13.027Z"
+last_updated: "2026-03-13T20:55:06.794Z"
 progress:
-  total_phases: 11
+  total_phases: 12
   completed_phases: 10
-  total_plans: 44
-  completed_plans: 43
+  total_plans: 47
+  completed_plans: 44
 ---
 
 # Project State: Kindred
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 ## Current Position
 
-Phase: 14 of 17 (Camera Capture)
-Plan: 3 of 3 complete
-Status: Complete
-Last activity: 2026-03-13 — Completed plan 14-03 (Photo Upload Pipeline)
+Phase: 15 of 17 (AI Scanning)
+Plan: 1 of 3 complete
+Status: In Progress
+Last activity: 2026-03-13 — Completed plan 15-01 (AI Analysis Pipeline)
 
-Progress: [████████████████████████████████████████████████] 100% (3/3 phase 14 plans complete)
+Progress: [████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 33% (1/3 phase 15 plans complete)
 
 ---
 
@@ -73,6 +73,7 @@ Progress: [███████████████████████
 | Phase 14 P02 | 7 | 2 tasks | 7 files |
 | Phase 14 P02 | 7 | 2 tasks | 7 files |
 | Phase 14 P03 | 8 min | 3 tasks | 6 files |
+| Phase 15 P01 | 4 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -128,6 +129,15 @@ Recent decisions affecting v3.0:
 - [Phase 14-03]: Offline queue in-memory only (failed photos kept until app restart, no persistent storage)
 - [Phase 14-03]: Processing state with back-to-pantry navigation (user can return while processing continues)
 
+**Phase 15 Decisions:**
+- **Plan 01:** Gemini 2.0 Flash for cost-effective vision analysis (follows RecipeParserService pattern)
+- **Plan 01:** 30-second timeout with AbortController for Gemini API calls (prevent hanging)
+- **Plan 01:** Conservative expiry estimates for food safety (user can override)
+- **Plan 01:** Normalize all detected names to English via IngredientCatalog (Turkish → English)
+- **Plan 01:** Accept-and-learn pattern for scan results (auto-create catalog entries for unknown ingredients)
+- **Plan 01:** Server-side quota tracking via ScanJob count (1 free scan, then Pro required)
+- **Plan 01:** Store OCR text in ScanJob for receipt scans (debugging/analytics)
+
 ### Pending Todos
 
 None yet.
@@ -150,12 +160,12 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-13 19:18
-Stopped at: Completed Phase 14 Plan 03 (Photo Upload Pipeline)
-Resume file: .planning/phases/14-camera-capture/14-03-SUMMARY.md
+Last session: 2026-03-13 20:53
+Stopped at: Completed Phase 15 Plan 01 (AI Analysis Pipeline)
+Resume file: .planning/phases/15-ai-scanning/15-01-SUMMARY.md
 
-**Next action:** Begin Phase 15 (Photo Analysis AI Pipeline)
+**Next action:** Continue Phase 15 Plan 02 (iOS scan results display)
 
 ---
 
-*State updated: 2026-03-13 — Completed 14-03 (Photo Upload Pipeline)*
+*State updated: 2026-03-13 — Completed 15-01 (AI Analysis Pipeline)*
