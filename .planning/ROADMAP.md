@@ -112,10 +112,12 @@ Plans:
   4. Pro user can scan supermarket receipt using VisionKit live OCR preview
   5. Receipt scan extracts item names and quantities, adding them to pantry with expiry estimates
   6. Scanning features gracefully handle AI failures (low confidence, OCR misreads) with manual correction
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 15-01: TBD
+- [ ] 15-01-PLAN.md -- Backend AI pipeline: Prisma ScanJob model, ScanAnalyzerService (Gemini Vision + receipt text), analyzeScan/analyzeReceiptText mutations, free scan quota
+- [ ] 15-02-PLAN.md -- iOS scan results UI: DetectedItem model, ScanResultsReducer (checklist with confidence badges, inline edit, bulk add), ScanResultsView, VisionKit ReceiptScannerView
+- [ ] 15-03-PLAN.md -- End-to-end wiring: GraphQL operations, upload-to-analysis transition, recipe suggestion carousel, Pro paywall with free trial, device verification
 
 ### Phase 16: Recipe Matching
 **Goal**: Recipe feed cards display ingredient match percentage based on pantry contents with shopping list generation
