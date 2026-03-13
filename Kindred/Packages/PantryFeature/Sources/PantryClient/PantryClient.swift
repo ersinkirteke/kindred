@@ -23,6 +23,9 @@ public struct PantryClient {
     public var lastSyncTimestamp: @Sendable (String) async -> Date?
     public var updateSyncTimestamp: @Sendable (String, Date) async -> Void
     public var isNetworkAvailable: @Sendable () async -> Bool
+
+    // Bulk operations for scanning
+    public var bulkAddScannedItems: @Sendable (String, [PantryItemInput]) async throws -> Int
 }
 
 extension PantryClient: DependencyKey {
@@ -79,6 +82,9 @@ extension PantryClient: DependencyKey {
                     }
                     monitor.start(queue: queue)
                 }
+            },
+            bulkAddScannedItems: { @MainActor userId, items in
+                try await PantryStore.shared.bulkAddScannedItems(userId: userId, items: items)
             }
         )
     }
@@ -100,7 +106,8 @@ extension PantryClient: DependencyKey {
             mergeServerItems: { _, _ in },
             lastSyncTimestamp: { _ in nil },
             updateSyncTimestamp: { _, _ in },
-            isNetworkAvailable: { false }
+            isNetworkAvailable: { false },
+            bulkAddScannedItems: { _, _ in 0 }
         )
     }
 }

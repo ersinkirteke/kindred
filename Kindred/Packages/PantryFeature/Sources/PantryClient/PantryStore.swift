@@ -379,4 +379,105 @@ class PantryStore {
     func updateSyncTimestamp(userId: String, timestamp: Date) async {
         UserDefaults.standard.set(timestamp, forKey: "pantry.lastSync.\(userId)")
     }
+
+    // MARK: - Bulk Operations
+
+    /// Bulk add scanned items with duplicate detection and quantity merging
+    /// Processes items in chunks of 10 to prevent memory spikes
+    /// Returns the count of items added or updated
+    func bulkAddScannedItems(userId: String, items: [PantryItemInput]) async throws -> Int {
+        var processedCount = 0
+        let chunkSize = 10
+
+        // Process in chunks
+        for chunkStart in stride(from: 0, to: items.count, by: chunkSize) {
+            let chunkEnd = min(chunkStart + chunkSize, items.count)
+            let chunk = Array(items[chunkStart..<chunkEnd])
+
+            try await autoreleasepool {
+                for input in chunk {
+                    // Check for existing item with same name (case-insensitive) in same storage location
+                    let locationRaw = input.storageLocation.rawValue
+                    let descriptor = FetchDescriptor<PantryItem>(
+                        predicate: #Predicate<PantryItem> { item in
+                            item.userId == userId && !item.isDeleted && item.storageLocation == locationRaw
+                        }
+                    )
+
+                    let existingItems = try modelContext.fetch(descriptor)
+                    let lowercaseName = input.name.lowercased()
+                    let existingItem = existingItems.first { $0.name.lowercased() == lowercaseName }
+
+                    if let existingItem = existingItem {
+                        // Merge quantities
+                        let mergedQuantity = mergeQuantities(
+                            existing: existingItem.quantity,
+                            new: input.quantity
+                        )
+                        existingItem.quantity = mergedQuantity
+
+                        // Update expiry date if new one is provided and is sooner
+                        if let newExpiry = input.expiryDate {
+                            if let currentExpiry = existingItem.expiryDate {
+                                if newExpiry < currentExpiry {
+                                    existingItem.expiryDate = newExpiry
+                                }
+                            } else {
+                                existingItem.expiryDate = newExpiry
+                            }
+                        }
+
+                        existingItem.updatedAt = Date()
+                        existingItem.isSynced = false
+                        processedCount += 1
+                    } else {
+                        // Create new item
+                        let newItem = PantryItem(
+                            userId: input.userId,
+                            name: input.name,
+                            quantity: input.quantity,
+                            unit: input.unit,
+                            storageLocation: input.storageLocation,
+                            foodCategory: input.foodCategory,
+                            normalizedName: input.normalizedName,
+                            notes: input.notes,
+                            source: input.source,
+                            expiryDate: input.expiryDate
+                        )
+                        modelContext.insert(newItem)
+                        processedCount += 1
+                    }
+                }
+
+                // Save after each chunk
+                try modelContext.save()
+            }
+
+            // Yield between chunks to prevent blocking
+            await Task.yield()
+        }
+
+        return processedCount
+    }
+
+    /// Merge two quantity strings
+    /// Attempts to parse as numbers and add, otherwise concatenates
+    private func mergeQuantities(existing: String, new: String) -> String {
+        // Try to extract numeric values
+        let existingNumber = Double(existing.filter { $0.isNumber || $0 == "." })
+        let newNumber = Double(new.filter { $0.isNumber || $0 == "." })
+
+        if let existingNum = existingNumber, let newNum = newNumber {
+            let total = existingNum + newNum
+            // Format without unnecessary decimal places
+            if total.truncatingRemainder(dividingBy: 1) == 0 {
+                return "\(Int(total))"
+            } else {
+                return String(format: "%.1f", total)
+            }
+        } else {
+            // Can't parse as numbers, concatenate with separator
+            return "\(existing) + \(new)"
+        }
+    }
 }
