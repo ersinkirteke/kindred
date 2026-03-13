@@ -1,6 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { R2StorageService } from '../images/r2-storage.service';
 import { ScanType, ScanJobStatus, ScanJobResponse } from './dto/scan.dto';
+import { DetectedItemDto } from './dto/scan-result.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { PantryService } from '../pantry/pantry.service';
 import { randomUUID } from 'crypto';
 
 /**
@@ -13,7 +16,11 @@ import { randomUUID } from 'crypto';
 export class ScanService {
   private readonly logger = new Logger(ScanService.name);
 
-  constructor(private readonly r2Storage: R2StorageService) {}
+  constructor(
+    private readonly r2Storage: R2StorageService,
+    private readonly prisma: PrismaService,
+    private readonly pantryService: PantryService,
+  ) {}
 
   /**
    * Upload a scan photo to R2 storage
@@ -30,7 +37,6 @@ export class ScanService {
     fileBuffer: Buffer,
     mimeType: string,
   ): Promise<ScanJobResponse> {
-    const jobId = randomUUID();
     const timestamp = Date.now();
     const key = `scans/${userId}/${timestamp}.jpg`;
 
@@ -40,17 +46,153 @@ export class ScanService {
 
       this.logger.log(`Scan photo uploaded successfully: ${key} for user ${userId}`);
 
-      // Return job response (Phase 15 will add Prisma persistence and AI processing)
+      // Create scan job in database
+      const job = await this.createScanJob(userId, scanType, photoUrl);
+
       return {
-        id: jobId,
-        status: ScanJobStatus.PROCESSING,
-        photoUrl,
-        scanType,
-        createdAt: new Date(),
+        id: job.id,
+        status: job.status as ScanJobStatus,
+        photoUrl: job.photoUrl!,
+        scanType: job.scanType as ScanType,
+        createdAt: job.createdAt,
       };
     } catch (error) {
       this.logger.error(`Failed to upload scan photo for user ${userId}`, error);
       throw error;
     }
+  }
+
+  /**
+   * Create a scan job in the database
+   */
+  async createScanJob(
+    userId: string,
+    scanType: ScanType,
+    photoUrl?: string,
+  ): Promise<any> {
+    return this.prisma.scanJob.create({
+      data: {
+        userId,
+        scanType: scanType.toString(),
+        photoUrl: photoUrl || null,
+        status: 'PROCESSING',
+      },
+    });
+  }
+
+  /**
+   * Save scan results to database
+   */
+  async saveScanResults(
+    jobId: string,
+    items: DetectedItemDto[],
+  ): Promise<void> {
+    await this.prisma.scanJob.update({
+      where: { id: jobId },
+      data: {
+        results: items as any,
+        status: 'COMPLETED',
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  /**
+   * Mark scan job as failed
+   */
+  async markJobFailed(jobId: string, error?: string): Promise<void> {
+    await this.prisma.scanJob.update({
+      where: { id: jobId },
+      data: {
+        status: 'FAILED',
+        error: error || 'Unknown error',
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  /**
+   * Find scan job by ID
+   */
+  async findJobById(jobId: string): Promise<any> {
+    return this.prisma.scanJob.findUnique({
+      where: { id: jobId },
+    });
+  }
+
+  /**
+   * Get completed scan count for user (for free scan quota)
+   */
+  async getUserScanCount(userId: string): Promise<number> {
+    return this.prisma.scanJob.count({
+      where: {
+        userId,
+        status: 'COMPLETED',
+      },
+    });
+  }
+
+  /**
+   * Normalize detected items using IngredientCatalog
+   * Auto-creates catalog entries for unknown items (accept-and-learn)
+   */
+  async normalizeDetectedItems(
+    items: DetectedItemDto[],
+  ): Promise<DetectedItemDto[]> {
+    const normalized: DetectedItemDto[] = [];
+
+    for (const item of items) {
+      // Normalize ingredient name via PantryService
+      const normalizedName = await this.normalizeIngredient(item.name);
+
+      // Look up catalog entry for category
+      const catalogEntry = await this.prisma.ingredientCatalog.findFirst({
+        where: { canonicalName: normalizedName },
+      });
+
+      normalized.push({
+        ...item,
+        name: normalizedName,
+        category: catalogEntry?.defaultCategory || item.category,
+      });
+    }
+
+    return normalized;
+  }
+
+  /**
+   * Normalize ingredient name using IngredientCatalog
+   * Delegates to PantryService pattern for consistency
+   */
+  private async normalizeIngredient(inputName: string): Promise<string> {
+    const lowerInput = inputName.toLowerCase().trim();
+
+    // Search catalog for match
+    const catalogEntry = await this.prisma.ingredientCatalog.findFirst({
+      where: {
+        OR: [
+          { canonicalName: { equals: lowerInput, mode: 'insensitive' } },
+          { canonicalNameTR: { equals: lowerInput, mode: 'insensitive' } },
+          { aliases: { has: lowerInput } },
+        ],
+      },
+    });
+
+    if (catalogEntry) {
+      return catalogEntry.canonicalName;
+    }
+
+    // Unknown ingredient: auto-create catalog entry (accept and learn)
+    const newEntry = await this.prisma.ingredientCatalog.create({
+      data: {
+        canonicalName: lowerInput,
+        canonicalNameTR: lowerInput,
+        aliases: [],
+        defaultCategory: 'other',
+        defaultShelfLifeDays: null,
+      },
+    });
+
+    return newEntry.canonicalName;
   }
 }
