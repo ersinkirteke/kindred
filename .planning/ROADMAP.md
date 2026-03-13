@@ -115,8 +115,8 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 15-01-PLAN.md -- Backend AI pipeline: Prisma ScanJob model, ScanAnalyzerService (Gemini Vision + receipt text), analyzeScan/analyzeReceiptText mutations, free scan quota
-- [ ] 15-02-PLAN.md -- iOS scan results UI: DetectedItem model, ScanResultsReducer (checklist with confidence badges, inline edit, bulk add), ScanResultsView, VisionKit ReceiptScannerView
+- [x] 15-01-PLAN.md -- Backend AI pipeline: Prisma ScanJob model, ScanAnalyzerService (Gemini Vision + receipt text), analyzeScan/analyzeReceiptText mutations, free scan quota (completed 2026-03-13)
+- [x] 15-02-PLAN.md -- iOS scan results UI: DetectedItem model, ScanResultsReducer (checklist with confidence badges, inline edit, bulk add), ScanResultsView, VisionKit ReceiptScannerView (completed 2026-03-13)
 - [ ] 15-03-PLAN.md -- End-to-end wiring: GraphQL operations, upload-to-analysis transition, recipe suggestion carousel, Pro paywall with free trial, device verification
 
 ### Phase 16: Recipe Matching
@@ -171,7 +171,7 @@ Phases execute in numeric order: 12 → 13 → 14 → 15 → 16 → 17
 | 12. Pantry Infrastructure | 3/3 | Complete    | 2026-03-11 | - |
 | 13. Manual Pantry Management | 3/3 | Complete    | 2026-03-12 | - |
 | 14. Camera Capture | 3/3 | Complete    | 2026-03-13 | - |
-| 15. AI Scanning | 1/3 | In Progress|  | - |
+| 15. AI Scanning | 2/3 | In Progress|  | - |
 | 16. Recipe Matching | v3.0 | 0/? | Not started | - |
 | 17. Expiry Tracking | v3.0 | 0/? | Not started | - |
 

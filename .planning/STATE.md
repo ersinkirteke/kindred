@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Smart Pantry
 status: completed
-last_updated: "2026-03-13T20:55:06.794Z"
+last_updated: "2026-03-13T21:00:21.054Z"
 progress:
   total_phases: 12
   completed_phases: 10
   total_plans: 47
-  completed_plans: 44
+  completed_plans: 45
 ---
 
 # Project State: Kindred
@@ -30,11 +30,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 ## Current Position
 
 Phase: 15 of 17 (AI Scanning)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In Progress
-Last activity: 2026-03-13 — Completed plan 15-01 (AI Analysis Pipeline)
+Last activity: 2026-03-13 — Completed plan 15-02 (Scan Results UI)
 
-Progress: [████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 33% (1/3 phase 15 plans complete)
+Progress: [████████████████████████████████░░░░░░░░░░░░░░░░░░] 67% (2/3 phase 15 plans complete)
 
 ---
 
@@ -74,6 +74,7 @@ Progress: [████████████████░░░░░░░
 | Phase 14 P02 | 7 | 2 tasks | 7 files |
 | Phase 14 P03 | 8 min | 3 tasks | 6 files |
 | Phase 15 P01 | 4 | 2 tasks | 7 files |
+| Phase 15 P02 | 9 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -137,6 +138,10 @@ Recent decisions affecting v3.0:
 - **Plan 01:** Accept-and-learn pattern for scan results (auto-create catalog entries for unknown ingredients)
 - **Plan 01:** Server-side quota tracking via ScanJob count (1 free scan, then Pro required)
 - **Plan 01:** Store OCR text in ScanJob for receipt scans (debugging/analytics)
+- [Phase 15]: Confidence-based pre-selection: Items with confidence >= 70% are pre-checked (balances user trust with AI accuracy)
+- [Phase 15]: Double-tap to edit: Inline editing activates on double-tap gesture (iOS pattern for list item editing)
+- [Phase 15]: Quantity merging heuristic: Parse as numbers if possible, else concatenate with '+' (handles numeric and descriptive units)
+- [Phase 15]: VisionKit live highlighting: DataScannerViewController with isHighlightingEnabled shows live text overlay (immediate visual feedback)
 
 ### Pending Todos
 
