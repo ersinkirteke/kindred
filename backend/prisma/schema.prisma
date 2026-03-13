@@ -96,6 +96,7 @@ model User {
   voiceProfiles VoiceProfile[]
   subscription  Subscription?
   pantryItems   PantryItem[]
+  scanJobs      ScanJob[]
 
   @@index([email])
 }
@@ -323,4 +324,23 @@ model IngredientCatalog {
 
   @@index([canonicalName])
   @@index([canonicalNameTR])
+}
+
+// ScanJob model - AI scan result persistence
+model ScanJob {
+  id        String   @id @default(cuid())
+  userId    String
+  scanType  String   // "FRIDGE" | "RECEIPT"
+  photoUrl  String?  // R2 URL for fridge scans
+  ocrText   String?  // Raw OCR text for receipt scans (intermediate, useful for debugging)
+  status    String   @default("PROCESSING")  // UPLOADING | PROCESSING | COMPLETED | FAILED
+  results   Json?    // DetectedItem[] JSON array
+  error     String?  // Error message if failed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, scanType])
 }
