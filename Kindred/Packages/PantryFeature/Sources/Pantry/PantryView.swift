@@ -21,6 +21,14 @@ public struct PantryView: View {
                 .fullScreenCover(item: $store.scope(state: \.scanUpload, action: \.scanUpload)) { uploadStore in
                     ScanUploadView(store: uploadStore)
                 }
+                .sheet(item: $store.scope(state: \.scanResults, action: \.scanResults)) { resultsStore in
+                    ScanResultsView(store: resultsStore)
+                        .presentationDetents([.medium, .large])
+                        .presentationDragIndicator(.visible)
+                }
+                .fullScreenCover(item: $store.scope(state: \.receiptScanner, action: \.receiptScanner)) { scannerStore in
+                    ReceiptScannerView(store: scannerStore)
+                }
         }
         .overlay(alignment: .bottomTrailing) { fabOverlay }
         .contentShape(Rectangle())
@@ -106,6 +114,7 @@ public struct PantryView: View {
                 ),
                 onAddManual: { store.send(.addItemTapped) },
                 onScanItems: { store.send(.scanItemsTapped) },
+                onScanReceipt: { store.send(.receiptScanTapped) },
                 showProBadge: shouldShowProBadge(store: store)
             )
             .padding(.trailing, 20)

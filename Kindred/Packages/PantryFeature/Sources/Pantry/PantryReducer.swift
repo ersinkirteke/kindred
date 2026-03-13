@@ -35,6 +35,14 @@ public struct PantryReducer {
         @Presents public var scanUpload: ScanUploadReducer.State?
         public var showUploadCompleteBanner: Bool = false
 
+        // Scan results and receipt scanner state
+        @Presents public var scanResults: ScanResultsReducer.State?
+        @Presents public var receiptScanner: ReceiptScannerReducer.State?
+        public var showRecipeSuggestions: Bool = false
+        public var scannedItemNames: [String] = []
+        public var showUpgradeBanner: Bool = false
+        public var isAnalyzingReceipt: Bool = false
+
         // Group items by storage location for list display with search filter and alphabetical sort
         public var fridgeItems: [PantryItemState] {
             items
@@ -84,6 +92,7 @@ public struct PantryReducer {
         // Camera and paywall actions
         case fabToggled
         case scanItemsTapped
+        case receiptScanTapped
         case paywallDismissed
         case paywallPurchaseCompleted
         case checkCameraPermission
@@ -93,6 +102,14 @@ public struct PantryReducer {
         case cameraPhotoReady(UIImage, ScanType)
         case scanUpload(PresentationAction<ScanUploadReducer.Action>)
         case dismissUploadCompleteBanner
+
+        // Scan results and receipt scanner actions
+        case scanResults(PresentationAction<ScanResultsReducer.Action>)
+        case receiptScanner(PresentationAction<ReceiptScannerReducer.Action>)
+        case receiptAnalysisCompleted([DetectedItem])
+        case receiptAnalysisFailed(String)
+        case dismissRecipeSuggestions
+        case dismissUpgradeBanner
 
         public enum Alert: Equatable {
             case confirmDelete
@@ -109,6 +126,7 @@ public struct PantryReducer {
     @Dependency(\.apolloClient) var apolloClient
     @Dependency(\.cameraClient) var cameraClient
     @Dependency(\.subscriptionClient) var subscriptionClient
+    @Dependency(\.continuousClock) var clock
 
     private enum CancelID { case syncRetry }
 
@@ -404,11 +422,137 @@ public struct PantryReducer {
                 print("Scan job started: \(scanJob.id), status: \(scanJob.status)")
                 return .none
 
+            case let .scanUpload(.presented(.delegate(.analysisCompleted(items, scanJob)))):
+                // Analysis completed - dismiss upload and present scan results
+                state.scanUpload = nil
+                guard let userId = state.userId else { return .none }
+                state.scanResults = ScanResultsReducer.State(
+                    userId: userId,
+                    scanType: scanJob.scanType,
+                    photoUrl: scanJob.photoUrl,
+                    detectedItems: items
+                )
+                return .none
+
             case .scanUpload:
                 return .none
 
             case .dismissUploadCompleteBanner:
                 state.showUploadCompleteBanner = false
+                return .none
+
+            case let .scanResults(.presented(.delegate(.itemsAdded(count, itemNames)))):
+                // Items added - dismiss results, show recipe suggestions, trigger sync
+                state.scanResults = nil
+                state.scannedItemNames = itemNames
+                state.showRecipeSuggestions = true
+                // TODO: Check if this was user's first scan -> show upgrade banner
+                state.showUpgradeBanner = false // For now, disabled until quota tracking is implemented
+                return .merge(
+                    .send(.onAppear),
+                    .send(.syncPendingItems)
+                )
+
+            case .scanResults(.presented(.delegate(.dismissed))):
+                state.scanResults = nil
+                return .none
+
+            case .scanResults:
+                return .none
+
+            case .receiptScanTapped:
+                // Present receipt scanner
+                state.receiptScanner = ReceiptScannerReducer.State()
+                state.isFABExpanded = false
+                return .none
+
+            case let .receiptScanner(.presented(.delegate(.receiptTextCaptured(text)))):
+                // Receipt text captured - dismiss scanner and analyze
+                state.receiptScanner = nil
+                state.isAnalyzingReceipt = true
+                guard let userId = state.userId else { return .none }
+                return .run { [userId, apolloClient, clock] send in
+                    do {
+                        // 30-second timeout per locked user decision
+                        let mutation = AnalyzeReceiptTextMutation(userId: userId, text: text)
+                        let result = try await withThrowingTaskGroup(of: AnalyzeReceiptTextMutation.Data?.self) { group in
+                            group.addTask {
+                                let response = try await apolloClient.perform(mutation: mutation)
+                                return response.data
+                            }
+                            group.addTask {
+                                try await clock.sleep(for: .seconds(30))
+                                return nil
+                            }
+                            guard let first = try await group.next() else {
+                                group.cancelAll()
+                                throw CancellationError()
+                            }
+                            group.cancelAll()
+                            return first
+                        }
+                        guard let data = result else {
+                            await send(.receiptAnalysisFailed("No response from analysis"))
+                            return
+                        }
+                        let response = data.analyzeReceiptText
+                        let items: [DetectedItem] = response.items.map { item in
+                            DetectedItem(
+                                name: item.name,
+                                quantity: item.quantity,
+                                category: FoodCategory(rawValue: item.category) ?? .produce,
+                                storageLocation: StorageLocation(rawValue: item.storageLocation) ?? .fridge,
+                                estimatedExpiryDays: item.estimatedExpiryDays,
+                                confidence: item.confidence
+                            )
+                        }
+                        await send(.receiptAnalysisCompleted(items))
+                    } catch is CancellationError {
+                        await send(.receiptAnalysisFailed("Analysis timed out. Please retry."))
+                    } catch {
+                        await send(.receiptAnalysisFailed(error.localizedDescription))
+                    }
+                }
+
+            case let .receiptAnalysisCompleted(items):
+                state.isAnalyzingReceipt = false
+                guard let userId = state.userId else { return .none }
+                state.scanResults = ScanResultsReducer.State(
+                    userId: userId,
+                    scanType: .receipt,
+                    photoUrl: nil,
+                    detectedItems: items
+                )
+                return .none
+
+            case let .receiptAnalysisFailed(errorMessage):
+                state.isAnalyzingReceipt = false
+                // Show error alert
+                state.alert = AlertState {
+                    TextState(String(localized: "scan.failure.title", defaultValue: "Analysis Failed", bundle: .main))
+                } actions: {
+                    ButtonState(role: .cancel) {
+                        TextState(String(localized: "common.cancel", defaultValue: "Cancel", bundle: .main))
+                    }
+                } message: {
+                    TextState(errorMessage)
+                }
+                return .none
+
+            case .receiptScanner(.presented(.delegate(.cancelled))):
+                state.receiptScanner = nil
+                return .none
+
+            case .receiptScanner:
+                return .none
+
+            case .dismissRecipeSuggestions:
+                state.showRecipeSuggestions = false
+                state.scannedItemNames = []
+                return .none
+
+            case .dismissUpgradeBanner:
+                state.showUpgradeBanner = false
                 return .none
 
             case .delegate:
@@ -420,6 +564,12 @@ public struct PantryReducer {
         }
         .ifLet(\.$scanUpload, action: \.scanUpload) {
             ScanUploadReducer()
+        }
+        .ifLet(\.$scanResults, action: \.scanResults) {
+            ScanResultsReducer()
+        }
+        .ifLet(\.$receiptScanner, action: \.receiptScanner) {
+            ReceiptScannerReducer()
         }
         .ifLet(\.$alert, action: \.alert)
     }

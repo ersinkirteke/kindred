@@ -1,0 +1,14 @@
+mutation AnalyzeReceiptText($userId: String!, $text: String!) {
+  analyzeReceiptText(userId: $userId, text: $text) {
+    jobId
+    scanType
+    items {
+      name
+      quantity
+      category
+      storageLocation
+      estimatedExpiryDays
+      confidence
+    }
+  }
+}

@@ -1,11 +1,12 @@
 import SwiftUI
 import UIKit
 
-/// Expandable floating action button with "Add manually" and "Scan items" options
+/// Expandable floating action button with "Add manually", "Scan items", and "Scan receipt" options
 struct ExpandableFAB: View {
     @Binding var isExpanded: Bool
     let onAddManual: () -> Void
     let onScanItems: () -> Void
+    let onScanReceipt: (() -> Void)?
     let showProBadge: Bool
 
     private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
@@ -14,6 +15,15 @@ struct ExpandableFAB: View {
         VStack(spacing: 16) {
             // Secondary buttons (shown when expanded)
             if isExpanded {
+                if let onScanReceipt = onScanReceipt {
+                    secondaryButton(
+                        title: String(localized: "scan.receipt.fab_label", defaultValue: "Scan receipt", bundle: .main),
+                        icon: "doc.text.viewfinder",
+                        showBadge: showProBadge,
+                        action: onScanReceipt
+                    )
+                }
+
                 secondaryButton(
                     title: String(localized: "pantry.fab.scan_items", defaultValue: "Scan items", bundle: .main),
                     icon: "camera.fill",

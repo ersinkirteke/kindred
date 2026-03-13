@@ -1,0 +1,14 @@
+mutation AnalyzeScan($jobId: String!, $userId: String!) {
+  analyzeScan(jobId: $jobId, userId: $userId) {
+    jobId
+    scanType
+    items {
+      name
+      quantity
+      category
+      storageLocation
+      estimatedExpiryDays
+      confidence
+    }
+  }
+}

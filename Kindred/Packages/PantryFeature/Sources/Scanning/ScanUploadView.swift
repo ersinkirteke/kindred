@@ -141,9 +141,15 @@ public struct ScanUploadView: View {
                 }
             }
 
-            Text("scan.upload.analyzing", bundle: .main, comment: "Analyzing your photo...")
-                .font(.headline)
-                .foregroundStyle(.white)
+            VStack(spacing: 8) {
+                Text("scan.analysis.processing", bundle: .main, comment: "AI analyzing photo...")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+
+                Text("(this takes 5-10 seconds)")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.8))
+            }
 
             // Animated dots (Reduce Motion: show spinner instead)
             if reduceMotion {
@@ -224,30 +230,46 @@ public struct ScanUploadView: View {
                     .foregroundStyle(.red)
             }
 
-            // Retry button
-            Button {
-                store.send(.retryUpload)
-            } label: {
-                Text("scan.upload.retry", bundle: .main, comment: "Retry")
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 40)
-                    .padding(.vertical, 14)
-                    .background(Color.accentColor)
-                    .clipShape(Capsule())
-            }
-            .accessibilityLabel(String(localized: "scan.upload.retry", defaultValue: "Retry upload", bundle: .main))
+            VStack(spacing: 16) {
+                // Retry button
+                Button {
+                    store.send(.retryUpload)
+                } label: {
+                    Text("scan.upload.retry", bundle: .main, comment: "Retry")
+                        .font(.body)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 40)
+                        .padding(.vertical, 14)
+                        .background(Color.accentColor)
+                        .clipShape(Capsule())
+                }
+                .accessibilityLabel(String(localized: "scan.upload.retry", defaultValue: "Retry upload", bundle: .main))
 
-            // Cancel button
-            Button {
-                store.send(.cancelUpload)
-            } label: {
-                Text("scan.upload.cancel", bundle: .main, comment: "Cancel")
-                    .font(.body)
-                    .foregroundStyle(.white.opacity(0.8))
+                // Add items manually link (if error message indicates analysis failure)
+                if let error = store.error, error.contains("identify items") {
+                    Button {
+                        store.send(.cancelUpload)
+                        // TODO: Navigate to manual add form
+                    } label: {
+                        Text("scan.failure.add_manually", bundle: .main, comment: "Add items manually")
+                            .font(.body)
+                            .foregroundStyle(.white.opacity(0.9))
+                            .underline()
+                    }
+                    .accessibilityLabel(String(localized: "scan.failure.add_manually", defaultValue: "Add items manually", bundle: .main))
+                }
+
+                // Cancel button
+                Button {
+                    store.send(.cancelUpload)
+                } label: {
+                    Text("scan.upload.cancel", bundle: .main, comment: "Cancel")
+                        .font(.body)
+                        .foregroundStyle(.white.opacity(0.8))
+                }
+                .accessibilityLabel(String(localized: "scan.upload.cancel", defaultValue: "Cancel", bundle: .main))
             }
-            .accessibilityLabel(String(localized: "scan.upload.cancel", defaultValue: "Cancel", bundle: .main))
         }
         .accessibilityElement(children: .contain)
     }
