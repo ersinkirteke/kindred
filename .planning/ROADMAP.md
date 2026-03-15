@@ -129,10 +129,11 @@ Plans:
   3. User can tap recipe to generate shopping list of missing ingredients
   4. Ingredient matching uses normalized names and fuzzy matching (handles variants like "eggs" vs "large eggs")
   5. Match % recalculates automatically when pantry contents change
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 16-01: TBD
+- [ ] 16-01-PLAN.md — IngredientMatcher utility, RecipeCard model extension, MatchBadge component, FeedReducer match computation
+- [ ] 16-02-PLAN.md — Detail view match state, shopping list bottom sheet, share/copy, device verification checkpoint
 
 ### Phase 17: Expiry Tracking
 **Goal**: Users receive push notifications before pantry items expire with AI-estimated expiry dates and visual indicators
