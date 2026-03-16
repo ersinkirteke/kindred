@@ -93,7 +93,7 @@ public struct ShoppingListView: View {
         VStack(alignment: .leading, spacing: KindredSpacing.sm) {
             // Category header
             Text(group.categoryName)
-                .font(.kindredHeadlineScaled(size: headlineSize))
+                .font(.kindredHeading2Scaled(size: headlineSize))
                 .foregroundColor(.kindredTextPrimary)
                 .accessibilityAddTraits(.isHeader)
 
@@ -127,7 +127,7 @@ public struct ShoppingListView: View {
                 .foregroundColor(.kindredSuccess)
 
             Text(String(localized: "All done!", bundle: .main))
-                .font(.kindredHeadlineScaled(size: headlineSize))
+                .font(.kindredHeading2Scaled(size: headlineSize))
                 .foregroundColor(.kindredTextPrimary)
 
             Button {

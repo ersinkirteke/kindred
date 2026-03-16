@@ -273,13 +273,13 @@ public struct RecipeDetailReducer {
                 guard let recipe = state.recipe else { return .none }
 
                 // Only compute matches for authenticated users
-                guard case .authenticated(let userId) = state.currentAuthState else {
+                guard case .authenticated(let user) = state.currentAuthState else {
                     return .none
                 }
 
                 let ingredients = recipe.ingredients
                 return .run { send in
-                    let pantryItems = await pantryClient.fetchAllItems(userId)
+                    let pantryItems = await pantryClient.fetchAllItems(user.id)
                     let validPantry = pantryItems.filter { !$0.isDeleted && ($0.expiryDate == nil || $0.expiryDate! > Date()) }
                     let pantryNormalized = Set(validPantry.map { IngredientMatcher.normalize($0.normalizedName ?? $0.name) })
 
