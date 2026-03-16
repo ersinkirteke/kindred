@@ -5,6 +5,7 @@ import Apollo
 import AuthClient
 import VoicePlaybackFeature
 import MonetizationFeature
+import PantryFeature
 
 // MARK: - Recipe Detail Reducer
 
@@ -28,6 +29,13 @@ public struct RecipeDetailReducer {
         public var subscriptionStatus: SubscriptionStatus = .unknown
         public var shouldShowAds: Bool = false
 
+        // Ingredient match state
+        public var ingredientMatchStatuses: [String: IngredientMatchStatus] = [:]
+        public var matchedCount: Int = 0
+        public var eligibleCount: Int = 0
+        public var matchPercentage: Int? = nil
+        @Presents public var shoppingList: ShoppingListReducer.State?
+
         public init(recipeId: String) {
             self.recipeId = recipeId
         }
@@ -48,6 +56,10 @@ public struct RecipeDetailReducer {
         case miniPlayerVisibilityChanged(Bool)
         case subscriptionStatusUpdated(SubscriptionStatus)
         case adVisibilityDetermined(Bool)
+        case computeIngredientMatch
+        case ingredientMatchComputed([String: IngredientMatchStatus], Int, Int, Int)
+        case showShoppingList
+        case shoppingList(PresentationAction<ShoppingListReducer.Action>)
         case delegate(Delegate)
 
     public enum Delegate: Equatable {
@@ -60,7 +72,9 @@ public struct RecipeDetailReducer {
             case (.onAppear, .onAppear),
                  (.toggleBookmark, .toggleBookmark),
                  (.listenTapped, .listenTapped),
-                 (.dismissBookmarkNudge, .dismissBookmarkNudge):
+                 (.dismissBookmarkNudge, .dismissBookmarkNudge),
+                 (.computeIngredientMatch, .computeIngredientMatch),
+                 (.showShoppingList, .showShoppingList):
                 return true
             case let (.recipeLoaded(lhsResult), .recipeLoaded(rhsResult)):
                 switch (lhsResult, rhsResult) {
@@ -85,6 +99,11 @@ public struct RecipeDetailReducer {
                 return lhs == rhs
             case let (.adVisibilityDetermined(lhs), .adVisibilityDetermined(rhs)):
                 return lhs == rhs
+            case let (.ingredientMatchComputed(lhsStatuses, lhsMatched, lhsEligible, lhsPct),
+                      .ingredientMatchComputed(rhsStatuses, rhsMatched, rhsEligible, rhsPct)):
+                return lhsStatuses == rhsStatuses && lhsMatched == rhsMatched && lhsEligible == rhsEligible && lhsPct == rhsPct
+            case let (.shoppingList(lhs), .shoppingList(rhs)):
+                return lhs == rhs
             case let (.delegate(lhs), .delegate(rhs)):
                 return lhs == rhs
             default:
@@ -99,6 +118,7 @@ public struct RecipeDetailReducer {
     @Dependency(\.guestSessionClient) var guestSession
     @Dependency(\.subscriptionClient) var subscriptionClient
     @Dependency(\.adClient) var adClient
+    @Dependency(\.pantryClient) var pantryClient
 
     // MARK: - Reducer
 
@@ -153,7 +173,7 @@ public struct RecipeDetailReducer {
                 state.recipe = recipe
                 state.isLoading = false
                 state.error = nil
-                return .none
+                return .send(.computeIngredientMatch)
 
             case let .recipeLoaded(.failure(error)):
                 state.isLoading = false
@@ -249,10 +269,75 @@ public struct RecipeDetailReducer {
                 }
                 return .none
 
+            case .computeIngredientMatch:
+                guard let recipe = state.recipe else { return .none }
+
+                // Only compute matches for authenticated users
+                guard case .authenticated(let userId) = state.currentAuthState else {
+                    return .none
+                }
+
+                let ingredients = recipe.ingredients
+                return .run { send in
+                    let pantryItems = await pantryClient.fetchAllItems(userId)
+                    let validPantry = pantryItems.filter { !$0.isDeleted && ($0.expiryDate == nil || $0.expiryDate! > Date()) }
+                    let pantryNormalized = Set(validPantry.map { IngredientMatcher.normalize($0.normalizedName ?? $0.name) })
+
+                    var statuses: [String: IngredientMatchStatus] = [:]
+                    var matched = 0
+                    var eligible = 0
+
+                    for ingredient in ingredients {
+                        if IngredientMatcher.isStaple(ingredient.name) {
+                            statuses[ingredient.id] = .staple
+                            continue
+                        }
+                        eligible += 1
+                        let normalized = IngredientMatcher.normalize(ingredient.name)
+                        if pantryNormalized.contains(normalized) {
+                            statuses[ingredient.id] = .available
+                            matched += 1
+                        } else {
+                            statuses[ingredient.id] = .missing
+                        }
+                    }
+
+                    let pct = eligible > 0 ? Int((Double(matched) / Double(eligible)) * 100) : 0
+                    await send(.ingredientMatchComputed(statuses, matched, eligible, pct))
+                }
+
+            case let .ingredientMatchComputed(statuses, matched, eligible, pct):
+                state.ingredientMatchStatuses = statuses
+                state.matchedCount = matched
+                state.eligibleCount = eligible
+                state.matchPercentage = eligible > 0 ? pct : nil
+                return .none
+
+            case .showShoppingList:
+                guard let recipe = state.recipe else { return .none }
+                let missingIngredients = recipe.ingredients.filter { ingredient in
+                    state.ingredientMatchStatuses[ingredient.id] == .missing
+                }
+                guard !missingIngredients.isEmpty else { return .none }
+                state.shoppingList = ShoppingListReducer.State(
+                    recipeName: recipe.name,
+                    missingIngredients: missingIngredients,
+                    matchedCount: state.matchedCount,
+                    totalEligible: state.eligibleCount
+                )
+                return .none
+
+            case .shoppingList:
+                // Presentation actions handled by TCA
+                return .none
+
             case .delegate:
                 // Delegate actions handled by parent reducer
                 return .none
             }
+        }
+        .ifLet(\.$shoppingList, action: \.shoppingList) {
+            ShoppingListReducer()
         }
     }
 

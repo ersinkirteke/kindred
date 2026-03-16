@@ -7,7 +7,20 @@ struct IngredientChecklistView: View {
 
     let ingredients: [RecipeIngredient]
     let checkedIngredients: Set<String>
+    let ingredientMatchStatuses: [String: IngredientMatchStatus]
     let onToggle: (String) -> Void
+
+    init(
+        ingredients: [RecipeIngredient],
+        checkedIngredients: Set<String>,
+        ingredientMatchStatuses: [String: IngredientMatchStatus] = [:],
+        onToggle: @escaping (String) -> Void
+    ) {
+        self.ingredients = ingredients
+        self.checkedIngredients = checkedIngredients
+        self.ingredientMatchStatuses = ingredientMatchStatuses
+        self.onToggle = onToggle
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -15,6 +28,7 @@ struct IngredientChecklistView: View {
                 IngredientRow(
                     ingredient: ingredient,
                     isChecked: checkedIngredients.contains(ingredient.id),
+                    matchStatus: ingredientMatchStatuses[ingredient.id],
                     onToggle: {
                         onToggle(ingredient.id)
                     }
@@ -40,11 +54,18 @@ private struct IngredientRow: View {
 
     let ingredient: RecipeIngredient
     let isChecked: Bool
+    let matchStatus: IngredientMatchStatus?
     let onToggle: () -> Void
 
     var body: some View {
         Button(action: onToggle) {
             HStack(alignment: .center, spacing: KindredSpacing.md) {
+                // Match status indicator (before checkbox)
+                if let status = matchStatus, status != .staple {
+                    matchStatusIcon(for: status)
+                        .font(.system(size: 16))
+                }
+
                 // Checkbox icon
                 Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 24))
@@ -62,8 +83,39 @@ private struct IngredientRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
-        .accessibilityLabel(isChecked ? String(localized: "Uncheck \(ingredient.name)", bundle: .main) : String(localized: "Check \(ingredient.name)", bundle: .main))
+        .accessibilityLabel(accessibilityLabel)
         .accessibilityAddTraits(.isButton)
+    }
+
+    @ViewBuilder
+    private func matchStatusIcon(for status: IngredientMatchStatus) -> some View {
+        switch status {
+        case .available:
+            Image(systemName: "leaf.circle.fill")
+                .foregroundColor(.kindredSuccess)
+        case .missing:
+            Image(systemName: "cart.circle")
+                .foregroundColor(.kindredAccent)
+        case .staple:
+            EmptyView()
+        }
+    }
+
+    private var accessibilityLabel: String {
+        var label = isChecked ? String(localized: "Uncheck \(ingredient.name)", bundle: .main) : String(localized: "Check \(ingredient.name)", bundle: .main)
+
+        if let status = matchStatus {
+            switch status {
+            case .available:
+                label += ", " + String(localized: "in pantry", bundle: .main)
+            case .missing:
+                label += ", " + String(localized: "need to buy", bundle: .main)
+            case .staple:
+                break
+            }
+        }
+
+        return label
     }
 }
 

@@ -2,6 +2,14 @@ import Foundation
 import SwiftUI
 import KindredAPI
 
+// MARK: - Ingredient Match Status
+
+public enum IngredientMatchStatus: Equatable {
+    case available   // User has this ingredient in pantry
+    case missing     // User needs to buy this
+    case staple      // Common pantry staple (excluded from calculation)
+}
+
 // MARK: - Recipe Detail Models
 
 public struct RecipeDetail: Equatable, Identifiable {

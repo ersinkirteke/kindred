@@ -77,6 +77,11 @@ public struct RecipeDetailView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .sheet(item: $store.scope(state: \.shoppingList, action: \.shoppingList)) { shoppingStore in
+            ShoppingListView(store: shoppingStore)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
     }
 
     // MARK: - Loading View
@@ -139,9 +144,35 @@ public struct RecipeDetailView: View {
             // Ingredients section
             sectionHeader(String(localized: "Ingredients", bundle: .main))
 
+            // Match summary
+            if let matchPct = store.matchPercentage, store.eligibleCount > 0 {
+                VStack(alignment: .leading, spacing: KindredSpacing.sm) {
+                    Text("You have \(store.matchedCount) of \(store.eligibleCount) ingredients (\(matchPct)%)")
+                        .font(.kindredBodyScaled(size: bodySize))
+                        .foregroundColor(.kindredTextSecondary)
+
+                    if store.matchedCount < store.eligibleCount {
+                        Button {
+                            store.send(.showShoppingList)
+                        } label: {
+                            Label(
+                                String(localized: "Missing ingredients", bundle: .main),
+                                systemImage: "cart"
+                            )
+                            .font(.kindredBodyBoldScaled(size: bodySize))
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.kindredAccent)
+                        .accessibilityHint(String(localized: "Opens shopping list for missing ingredients", bundle: .main))
+                    }
+                }
+                .padding(.bottom, KindredSpacing.sm)
+            }
+
             IngredientChecklistView(
                 ingredients: recipe.ingredients,
                 checkedIngredients: store.checkedIngredients,
+                ingredientMatchStatuses: store.ingredientMatchStatuses,
                 onToggle: { ingredientId in
                     store.send(.toggleIngredient(ingredientId))
                 }
