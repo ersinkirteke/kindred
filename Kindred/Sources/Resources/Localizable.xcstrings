@@ -3911,6 +3911,230 @@
           }
         }
       }
+    },
+    "Shopping List": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shopping List"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alışveriş Listesi"
+          }
+        }
+      }
+    },
+    "Missing ingredients": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missing ingredients"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eksik malzemeler"
+          }
+        }
+      }
+    },
+    "All done!": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All done!"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamamlandı!"
+          }
+        }
+      }
+    },
+    "Ready to cook? Start listening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready to cook? Start listening"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yemeğe hazır mısınız? Dinlemeye başlayın"
+          }
+        }
+      }
+    },
+    "Share list": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share list"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listeyi paylaş"
+          }
+        }
+      }
+    },
+    "Copy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopyala"
+          }
+        }
+      }
+    },
+    "Copied!": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied!"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopyalandı!"
+          }
+        }
+      }
+    },
+    "Opens shopping list for missing ingredients": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens shopping list for missing ingredients"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eksik malzemeler için alışveriş listesini açar"
+          }
+        }
+      }
+    },
+    "in pantry": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in pantry"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kilerde"
+          }
+        }
+      }
+    },
+    "need to buy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "need to buy"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "satın alınmalı"
+          }
+        }
+      }
+    },
+    "Close": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kapat"
+          }
+        }
+      }
+    },
+    "Copy shopping list to clipboard": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy shopping list to clipboard"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alışveriş listesini panoya kopyala"
+          }
+        }
+      }
+    },
+    "Share shopping list via Messages, Mail, or other apps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share shopping list via Messages, Mail, or other apps"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alışveriş listesini Mesajlar, Mail veya diğer uygulamalar ile paylaş"
+          }
+        }
+      }
+    },
+    "All items checked. Ready to cook.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All items checked. Ready to cook."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tüm ürünler işaretlendi. Yemeğe hazır."
+          }
+        }
+      }
     }
   },
   "version": "1.1"
