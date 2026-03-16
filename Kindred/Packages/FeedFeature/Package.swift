@@ -19,6 +19,7 @@ let package = Package(
         .package(name: "VoicePlaybackFeature", path: "../VoicePlaybackFeature"),
         .package(name: "AuthClient", path: "../AuthClient"),
         .package(name: "MonetizationFeature", path: "../MonetizationFeature"),
+        .package(name: "PantryFeature", path: "../PantryFeature"),
     ],
     targets: [
         .target(
@@ -32,6 +33,7 @@ let package = Package(
                 "VoicePlaybackFeature",
                 "AuthClient",
                 "MonetizationFeature",
+                "PantryFeature",
             ]
         ),
     ]

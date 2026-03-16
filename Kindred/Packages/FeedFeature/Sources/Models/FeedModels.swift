@@ -20,6 +20,8 @@ public struct RecipeCard: Equatable, Identifiable {
     public let difficulty: String?
     public let cuisineType: String?
     public let velocityScore: Double
+    public let ingredientNames: [String]
+    public var matchPercentage: Int?
 
     public init(
         id: String,
@@ -34,7 +36,9 @@ public struct RecipeCard: Equatable, Identifiable {
         dietaryTags: [String] = [],
         difficulty: String? = nil,
         cuisineType: String? = nil,
-        velocityScore: Double = 0.0
+        velocityScore: Double = 0.0,
+        ingredientNames: [String] = [],
+        matchPercentage: Int? = nil
     ) {
         self.id = id
         self.name = name
@@ -49,6 +53,8 @@ public struct RecipeCard: Equatable, Identifiable {
         self.difficulty = difficulty
         self.cuisineType = cuisineType
         self.velocityScore = velocityScore
+        self.ingredientNames = ingredientNames
+        self.matchPercentage = matchPercentage
     }
 
     public var totalTime: Int? {
@@ -83,7 +89,29 @@ public struct RecipeCard: Equatable, Identifiable {
             engagementLoves: recipe.engagementLoves ?? 0,
             dietaryTags: recipe.dietaryTags ?? [],
             difficulty: recipe.difficulty.rawValue,
-            cuisineType: recipe.cuisineType.rawValue
+            cuisineType: recipe.cuisineType.rawValue,
+            ingredientNames: recipe.ingredients.map { $0.name }
+        )
+    }
+
+    /// Return a copy of this RecipeCard with the match percentage set
+    public func withMatchPercentage(_ pct: Int?) -> RecipeCard {
+        return RecipeCard(
+            id: self.id,
+            name: self.name,
+            description: self.description,
+            prepTime: self.prepTime,
+            cookTime: self.cookTime,
+            calories: self.calories,
+            imageUrl: self.imageUrl,
+            isViral: self.isViral,
+            engagementLoves: self.engagementLoves,
+            dietaryTags: self.dietaryTags,
+            difficulty: self.difficulty,
+            cuisineType: self.cuisineType,
+            velocityScore: self.velocityScore,
+            ingredientNames: self.ingredientNames,
+            matchPercentage: pct
         )
     }
 }

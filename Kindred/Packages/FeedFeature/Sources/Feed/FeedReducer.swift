@@ -8,6 +8,7 @@ import KindredAPI
 import NetworkClient
 import AuthClient
 import MonetizationFeature
+import PantryFeature
 import os.log
 import UIKit
 
@@ -96,6 +97,10 @@ public struct FeedReducer {
         case adVisibilityDetermined(Bool)
         case showPaywall
         case paywall(PresentationAction<SubscriptionReducer.Action>)
+
+        // Match percentage actions
+        case computeMatchPercentages
+        case matchPercentagesComputed([String: Int])
 
     public enum Delegate: Equatable {
         case authGateRequested(recipeId: String, recipeName: String, imageUrl: String?, cuisineType: String?, actionType: String)
@@ -193,6 +198,8 @@ public struct FeedReducer {
     @Dependency(\.locationClient) var locationClient
     @Dependency(\.subscriptionClient) var subscriptionClient
     @Dependency(\.adClient) var adClient
+    @Dependency(\.pantryClient) var pantryClient
+    @Dependency(\.authClient) var authClient
 
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -211,7 +218,8 @@ public struct FeedReducer {
 
                 // Don't reload if we already have cards (prevents re-fetching on tab switch / back from detail)
                 guard state.cardStack.isEmpty && state.allRecipes.isEmpty else {
-                    return .none
+                    // Recompute match percentages on tab switch (pantry may have changed)
+                    return .send(.computeMatchPercentages)
                 }
 
                 state.isLoading = true
@@ -299,7 +307,8 @@ public struct FeedReducer {
                             )
                         }
                     },
-                    .send(.computeCulinaryDNA)
+                    .send(.computeCulinaryDNA),
+                    .send(.computeMatchPercentages)
                 )
 
             case let .recipesLoaded(.failure(error)):
@@ -435,7 +444,7 @@ public struct FeedReducer {
                 state.cardStack.append(contentsOf: filtered)
                 state.hasMorePages = cards.count >= 10
                 state.currentPage += 1
-                return .none
+                return .send(.computeMatchPercentages)
 
             case .moreRecipesLoaded(.failure):
                 // Silently fail pagination - don't break UX
@@ -486,7 +495,8 @@ public struct FeedReducer {
                             )
                         }
                     },
-                    .send(.computeCulinaryDNA)
+                    .send(.computeCulinaryDNA),
+                    .send(.computeMatchPercentages)
                 )
 
             case let .refreshCompleted(.failure(error)):
@@ -737,6 +747,47 @@ public struct FeedReducer {
                 return .none
 
             case .paywall:
+                return .none
+
+            case .computeMatchPercentages:
+                // Get userId - skip if guest (no pantry data)
+                guard case .authenticated(let user) = state.currentAuthState else {
+                    return .none
+                }
+                let recipes = state.cardStack
+                return .run { send in
+                    let pantryItems = await pantryClient.fetchAllItems(user.id)
+                    // Skip if pantry is empty (user decision: hide badges when no pantry items)
+                    guard !pantryItems.isEmpty else { return }
+
+                    var matchResults: [String: Int] = [:]
+                    for recipe in recipes {
+                        guard !recipe.ingredientNames.isEmpty else { continue }
+                        if let matchPct = IngredientMatcher.computeMatchPercentage(
+                            recipeIngredientNames: recipe.ingredientNames,
+                            pantryItems: pantryItems
+                        ) {
+                            matchResults[recipe.id] = matchPct
+                        }
+                    }
+                    await send(.matchPercentagesComputed(matchResults))
+                }
+
+            case let .matchPercentagesComputed(results):
+                // Update cardStack with match percentages
+                state.cardStack = state.cardStack.map { card in
+                    if let pct = results[card.id] {
+                        return card.withMatchPercentage(pct)
+                    }
+                    return card
+                }
+                // Also update allRecipes for consistency after dietary filter changes
+                state.allRecipes = state.allRecipes.map { card in
+                    if let pct = results[card.id] {
+                        return card.withMatchPercentage(pct)
+                    }
+                    return card
+                }
                 return .none
 
             case .delegate:

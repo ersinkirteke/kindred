@@ -120,6 +120,12 @@ struct RecipeCardView: View {
                             .padding(KindredSpacing.md)
                     }
                 }
+                .overlay(alignment: .topLeading) {
+                    if let matchPercentage = recipe.matchPercentage, matchPercentage >= 50 {
+                        MatchBadge(percentage: matchPercentage)
+                            .padding(KindredSpacing.md)
+                    }
+                }
 
             // Recipe details with padding (no fixed height - grows to fit)
             VStack(alignment: .leading, spacing: KindredSpacing.sm) {
@@ -223,6 +229,10 @@ struct RecipeCardView: View {
 
         if isPersonalized {
             label += String(localized: ", Personalized for you", bundle: .main)
+        }
+
+        if let matchPct = recipe.matchPercentage, matchPct >= 50 {
+            label += ", \(matchPct) percent ingredients available"
         }
 
         return label
