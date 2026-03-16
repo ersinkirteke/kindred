@@ -173,7 +173,7 @@ Phases execute in numeric order: 12 → 13 → 14 → 15 → 16 → 17
 | 13. Manual Pantry Management | 3/3 | Complete    | 2026-03-12 | - |
 | 14. Camera Capture | 3/3 | Complete    | 2026-03-13 | - |
 | 15. AI Scanning | 3/3 | Complete    | 2026-03-15 | - |
-| 16. Recipe Matching | v3.0 | 0/? | Not started | - |
+| 16. Recipe Matching | 1/2 | In Progress|  | - |
 | 17. Expiry Tracking | v3.0 | 0/? | Not started | - |
 
 ---

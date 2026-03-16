@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 ## Current Position
 
-Phase: 15 of 17 (AI Scanning)
-Plan: 3 of 3 complete
-Status: Complete
-Last activity: 2026-03-15 — Completed plan 15-03 (AI Scanning Integration)
+Phase: 16 of 17 (Recipe Matching)
+Plan: 1 of 2 complete
+Status: In Progress
+Last activity: 2026-03-16 — Completed plan 16-01 (Ingredient Match Badges)
 
-Progress: [████████████████████████████████████████████████████] 100% (3/3 phase 15 plans complete)
+Progress: [█████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░] 50% (1/2 phase 16 plans complete)
 
 ---
 
@@ -76,6 +76,7 @@ Progress: [███████████████████████
 | Phase 15 P01 | 4 | 2 tasks | 7 files |
 | Phase 15 P02 | 9 | 2 tasks | 8 files |
 | Phase 15 P03 | 6 | 3 tasks | 9 files |
+| Phase 16 P01 | 26 min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -150,6 +151,14 @@ Recent decisions affecting v3.0:
 - [Phase 15-03]: Free scan trial tracked via @AppStorage hasUsedFreeScan (simple, no server dependency for paywall decision)
 - [Phase 15-03]: Scan-specific paywall separate from generic Pro paywall (contextual messaging: 'Unlock AI Scanning')
 
+**Phase 16 Decisions:**
+- **Plan 01:** Client-side ingredient matching minimizes latency and enables offline matching (PantryItem data already local)
+- **Plan 01:** Exclude common staples (salt, pepper, water, oil, butter, sugar, flour, garlic, onion) from match % to avoid inflated scores
+- **Plan 01:** Name-only matching (quantity-agnostic) for MVP — if user has ingredient at all, it counts as matched
+- **Plan 01:** Normalization heuristics: strip qualifiers (fresh, large, organic), lowercase, trim, simple plural removal
+- **Plan 01:** Hide match badges for guest users and empty pantry (authentication + pantry required)
+- **Plan 01:** Tab switch recalculation: recompute match % when user returns to feed tab (pantry may have changed)
+
 ### Pending Todos
 
 None yet.
@@ -172,12 +181,12 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-15 20:10
-Stopped at: Completed Phase 15 Plan 03 (AI Scanning Integration)
-Resume file: .planning/phases/15-ai-scanning/15-03-SUMMARY.md
+Last session: 2026-03-16 07:44
+Stopped at: Completed Phase 16 Plan 01 (Ingredient Match Badges)
+Resume file: .planning/phases/16-recipe-matching/16-01-SUMMARY.md
 
-**Next action:** Phase 15 complete. Ready for next phase.
+**Next action:** Continue Phase 16 — Execute plan 16-02 (Detail view match state and shopping list generation)
 
 ---
 
-*State updated: 2026-03-15 — Completed 15-03 (AI Scanning Integration) — Phase 15 complete*
+*State updated: 2026-03-16 — Completed 16-01 (Ingredient Match Badges) — Phase 16 in progress*
