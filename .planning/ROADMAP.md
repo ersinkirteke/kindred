@@ -45,7 +45,7 @@
 - [x] **Phase 13: Manual Pantry Management** - Local-first CRUD with SwiftData, offline-first sync, storage categorization (completed 2026-03-11)
 - [x] **Phase 14: Camera Capture** - Progressive permission request, photo capture, R2 upload, memory-safe processing (completed 2026-03-13)
 - [x] **Phase 15: AI Scanning** - Fridge photo recognition (Pro), receipt OCR (Pro), Gemini analysis, Pro paywall (completed 2026-03-15)
-- [ ] **Phase 16: Recipe Matching** - Match % badge on feed cards, shopping list generation, ingredient normalization
+- [x] **Phase 16: Recipe Matching** - Match % badge on feed cards, shopping list generation, ingredient normalization (completed 2026-03-16)
 - [ ] **Phase 17: Expiry Tracking** - AI expiry estimation, push notifications, visual indicators, consumption tracking
 
 ## Phase Details
@@ -173,7 +173,7 @@ Phases execute in numeric order: 12 → 13 → 14 → 15 → 16 → 17
 | 13. Manual Pantry Management | 3/3 | Complete    | 2026-03-12 | - |
 | 14. Camera Capture | 3/3 | Complete    | 2026-03-13 | - |
 | 15. AI Scanning | 3/3 | Complete    | 2026-03-15 | - |
-| 16. Recipe Matching | 1/2 | In Progress|  | - |
+| 16. Recipe Matching | 2/2 | Complete   | 2026-03-16 | - |
 | 17. Expiry Tracking | v3.0 | 0/? | Not started | - |
 
 ---

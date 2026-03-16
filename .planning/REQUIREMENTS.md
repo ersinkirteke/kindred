@@ -30,7 +30,7 @@ Requirements for Smart Pantry milestone. Each maps to roadmap phases.
 
 - [x] **MATCH-01**: Recipe cards display ingredient match % badge based on pantry contents
 - [x] **MATCH-02**: Match badge uses color coding (green >70%, yellow >50%, hidden below 50%)
-- [ ] **MATCH-03**: User can generate a shopping list of missing ingredients for any recipe
+- [x] **MATCH-03**: User can generate a shopping list of missing ingredients for any recipe
 - [x] **MATCH-04**: Ingredient matching uses normalized names (handles "eggs" vs "large eggs")
 
 ### Expiry Tracking
@@ -98,7 +98,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCAN-06 | Phase 14 | Complete |
 | MATCH-01 | Phase 16 | Complete |
 | MATCH-02 | Phase 16 | Complete |
-| MATCH-03 | Phase 16 | Pending |
+| MATCH-03 | Phase 16 | Complete |
 | MATCH-04 | Phase 16 | Complete |
 | EXPIRY-01 | Phase 17 | Pending |
 | EXPIRY-02 | Phase 17 | Pending |
