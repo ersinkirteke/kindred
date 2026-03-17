@@ -37,9 +37,9 @@ Requirements for Smart Pantry milestone. Each maps to roadmap phases.
 
 - [x] **EXPIRY-01**: Each pantry item has an AI-estimated expiry date based on item type
 - [x] **EXPIRY-02**: User receives push notifications before items expire
-- [ ] **EXPIRY-03**: Pantry view shows expiry status with visual indicators (fresh, expiring soon, expired)
-- [ ] **EXPIRY-04**: AI estimates include disclaimers; user can manually override dates
-- [ ] **EXPIRY-05**: User can mark expired items as consumed or discarded
+- [x] **EXPIRY-03**: Pantry view shows expiry status with visual indicators (fresh, expiring soon, expired)
+- [x] **EXPIRY-04**: AI estimates include disclaimers; user can manually override dates
+- [x] **EXPIRY-05**: User can mark expired items as consumed or discarded
 
 ### Infrastructure
 
@@ -102,9 +102,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MATCH-04 | Phase 16 | Complete |
 | EXPIRY-01 | Phase 17 | Complete |
 | EXPIRY-02 | Phase 17 | Complete |
-| EXPIRY-03 | Phase 17 | Pending |
-| EXPIRY-04 | Phase 17 | Pending |
-| EXPIRY-05 | Phase 17 | Pending |
+| EXPIRY-03 | Phase 17 | Complete |
+| EXPIRY-04 | Phase 17 | Complete |
+| EXPIRY-05 | Phase 17 | Complete |
 | INFRA-01 | Phase 12 | Complete |
 | INFRA-02 | Phase 12 | Complete |
 | INFRA-03 | Phase 12 | Complete |

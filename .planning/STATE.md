@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Smart Pantry
-status: completed
-last_updated: "2026-03-17T18:45:15.923Z"
+status: in_progress
+last_updated: "2026-03-17T18:55:26Z"
 progress:
   total_phases: 14
   completed_phases: 12
   total_plans: 52
-  completed_plans: 49
+  completed_plans: 51
 ---
 
 # Project State: Kindred
 
-**Last Updated:** 2026-03-16
-**Status:** Milestone complete
+**Last Updated:** 2026-03-17
+**Status:** In progress
 
 ---
 
@@ -30,11 +30,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 ## Current Position
 
 Phase: 17 of 17 (Expiry Tracking)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-03-17 — Completed plan 17-01 (Expiry Notification Pipeline)
+Last activity: 2026-03-17 — Completed plan 17-02 (Expiry Visual Indicators & Actions)
 
-Progress: [████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 33% (1/3 phase 17 plans complete)
+Progress: [████████████████████████████████░░░░░░░░░░░░░░░░░░░░] 67% (2/3 phase 17 plans complete)
 
 ---
 
@@ -79,6 +79,7 @@ Progress: [████████████████░░░░░░░
 | Phase 16 P01 | 26 min | 2 tasks | 6 files |
 | Phase 16 P02 | 8 | 3 tasks | 7 files |
 | Phase 17 P01 | 5 | 2 tasks | 4 files |
+| Phase 17 P02 | 19 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -167,6 +168,9 @@ Recent decisions affecting v3.0:
 - [Phase 17]: Three-tier expiry estimation: IngredientCatalog → Gemini → conservative defaults (cost-effective)
 - [Phase 17]: 8 AM UTC batch notification for MVP (per-timezone delivery deferred, requires user timezone storage)
 - [Phase 17]: Added getExpiringItemsWithUser internal method (PantryItemModel doesn't expose userId for security)
+- [Phase 17]: ExpiryStatus enum with 4 states based on days until expiry, expiry-based sorting within storage groups
+- [Phase 17]: 3pt left edge color strip replaces capsule badges, swipe left=consumed/right=discard
+- [Phase 17]: NotificationClient TCA dependency follows CameraClient pattern, progressive permission after first item add
 
 ### Pending Todos
 
