@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Smart Pantry
 status: completed
-last_updated: "2026-03-16T20:26:57.884Z"
+last_updated: "2026-03-17T18:45:15.923Z"
 progress:
-  total_phases: 13
+  total_phases: 14
   completed_phases: 12
-  total_plans: 49
-  completed_plans: 48
+  total_plans: 52
+  completed_plans: 49
 ---
 
 # Project State: Kindred
@@ -23,18 +23,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
-**Current focus:** Phase 16: Recipe Matching
+**Current focus:** Phase 17: Expiry Tracking
 
 ---
 
 ## Current Position
 
-Phase: 16 of 17 (Recipe Matching)
-Plan: 2 of 2 complete
-Status: Complete
-Last activity: 2026-03-16 — Completed plan 16-02 (Shopping List and Detail Match State)
+Phase: 17 of 17 (Expiry Tracking)
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-03-17 — Completed plan 17-01 (Expiry Notification Pipeline)
 
-Progress: [██████████████████████████████████████████████████] 100% (2/2 phase 16 plans complete)
+Progress: [████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 33% (1/3 phase 17 plans complete)
 
 ---
 
@@ -78,6 +78,7 @@ Progress: [███████████████████████
 | Phase 15 P03 | 6 | 3 tasks | 9 files |
 | Phase 16 P01 | 26 min | 2 tasks | 6 files |
 | Phase 16 P02 | 8 | 3 tasks | 7 files |
+| Phase 17 P01 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -163,6 +164,9 @@ Recent decisions affecting v3.0:
 - [Phase 16]: Simple keyword-to-FoodCategory heuristic for shopping list grouping avoids server dependency for MVP
 - [Phase 16]: ShareLink native iOS sharing (iOS 16+) provides system-wide share sheet integration
 - [Phase 16]: Celebration state with reduceMotion respect ensures accessible feedback for task completion
+- [Phase 17]: Three-tier expiry estimation: IngredientCatalog → Gemini → conservative defaults (cost-effective)
+- [Phase 17]: 8 AM UTC batch notification for MVP (per-timezone delivery deferred, requires user timezone storage)
+- [Phase 17]: Added getExpiringItemsWithUser internal method (PantryItemModel doesn't expose userId for security)
 
 ### Pending Todos
 
@@ -186,12 +190,12 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-16 21:00
-Stopped at: Completed Phase 16 Plan 02 (Shopping List and Detail Match State)
-Resume file: .planning/phases/16-recipe-matching/16-02-SUMMARY.md
+Last session: 2026-03-17 18:41
+Stopped at: Completed Phase 17 Plan 01 (Expiry Notification Pipeline)
+Resume file: .planning/phases/17-expiry-tracking/17-01-SUMMARY.md
 
-**Next action:** Phase 16 complete — Ready for next phase or milestone planning
+**Next action:** Continue to 17-02 (iOS Expiry Display UI)
 
 ---
 
-*State updated: 2026-03-16 — Completed 16-02 (Shopping List and Detail Match State) — Phase 16 complete*
+*State updated: 2026-03-17 — Completed 17-01 (Expiry Notification Pipeline) — Phase 17 in progress*
