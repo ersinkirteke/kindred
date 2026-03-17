@@ -5,10 +5,14 @@ import { BulkAddPantryItemsInput } from './dto/bulk-add-pantry-items.input';
 import { UpdatePantryItemInput } from './dto/update-pantry-item.input';
 import { PantryItemModel } from './models/pantry-item.model';
 import { IngredientCatalogEntry } from './models/ingredient-catalog.model';
+import { ExpiryEstimatorService } from './expiry-estimator.service';
 
 @Injectable()
 export class PantryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private expiryEstimator: ExpiryEstimatorService,
+  ) {}
 
   /**
    * Get all non-deleted pantry items for a user.
@@ -30,6 +34,31 @@ export class PantryService {
     const items = await this.prisma.pantryItem.findMany({
       where,
       orderBy: { updatedAt: 'desc' },
+    });
+
+    return items.map(this.toPantryItemModel);
+  }
+
+  /**
+   * Get items expiring within the next N days.
+   * Used by expiry notification scheduler.
+   *
+   * @param daysAhead - Number of days to look ahead (e.g., 2 for items expiring in next 2 days)
+   * @returns Items with expiryDate between now and now + daysAhead, sorted by expiryDate
+   */
+  async getExpiringItems(params: {
+    daysAhead: number;
+  }): Promise<PantryItemModel[]> {
+    const now = new Date();
+    const futureDate = new Date();
+    futureDate.setDate(now.getDate() + params.daysAhead);
+
+    const items = await this.prisma.pantryItem.findMany({
+      where: {
+        expiryDate: { gte: now, lte: futureDate },
+        isDeleted: false,
+      },
+      orderBy: { expiryDate: 'asc' },
     });
 
     return items.map(this.toPantryItemModel);
@@ -92,6 +121,13 @@ export class PantryService {
         expiryDate: input.expiryDate,
       },
     });
+
+    // If no expiry date provided, estimate it in the background (fire-and-forget)
+    if (!input.expiryDate) {
+      this.estimateAndSetExpiry(created.id).catch(() => {
+        // Errors already logged in estimateAndSetExpiry
+      });
+    }
 
     return this.toPantryItemModel(created);
   }
@@ -216,6 +252,45 @@ export class PantryService {
     }
 
     return entries;
+  }
+
+  /**
+   * Estimate and set expiry date for a pantry item.
+   * Only runs if item doesn't already have an expiryDate.
+   * Fire-and-forget operation (async, non-blocking).
+   *
+   * @param itemId - ID of the pantry item
+   */
+  async estimateAndSetExpiry(itemId: string): Promise<void> {
+    try {
+      const item = await this.prisma.pantryItem.findUnique({
+        where: { id: itemId },
+      });
+
+      if (!item || item.expiryDate) {
+        // Item not found or already has expiry date
+        return;
+      }
+
+      // Use normalized name if available, fall back to display name
+      const shelfLifeDays = await this.expiryEstimator.estimateExpiryDate(
+        item.normalizedName || item.name,
+        item.storageLocation,
+      );
+
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + shelfLifeDays);
+
+      await this.prisma.pantryItem.update({
+        where: { id: itemId },
+        data: { expiryDate },
+      });
+    } catch (error) {
+      // Log but don't throw — this is a best-effort background operation
+      console.error(
+        `Failed to estimate expiry for item ${itemId}: ${error.message}`,
+      );
+    }
   }
 
   /**
