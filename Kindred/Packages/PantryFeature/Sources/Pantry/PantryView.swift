@@ -29,6 +29,46 @@ public struct PantryView: View {
                 .fullScreenCover(item: $store.scope(state: \.receiptScanner, action: \.receiptScanner)) { scannerStore in
                     ReceiptScannerView(store: scannerStore)
                 }
+                .sheet(isPresented: Binding(
+                    get: { store.showDatePicker },
+                    set: { if !$0 { store.send(.datePickerDismissed) } }
+                )) {
+                    NavigationStack {
+                        VStack {
+                            Text(String(localized: "pantry.expiry.disclaimer", defaultValue: "AI estimate — check packaging", bundle: .main))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .padding(.top)
+
+                            DatePicker(
+                                "Expiry Date",
+                                selection: Binding(
+                                    get: { store.datePickerDate },
+                                    set: { store.send(.setDatePickerDate($0)) }
+                                ),
+                                in: Date()...,
+                                displayedComponents: .date
+                            )
+                            .datePickerStyle(.graphical)
+                            .padding()
+                        }
+                        .navigationTitle(String(localized: "pantry.expiry.update_title", defaultValue: "Update Expiry", bundle: .main))
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button(String(localized: "common.save", defaultValue: "Save", bundle: .main)) {
+                                    store.send(.datePickerSaved)
+                                }
+                            }
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button(String(localized: "common.cancel", defaultValue: "Cancel", bundle: .main)) {
+                                    store.send(.datePickerDismissed)
+                                }
+                            }
+                        }
+                    }
+                    .presentationDetents([.medium])
+                }
         }
         .overlay(alignment: .bottomTrailing) { fabOverlay }
         .contentShape(Rectangle())
@@ -231,9 +271,24 @@ public struct PantryView: View {
                         Button {
                             store.send(.editItemTapped(item.id))
                         } label: {
-                            PantryItemRow(item: item)
+                            PantryItemRow(item: item, onExpiryTapped: { store.send(.expiryDateTapped(item.id)) })
                         }
                         .buttonStyle(.plain)
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button {
+                                store.send(.consumeItem(item.id))
+                            } label: {
+                                Label(String(localized: "pantry.action.consumed", defaultValue: "Consumed", bundle: .main), systemImage: "checkmark.circle.fill")
+                            }
+                            .tint(.green)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                store.send(.discardItem(item.id))
+                            } label: {
+                                Label(String(localized: "pantry.action.discard", defaultValue: "Discard", bundle: .main), systemImage: "trash")
+                            }
+                        }
                     }
                     .onDelete { indexSet in
                         for index in indexSet {
@@ -256,9 +311,24 @@ public struct PantryView: View {
                         Button {
                             store.send(.editItemTapped(item.id))
                         } label: {
-                            PantryItemRow(item: item)
+                            PantryItemRow(item: item, onExpiryTapped: { store.send(.expiryDateTapped(item.id)) })
                         }
                         .buttonStyle(.plain)
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button {
+                                store.send(.consumeItem(item.id))
+                            } label: {
+                                Label(String(localized: "pantry.action.consumed", defaultValue: "Consumed", bundle: .main), systemImage: "checkmark.circle.fill")
+                            }
+                            .tint(.green)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                store.send(.discardItem(item.id))
+                            } label: {
+                                Label(String(localized: "pantry.action.discard", defaultValue: "Discard", bundle: .main), systemImage: "trash")
+                            }
+                        }
                     }
                     .onDelete { indexSet in
                         for index in indexSet {
@@ -281,9 +351,24 @@ public struct PantryView: View {
                         Button {
                             store.send(.editItemTapped(item.id))
                         } label: {
-                            PantryItemRow(item: item)
+                            PantryItemRow(item: item, onExpiryTapped: { store.send(.expiryDateTapped(item.id)) })
                         }
                         .buttonStyle(.plain)
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button {
+                                store.send(.consumeItem(item.id))
+                            } label: {
+                                Label(String(localized: "pantry.action.consumed", defaultValue: "Consumed", bundle: .main), systemImage: "checkmark.circle.fill")
+                            }
+                            .tint(.green)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                store.send(.discardItem(item.id))
+                            } label: {
+                                Label(String(localized: "pantry.action.discard", defaultValue: "Discard", bundle: .main), systemImage: "trash")
+                            }
+                        }
                     }
                     .onDelete { indexSet in
                         for index in indexSet {
@@ -347,76 +432,80 @@ private struct CameraViewWrapper: View {
 
 private struct PantryItemRow: View {
     let item: PantryItemState
+    var onExpiryTapped: (() -> Void)? = nil
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
+        HStack(spacing: 0) {
+            // Left edge expiry indicator (only visible when item has expiry)
+            if item.expiryStatus != .none {
+                Rectangle()
+                    .fill(item.expiryColor)
+                    .frame(width: 3)
+            }
+
+            // Existing content with left padding
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(item.name)
                         .font(.body)
-                    if let badge = expiryBadge {
-                        Text(badge.text)
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(badge.color.opacity(0.15), in: Capsule())
-                            .foregroundStyle(badge.color)
+
+                    HStack(spacing: 4) {
+                        Text(item.quantity)
+                        if let unit = item.unit {
+                            Text(unit)
+                        }
+                        if let category = item.foodCategory {
+                            Text("·")
+                            Text(category.displayName)
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                }
-
-                HStack(spacing: 4) {
-                    Text(item.quantity)
-                    if let unit = item.unit {
-                        Text(unit)
-                    }
-                    if let category = item.foodCategory {
-                        Text("·")
-                        Text(category.displayName)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-                // Subtitle: expiry date and/or notes
-                if let subtitle = subtitleText {
-                    Text(subtitle)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                        .lineLimit(1)
-                }
-            }
-
-            Spacer()
-
-            if !item.isSynced {
-                Image(systemName: "icloud.slash")
                     .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .accessibilityLabel(String(localized: "accessibility.pantry.not_synced", bundle: .main))
-            }
-        }
-        .accessibilityElement(children: .combine)
-    }
+                    .foregroundStyle(.secondary)
 
-    private var expiryBadge: (text: String, color: Color)? {
-        guard let expiry = item.expiryDate else { return nil }
-        let now = Date()
-        if expiry < now {
-            return (String(localized: "pantry.badge.expired", defaultValue: "Expired", bundle: .main), .red)
+                    // Subtitle: expiry date and/or notes
+                    if let subtitle = subtitleText {
+                        if let expiry = item.expiryDate, onExpiryTapped != nil {
+                            Button(action: { onExpiryTapped?() }) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Expires ~\(expiry.formatted(.dateTime.month(.abbreviated).day()))")
+                                        .font(.caption2)
+                                        .foregroundStyle(.tertiary)
+                                    Text(String(localized: "pantry.expiry.disclaimer", defaultValue: "AI estimate — check packaging", bundle: .main))
+                                        .font(.caption2)
+                                        .foregroundStyle(.quaternary)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            Text(subtitle)
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                                .lineLimit(1)
+                        }
+                    }
+                }
+
+                Spacer()
+
+                if !item.isSynced {
+                    Image(systemName: "icloud.slash")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                        .accessibilityLabel(String(localized: "accessibility.pantry.not_synced", bundle: .main))
+                }
+            }
+            .padding(.leading, item.expiryStatus != .none ? 8 : 0)
         }
-        let threeDays = Calendar.current.date(byAdding: .day, value: 3, to: now)!
-        if expiry < threeDays {
-            return (String(localized: "pantry.badge.expiring_soon", defaultValue: "Exp. soon", bundle: .main), .orange)
-        }
-        return nil
+        .opacity(item.expiryStatus == .expired ? 0.6 : 1.0)
+        .accessibilityElement(children: .combine)
     }
 
     private var subtitleText: String? {
         var parts: [String] = []
         if let expiry = item.expiryDate {
-            parts.append("Exp: \(expiry.formatted(.dateTime.month(.abbreviated).day()))")
+            parts.append("Expires ~\(expiry.formatted(.dateTime.month(.abbreviated).day()))")
         }
         if let notes = item.notes, !notes.isEmpty {
             let firstLine = notes.components(separatedBy: .newlines).first ?? notes
