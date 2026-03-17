@@ -2696,6 +2696,54 @@
         }
       }
     },
+    "pantry.expiry.ai_estimate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI estimate — check packaging"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI tahmini — ambalaja bakın"
+          }
+        }
+      }
+    },
+    "pantry.notification.prompt_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stay Fresh"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taze Kalın"
+          }
+        }
+      }
+    },
+    "pantry.notification.prompt_message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We'll remind you before items expire"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ürünler bitmeden önce size hatırlatacağız"
+          }
+        }
+      }
+    },
     "common.cancel": {
       "localizations": {
         "en": {

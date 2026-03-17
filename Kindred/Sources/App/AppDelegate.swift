@@ -1,5 +1,6 @@
 import UIKit
 import ClerkKit
+import AuthFeature
 import FeedFeature
 import Kingfisher
 import VoicePlaybackFeature
@@ -8,6 +9,7 @@ import GoogleMobileAds
 import MetricKit
 import BackgroundTasks
 import OSLog
+import UserNotifications
 
 /// AppDelegate for Firebase and Kingfisher cache configuration
 class AppDelegate: NSObject, UIApplicationDelegate, MXMetricManagerSubscriber {
@@ -22,7 +24,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, MXMetricManagerSubscriber {
         cache.memoryStorage.config.countLimit = 50 // 50 images in memory
         cache.diskStorage.config.sizeLimit = 500 * 1024 * 1024 // 500MB disk
 
-        // Clerk SDK configured lazily — no-op here until real key is set
+        // Configure Clerk SDK for authentication
+        Clerk.configure(publishableKey: "pk_test_ZHJpdmluZy1wb3NzdW0tNjUuY2xlcmsuYWNjb3VudHMuZGV2JA")
+        ClerkConfigurationState.isConfigured = true
 
         // Configure AVAudioSession for background voice playback
         AudioSessionConfigurator.configure()
@@ -171,6 +175,28 @@ class AppDelegate: NSObject, UIApplicationDelegate, MXMetricManagerSubscriber {
         } catch {
             Logger.background.error("Failed to schedule recipe refresh: \(error.localizedDescription)")
         }
+    }
+
+    // MARK: - Remote Notifications
+
+    func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        Logger.appLifecycle.info("Registered for remote notifications with token: \(tokenString.prefix(10))...")
+
+        // Send token to backend via GraphQL mutation
+        // For now, store token for when backend integration is ready
+        // TODO: Wire to GraphQL registerDeviceToken mutation when Firebase is configured
+        UserDefaults.standard.set(tokenString, forKey: "apnsDeviceToken")
+    }
+
+    func application(
+        _ application: UIApplication,
+        didFailToRegisterForRemoteNotificationsWithError error: Error
+    ) {
+        Logger.appLifecycle.error("Failed to register for remote notifications: \(error.localizedDescription)")
     }
 }
 
