@@ -65,6 +65,27 @@ export class PantryService {
   }
 
   /**
+   * Get items expiring within the next N days with userId included.
+   * Internal method for scheduler use (not exposed via GraphQL).
+   *
+   * @param daysAhead - Number of days to look ahead
+   * @returns Raw Prisma items with userId field for grouping
+   */
+  async getExpiringItemsWithUser(params: { daysAhead: number }) {
+    const now = new Date();
+    const futureDate = new Date();
+    futureDate.setDate(now.getDate() + params.daysAhead);
+
+    return await this.prisma.pantryItem.findMany({
+      where: {
+        expiryDate: { gte: now, lte: futureDate },
+        isDeleted: false,
+      },
+      orderBy: { expiryDate: 'asc' },
+    });
+  }
+
+  /**
    * Add a pantry item with server-side normalization and duplicate merging.
    */
   async addItem(input: AddPantryItemInput): Promise<PantryItemModel> {

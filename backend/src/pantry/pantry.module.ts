@@ -1,7 +1,11 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
+import { PushModule } from '../push/push.module';
 import { PantryService } from './pantry.service';
 import { PantryResolver } from './pantry.resolver';
+import { ExpiryEstimatorService } from './expiry-estimator.service';
+import { ExpiryNotificationScheduler } from './expiry-notification.scheduler';
 
 /**
  * PantryModule
@@ -14,10 +18,17 @@ import { PantryResolver } from './pantry.resolver';
  * - Duplicate detection and quantity merging
  * - Accept-and-learn for unknown ingredients
  * - Bulk operations for receipt scanning
+ * - AI-powered expiry date estimation (catalog + Gemini fallback)
+ * - Daily expiry digest notifications at 8 AM UTC
  */
 @Module({
-  imports: [PrismaModule],
-  providers: [PantryService, PantryResolver],
+  imports: [PrismaModule, PushModule, ConfigModule],
+  providers: [
+    PantryService,
+    PantryResolver,
+    ExpiryEstimatorService,
+    ExpiryNotificationScheduler,
+  ],
   exports: [PantryService],
 })
 export class PantryModule {}
