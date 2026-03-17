@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 /// View-layer state representation of a PantryItem for use in IdentifiedArray
 public struct PantryItemState: Equatable, Identifiable, Sendable {
@@ -24,5 +25,35 @@ public struct PantryItemState: Equatable, Identifiable, Sendable {
         self.notes = item.notes
         self.isSynced = item.isSynced
         self.source = item.sourceEnum
+    }
+}
+
+public enum ExpiryStatus: Equatable, Sendable {
+    case fresh      // > 3 days until expiry
+    case expiring   // 1-3 days until expiry
+    case expired    // past expiry date
+    case none       // no expiry date set
+}
+
+extension PantryItemState {
+    public var expiryStatus: ExpiryStatus {
+        guard let expiry = expiryDate else { return .none }
+        let daysUntilExpiry = Calendar.current.dateComponents(
+            [.day], from: Calendar.current.startOfDay(for: Date()),
+            to: Calendar.current.startOfDay(for: expiry)
+        ).day ?? 0
+
+        if daysUntilExpiry < 0 { return .expired }
+        if daysUntilExpiry <= 3 { return .expiring }
+        return .fresh
+    }
+
+    public var expiryColor: Color {
+        switch expiryStatus {
+        case .fresh: return .green
+        case .expiring: return .yellow
+        case .expired: return .red
+        case .none: return .clear
+        }
     }
 }

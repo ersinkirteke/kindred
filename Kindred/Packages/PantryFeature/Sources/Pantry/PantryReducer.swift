@@ -5,6 +5,7 @@ import Foundation
 import MonetizationFeature
 import NetworkClient
 import UIKit
+import UserNotifications
 
 @Reducer
 public struct PantryReducer {
@@ -43,24 +44,63 @@ public struct PantryReducer {
         public var showUpgradeBanner: Bool = false
         public var isAnalyzingReceipt: Bool = false
 
-        // Group items by storage location for list display with search filter and alphabetical sort
+        // Expiry and notification state
+        public var showDatePicker: Bool = false
+        public var datePickerItemId: UUID? = nil
+        public var datePickerDate: Date = Date()
+        public var notificationPermissionRequested: Bool = false
+
+        // Group items by storage location for list display with search filter and expiry-based sort
         public var fridgeItems: [PantryItemState] {
             items
                 .filter { $0.storageLocation == .fridge }
                 .filter { searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText) }
-                .sorted { $0.name.localizedCompare($1.name) == .orderedAscending }
+                .sorted { item1, item2 in
+                    switch (item1.expiryDate, item2.expiryDate) {
+                    case let (date1?, date2?):
+                        return date1 < date2  // soonest first
+                    case (_?, nil):
+                        return true  // items with expiry before items without
+                    case (nil, _?):
+                        return false
+                    case (nil, nil):
+                        return item1.name.localizedCompare(item2.name) == .orderedAscending
+                    }
+                }
         }
         public var freezerItems: [PantryItemState] {
             items
                 .filter { $0.storageLocation == .freezer }
                 .filter { searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText) }
-                .sorted { $0.name.localizedCompare($1.name) == .orderedAscending }
+                .sorted { item1, item2 in
+                    switch (item1.expiryDate, item2.expiryDate) {
+                    case let (date1?, date2?):
+                        return date1 < date2  // soonest first
+                    case (_?, nil):
+                        return true  // items with expiry before items without
+                    case (nil, _?):
+                        return false
+                    case (nil, nil):
+                        return item1.name.localizedCompare(item2.name) == .orderedAscending
+                    }
+                }
         }
         public var pantryItems: [PantryItemState] {
             items
                 .filter { $0.storageLocation == .pantry }
                 .filter { searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText) }
-                .sorted { $0.name.localizedCompare($1.name) == .orderedAscending }
+                .sorted { item1, item2 in
+                    switch (item1.expiryDate, item2.expiryDate) {
+                    case let (date1?, date2?):
+                        return date1 < date2  // soonest first
+                    case (_?, nil):
+                        return true  // items with expiry before items without
+                    case (nil, _?):
+                        return false
+                    case (nil, nil):
+                        return item1.name.localizedCompare(item2.name) == .orderedAscending
+                    }
+                }
         }
 
         public init() {}
@@ -111,6 +151,19 @@ public struct PantryReducer {
         case dismissRecipeSuggestions
         case dismissUpgradeBanner
 
+        // Expiry actions
+        case consumeItem(UUID)
+        case discardItem(UUID)
+        case expiryDateTapped(UUID)
+        case datePickerDismissed
+        case datePickerSaved
+        case setDatePickerDate(Date)
+
+        // Notification permission
+        case requestNotificationPermission
+        case registerForRemoteNotifications
+        case notificationPermissionResult(UNAuthorizationStatus)
+
         public enum Alert: Equatable {
             case confirmDelete
         }
@@ -127,6 +180,7 @@ public struct PantryReducer {
     @Dependency(\.cameraClient) var cameraClient
     @Dependency(\.subscriptionClient) var subscriptionClient
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.notificationClient) var notificationClient
 
     private enum CancelID { case syncRetry }
 
@@ -208,10 +262,17 @@ public struct PantryReducer {
 
             case .addEditForm(.presented(.delegate(.itemSaved))):
                 state.addEditForm = nil
-                return .merge(
+                var effects: [Effect<Action>] = [
                     .send(.onAppear),
                     .send(.syncPendingItems)
-                )
+                ]
+
+                // Request notification permission after first item add
+                if !state.notificationPermissionRequested {
+                    effects.append(.send(.requestNotificationPermission))
+                }
+
+                return .merge(effects)
 
             case .addEditForm(.presented(.delegate(.cancelled))):
                 state.addEditForm = nil
@@ -553,6 +614,91 @@ public struct PantryReducer {
 
             case .dismissUpgradeBanner:
                 state.showUpgradeBanner = false
+                return .none
+
+            case let .consumeItem(id):
+                guard state.userId != nil else { return .none }
+                state.items.remove(id: id)
+                return .run { send in
+                    try await pantryClient.deleteItem(id)
+                    await send(.itemDeleted)
+                    await send(.syncPendingItems)
+                }
+
+            case let .discardItem(id):
+                guard state.userId != nil else { return .none }
+                state.items.remove(id: id)
+                return .run { send in
+                    try await pantryClient.deleteItem(id)
+                    await send(.itemDeleted)
+                    await send(.syncPendingItems)
+                }
+
+            case let .expiryDateTapped(id):
+                guard let item = state.items[id: id] else { return .none }
+                state.datePickerItemId = id
+                state.datePickerDate = item.expiryDate ?? Date()
+                state.showDatePicker = true
+                return .none
+
+            case let .setDatePickerDate(date):
+                state.datePickerDate = date
+                return .none
+
+            case .datePickerDismissed:
+                state.showDatePicker = false
+                state.datePickerItemId = nil
+                return .none
+
+            case .datePickerSaved:
+                guard let itemId = state.datePickerItemId,
+                      let item = state.items[id: itemId],
+                      let userId = state.userId else {
+                    state.showDatePicker = false
+                    state.datePickerItemId = nil
+                    return .none
+                }
+
+                let newDate = state.datePickerDate
+                state.showDatePicker = false
+                state.datePickerItemId = nil
+
+                return .run { send in
+                    let input = PantryItemInput(
+                        userId: userId,
+                        name: item.name,
+                        quantity: item.quantity,
+                        unit: item.unit,
+                        storageLocation: item.storageLocation,
+                        foodCategory: item.foodCategory,
+                        notes: item.notes,
+                        source: item.source,
+                        expiryDate: newDate
+                    )
+                    try await pantryClient.updateItem(itemId, input)
+                    await send(.onAppear)
+                    await send(.syncPendingItems)
+                }
+
+            case .requestNotificationPermission:
+                guard !state.notificationPermissionRequested else { return .none }
+                state.notificationPermissionRequested = true
+
+                return .run { send in
+                    let status = await notificationClient.requestAuthorization()
+                    await send(.notificationPermissionResult(status))
+                    if status == .authorized {
+                        await send(.registerForRemoteNotifications)
+                    }
+                }
+
+            case .registerForRemoteNotifications:
+                return .run { _ in
+                    await notificationClient.registerForRemoteNotifications()
+                }
+
+            case let .notificationPermissionResult(status):
+                print("Notification permission result: \(status)")
                 return .none
 
             case .delegate:
