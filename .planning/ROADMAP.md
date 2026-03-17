@@ -146,10 +146,12 @@ Plans:
   4. AI estimates include disclaimers ("Estimated expiry—verify packaging"), user can manually override dates
   5. User can mark expired items as consumed or discarded with one tap
   6. Notification permission requested progressively (after first pantry add, not at launch)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 17-01: TBD
+- [ ] 17-01-PLAN.md -- Backend expiry pipeline: ExpiryEstimatorService (IngredientCatalog + Gemini), ExpiryNotificationScheduler cron job (8 AM UTC daily digest), PantryService.getExpiringItems
+- [ ] 17-02-PLAN.md -- iOS expiry UI: ExpiryStatus model, color-coded left edge strips, dimmed expired rows, swipe consume/discard, DatePicker override, NotificationClient dependency
+- [ ] 17-03-PLAN.md -- Wiring and verification: AppDelegate device token handling, localization, physical device verification checkpoint
 
 ## Progress
 
