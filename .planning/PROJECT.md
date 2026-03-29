@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Kindred is a hyperlocal, AI-humanized culinary assistant mobile app. It discovers viral recipes trending in your neighborhood from Instagram and X, presents them with stunning AI-generated food imagery, and reads the instructions aloud in the cloned voice of someone you love — like your mom or grandma. The iOS app is live with swipeable recipe feed, voice narration, personalization, and App Store billing. Android is planned as a fast-follow.
+Kindred is a hyperlocal, AI-humanized culinary assistant mobile app. It discovers viral recipes trending in your neighborhood from Instagram and X, presents them with stunning AI-generated food imagery, and reads the instructions aloud in the cloned voice of someone you love — like your mom or grandma. The iOS app is live with swipeable recipe feed, voice narration, personalization, App Store billing, and a smart pantry that scans your fridge, tracks expiry dates, and shows which recipes you can cook with what you have. Android is planned as a fast-follow.
 
 ## Core Value
 
@@ -45,15 +45,16 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - ✓ Voice profiles cached locally for offline narration (500MB LRU) — v2.0
 - ✓ Background audio with lock screen controls and Now Playing info — v2.0
 - ✓ Bilingual localization (English + Turkish) — v2.0
+- ✓ Persistent digital pantry with manual add/remove/edit and offline-first sync — v3.0
+- ✓ Fridge photo scanning to identify ingredients via Gemini 2.0 Flash (Pro) — v3.0
+- ✓ Supermarket receipt scanning to populate digital pantry (Pro) — v3.0
+- ✓ AI-estimated food expiry tracking with push notification alerts — v3.0
+- ✓ Ingredient match % badge on recipe cards based on pantry contents — v3.0
+- ✓ Backend GraphQL pantry API with ingredient normalization (185 bilingual entries) — v3.0
 
 ### Active
 
-- [ ] Persistent digital pantry with manual add/remove/edit of items
-- [ ] Fridge photo scanning to identify ingredients and suggest matching recipes (Gemini 3 Flash, Pro)
-- [ ] Supermarket receipt scanning to populate digital pantry (Pro)
-- [ ] AI-estimated food expiry tracking with push notification alerts
-- [ ] Ingredient match % badge on recipe cards based on pantry contents
-- [ ] Backend API and data model for pantry items, expiry dates, and ingredient matching
+(Defined in REQUIREMENTS.md for v4.0 App Store Launch Prep)
 
 ### Future
 
@@ -70,22 +71,29 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - Web app — mobile-first, native only
 - Cross-platform framework (Flutter/React Native) — native iOS + Android for best UX and accessibility
 
-## Current Milestone: v3.0 Smart Pantry
+## Current Milestone: v4.0 App Store Launch Prep
 
-**Goal:** Add ingredient intelligence — fridge scanning, receipt scanning, persistent pantry, expiry tracking, and recipe-ingredient matching to transform Kindred from recipe discovery into a complete cooking companion.
+**Goal:** Fix all known gaps, wire real voice playback, production-ready ads/billing, and prepare complete App Store submission package.
 
 **Target features:**
-- Persistent digital pantry with manual and scan-based item management
-- Fridge photo scanning (Pro) — quick "what can I cook?" with AI ingredient recognition
-- Receipt scanning (Pro) — camera scans supermarket receipts to auto-populate pantry
-- AI-estimated expiry tracking with push notification alerts
-- Ingredient match % badge on recipe cards based on pantry inventory
+- Wire real backend narration URLs (replace TestAudioGenerator)
+- Resolve 5 GraphQL voice profile TODO markers with real backend data
+- Production AdMob unit IDs + ATT consent flow
+- ScanPaywallView → MonetizationFeature purchase flow wiring
+- Recipe suggestion card tap → detail view navigation
+- JWS SignedDataVerifier for production receipt validation
+- Device token registration → backend for push notification delivery
+- App Store Connect privacy labels and review metadata
+- Voice cloning consent framework (legal compliance)
+- SwiftData persistence fix commit (named ModelConfiguration)
 
 ## Context
 
-**Shipped v2.0:** iOS App milestone complete. 13,319 LOC Swift across 107 source files. 7 SPM packages: DesignSystem, NetworkClient, AuthClient, FeedFeature, ProfileFeature, VoicePlaybackFeature, MonetizationFeature. Complete iOS experience: swipeable feed, voice narration, personalization, auth, monetization, WCAG AAA accessibility, bilingual localization.
+**Shipped v3.0:** Smart Pantry milestone complete. ~23,105 LOC Swift across 8 SPM packages + ~8,113 LOC TypeScript backend. Added PantryFeature package with local-first SwiftData CRUD, AI fridge/receipt scanning (Gemini 2.0 Flash), recipe-ingredient matching with shopping list generation, and AI expiry tracking with push notifications. 6 phases, 17 plans, 7 days.
 
-**Shipped v1.5:** Backend & AI Pipeline. ~6,066 LOC TypeScript across NestJS backend with GraphQL API, Prisma ORM, PostgreSQL with PostGIS. Complete AI pipeline: recipe scraping (X API + Gemini parser), image generation (Imagen 4 Fast + R2), voice cloning (ElevenLabs), and narration (Gemini rewriting + streaming TTS).
+**Shipped v2.0:** iOS App milestone. 13,319 LOC Swift, 7 SPM packages. Complete iOS experience: swipeable feed, voice narration, personalization, auth, monetization, WCAG AAA accessibility, bilingual localization.
+
+**Shipped v1.5:** Backend & AI Pipeline. ~6,066 LOC TypeScript. NestJS backend with GraphQL API, recipe scraping, image generation, voice cloning, and narration streaming.
 
 **Platform strategy:** iOS shipped (v2.0). Android fast-follow (4-6 weeks). Backend/API/AI pipeline is 100% shared between platforms.
 
@@ -99,7 +107,7 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - Scraping: X API v2 + Gemini parser (Instagram placeholder ready)
 - Geocoding: Mapbox with DB cache (~99% cache hit rate)
 - Push: Firebase Cloud Messaging (iOS APNs + Android FCM)
-- iOS: SwiftUI + TCA 1.x, Apollo iOS 2.0.6, StoreKit 2, AVFoundation, iOS 17.0 min
+- iOS: SwiftUI + TCA 1.x, Apollo iOS 2.0.6, StoreKit 2, AVFoundation, VisionKit, iOS 17.0 min
 - Android: Jetpack Compose + MVVM/Clean Architecture + Hilt, min SDK 26 (planned)
 
 **Known issues:**
@@ -107,6 +115,9 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - 5 GraphQL TODO markers for mock voice profile data
 - JWS verification on backend uses base64url decoding (needs SignedDataVerifier for production)
 - Test ad unit IDs in AdClient (must replace before App Store submission)
+- EXPIRY-02 partial: device token registered locally but not sent to backend for push delivery
+- ScanPaywallView subscribe button placeholder — not wired to MonetizationFeature purchase flow
+- Recipe suggestion carousel card tap does not navigate to recipe detail view
 
 ## Constraints
 
@@ -146,6 +157,16 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 | Base64url JWS for MVP | Skip x5c chain verification — StoreKit does client-side verification | ⚠️ Revisit — production needs SignedDataVerifier |
 | 60/40 personalization/discovery | Culinary DNA re-ranking balances preferences with variety | ✓ Good — prevents filter bubbles |
 | Bilingual (English + Turkish) | String Catalog with 98 entries, informal Turkish tone | ✓ Good — extensible pattern |
+| SwiftData for local-first pantry | Offline-first with sync — GuestSessionClient pattern | ✓ Good — instant local CRUD |
+| Last-write-wins conflict resolution | Simple timestamp comparison for sync conflicts | ✓ Good — sufficient for single-user |
+| Server-side ingredient normalization | IngredientCatalog (185 bilingual entries) as single source of truth | ✓ Good — consistent matching |
+| Base64 → Apollo multipart upload | Switched from base64 to GraphQLFile for camera photos | ✓ Good — avoids 33% overhead |
+| Gemini 2.0 Flash for vision analysis | Cost-effective fridge scanning and receipt parsing | ✓ Good — ~$0.001/scan |
+| Client-side ingredient matching | Minimizes latency, enables offline matching | ✓ Good — instant results |
+| Exclude common staples from match % | Salt, pepper, water, oil etc. excluded to avoid inflated scores | ✓ Good — meaningful percentages |
+| Three-tier expiry estimation | IngredientCatalog → Gemini → conservative defaults | ✓ Good — cost-effective |
+| 8 AM UTC batch notifications | Single daily digest for MVP (per-timezone deferred) | ⚠️ Revisit — needs timezone support |
+| Progressive camera permission | Poll-based pattern (mirrors LocationClient) | ✓ Good — consistent UX |
 
 ---
-*Last updated: 2026-03-11 after v3.0 Smart Pantry milestone started*
+*Last updated: 2026-03-30 after v4.0 App Store Launch Prep milestone started*
