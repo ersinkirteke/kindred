@@ -1,808 +1,613 @@
-# Stack Research — Smart Pantry Features
+# Stack Research: App Store Launch Prep
 
-**Domain:** Smart Pantry (fridge scanning, receipt OCR, expiry tracking, ingredient matching)
-**Researched:** 2026-03-11
+**Domain:** iOS App Store submission readiness
+**Researched:** 2026-03-30
 **Confidence:** HIGH
 
-## Executive Summary
+## Overview
 
-Smart Pantry features build on Kindred's validated stack with minimal new dependencies. The existing iOS architecture (SwiftUI + TCA), backend (NestJS + GraphQL + Prisma + PostgreSQL), and AI infrastructure (Gemini 2.0 Flash, Firebase AI Logic SDK) support all Smart Pantry capabilities. Key additions: iOS VisionKit's DataScannerViewController for live receipt OCR, new Prisma models for pantry data, and GraphQL schema extensions.
+This research focuses on stack additions/changes needed to prepare Kindred iOS app for App Store submission. The app already has a solid foundation with SwiftUI + TCA, AdMob SDK, StoreKit 2, and Firebase Cloud Messaging. The gaps are around production-ready ad consent, receipt verification, and privacy compliance.
 
-**What's already validated (DO NOT add):**
-- iOS: SwiftUI + TCA 1.x, Apollo iOS 2.0.6, AVFoundation, iOS 17.0+
-- Backend: NestJS 11 + GraphQL (Apollo Server 5) + Prisma 7 + PostgreSQL 15
-- AI: Gemini 2.0 Flash via Firebase AI Logic SDK, already integrated for image analysis
-- Storage: Cloudflare R2, SwiftData for local persistence
+## Required Stack Additions
 
----
+### App Tracking Transparency (ATT)
 
-## Recommended Stack Additions
+| Technology | Version | Purpose | Why Required |
+|------------|---------|---------|-------------|
+| AppTrackingTransparency | iOS 17.0+ (built-in) | IDFA consent for personalized ads | Mandatory since iOS 14.5 for apps using AdMob with personalized ads. Apple rejects apps without ATT when using ad identifiers. |
+| Google UMP SDK | 3.0.0+ (already installed) | Pre-ATT consent flow | Already in project (UserMessagingPlatform.xcframework detected). Coordinates with ATT to show consent UI before requesting IDFA. |
 
-### iOS Framework Additions
+**Status:** UMP SDK already integrated. Only ATT framework code and Info.plist key needed.
 
-| Framework | Version | Purpose | Why Recommended |
-|-----------|---------|---------|-----------------|
-| **VisionKit** | Built-in (iOS 17+) | Live receipt scanning with DataScannerViewController | Apple-native live OCR with currency detection (iOS 17+). Replaces need for custom AVFoundation + Vision pipeline. No dependencies, zero cost, on-device processing. |
-| **PhotosUI** | Built-in (iOS 17+) | Photo picker for fridge scanning | Already listed in existing architecture but confirming for pantry camera flows. Replaces UIImagePickerController with native SwiftUI PhotosPicker. |
+### StoreKit Production Receipt Validation
 
-**No new third-party iOS dependencies required.** All camera, OCR, and vision capabilities use Apple frameworks already in the validated stack.
+| Technology | Version | Purpose | Why Required |
+|------------|---------|---------|-------------|
+| @apple/app-store-server-library | 2.4.0+ (Node.js) | JWS transaction verification with x5c chain | Current backend uses base64url decoding (line 74 subscription.service.ts). Production needs full cryptographic signature verification to prevent fraud. |
 
-### Backend Package Additions
+**Status:** Backend has placeholder comment (line 4-5). Must install and integrate before launch.
 
-| Package | Version | Purpose | Why Recommended |
-|---------|---------|---------|-----------------|
-| **class-validator** | ^0.14.x | GraphQL input validation for pantry mutations | Standard NestJS validation library. Works seamlessly with code-first GraphQL @InputType decorators. Already used in similar NestJS projects for DTO validation. |
-| **class-transformer** | ^0.5.x | Transform and validate nested pantry item inputs | Required peer dependency for class-validator. Enables automatic transformation of plain objects to validated class instances. |
+### Firebase Cloud Messaging Production Setup
 
-**Note:** Prisma 7, PostgreSQL 15, and NestJS 11 are already validated. No ORM or database changes needed.
+| Technology | Version | Purpose | Why Required |
+|------------|---------|---------|-------------|
+| Firebase iOS SDK | 11.5.0+ | APNs device token → FCM registration token mapping | Already integrated but device tokens not sent to backend (known gap: EXPIRY-02 partial). |
 
----
+**Status:** SDK already integrated. Need backend API endpoint to receive device tokens.
 
-## New Data Models (Prisma Schema Extensions)
+### App Store Connect Requirements
 
-### PantryItem Model
+No new libraries needed. Configuration-only requirements:
 
-```prisma
-enum PantryCategory {
-  PRODUCE
-  DAIRY
-  PROTEIN
-  GRAINS
-  CONDIMENTS
-  BEVERAGES
-  FROZEN
-  CANNED
-  SPICES
-  OTHER
-}
-
-enum PantryItemSource {
-  MANUAL
-  FRIDGE_SCAN
-  RECEIPT_SCAN
-}
-
-model PantryItem {
-  id           String            @id @default(cuid())
-  userId       String
-  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  name         String            // normalized ingredient name
-  quantity     String?           // "2", "1.5", "500g" (flexible string)
-  unit         String?           // "cups", "lbs", "pieces", etc.
-  category     PantryCategory    @default(OTHER)
-
-  // Expiry tracking
-  addedDate    DateTime          @default(now())
-  expiryDate   DateTime?         // null = no expiry or unknown
-  estimatedExpiryDays Int?       // AI-estimated shelf life from add date
-
-  // Metadata
-  source       PantryItemSource  @default(MANUAL)
-  notes        String?           // user notes
-  imageUrl     String?           // optional photo of item
-
-  // Matching
-  normalizedName String          // lowercase, stripped for matching (e.g., "chicken breast")
-
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-
-  @@index([userId, expiryDate])
-  @@index([userId, normalizedName])
-  @@index([userId, category])
-}
-```
-
-### PantryScanHistory Model (optional, for analytics)
-
-```prisma
-enum ScanType {
-  FRIDGE
-  RECEIPT
-}
-
-model PantryScanHistory {
-  id            String    @id @default(cuid())
-  userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  scanType      ScanType
-  itemsDetected Int       // count of items AI detected
-  itemsAdded    Int       // count user confirmed
-  imageUrl      String?   // R2 URL (optional, for debugging)
-
-  scannedAt     DateTime  @default(now())
-
-  @@index([userId, scannedAt])
-}
-```
-
-### User Model Extension
-
-Add to existing `User` model:
-```prisma
-model User {
-  // ... existing fields ...
-
-  // NEW relations for Smart Pantry
-  pantryItems       PantryItem[]
-  pantryScanHistory PantryScanHistory[]
-}
-```
-
----
-
-## GraphQL Schema Extensions
-
-### Type Definitions (Code-First NestJS)
-
-```typescript
-// PantryItem.entity.ts
-import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
-import { PantryCategory, PantryItemSource } from '@prisma/client';
-
-registerEnumType(PantryCategory, { name: 'PantryCategory' });
-registerEnumType(PantryItemSource, { name: 'PantryItemSource' });
-
-@ObjectType()
-export class PantryItem {
-  @Field(() => ID)
-  id: string;
-
-  @Field()
-  name: string;
-
-  @Field({ nullable: true })
-  quantity?: string;
-
-  @Field({ nullable: true })
-  unit?: string;
-
-  @Field(() => PantryCategory)
-  category: PantryCategory;
-
-  @Field()
-  addedDate: Date;
-
-  @Field({ nullable: true })
-  expiryDate?: Date;
-
-  @Field(() => Int, { nullable: true })
-  estimatedExpiryDays?: number;
-
-  @Field(() => PantryItemSource)
-  source: PantryItemSource;
-
-  @Field({ nullable: true })
-  notes?: string;
-
-  @Field({ nullable: true })
-  imageUrl?: string;
-}
-```
-
-### Input Types with Validation
-
-```typescript
-// CreatePantryItemInput.dto.ts
-import { InputType, Field } from '@nestjs/graphql';
-import { IsNotEmpty, IsOptional, IsEnum, IsDateString, MinLength } from 'class-validator';
-import { PantryCategory, PantryItemSource } from '@prisma/client';
-
-@InputType()
-export class CreatePantryItemInput {
-  @Field()
-  @IsNotEmpty()
-  @MinLength(2)
-  name: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  quantity?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  unit?: string;
-
-  @Field(() => PantryCategory)
-  @IsEnum(PantryCategory)
-  category: PantryCategory;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsDateString()
-  expiryDate?: string;
-
-  @Field(() => PantryItemSource)
-  @IsEnum(PantryItemSource)
-  source: PantryItemSource;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  notes?: string;
-}
-```
-
-### Mutations & Queries
-
-```typescript
-// pantry.resolver.ts
-@Resolver(() => PantryItem)
-export class PantryResolver {
-  @Query(() => [PantryItem])
-  @UseGuards(ClerkAuthGuard)
-  async pantryItems(@CurrentUser() user: User): Promise<PantryItem[]> {
-    return this.pantryService.findAllByUser(user.id);
-  }
-
-  @Query(() => [PantryItem])
-  @UseGuards(ClerkAuthGuard)
-  async expiringItems(
-    @CurrentUser() user: User,
-    @Args('withinDays', { type: () => Int, defaultValue: 7 }) withinDays: number,
-  ): Promise<PantryItem[]> {
-    return this.pantryService.findExpiringItems(user.id, withinDays);
-  }
-
-  @Mutation(() => PantryItem)
-  @UseGuards(ClerkAuthGuard)
-  async addPantryItem(
-    @CurrentUser() user: User,
-    @Args('input') input: CreatePantryItemInput,
-  ): Promise<PantryItem> {
-    return this.pantryService.create(user.id, input);
-  }
-
-  @Mutation(() => [PantryItem])
-  @UseGuards(ClerkAuthGuard)
-  async addPantryItemsBulk(
-    @CurrentUser() user: User,
-    @Args({ name: 'items', type: () => [CreatePantryItemInput] }) items: CreatePantryItemInput[],
-  ): Promise<PantryItem[]> {
-    return this.pantryService.createBulk(user.id, items);
-  }
-
-  @Mutation(() => Boolean)
-  @UseGuards(ClerkAuthGuard)
-  async deletePantryItem(
-    @CurrentUser() user: User,
-    @Args('id', { type: () => ID }) id: string,
-  ): Promise<boolean> {
-    return this.pantryService.delete(user.id, id);
-  }
-}
-```
-
----
-
-## iOS Swift Package Structure
-
-### New Package: PantryFeature
-
-```swift
-// Packages/PantryFeature/Package.swift
-let package = Package(
-    name: "PantryFeature",
-    platforms: [.iOS(.v17)],
-    products: [
-        .library(name: "PantryFeature", targets: ["PantryFeature"]),
-    ],
-    dependencies: [
-        .package(name: "ComposableArchitecture", ...),
-        .package(name: "KindredAPI", ...),  // Apollo iOS GraphQL
-        .package(name: "DesignSystem", ...),
-    ],
-    targets: [
-        .target(
-            name: "PantryFeature",
-            dependencies: [
-                .product(name: "ComposableArchitecture", package: "ComposableArchitecture"),
-                "KindredAPI",
-                "DesignSystem",
-            ]
-        ),
-    ]
-)
-```
-
-### Camera Integration (already exists, extend for pantry)
-
-Extend existing `CameraFeature` or create `PantryScanFeature`:
-
-```swift
-// TCA Reducer for pantry scanning
-@Reducer
-struct PantryScanReducer {
-    @ObservableState
-    struct State {
-        var scanMode: ScanMode = .fridge
-        var capturedImage: UIImage?
-        var isAnalyzing = false
-        var detectedItems: [DetectedPantryItem] = []
-        var errorMessage: String?
-
-        enum ScanMode {
-            case fridge
-            case receipt
-        }
-    }
-
-    enum Action {
-        case capturePhoto(UIImage)
-        case analyzeImage
-        case imageAnalyzed(Result<[DetectedPantryItem], Error>)
-        case confirmItems([DetectedPantryItem])
-        case itemsConfirmed
-    }
-
-    @Dependency(\.geminiClient) var geminiClient
-    @Dependency(\.pantryClient) var pantryClient
-
-    var body: some ReducerOf<Self> {
-        Reduce { state, action in
-            // Implementation using Gemini for image analysis
-        }
-    }
-}
-```
-
----
-
-## AI Integration Patterns
-
-### Gemini Prompts for Pantry Features
-
-#### Fridge Scanning Prompt
-
-```typescript
-// backend/src/gemini/prompts/fridge-scan.prompt.ts
-export const FRIDGE_SCAN_PROMPT = `
-Analyze this photo of a refrigerator's contents.
-
-Return a JSON array of visible food items with the following structure:
-[
-  {
-    "name": "chicken breast",
-    "estimatedQuantity": "2 pieces",
-    "category": "PROTEIN",
-    "freshnessDays": 3,
-    "confidence": 0.95
-  }
-]
-
-Rules:
-- Only list clearly visible items
-- Normalize names (e.g., "boneless chicken breast" → "chicken breast")
-- Categories: PRODUCE, DAIRY, PROTEIN, GRAINS, CONDIMENTS, BEVERAGES, FROZEN, CANNED, SPICES, OTHER
-- freshnessDays: estimated days until spoilage from TODAY
-- confidence: 0.0-1.0 (only include if > 0.7)
-- Quantity: use common units (pieces, lbs, oz, cups)
-
-Return ONLY the JSON array, no explanation.
-`;
-```
-
-#### Receipt OCR Prompt
-
-```typescript
-// backend/src/gemini/prompts/receipt-scan.prompt.ts
-export const RECEIPT_SCAN_PROMPT = `
-Analyze this supermarket receipt photo.
-
-Extract purchased food items as a JSON array:
-[
-  {
-    "name": "milk",
-    "quantity": "1 gallon",
-    "category": "DAIRY",
-    "price": 4.99,
-    "estimatedExpiryDays": 10
-  }
-]
-
-Rules:
-- Only extract food items (skip toiletries, household goods)
-- Normalize product names to generic ingredients
-- Use common units (gallon, lbs, oz, count)
-- Categories: PRODUCE, DAIRY, PROTEIN, GRAINS, CONDIMENTS, BEVERAGES, FROZEN, CANNED, SPICES, OTHER
-- estimatedExpiryDays: shelf life estimate from purchase date
-- Include price if visible
-
-Return ONLY the JSON array, no explanation.
-`;
-```
-
-### iOS Gemini Client Extension
-
-```swift
-// Extend existing GeminiClient dependency
-extension GeminiClient {
-    func analyzeFridgePhoto(_ image: UIImage) async throws -> [DetectedPantryItem] {
-        let compressed = try image.compressForAPI() // max 1024x1024, 80% JPEG
-        let base64 = compressed.base64EncodedString()
-
-        let response = try await generateContent(
-            model: "gemini-2.0-flash",
-            prompt: FridgeScanPrompt.text,
-            imageData: base64
-        )
-
-        return try JSONDecoder().decode([DetectedPantryItem].self, from: response)
-    }
-
-    func analyzeReceiptPhoto(_ image: UIImage) async throws -> [DetectedPantryItem] {
-        let compressed = try image.compressForAPI()
-        let base64 = compressed.base64EncodedString()
-
-        let response = try await generateContent(
-            model: "gemini-2.0-flash",
-            prompt: ReceiptScanPrompt.text,
-            imageData: base64
-        )
-
-        return try JSONDecoder().decode([DetectedPantryItem].self, from: response)
-    }
-}
-```
-
----
-
-## iOS VisionKit Integration (Alternative for Receipt OCR)
-
-### DataScannerViewController for Live Receipt Scanning
-
-```swift
-import VisionKit
-
-// Use DataScannerViewController for live receipt text extraction (iOS 17+)
-struct ReceiptScannerView: UIViewControllerRepresentable {
-    @Binding var recognizedItems: [RecognizedItem]
-
-    func makeUIViewController(context: Context) -> DataScannerViewController {
-        let scanner = DataScannerViewController(
-            recognizedDataTypes: [
-                .text(languages: ["en", "tr"]),
-                .text(textContentType: .currency) // iOS 17 feature
-            ],
-            qualityLevel: .accurate,
-            recognizesMultipleItems: true,
-            isHighFrameRateTrackingEnabled: false
-        )
-        scanner.delegate = context.coordinator
-        return scanner
-    }
-
-    func updateUIViewController(_ uiViewController: DataScannerViewController, context: Context) {
-        try? uiViewController.startScanning()
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(recognizedItems: $recognizedItems)
-    }
-
-    class Coordinator: NSObject, DataScannerViewControllerDelegate {
-        @Binding var recognizedItems: [RecognizedItem]
-
-        init(recognizedItems: Binding<[RecognizedItem]>) {
-            _recognizedItems = recognizedItems
-        }
-
-        func dataScanner(_ dataScanner: DataScannerViewController, didAdd addedItems: [RecognizedItem], allItems: [RecognizedItem]) {
-            recognizedItems = allItems
-        }
-    }
-}
-```
-
-**When to use VisionKit vs Gemini:**
-- **VisionKit (DataScannerViewController)**: Live receipt scanning with on-device OCR. Instant feedback, zero API cost, works offline. Best for **text extraction only**.
-- **Gemini 2.0 Flash**: Image → structured pantry items with categories, quantities, and expiry estimates. Best for **fridge scanning** and **intelligent receipt parsing** (not just OCR but semantic understanding).
-
-**Recommendation:** Use **VisionKit for live preview feedback** during receipt capture, then send image to **Gemini for final parsing and categorization**.
-
----
-
-## Ingredient Matching Algorithm
-
-### Recipe Card Enhancement: Match Percentage
-
-```swift
-// Calculate ingredient match between pantry and recipe
-struct IngredientMatcher {
-    static func calculateMatch(
-        pantryItems: [PantryItem],
-        recipeIngredients: [Ingredient]
-    ) -> MatchResult {
-        let pantryNames = Set(pantryItems.map { $0.normalizedName.lowercased() })
-
-        var matchedCount = 0
-        var partialMatches: [String] = []
-
-        for ingredient in recipeIngredients {
-            let normalized = ingredient.name.lowercased()
-
-            // Exact match
-            if pantryNames.contains(normalized) {
-                matchedCount += 1
-            }
-            // Partial match (e.g., "chicken" matches "chicken breast")
-            else if pantryNames.contains(where: { $0.contains(normalized) || normalized.contains($0) }) {
-                partialMatches.append(ingredient.name)
-                matchedCount += 1
-            }
-        }
-
-        let percentage = Int((Double(matchedCount) / Double(recipeIngredients.count)) * 100)
-
-        return MatchResult(
-            percentage: percentage,
-            matchedCount: matchedCount,
-            totalCount: recipeIngredients.count,
-            partialMatches: partialMatches
-        )
-    }
-}
-
-struct MatchResult {
-    let percentage: Int
-    let matchedCount: Int
-    let totalCount: Int
-    let partialMatches: [String]
-
-    var displayText: String {
-        "\(percentage)% match • \(matchedCount)/\(totalCount) ingredients"
-    }
-}
-```
-
-### Recipe Feed Query Extension
-
-```graphql
-# Add pantry match to feed query
-query FeedRecipes($latitude: Float!, $longitude: Float!, $pantryItemIds: [ID!]) {
-  feedRecipes(latitude: $latitude, longitude: $longitude) {
-    id
-    name
-    ingredients {
-      id
-      name
-    }
-    pantryMatch(pantryItemIds: $pantryItemIds) {
-      percentage
-      matchedCount
-      totalCount
-      missingIngredients
-    }
-  }
-}
-```
-
-Backend resolver:
-```typescript
-@ResolveField(() => PantryMatch)
-async pantryMatch(
-  @Parent() recipe: Recipe,
-  @Args({ name: 'pantryItemIds', type: () => [ID], nullable: true }) pantryItemIds?: string[],
-): Promise<PantryMatch> {
-  if (!pantryItemIds || pantryItemIds.length === 0) {
-    return { percentage: 0, matchedCount: 0, totalCount: recipe.ingredients.length };
-  }
-
-  return this.pantryService.calculateRecipeMatch(recipe.id, pantryItemIds);
-}
-```
-
----
-
-## Expiry Estimation AI Logic
-
-### Default Expiry Estimates by Category
-
-```typescript
-// backend/src/pantry/expiry-estimator.service.ts
-export class ExpiryEstimatorService {
-  private readonly DEFAULT_EXPIRY_DAYS: Record<PantryCategory, number> = {
-    PRODUCE: 5,
-    DAIRY: 10,
-    PROTEIN: 3,
-    GRAINS: 365,
-    CONDIMENTS: 180,
-    BEVERAGES: 30,
-    FROZEN: 90,
-    CANNED: 365,
-    SPICES: 730,
-    OTHER: 30,
-  };
-
-  estimateExpiryDays(
-    name: string,
-    category: PantryCategory,
-    context?: 'fridge' | 'freezer' | 'pantry',
-  ): number {
-    // Use Gemini for intelligent estimates
-    // Fallback to category defaults
-    const baseEstimate = this.DEFAULT_EXPIRY_DAYS[category];
-
-    // Adjust based on storage context
-    if (context === 'freezer') {
-      return baseEstimate * 3; // freeze extends life
-    }
-
-    return baseEstimate;
-  }
-
-  async estimateWithAI(name: string, category: PantryCategory): Promise<number> {
-    const prompt = `Estimate shelf life in days for "${name}" (${category}).
-    Consider typical refrigerator storage. Return only a number.`;
-
-    const response = await this.geminiService.generateText(prompt);
-    const days = parseInt(response.trim());
-
-    return isNaN(days) ? this.DEFAULT_EXPIRY_DAYS[category] : days;
-  }
-}
-```
-
----
+| Requirement | Type | Why Required |
+|-------------|------|-------------|
+| Privacy Nutrition Labels | App Store Connect metadata | Mandatory since iOS 14. Disclose data collection by app and third-party SDKs (AdMob, ElevenLabs, Gemini, Firebase). |
+| NSUserTrackingUsageDescription | Info.plist key (NEW) | Required for ATT prompt. Clear explanation why app tracks users. |
+| Third-Party AI Disclosure | App Store metadata | Apple Guideline 5.1.2(i) effective Nov 2025. Must name AI providers (ElevenLabs, Google Gemini) and get explicit consent for voice cloning. |
+| Voice Cloning Consent Framework | In-app consent flow | Federal AI Voice Act (enforced 2026) + state laws (Tennessee ELVIS Act, California AB 1836). Written consent required before cloning voices. |
 
 ## Installation
 
-### Backend (NestJS)
-
-```bash
-cd backend
-
-# New validation dependencies
-npm install class-validator@^0.14.1 class-transformer@^0.5.1
-
-# Run Prisma migration for new models
-npx prisma migrate dev --name add_pantry_models
-
-# Generate Prisma Client
-npx prisma generate
-```
-
 ### iOS (Swift Package Manager)
 
-No new external dependencies. VisionKit and PhotosUI are built-in frameworks.
+```swift
+// AppTrackingTransparency - Built-in framework, no installation needed
+// Just add import statement:
+import AppTrackingTransparency
+```
+
+### Backend (npm)
+
+```bash
+# Production receipt verification
+npm install @apple/app-store-server-library@^2.4.0
+
+# Types for TypeScript (if available)
+npm install -D @types/apple__app-store-server-library
+```
+
+## Implementation Patterns
+
+### 1. ATT + UMP Consent Flow
+
+**When to request:**
+- After app launch, before showing any ads
+- Before AdMob SDK initialization
+- On every cold launch (UMP SDK checks if consent needed)
+
+**Swift implementation:**
 
 ```swift
-// In project.yml or Xcode, ensure frameworks are linked:
-frameworks:
-  - VisionKit
-  - PhotosUI
-  - AVFoundation  // (already present)
+import AppTrackingTransparency
+import AdSupport
+import UserMessagingPlatform
+
+// In AppDelegate or App scene
+func requestTrackingConsent() async {
+    // 1. UMP pre-consent (GDPR/CCPA if applicable)
+    let parameters = UMPRequestParameters()
+    parameters.tagForUnderAgeOfConsent = false
+
+    do {
+        let formStatus = try await UMPConsentInformation.sharedInstance
+            .requestConsentInfoUpdate(with: parameters)
+
+        if formStatus == .required {
+            // Show UMP consent form
+            try await UMPConsentForm.load()
+                .present(from: rootViewController)
+        }
+
+        // 2. ATT prompt (IDFA consent)
+        let status = await ATTrackingManager.requestTrackingAuthorization()
+
+        switch status {
+        case .authorized:
+            // User granted IDFA access
+            let idfa = ASIdentifierManager.shared().advertisingIdentifier
+            // AdMob will send IDFA in ad requests
+        case .denied, .restricted:
+            // AdMob will not send IDFA (still serves ads)
+        case .notDetermined:
+            // Should not happen after request
+        @unknown default:
+            break
+        }
+
+        // 3. Initialize AdMob AFTER consent
+        await AdClient.liveValue.initializeSDK()
+
+    } catch {
+        // Handle consent errors
+    }
+}
 ```
 
-Update `Info.plist`:
+**Info.plist requirement:**
+
 ```xml
-<key>NSCameraUsageDescription</key>
-<string>Kindred needs camera access to scan your fridge and receipts for smart pantry management.</string>
-
-<key>NSPhotoLibraryUsageDescription</key>
-<string>Kindred needs photo access to analyze fridge images for ingredient detection.</string>
+<key>NSUserTrackingUsageDescription</key>
+<string>Kindred shows personalized recipe ads based on your cooking interests to support free features like voice narration and smart pantry.</string>
 ```
 
----
+**Critical:** ATT prompt appears only once per app installation. Subsequent calls return cached status.
+
+### 2. Production JWS Verification (Backend)
+
+**Current state:** Lines 70-79 of `subscription.service.ts` use base64url decode without signature verification.
+
+**Production pattern:**
+
+```typescript
+import {
+  AppStoreServerAPIClient,
+  Environment,
+  SignedDataVerifier
+} from '@apple/app-store-server-library';
+
+export class SubscriptionService {
+  private verifier: SignedDataVerifier;
+
+  constructor(private configService: ConfigService) {
+    const rootCerts = [
+      // Apple Root CA G3 (download from Apple PKI)
+      fs.readFileSync('./certs/AppleRootCA-G3.cer')
+    ];
+
+    const bundleId = 'com.ersinkirteke.kindred';
+    const appAppleId = this.configService.get('APPLE_APP_ID'); // From App Store Connect
+    const environment = this.configService.get('NODE_ENV') === 'production'
+      ? Environment.PRODUCTION
+      : Environment.SANDBOX;
+
+    this.verifier = new SignedDataVerifier(
+      rootCerts,
+      true, // enableOnlineChecks
+      environment,
+      bundleId,
+      appAppleId
+    );
+  }
+
+  async verifyAndSyncSubscription(userId: string, jwsRepresentation: string): Promise<boolean> {
+    try {
+      // Verify signature + decode payload in one step
+      const verifiedTransaction = await this.verifier.verifyAndDecodeTransaction(
+        jwsRepresentation
+      );
+
+      const productId = verifiedTransaction.productId;
+      const expiresDate = verifiedTransaction.expiresDate; // milliseconds since epoch
+      const transactionId = verifiedTransaction.transactionId;
+      const originalTransactionId = verifiedTransaction.originalTransactionId;
+
+      const isValid = productId === 'com.kindred.pro.monthly'
+        && expiresDate > Date.now();
+
+      await this.prisma.subscription.upsert({
+        where: { userId },
+        create: {
+          userId,
+          productId,
+          transactionId,
+          originalTransactionId,
+          expiresDate: new Date(expiresDate),
+          isActive: isValid,
+          jwsPayload: jwsRepresentation,
+        },
+        update: {
+          transactionId,
+          expiresDate: new Date(expiresDate),
+          isActive: isValid,
+          jwsPayload: jwsRepresentation,
+          updatedAt: new Date(),
+        },
+      });
+
+      return isValid;
+
+    } catch (error) {
+      this.logger.error(`JWS verification failed: ${error.message}`);
+      // VerificationException, SignatureException thrown by library
+      return false;
+    }
+  }
+}
+```
+
+**Required configuration:**
+
+```env
+# .env
+APPLE_APP_ID=<your-app-id-from-app-store-connect>
+APPLE_TEAM_ID=CV9G42QVG4
+```
+
+**Apple Root CA G3 certificate:** Download from [Apple PKI](https://www.apple.com/certificateauthority/). Store in `backend/certs/AppleRootCA-G3.cer`.
+
+### 3. Firebase Device Token Registration
+
+**iOS implementation (AppDelegate):**
+
+```swift
+import FirebaseMessaging
+import UIKit
+
+extension AppDelegate: MessagingDelegate {
+    func messaging(
+        _ messaging: Messaging,
+        didReceiveRegistrationToken fcmToken: String?
+    ) {
+        guard let token = fcmToken else { return }
+
+        // Send to backend GraphQL mutation
+        Task {
+            await registerDeviceToken(token: token)
+        }
+    }
+
+    func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        // Map APNs token to FCM token
+        Messaging.messaging().apnsToken = deviceToken
+    }
+}
+```
+
+**Backend GraphQL mutation (new):**
+
+```graphql
+mutation RegisterDeviceToken($token: String!) {
+  registerDeviceToken(token: $token) {
+    success
+  }
+}
+```
+
+**Backend resolver:**
+
+```typescript
+@Mutation(() => RegisterDeviceTokenResponse)
+async registerDeviceToken(
+  @CurrentUser() user: JwtPayload,
+  @Args('token') token: string,
+): Promise<RegisterDeviceTokenResponse> {
+  await this.prisma.user.update({
+    where: { id: user.sub },
+    data: { fcmToken: token },
+  });
+  return { success: true };
+}
+```
+
+**Prisma schema addition:**
+
+```prisma
+model User {
+  id        String   @id @default(cuid())
+  // ... existing fields
+  fcmToken  String?  // FCM registration token
+}
+```
+
+### 4. Voice Cloning Consent Framework
+
+**Legal requirements (2026):**
+- Federal AI Voice Act: Written consent + right to revoke
+- State laws (TN, CA, NY): Explicit permission before cloning
+- Apple Guideline 5.1.2(i): Name AI provider (ElevenLabs) + explicit consent
+
+**Implementation pattern:**
+
+```swift
+// Before voice upload flow
+struct VoiceConsentView: View {
+    @Binding var hasConsented: Bool
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Text("Voice Cloning Consent")
+                .font(.title2.bold())
+
+            Text("""
+            Kindred uses ElevenLabs AI to clone voices for recipe narration.
+
+            By proceeding, you consent to:
+            • Recording and uploading a voice sample
+            • Processing your voice data with ElevenLabs AI
+            • Generating synthetic narrations from your voice
+
+            You may delete your voice profile at any time.
+            """)
+            .font(.body)
+
+            Button("I Consent") {
+                hasConsented = true
+                recordConsent()
+            }
+            .buttonStyle(.borderedProminent)
+
+            Button("Learn More") {
+                // Show full legal disclosure
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding()
+    }
+
+    func recordConsent() {
+        // Store consent timestamp in backend
+        // Include: userId, timestamp, IP address, app version
+    }
+}
+```
+
+**Backend consent record:**
+
+```prisma
+model VoiceConsentRecord {
+  id           String   @id @default(cuid())
+  userId       String
+  consentedAt  DateTime @default(now())
+  ipAddress    String
+  appVersion   String
+  revokedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+}
+```
+
+## Production Configuration Checklist
+
+### Info.plist Updates
+
+```xml
+<!-- NEW: Required for ATT -->
+<key>NSUserTrackingUsageDescription</key>
+<string>Kindred shows personalized recipe ads based on your cooking interests to support free features like voice narration and smart pantry.</string>
+
+<!-- EXISTING: Keep current camera/location descriptions -->
+<key>NSCameraUsageDescription</key>
+<string>Kindred uses your camera to scan ingredients from fridge photos and receipts.</string>
+
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Kindred uses your location to show trending recipes near you.</string>
+
+<!-- UPDATE: Replace test AdMob ID with production -->
+<key>GADApplicationIdentifier</key>
+<string>ca-app-pub-3940256099942544~1458002511</string>
+<!-- ⬆️ This is TEST ID - must replace before submission -->
+```
+
+### AdMob Production Unit IDs
+
+**Current (Test IDs):**
+```
+App ID: ca-app-pub-3940256099942544~1458002511 (TEST)
+Banner: ca-app-pub-3940256099942544/2435281174 (TEST)
+Native: ca-app-pub-3940256099942544/3986624511 (TEST)
+```
+
+**Production setup:**
+1. Create AdMob account at https://admob.google.com
+2. Add Kindred iOS app
+3. Create ad units: Native (feed cards), Banner (bottom)
+4. Replace test IDs in:
+   - `Kindred/Sources/Info.plist` (GADApplicationIdentifier)
+   - `MonetizationFeature/Sources/Ads/AdClient.swift` (unit IDs)
+   - AdMob dashboard: Link to App Store once live
+
+**Revenue per user estimate (Free tier):**
+- 60% of users on free tier (Pro @ $9.99/mo)
+- ~$0.50-2.00 CPM for native ads
+- ~$0.10-0.50 CPM for banner ads
+- Expected: $0.05-0.15 per daily active user
+
+### App Store Connect Privacy Labels
+
+**Data Collection Disclosure:**
+
+| Category | Data Type | Linked to User | Used for Tracking | Purpose |
+|----------|-----------|----------------|-------------------|---------|
+| Location | Coarse Location (city) | Yes | No | Show trending local recipes |
+| User Content | Photos (fridge, receipts) | Yes | No | Ingredient scanning (Pro) |
+| User Content | Audio (voice clips) | Yes | No | Voice cloning for narration |
+| Identifiers | User ID (Clerk JWT) | Yes | No | Account management |
+| Usage Data | Product interactions | No | Yes | Personalized ads (AdMob) |
+| Diagnostics | Crash logs | No | No | App stability |
+
+**Third-Party SDK Disclosure (Apple Guideline 5.1.2(i)):**
+
+Must disclose in app description or consent flow:
+- **ElevenLabs:** Voice cloning and TTS generation
+- **Google Gemini:** AI recipe parsing, narration rewriting, fridge scanning
+- **Google AdMob:** Personalized advertising
+- **Firebase:** Push notifications and analytics
+
+### Voice Cloning Legal Disclosure
+
+**In App Store metadata (App Privacy section):**
+
+> Kindred uses ElevenLabs AI to clone voices for recipe narration. Users provide explicit consent before voice cloning. Voice profiles can be deleted at any time. See Privacy Policy for details.
+
+**Consent collection requirements:**
+- [ ] Show consent screen before first voice upload
+- [ ] Store consent timestamp + IP + app version in database
+- [ ] Provide "Delete Voice Profile" option in Settings
+- [ ] Log deletion events for compliance audit trail
+
+**Budget for legal review:** $20-50K for AI/media counsel to draft:
+- Terms of Service (voice cloning addendum)
+- Privacy Policy (AI data processing)
+- Consent flow copy (legal review)
+- Multi-state compliance (TN, CA, NY laws)
 
 ## Alternatives Considered
 
-| Recommended | Alternative | When to Use Alternative |
-|-------------|-------------|-------------------------|
-| VisionKit DataScannerViewController | Custom AVFoundation + Vision | If targeting iOS 16 (but we're on iOS 17+) |
-| Gemini 2.0 Flash for image analysis | OpenAI GPT-4 Vision | If switching away from Google AI ecosystem |
-| On-device expiry estimation | External food database API | If extremely high accuracy needed (adds cost + latency) |
-| Prisma + PostgreSQL | MongoDB for pantry items | If pantry data doesn't need relations (but it does — user, recipes) |
+### 1. StoreKit 2 Client-Side Verification Only
 
----
+**Rejected because:**
+- Apple recommends server-side verification for production
+- Client verification can be bypassed with jailbreak/proxies
+- SignedDataVerifier provides cryptographic proof of authenticity
+
+**Use client verification for:** Immediate feature unlock (optimistic UI), then verify on server.
+
+### 2. RevenueCat for Receipt Management
+
+| Feature | @apple/app-store-server-library | RevenueCat |
+|---------|--------------------------------|------------|
+| Cost | Free (DIY) | $0-10K+/year based on MRR |
+| Control | Full backend control | Managed service |
+| Integration | Direct Apple API | SDK + webhook |
+| Complexity | Higher (manual JWS parsing) | Lower (turnkey) |
+
+**Recommendation:** Use Apple library for v4.0 launch. Consider RevenueCat if subscription management becomes complex (grace period, refunds, upgrades).
+
+### 3. Custom ATT Consent vs UMP SDK
+
+**Custom ATT only:**
+- Pros: Simpler, no Google dependency
+- Cons: No GDPR/CCPA support, manual consent UI
+
+**UMP SDK (recommended):**
+- Pros: Handles GDPR/CCPA + ATT in one flow, required for AdMob
+- Cons: Larger SDK size (~2MB)
+
+**Verdict:** UMP SDK already integrated and required for AdMob compliance. Use it.
 
 ## What NOT to Use
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| **Third-party OCR SDKs** (Tesseract, ML Kit OCR) | VisionKit provides superior live OCR with currency detection in iOS 17. No dependencies, free, on-device. | VisionKit DataScannerViewController |
-| **Separate food recognition APIs** (Clarifai, Calorie Mama) | Gemini 2.0 Flash already integrated, handles multimodal well, and costs ~$0.001/image vs $0.02+/image for specialized APIs. | Gemini 2.0 Flash via Firebase AI Logic SDK |
-| **UIImagePickerController** for camera | Deprecated in favor of PHPickerViewController and custom AVFoundation. Poor accessibility. | PHPickerViewController for gallery, AVCaptureSession for custom camera UI |
-| **Custom expiry date databases** | Maintenance burden, licensing costs. AI estimation + category defaults cover 90% of use cases. | Gemini AI estimation + fallback category defaults |
-| **Apollo iOS 1.x** | Apollo iOS 2.0+ (already validated) uses modern Swift concurrency, improved cache. | Apollo iOS 2.0.6+ (already in stack) |
-
----
-
-## Version Compatibility
-
-| Package A | Compatible With | Notes |
-|-----------|-----------------|-------|
-| class-validator@^0.14.x | NestJS 11, class-transformer@^0.5.x | Peer dependency required |
-| VisionKit (iOS 17+) | iOS 17.0+ only | DataScannerViewController unavailable on iOS 16 |
-| Apollo iOS 2.0.6 | iOS 17+, Swift 6 concurrency | Already validated in existing stack |
-| Gemini 2.0 Flash | Firebase AI Logic SDK 11.x | Use firebase-ios-sdk, NOT deprecated generative-ai-swift |
-| Prisma 7.x | PostgreSQL 15+ | Already validated, supports array fields for tags |
-
----
+| Old /verifyReceipt endpoint | Deprecated by Apple, StoreKit 1 only | @apple/app-store-server-library (StoreKit 2 native) |
+| Base64url JWS decode without signature check | Security risk: fraud, subscription bypasses | SignedDataVerifier with x5c chain validation |
+| Requesting ATT before app value shown | Apple rejects apps that request ATT at launch | Request after user sees core features (recipe feed) |
+| Bundling voice consent with other permissions | Apple Guideline 5.1.2(i) violation | Separate consent screen for AI data sharing |
+| Test AdMob unit IDs in production | Violates AdMob ToS, account suspension risk | Production unit IDs from AdMob dashboard |
 
 ## Integration with Existing Stack
 
-### Reuse Existing Components
+### iOS Dependencies (SPM)
 
-| Existing Component | How Pantry Uses It |
-|--------------------|---------------------|
-| **GeminiClient** (already exists) | Extend with `analyzeFridgePhoto()` and `analyzeReceiptPhoto()` methods |
-| **CameraFeature** (already exists) | Reuse AVCaptureSession setup, add pantry-specific capture flows |
-| **Apollo iOS GraphQL** (already exists) | Add pantry queries/mutations to schema, auto-generate Swift types |
-| **SwiftData** (already exists) | Cache pantry items locally for offline access |
-| **TCA @Dependency system** (already exists) | Register PantryClient for testability |
-| **DesignSystem** (already exists) | Reuse KNCard, KNButton, KNBadge for pantry UI |
-| **UNUserNotificationCenter** (already exists) | Schedule expiry alerts (already used for other notifications) |
+**Already integrated:**
+- GoogleMobileAds 12.14.0+ (via SPM)
+- UserMessagingPlatform 3.0.0+ (via SPM)
+- Firebase iOS SDK (messaging, analytics)
+- StoreKit 2 (built-in framework)
 
-### New Components to Build
+**New framework imports needed:**
+```swift
+import AppTrackingTransparency // Built-in, iOS 14.0+
+import AdSupport // Built-in, for IDFA
+```
 
-| New Component | Purpose |
-|---------------|---------|
-| **PantryFeature** (iOS SPM) | TCA reducer, views, and client for pantry management |
-| **PantryScanFeature** (iOS SPM) | Camera capture + Gemini analysis for fridge/receipt scanning |
-| **PantryModule** (NestJS) | GraphQL resolvers, Prisma service, expiry estimator |
-| **IngredientMatcher** (shared logic) | Calculate recipe-pantry match percentage (iOS + backend) |
+### Backend Dependencies (npm)
 
----
+**Already integrated:**
+- NestJS 11
+- Prisma 7
+- Firebase Admin SDK (for FCM server-side push)
 
-## Cost Implications
+**New package needed:**
+```json
+{
+  "dependencies": {
+    "@apple/app-store-server-library": "^2.4.0"
+  }
+}
+```
 
-| Feature | Cost per Use | Monthly Estimate (10K users) |
-|---------|--------------|------------------------------|
-| Fridge scan (Gemini 2.0 Flash) | ~$0.001/image | $300 (3 scans/user/month) |
-| Receipt scan (Gemini 2.0 Flash) | ~$0.001/image | $200 (2 scans/user/month) |
-| VisionKit OCR | $0 (on-device) | $0 |
-| Expiry AI estimation (Gemini text) | ~$0.0001/item | $30 (3 items/scan × 3 scans × 10K) |
-| Pantry data storage (PostgreSQL) | Negligible | ~50KB/user = 500MB total |
-| **Total monthly cost** | | **~$530 at 10K users** |
+### Database Schema Changes
 
-**Conclusion:** Smart Pantry features add minimal cost. Primary expense is Gemini image analysis (~$500/month at 10K users), which is 4x cheaper than voice narration costs.
+**Add to Prisma schema:**
 
----
+```prisma
+model User {
+  // Existing fields...
+  fcmToken  String?  // Firebase Cloud Messaging registration token
+}
+
+model VoiceConsentRecord {
+  id           String   @id @default(cuid())
+  userId       String
+  consentedAt  DateTime @default(now())
+  ipAddress    String
+  appVersion   String
+  revokedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+```
+
+**Migration:**
+```bash
+npx prisma migrate dev --name add_fcm_token_and_voice_consent
+```
+
+## Version Compatibility
+
+| iOS Package | Backend Package | Compatibility Notes |
+|-------------|-----------------|---------------------|
+| iOS 17.0+ deployment target | @apple/app-store-server-library 2.4.0+ | Library supports both Sandbox and Production environments |
+| GoogleMobileAds 12.14.0+ | N/A | Requires iOS 15.0+ minimum, works with iOS 17+ |
+| UserMessagingPlatform 3.0.0+ | N/A | Must match GoogleMobileAds major version |
+| StoreKit 2 (built-in) | @apple/app-store-server-library 2.4.0+ | Backend library handles JWS format from iOS 15+ |
+| Firebase iOS SDK 11.5.0+ | firebase-admin 13.0.0+ | Server SDK must support FCM HTTP v1 API |
+
+**Critical compatibility:** iOS 17.0 deployment target already set. No changes needed.
+
+## Timeline Estimate
+
+| Task | Complexity | Time Estimate |
+|------|-----------|---------------|
+| ATT + UMP consent flow integration | Low (SDK ready) | 2-4 hours |
+| Replace test AdMob IDs with production | Low (config only) | 1 hour |
+| Backend JWS SignedDataVerifier | Medium (new library) | 4-6 hours |
+| Firebase device token registration | Low (API endpoint) | 2-3 hours |
+| Voice cloning consent screen | Medium (legal copy + UI) | 3-4 hours |
+| App Store Connect privacy labels | Low (metadata entry) | 2 hours |
+| Legal review (external counsel) | High (compliance) | 2-4 weeks |
+
+**Total development time:** 14-20 hours
+**Total calendar time:** 3-5 weeks (includes legal review)
 
 ## Sources
 
-### Apple Official Documentation
-- [VisionKit DataScannerViewController](https://developer.apple.com/documentation/visionkit/datascannerviewcontroller) — Live OCR with currency detection (iOS 17+)
-- [VNRecognizeTextRequest](https://developer.apple.com/documentation/vision/vnrecognizetextrequest) — On-device text recognition API
-- [WWDC22: Capture machine-readable codes and text with VisionKit](https://developer.apple.com/videos/play/wwdc2022/10025/) — DataScannerViewController introduction
-- [WWDC23: What's new in VisionKit](https://developer.apple.com/videos/play/wwdc2023/10048/) — iOS 17 enhancements (currency, optical flow)
+**App Tracking Transparency:**
+- [App Tracking Transparency | Apple Developer Documentation](https://developer.apple.com/documentation/apptrackingtransparency) — Framework reference
+- [How to implement App Tracking Transparency in Swift? | Prograils](https://prograils.com/app-tracking-transparency-swift) — Swift implementation patterns
+- [Getting Ready for App Tracking Transparency - Swift Senpai](https://swiftsenpai.com/development/get-ready-apptrackingtransparency/) — Best practices
 
-### Google AI Documentation
-- [Gemini 2.0 Flash Documentation](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash) — Image understanding capabilities
-- [Firebase AI Logic SDK](https://firebase.google.com/docs/ai-logic/get-started) — Official Firebase SDK for Gemini on iOS
-- [Gemini API Image Understanding](https://ai.google.dev/gemini-api/docs/image-understanding) — Multimodal image analysis guide
+**Google UMP SDK:**
+- [Set up UMP SDK | iOS | Google for Developers](https://developers.google.com/admob/ios/privacy) — Official integration guide (version 3.0.0, released 2025-03-24)
+- [Present IDFA message | iOS | Google for Developers](https://developers.google.com/admob/ios/privacy/idfa) — ATT + UMP coordination
 
-### NestJS & GraphQL
-- [NestJS GraphQL Documentation](https://docs.nestjs.com/graphql/resolvers) — Code-first resolvers
-- [NestJS Input Validation Guide](https://www.dsebastien.net/2020-07-23-input-validation-with-nestjs/) — class-validator integration
-- [Type-Safe GraphQL with NestJS](https://oneuptime.com/blog/post/2026-01-25-type-safe-graphql-nestjs/view) — 2026 best practices
+**AdMob Production Setup:**
+- [Configure your iOS ATT alert description - Google AdMob Help](https://support.google.com/admob/answer/10349306?hl=en) — Info.plist requirements
 
-### Apollo iOS
-- [Apollo iOS 2.0 Documentation](https://www.apollographql.com/docs/ios) — Swift concurrency, cache normalization
-- [Apollo iOS Pagination](https://github.com/apollographql/apollo-ios-pagination) — Pagination library for Apollo cache
+**StoreKit 2 JWS Verification:**
+- [How to Validate iOS and macOS In-App Purchases Using StoreKit 2 and Server-Side Swift | Ronald Mannak | Medium](https://medium.com/@ronaldmannak/how-to-validate-ios-and-macos-in-app-purchases-using-storekit-2-and-server-side-swift-98626641d3ea) — SignedDataVerifier patterns
+- [Receipt Validation in StoreKit 1 vs StoreKit 2 Server API | Qonversion](https://qonversion.io/blog/storekit1-storeki2-receipt-validation/) — Migration guidance
 
-### Food Recognition & AI
-- [AI-Powered Food Recognition API](https://easyflow.tech/food-recognition-api/) — Computer vision for food detection
-- [AI for Food Shelf-Life Prediction (2026)](https://www.sciencedirect.com/science/article/abs/pii/S0924224425001256) — Recent research on AI-driven expiry estimation
-- [Deep Learning in Food Image Recognition](https://www.mdpi.com/2076-3417/15/14/7626) — ResNet50, EfficientNet architectures
+**Firebase Cloud Messaging:**
+- [Get started with Firebase Cloud Messaging in Apple platform apps](https://firebase.google.com/docs/cloud-messaging/ios/get-started) — APNs token registration
+- [Best practices for FCM registration token management | Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging/manage-tokens) — Token lifecycle
 
-### TCA Architecture
-- [TCA GitHub Repository](https://github.com/pointfreeco/swift-composable-architecture) — Official Composable Architecture library
-- [SwiftUI TCA Camera Demo](https://github.com/never-better/SwiftUI-TCA-Camera-Demo) — Example camera integration with TCA
+**App Store Connect Privacy:**
+- [App Privacy Details - App Store - Apple Developer](https://developer.apple.com/app-store/app-privacy-details/) — Privacy Nutrition Labels requirements
+- [App Store Requirements: iOS & Android Submission Guide 2026 | Natively](https://natively.dev/articles/app-store-requirements) — 2026 submission checklist
 
-### iOS Camera & SwiftUI
-- [iOS 18 New Camera APIs](https://zoewave.medium.com/ios-18-17-new-camera-apis-645f7a1e54e8) — AVFoundation and PhotoKit updates
-- [Camera Capture in SwiftUI](https://www.createwithswift.com/camera-capture-setup-in-a-swiftui-app/) — Modern SwiftUI camera patterns
-- [VisionKit Live Data Scanning](https://medium.com/ciandt-techblog/live-data-scanning-on-ios-a-quick-look-at-apples-visionkit-framework-682ea50fa04b) — Real-time OCR implementation
-
-### Database & ORM
-- [Prisma PostgreSQL Quickstart](https://www.prisma.io/docs/prisma-orm/quickstart/postgresql) — Prisma 7 with PostgreSQL 15+
-- [Prisma Schema Reference](https://www.prisma.io/docs/orm/reference/prisma-schema-reference) — Schema syntax and patterns
+**Voice Cloning Legal:**
+- [Apple's new App Review Guidelines clamp down on apps sharing personal data with 'third-party AI' | TechCrunch](https://techcrunch.com/2025/11/13/apples-new-app-review-guidelines-clamp-down-on-apps-sharing-personal-data-with-third-party-ai/) — Guideline 5.1.2(i) effective Nov 2025
+- [Voice Cloning Consent Laws by Country: Understanding Global Voice Rights in 2026 | Soundverse](https://www.soundverse.ai/blog/article/voice-cloning-consent-laws-by-country-1049) — International compliance
+- [Synthetic Media & Voice Cloning: Right of Publicity Risks for 2026 | Holon Law](https://holonlaw.com/entertainment-law/synthetic-media-voice-cloning-and-the-new-right-of-publicity-risk-map-for-2026/) — US state law requirements
 
 ---
-
-*Stack research for: Smart Pantry Features*
-*Researched: 2026-03-11*
-*Confidence: HIGH*
+*Stack research for: App Store Launch Prep (v4.0)*
+*Researched: 2026-03-30*
+*Confidence: HIGH (verified with official Apple/Google docs)*

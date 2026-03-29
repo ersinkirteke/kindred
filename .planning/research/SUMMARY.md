@@ -1,394 +1,420 @@
 # Project Research Summary
 
-**Project:** Kindred Smart Pantry Milestone
-**Domain:** iOS food/cooking app — pantry management with AI-powered scanning
-**Researched:** 2026-03-11
+**Project:** Kindred v4.0 App Store Launch Prep
+**Domain:** iOS App Store submission readiness & production deployment
+**Researched:** 2026-03-30
 **Confidence:** HIGH
 
 ## Executive Summary
 
-Smart Pantry features integrate seamlessly with Kindred's validated iOS architecture (SwiftUI + TCA) and backend (NestJS + GraphQL + Prisma + PostgreSQL). The recommended approach leverages existing infrastructure—particularly the Firebase AI Logic SDK / Gemini 2.0 Flash integration already used for voice narration—to power fridge and receipt scanning. Core features require minimal new dependencies: iOS VisionKit for live OCR, two new backend packages for validation (class-validator, class-transformer), and SwiftData for local-first pantry persistence.
+App Store launch prep for Kindred requires strategic additions to an already solid foundation. The app has validated core features (SwiftUI + TCA architecture, AdMob SDK, StoreKit 2, Firebase Cloud Messaging) but gaps exist around production-ready consent flows, receipt verification, and privacy compliance. The recommended approach closes these gaps through targeted integrations—not architectural rewrites—focusing on three critical areas: (1) ATT + UMP consent flow for personalized ads, (2) backend JWS verification with x5c certificate chain validation, and (3) voice cloning consent framework meeting 2026 legal requirements (Federal AI Voice Act, ELVIS Act, Apple Guideline 5.1.2(i)).
 
-The winning strategy is progressive complexity: launch with manual pantry management and basic recipe matching (table stakes), gate advanced AI features (photo/receipt scanning) behind Pro tier for monetization, and defer loyalty card integration to v2+ due to high partnership costs. This approach validates core hypothesis—"do Kindred users want pantry management?"—before investing in complex AI pipelines. The architecture follows established patterns from FeedFeature and VoicePlaybackFeature, creating a new PantryFeature SPM package that depends on shared infrastructure without creating circular dependencies.
+The winning strategy is compliance-first, feature-complete deployment. All stack additions leverage existing infrastructure: AppTrackingTransparency framework (built-in iOS), Google UMP SDK (already installed), @apple/app-store-server-library for backend receipt verification, and Firebase SDK extensions for device token registration. Implementation follows established iOS patterns (ATT + UMP consent coordination, StoreKit 2 JWS verification, progressive permission requests) with 14-20 hours development time but 3-5 weeks total calendar time due to required legal review for voice cloning consent documentation.
 
-Critical risks center on AI reliability: expiry date hallucination, OCR misreads, and ML recognition accuracy collapse in real-world conditions. Mitigation requires safety-first design (conservative estimates, manual confirmation, clear disclaimers), two-stage OCR processing (VisionKit → Gemini), and progressive permission requests to avoid 60%+ denial rates. Memory management, offline-first sync conflicts, and ingredient normalization chaos are secondary risks with well-documented solutions from existing TCA patterns and standard practices (SwiftData local-first, USDA IngID canonical mapping, streaming file uploads).
+Critical risks center on three rejection categories: (1) privacy violations (missing ATT consent, incomplete nutrition labels, vague voice cloning consent), (2) billing fraud (base64url JWS decoding without x5c validation), and (3) production ad policy violations (test AdMob IDs, missing NSUserTrackingUsageDescription). Mitigation requires systematic pre-submission checklist execution, TestFlight beta testing to catch edge cases, and legal counsel review for AI voice consent copy ($20-50K budget). The architecture integrates through 5 clean extension points (voice playback R2 URLs, ATT consent flow, paywall triggering, device token registration, SignedDataVerifier) with no circular dependencies or refactoring needed.
 
 ## Key Findings
 
 ### Recommended Stack
 
-Kindred's existing stack supports all Smart Pantry capabilities without framework changes. The iOS architecture (SwiftUI + TCA 1.x, Apollo iOS 2.0.6, AVFoundation, iOS 17.0+), backend (NestJS 11 + GraphQL + Prisma 7 + PostgreSQL 15), and AI infrastructure (Gemini 2.0 Flash via Firebase AI Logic SDK) already exist and are validated. Stack research identified only two new backend dependencies and two iOS frameworks (both built-in).
+Kindred's existing stack supports all App Store launch requirements with minimal additions. The iOS foundation (SwiftUI + TCA, AdMob SDK, Firebase Cloud Messaging) and backend (NestJS + GraphQL + Prisma) are production-ready. Stack research identified only mandatory compliance additions: AppTrackingTransparency framework (built-in iOS 17.0+), @apple/app-store-server-library 2.4.0+ for backend JWS verification, and configuration requirements (Privacy Manifest, production AdMob unit IDs, voice consent framework). No new architectural dependencies needed—all additions extend existing patterns.
 
 **Core technologies:**
-- **VisionKit (iOS 17+)** — Live receipt OCR with DataScannerViewController, replacing custom AVFoundation pipelines. Built-in framework, zero cost, on-device processing with currency detection.
-- **Gemini 2.0 Flash** — Already integrated for voice narration; extend for image analysis (fridge scanning, receipt parsing). Cost-effective at ~$0.001/image vs specialized food APIs at $0.02+/image.
-- **SwiftData** — Local-first pantry persistence following existing GuestSessionClient pattern. Offline-first UX, automatic migrations, query performance with @Predicate macros.
-- **class-validator/class-transformer (backend)** — Standard NestJS validation libraries for GraphQL input validation on pantry mutations. Works seamlessly with code-first @InputType decorators.
-- **Apollo iOS 2.0.6** — Already validated; extend with pantry GraphQL operations. Offline-first cache with optimistic updates, local cache mutations for instant UI feedback.
+- **AppTrackingTransparency (iOS 17.0+ built-in):** IDFA consent for personalized ads — Mandatory since iOS 14.5 for apps using AdMob. Apple rejects apps without ATT when using ad identifiers.
+- **Google UMP SDK 3.0.0+ (already installed):** Pre-ATT consent flow coordination — Already in project (UserMessagingPlatform.xcframework detected). Coordinates with ATT to show GDPR/CCPA consent before requesting IDFA.
+- **@apple/app-store-server-library 2.4.0+:** Backend JWS transaction verification with x5c chain — Current backend uses base64url decoding (line 74 subscription.service.ts). Production needs cryptographic signature verification to prevent fraud.
+- **Firebase Cloud Messaging (already integrated):** APNs device token registration — SDK present but device tokens not sent to backend (known gap: EXPIRY-02 partial implementation). Need backend API endpoint.
+- **Privacy Manifest (PrivacyInfo.xcprivacy):** API usage declaration with approved reason codes — Required for 2026 App Store compliance. Prevents rejections for undeclared tracking.
 
-**Critical stack decision:** Use VisionKit for live OCR preview feedback during receipt capture, then send image to Gemini for final semantic parsing and categorization. Gemini provides intelligent ingredient extraction (not just text, but categories, quantities, expiry estimates) while VisionKit gives instant on-device feedback.
+**Critical stack decision:** Use ATT + UMP coordinated flow (UMP consent form → ATT system prompt → AdMob initialization) rather than ATT-only approach. UMP SDK already integrated for AdMob compliance; leveraging it provides GDPR/CCPA coverage and higher opt-in rates through pre-prompt explanation screens.
 
 ### Expected Features
 
-Feature research reveals a clear MVP boundary: 7 table-stakes features for v1.0, 6 differentiators for v1.x after validation, and 4 future considerations for v2+. Competitor analysis (Cooklist, SuperCook, Portions Master) shows match % badge and voice integration are unique differentiators within Kindred's ecosystem.
+App Store submission requires 14 table-stakes features across privacy compliance, billing validation, and user consent. Missing any blocks submission or creates legal/fraud risk. Feature research categorized by priority: 11 P1 (must have for launch), 6 P2 (should have for trust/optimization), and 6 P3 (nice to have for future iterations). Key finding: voice cloning consent is both legal requirement (ELVIS Act, AB 1836, Federal AI Voice Act) and Apple guideline enforcement (5.1.2(i) effective Nov 2025).
 
-**Must have (table stakes):**
-- Manual pantry CRUD — Essential fallback when scanning fails; users need control over inventory
-- Barcode scanning for packaged goods — 99% accuracy expectation; speeds up bulk purchases
-- Expiry tracking with push notifications — Core value proposition (prevent food waste)
-- Basic ingredient matching to recipes — Answers "what can I make?" using existing recipe database
-- Match % badge on recipe cards — Visual indicator of "cookability" based on pantry contents
-- Shopping list from missing ingredients — Completes workflow loop; prevents app switching
-- Persistent digital pantry with iCloud sync — Users expect inventory to persist across sessions
+**Must have (table stakes for submission):**
+- Privacy Policy URL (guideline 5.1.1 requirement) — Essential for App Store Connect metadata
+- Privacy Nutrition Labels (iOS 14.3+ requirement) — Declare data collection by app and third-party SDKs (AdMob, ElevenLabs, Gemini, Firebase)
+- ATT Consent Flow (required before tracking for ads) — Pre-prompt explanation + system dialog, one chance only
+- NSUserTrackingUsageDescription (required for ATT prompt) — Info.plist key with clear explanation
+- NSMicrophoneUsageDescription (required for voice recording) — Info.plist key explaining voice upload feature
+- Production AdMob Unit IDs (test IDs cause invalid traffic flags) — Replace test IDs before submission to avoid account suspension
+- StoreKit 2 JWS x5c Verification (server-side receipt validation) — Verify certificate chain against Apple's root/intermediate certs
+- App Store Screenshots (6.9" iPhone + 13" iPad mandatory) — 1320x2868px iPhone, 2064x2752px iPad
+- TestFlight Beta Testing (pre-submission bug discovery) — Internal + external testers, 90-day build expiration
+- Distribution Certificate & Profile (code signing for App Store) — Valid for 1 year, must match bundle identifier
+- Privacy Manifest (PrivacyInfo.xcprivacy for 2026 compliance) — Declare API usage with approved reason codes
 
-**Should have (competitive differentiators):**
-- Photo-based fridge scanning (Pro) — Bulk capture multiple items vs one-by-one barcode scanning
-- Receipt OCR for batch import (Pro) — Instant pantry population after shopping trip; saves 10+ minutes manual entry
-- AI expiry estimation for fresh produce — Estimate shelf life for items without expiry dates
-- Food waste analytics dashboard (Pro) — "You saved $47 this month" messaging; aligns with sustainability values
-- Voice-based pantry updates via Siri — Natural synergy with existing voice narration feature
-- Storage location categorization — Organize by fridge/freezer/pantry; improves findability for power users
+**Should have (competitive advantage, reduce rejection risk):**
+- Pre-ATT Value Demonstration (2-3x higher opt-in rates) — Show "first win" before ATT prompt
+- Custom Pre-Prompt Screen (explain "why" in friendly language) — "Help us keep the app free and relevant"
+- Voice Data Deletion Button (user control increases trust) — "Delete Voice Data" in Settings with confirmation
+- Transparent Voice Usage Policy (reduces legal risk) — Plain-English explanation of data collection, storage, access, revocation
+- Transaction.currentEntitlements (real-time subscription validation) — StoreKit 2 API for instant entitlement checks without server round-trip
+- Voice Consent Audit Trail (legal protection) — Log consent timestamp, IP, terms version, voice file hash
 
-**Defer (v2+):**
-- Loyalty card integration — Requires partnership agreements with grocery chains; high business development effort
-- Pantry-aware meal planning — Requires sophisticated constraint solver; build after understanding user planning patterns
-- Household collaboration — Multi-user complexity (conflict resolution, permissions)
-- Ingredient substitution engine — Complex cooking chemistry logic; high risk of recipe failure eroding trust
+**Defer (v4.x after validation):**
+- App Store Server API Integration — Add if subscription abuse or refund issues detected
+- Staged ATT Rollout — Measure impact on retention/revenue with 10-20% user cohort
+- Localized Permission Strings — Add when expanding to non-English markets
+- Advanced Subscription Analytics — Not needed until scaling
 
-**Anti-features to avoid:**
-- Real-time continuous fridge monitoring — Requires expensive smart fridge hardware or drains battery
-- Automatic expiry detection from package photos — OCR accuracy <60% due to format variability; fails gracefully
-- Every scanning method at once — Overwhelming UI; users pick one preferred method and stick with it
+**Anti-features (commonly requested, problematic for submission):**
+- Force ATT Accept — Apple views as "nagging", causes rejection under guideline 5.1.1(iv)
+- Skip StoreKit Validation — Fraud risk, subscription abuse, revenue loss
+- Vague Privacy Labels — Causes rejection under guideline 5.1.2
+- ATT Prompt at Launch — Lowest opt-in rates (10-20%), poor UX
+- Base64url JWS Only — Production fraud risk without x5c verification
+- Test AdMob IDs in Production — Account flagged for invalid traffic, permanent suspension risk
 
 ### Architecture Approach
 
-Smart Pantry integrates as a new SPM package (PantryFeature) following established patterns from FeedFeature and VoicePlaybackFeature. Architecture leverages SwiftData for local persistence (same pattern as GuestSessionClient), Apollo GraphQL for backend sync with offline-first cache, UIImagePickerController for camera capture, and TCA Dependencies for testable composable clients. The key architectural decision: PantryFeature is a peer to FeedFeature (both depend on shared infrastructure), not a modification of FeedFeature. FeedFeature imports PantryFeature models (one-way dependency) for recipe matching logic, with AppReducer coordinating cross-feature effects.
+App Store launch integrates through 5 clean extension points requiring no architectural rewrites. Changes are additive, preserving existing SwiftUI + TCA architecture on iOS and NestJS + GraphQL on backend. Integration points: (1) Voice Playback → Backend R2 URLs (replace TestAudioGenerator with GraphQL query), (2) ATT Consent Flow (add AppTrackingTransparency framework import + UMP coordination), (3) Paywall Triggering (wire ScanPaywallView to MonetizationFeature), (4) Device Token Registration (add GraphQL mutation for FCM token), (5) SignedDataVerifier (replace base64url decode with x5c chain validation).
 
 **Major components:**
 
-1. **PantryFeature (new SPM package)** — Complete pantry management with scanning, CRUD, expiry tracking. Structured with reducers per screen (PantryReducer, ScanningReducer, ItemDetailReducer), clients for side effects (PantryClient, VisionClient, ExpiryClient), and SwiftData models for domain. Dependencies: ComposableArchitecture, NetworkClient, DesignSystem, AuthClient.
+1. **Voice Playback R2 URL Integration** — Replace local TestAudioGenerator with GraphQL GetNarrationUrl query returning Cloudflare R2 CDN URL or REST streaming endpoint. Modify VoicePlaybackReducer.swift line 299 TODO block, create new GetNarrationUrlQuery.graphql operation, extend voice.resolver.ts to check NarrationAudio cache. AVPlayer already configured for HTTP streaming (AudioPlayerManager.swift:41), R2 supports HTTP range requests for seeking.
 
-2. **VisionClient (new client)** — Abstract camera capture + AI image analysis. Handles UIImagePickerController camera capture, Gemini 2.0 Flash API calls for fridge/receipt analysis, and error handling (camera permission denied, API failures). Lives inside PantryFeature, not shared (pantry-specific).
+2. **ATT Consent Flow** — Add AppTrackingTransparency framework import (built-in, no installation), coordinate with existing UMP SDK (already installed). Implement requestTrackingConsent() async flow: UMP pre-consent (GDPR/CCPA) → ATT system prompt → AdMob initialization. Add NSUserTrackingUsageDescription to Info.plist, create PrivacyInfo.xcprivacy manifest declaring tracking domains. Replace test AdMob IDs with production unit IDs in AdClient.swift.
 
-3. **FeedReducer modifications** — Add dependency on PantryFeature models for match % calculation using Jaccard similarity (standard recipe matching metric). Calculate match on recipe load, add filter action for "cookable now" (match >= 50%), maintain one-way dependency (FeedFeature reads from PantryClient, never writes).
+3. **Paywall Triggering** — Wire ScanPaywallView "Subscribe" button to present MonetizationFeature PaywallView sheet. Add CameraReducer action subscribeToPro that dismisses subscription gate and triggers parent presentation. No changes to existing PaywallView.swift (reuse existing UI). Integration follows established TCA parent-child communication pattern.
 
-4. **Backend GraphQL API extensions** — New Prisma models (PantryItem with category, expiry tracking, sync status), GraphQL resolvers (pantryItems query, add/update/delete mutations, bulkAddPantryItems for receipt scan). Cache policy: returnCacheDataAndFetch for lists, optimistic local updates for mutations.
+4. **Device Token Registration** — Extend AppDelegate.swift MessagingDelegate to send FCM token to backend via new GraphQL mutation. Add RegisterDeviceTokenMutation.graphql operation, create user.resolver.ts mutation, add deviceToken/devicePlatform/deviceTokenUpdatedAt fields to Prisma User model. Implements standard Firebase device token lifecycle (APNs token → FCM token mapping → backend storage).
 
-5. **AppReducer coordination** — Compose PantryReducer as peer to FeedReducer, add pantry tab to navigation, coordinate cross-feature effects (pantry item saved → recalculate recipe matches). Acts as orchestrator for bidirectional communication without creating circular dependencies.
+5. **SignedDataVerifier (Backend)** — Replace base64url JWS decoding (billing.service.ts line 70-79) with @apple/app-store-server-library SignedDataVerifier. Install npm package, download Apple Root CA G3 certificate, configure environment (APPLE_APP_ID, APPLE_TEAM_ID), implement verifyAndDecodeTransaction() with x5c chain validation. Prevents production fraud risk (fake receipts bypass current implementation).
 
-**Data flow patterns:**
-- **Fridge scanning:** Camera capture → Gemini analysis (3-5s) → editable results → local SwiftData save → background GraphQL sync → recalculate recipe matches
-- **Receipt OCR:** VisionKit live preview → Gemini semantic extraction → expiry estimation → bulk pantry add → notification scheduling
-- **Recipe matching:** Recipe load → fetch pantry items → Jaccard similarity calculation → update match % → render badge (green >70%, yellow >50%)
-- **Offline-first:** Local SwiftData persistence → queue GraphQL mutations → replay on reconnect → CRDT-based conflict resolution for quantities
+**Data flow:**
+- Voice playback: User taps Play → GraphQL GetNarrationUrl(recipeId, voiceProfileId) → Backend checks cache → R2 CDN URL or /narration/:recipeId/stream → AVPlayer progressive download
+- ATT consent: App launch → UMP consent check → Show form if required → ATT requestTrackingAuthorization() → Initialize AdMob with consent status → Personalized or non-personalized ads
+- Device token: APNs registration → FCM token mapping → GraphQL RegisterDeviceToken mutation → Backend stores in User.deviceToken → Available for push notification delivery
+
+**Build order (15 hours total):**
+- Phase 1: Backend (3.5h) — GraphQL queries/mutations, SignedDataVerifier, Prisma migration
+- Phase 2: Voice Playback (4h) — Wire VoicePlaybackReducer, remove TODO markers (depends on Phase 1.1)
+- Phase 3: ATT (3.5h) — PrivacyInfo.xcprivacy, ATT flow, production ad unit IDs (parallel to Phase 2)
+- Phase 4: Device Token (2h) — GraphQL mutation wiring (parallel to Phase 2-3)
+- Phase 5: Paywall (2h) — ScanPaywallView integration (depends on Phase 3)
+
+**Critical path:** Phase 1.1 (GraphQL queries) → Phase 2.4 (voice playback wiring)
 
 ### Critical Pitfalls
 
-Research identified 10 critical pitfalls with detailed prevention strategies. Top 5 by risk severity:
+Pitfall research identified 10 critical traps during App Store submission, prioritized by likelihood × impact. Note: PITFALLS.md focused on pantry features (v3.0 milestone) but several universal patterns apply (permission timing, memory management, AI consent). Top 5 risks for v4.0:
 
-1. **AI hallucination in expiry prediction** — ML models hallucinate dates, creating food safety risks. Users trust app predictions and consume spoiled food or discard safe food. Prevention: never present AI estimates as authoritative, require manual confirmation, add disclaimers ("Estimated expiry—verify packaging"), use conservative estimates, implement safety guardrails (flag predictions >30 days, warn on dairy/meat).
+1. **ATT Prompt Timing → Low Opt-in Rates** — Requesting ATT permission immediately at launch results in 10-20% opt-in rates vs 30-60% with delayed progressive disclosure. Users reflexively deny permissions when value not demonstrated. Prevention: Delay ATT until after user experiences core features (recipe feed), show pre-prompt explanation ("Help us keep the app free and relevant"), respect one-time system prompt (subsequent calls return cached status).
 
-2. **OCR misreads breaking ingredient matching** — Receipt OCR mangles ingredient names ("EGGS" → "LG EGO 12 CT"), simple exact matching fails, feature feels broken. Retailers use cryptic abbreviations (Fred Meyer: "STO LRG BRUNN"). Prevention: two-stage pipeline (VisionKit text extraction → Gemini structured extraction with fuzzy matching), implement FuzzyWuzzy Levenshtein distance matching, build retailer-specific abbreviation mappings, allow manual correction with suggested matches.
+2. **Base64url JWS Verification Without x5c Chain → Fraud Risk** — Current implementation (subscription.service.ts line 70-79) decodes JWS payload without cryptographic signature verification. Attackers can generate fake transactions, bypass subscription checks, access Pro features without payment. Prevention: Install @apple/app-store-server-library 2.4.0+, implement SignedDataVerifier with Apple Root CA G3 certificate chain validation, verify bundleId and appAppleId match App Store Connect configuration.
 
-3. **Memory explosion from batch photo processing** — User selects 10 fridge photos at 48MP each, app loads all at full resolution, crashes with OOM error. Prevention: never load full UIImage objects, use loadFileRepresentation API with file paths, process sequentially with autoreleasepool, resize immediately, test with 20+ high-res photos on device.
+3. **Test AdMob Unit IDs in Production → Account Suspension** — Using test ad units (ca-app-pub-3940256099942544) in production builds violates AdMob Terms of Service. Account flagged for invalid traffic patterns, permanent suspension risk with no appeal process. Prevention: Create AdMob account, register Kindred iOS app, generate production unit IDs, replace test IDs in Info.plist (GADApplicationIdentifier) and AdClient.swift before submission. Configure test device IDs for safe pre-launch testing with production units.
 
-4. **Offline-first sync conflicts** — User adds "2 eggs" offline, backend processes receipt adding "12 eggs", conflict resolution chooses wrong version. TCA reducers expect unidirectional flow but offline creates bidirectional sync. Prevention: implement operation-based CRDT for quantities (add +2, not set to 2), add version field for optimistic locking, queue mutations with persistence, tag sources ("user_manual" vs "receipt_scan"), show conflict UI for ambiguous cases.
+4. **Incomplete Privacy Nutrition Labels → Rejection** — App Store Connect requires accurate data collection disclosure across 14 categories. Under-reporting third-party SDK data collection (AdMob tracking, ElevenLabs voice data, Firebase identifiers, Mapbox location) causes rejection under guideline 5.1.2. Prevention: Audit all SDK data collection, declare tracking (AdMob usage data), user content (ElevenLabs audio), identifiers (Clerk JWT), location (Mapbox city-level), purchases (StoreKit subscriptions). Review Apple Privacy Labels documentation for each category.
 
-5. **Ingredient normalization chaos** — Database accumulates "eggs", "large eggs", "lg eggs", "EGGS", "egg" as separate items. Recipe matching fails because recipe says "eggs" but pantry has "large eggs". Prevention: adopt USDA IngID Thesaurus for canonical Preferred Descriptors, map all ingredients to canonical form on save, implement FuzzyWuzzy matching during manual entry, build synonym database (FooDB, Open Food Facts), auto-merge obvious variants (case-insensitive, strip punctuation).
+5. **Voice Cloning Consent Violations → Legal Liability + Rejection** — Voice cloning without explicit written consent violates Federal AI Voice Act (2026 enforcement), state laws (Tennessee ELVIS Act, California AB 1836), and Apple Guideline 5.1.2(i) (effective Nov 2025). App rejection or post-launch legal action from users. Prevention: Implement consent screen before voice upload with explicit disclosure (name ElevenLabs provider, explain data processing, right to revoke), store consent audit trail (userId, timestamp, IP address, app version), provide "Delete Voice Profile" option in Settings, budget $20-50K for legal counsel review of consent copy and terms.
 
-**Secondary pitfalls:** Unit conversion hell (1 cup flour ≠ 1 cup sugar by weight; requires FAO density database), push notification permission fatigue (60%+ denial if asked too early; use progressive disclosure), ML recognition accuracy collapse (works in bright kitchen testing, fails in real fridges with poor lighting; add photo quality pre-checks), GraphQL file upload memory leak (stream to S3, don't buffer in resolver), camera permission denied without fallback (show Settings deep-link + manual entry option).
+**Secondary pitfalls:**
+- Missing NSUserTrackingUsageDescription → Immediate rejection (Info.plist validation failure)
+- Privacy Manifest missing → 2026 rejection for undeclared API usage (NSUserDefaults, file timestamps without approved reason codes)
+- TestFlight skipped → Critical bugs discovered post-submission during App Review (14+ day delay)
+- Camera/microphone permission without pre-prompt → 40-60% denial rate, broken scanning/voice features
+- Device token not sent to backend → Push notifications silently fail, expiry alerts never delivered
 
 ## Implications for Roadmap
 
-Based on combined research, suggested 6-phase structure optimized for dependency resolution and risk mitigation:
+Based on combined research, suggested 5-phase structure optimized for compliance checkpoints and parallel work opportunities:
 
-### Phase 1: Foundation & Infrastructure (Week 1)
-**Rationale:** Bottom-up dependency resolution—infrastructure before features, models before UI. All subsequent phases depend on these shared clients and data models.
+### Phase 1: Privacy Compliance & Consent Infrastructure
 
-**Delivers:**
-- VisionClient interface (stub implementation for testing)
-- PantryItem SwiftData model with validation
-- Backend GraphQL schema (Prisma migrations, pantry queries/mutations deployed to staging)
-- Ingredient normalization strategy integrated with USDA IngID
-- Memory-safe batch processing utilities
-- Offline-first sync architecture with conflict resolution strategy
-
-**Addresses pitfalls:**
-- Ingredient normalization chaos (establish canonical mapping upfront)
-- Memory explosion (create reusable streaming utilities)
-- Offline-first conflicts (design CRDT strategy before implementation)
-- AI hallucination (establish safety-first ML prediction patterns)
-
-**Research flags:** Standard practices (TCA dependency injection, SwiftData models, Prisma migrations). No phase-specific research needed.
-
----
-
-### Phase 2: Pantry CRUD & Manual Entry (Week 2)
-**Rationale:** Build core table-stakes feature that validates entire flow without AI complexity. Manual entry is essential fallback for all scanning features.
+**Rationale:** Privacy violations cause immediate rejection with no opportunity to fix during review. Establish consent frameworks first before implementing features that require them. All subsequent phases depend on ATT consent (ads), voice consent (narration), and privacy manifest (API usage declarations).
 
 **Delivers:**
-- PantryClient with SwiftData persistence
-- PantryReducer state management
-- PantryView list with swipe-to-delete
-- Manual item add/edit forms
-- GraphQL sync with optimistic updates
-- Offline queue for mutations
+- Privacy Policy written and hosted (public URL for App Store Connect)
+- Privacy Nutrition Labels completed in App Store Connect (all 14 categories declared)
+- PrivacyInfo.xcprivacy created (declare tracking, API usage with approved reason codes)
+- NSUserTrackingUsageDescription added to Info.plist (8th-grade reading level explanation)
+- NSMicrophoneUsageDescription updated (clear voice upload explanation)
+- Voice Cloning Consent UI designed (legal disclosure, ElevenLabs naming, revocation instructions)
+- Voice Usage Policy written (plain-English data sharing transparency)
 
 **Addresses features:**
-- Manual pantry CRUD (table stakes)
-- Persistent digital pantry (table stakes)
-
-**Uses stack:**
-- SwiftData for local-first persistence
-- Apollo iOS for GraphQL sync
-- TCA Dependencies for testable clients
+- Privacy Policy URL (P1 table stakes)
+- Privacy Nutrition Labels (P1 table stakes)
+- Voice Cloning Consent UI (P1 legal compliance)
+- Privacy Manifest (P1 2026 requirement)
 
 **Avoids pitfalls:**
-- Offline-first conflicts (CRDT implementation for quantities)
-- Ingredient normalization (canonical mapping on save)
+- Incomplete privacy labels causing rejection
+- Voice cloning consent violations (legal liability + Apple guideline)
+- Missing NSUserTrackingUsageDescription (immediate rejection)
 
-**Research flags:** Standard CRUD patterns. No phase-specific research needed.
+**Research flags:** NEEDS LEGAL REVIEW — Voice consent copy and terms require legal counsel ($20-50K budget, 2-4 weeks). Consider external privacy counsel for nutrition label accuracy audit. Standard patterns for Info.plist keys and Privacy Manifest structure (official Apple documentation).
 
 ---
 
-### Phase 3: Camera Capture (Week 3)
-**Rationale:** Camera infrastructure needed before AI analysis. Isolate permission flow and image storage from ML complexity.
+### Phase 2: Backend Production Hardening
+
+**Rationale:** Backend fraud prevention and device token registration are prerequisites for iOS features. SignedDataVerifier must be production-ready before submission (no staged rollout possible for billing). Device token registration enables push notifications tested in Phase 5. Parallel to Phase 1 (different team members/skills).
 
 **Delivers:**
-- UIImagePickerController integration
-- Camera permission flow with progressive disclosure
-- Photo capture → UIImage
-- Upload to Cloudflare R2
-- Store image URLs in PantryItem
-- Memory-safe sequential processing
-
-**Addresses pitfalls:**
-- Camera permission denial (permission priming screen, Settings deep-link)
-- Memory explosion (file streaming, not UIImage buffering)
+- @apple/app-store-server-library 2.4.0+ installed (npm package)
+- Apple Root CA G3 certificate downloaded and stored (backend/certs/)
+- SignedDataVerifier implemented in billing.service.ts (replace base64url decode)
+- Environment configuration (APPLE_APP_ID, APPLE_TEAM_ID, APP_STORE_ENV)
+- JWS verification test suite (sandbox transactions, invalid signatures, expired certs)
+- Device token GraphQL mutation (RegisterDeviceToken in user.resolver.ts)
+- Prisma schema migration (add deviceToken, devicePlatform, deviceTokenUpdatedAt to User model)
 
 **Uses stack:**
-- UIImagePickerController for camera
-- Cloudflare R2 for image storage
-- Streaming file uploads (not sync resolver processing)
-
-**Research flags:** Standard camera integration. Consider researching iOS camera permission best practices if acceptance rate <70% during testing.
-
----
-
-### Phase 4: AI Image Analysis (Week 4)
-**Rationale:** Build on camera infrastructure, add intelligence. Fridge scanning is premium differentiator, validates AI pipeline before receipt OCR.
-
-**Delivers:**
-- Firebase AI Logic SDK integration
-- VisionClient implementation (analyzeFridgePhoto, analyzeReceipt)
-- Gemini 2.0 Flash prompts for fridge scanning
-- ScanResultsView with editable ingredient list
-- Confidence thresholds (>70% for auto-accept)
-- Manual correction flow
-
-**Addresses features:**
-- Photo-based fridge scanning (Pro differentiator)
-
-**Uses stack:**
-- Gemini 2.0 Flash (already integrated)
-- Firebase AI Logic SDK
-
-**Avoids pitfalls:**
-- AI hallucination (show confidence, allow correction, conservative estimates)
-- ML accuracy collapse (photo quality pre-checks, multi-shot mode)
-
-**Research flags:** NEEDS PHASE RESEARCH—Gemini prompt engineering for optimal food recognition accuracy, confidence threshold tuning, real-world fridge photo testing strategy.
-
----
-
-### Phase 5: Recipe Matching & Feed Integration (Week 5)
-**Rationale:** Delivers core user value ("what can I make?"). Depends on populated pantry from Phase 2-4.
-
-**Delivers:**
-- FeedReducer pantry integration
-- Jaccard similarity matching algorithm
-- Match % badge on recipe cards (green >70%, yellow >50%)
-- "Cookable now" filter (match >= 50%)
-- Sort by match % descending
-- Shopping list from missing ingredients
-
-**Addresses features:**
-- Basic ingredient matching (table stakes)
-- Match % badge (unique differentiator)
-- Shopping list generation (table stakes)
+- @apple/app-store-server-library for JWS verification
+- Prisma 7 for schema migration
+- NestJS GraphQL for mutation resolver
 
 **Implements architecture:**
-- FeedFeature dependency on PantryFeature models
-- AppReducer coordination (pantry change → recalculate matches)
+- SignedDataVerifier component (backend fraud prevention)
+- Device token registration integration point
 
 **Avoids pitfalls:**
-- Unit conversion hell (defer complex conversions to v1.x; match on normalized names only for MVP)
-- Ingredient normalization (leverage Phase 1 canonical mapping)
+- Base64url JWS verification without x5c chain (fraud risk)
+- Device token not sent to backend (push notification failure)
 
-**Research flags:** Standard pattern (TCA reducer composition). May need research on recipe similarity algorithms if Jaccard proves insufficient.
+**Research flags:** Standard patterns (NestJS package installation, Prisma migrations, GraphQL mutations). Apple App Store Server Library official documentation provides implementation examples. No phase-specific research needed.
 
 ---
 
-### Phase 6: Expiry Tracking & Notifications (Week 6)
-**Rationale:** Final table-stakes feature. Depends on pantry items existing (Phase 2) and scanning populating data (Phase 4).
+### Phase 3: ATT Consent & Production Ads
+
+**Rationale:** ATT consent flow gates ad monetization (60% of users on free tier). Must be implemented before TestFlight beta testing to measure real-world opt-in rates. Depends on Phase 1 (Privacy Manifest, NSUserTrackingUsageDescription). Parallel opportunity: Phase 3 (iOS) + Phase 2 (backend) can run simultaneously.
 
 **Delivers:**
-- ExpiryClient with heuristic shelf-life calculation
-- Local notification scheduling
-- Progressive notification permission request (after first pantry add)
-- Expiry badge in PantryView ("Expires in 2 days")
-- Deep linking (tap notification → filtered pantry view)
-- In-app notification center for denied permission
-- Batched expiry notifications (avoid spam)
+- AppTrackingTransparency framework import (built-in, no installation)
+- UMP consent flow integration (coordinate with existing SDK)
+- requestTrackingConsent() implementation (UMP → ATT → AdMob initialization)
+- Pre-prompt explanation screen ("Help us keep the app free and relevant")
+- Production AdMob account created (register Kindred iOS app)
+- Production ad unit IDs generated (Native feed cards, Banner bottom)
+- Test AdMob IDs replaced in Info.plist (GADApplicationIdentifier) and AdClient.swift
+- Test device IDs configured (safe pre-launch testing with production units)
+- ATT acceptance rate instrumentation (analytics tracking)
 
 **Addresses features:**
-- Expiry tracking with notifications (table stakes)
-- AI expiry estimation (differentiator, use conservative defaults for MVP)
+- ATT Consent Flow (P1 table stakes)
+- Production AdMob Unit IDs (P1 table stakes)
+- Pre-ATT Value Demonstration (P2 differentiator)
+- Custom Pre-Prompt Screen (P2 differentiator)
+
+**Uses stack:**
+- AppTrackingTransparency (built-in iOS 17.0+)
+- Google UMP SDK 3.0.0+ (already installed)
+- AdMob SDK (already integrated)
+
+**Implements architecture:**
+- ATT Consent Flow integration point
 
 **Avoids pitfalls:**
-- Push notification permission fatigue (progressive request after user sees value)
-- AI hallucination (conservative estimates, manual confirmation)
+- ATT prompt timing → low opt-in rates (progressive disclosure after value demo)
+- Test AdMob IDs in production → account suspension (production unit IDs configured)
 
-**Research flags:** Standard iOS notification patterns. No phase-specific research needed unless targeting complex timezone handling.
+**Research flags:** Standard patterns (Apple ATT official documentation, Google UMP SDK integration guide). Consider A/B testing pre-prompt copy if acceptance rate <50% during TestFlight. No upfront phase research needed.
+
+---
+
+### Phase 4: Voice Playback & Paywall Integration
+
+**Rationale:** Connects existing features to production infrastructure. Voice playback R2 URLs replace TestAudioGenerator (unblocks production narration). Paywall triggering completes monetization flow (scan → paywall → subscription). Depends on Phase 2 (backend GraphQL queries). Can overlap with Phase 3 (different iOS features).
+
+**Delivers:**
+- GetNarrationUrlQuery.graphql operation (query R2 CDN URL or REST streaming endpoint)
+- VoicePlaybackReducer.swift modifications (line 299 TODO block, replace TestAudioGenerator)
+- Backend voice.resolver.ts extensions (check NarrationAudio cache, return R2 URL)
+- Real audio playback testing (R2 CDN URLs, HTTP range request seeking)
+- CameraReducer.swift subscribeToPro action (dismiss subscription gate, trigger parent)
+- ScanPaywallView integration with MonetizationFeature PaywallView
+- Paywall presentation flow testing (scan limit → paywall → subscribe → unlock)
+
+**Addresses features:**
+- Voice playback R2 URLs (existing feature, production-ready)
+- Paywall triggering (monetization completion)
+
+**Uses stack:**
+- Apollo iOS 2.0.6 for GraphQL queries
+- Cloudflare R2 for CDN URLs
+- AVPlayer for HTTP streaming (already configured)
+
+**Implements architecture:**
+- Voice Playback → Backend R2 URLs integration point
+- Paywall Triggering integration point
+
+**Avoids pitfalls:**
+- Voice playback not working (TestAudioGenerator blocks production narration)
+
+**Research flags:** Standard patterns (GraphQL queries, TCA reducer modifications, AVPlayer HTTP streaming). No phase-specific research needed.
+
+---
+
+### Phase 5: TestFlight Beta & Submission Prep
+
+**Rationale:** Final validation before submission. TestFlight catches bugs App Review would reject (14+ day delay). Screenshot creation and metadata entry are submission blockers. Device token registration testing ensures push notifications work. All previous phases must be complete and integrated.
+
+**Delivers:**
+- Distribution Certificate renewed (if needed, 1-year expiration)
+- Provisioning Profile updated (match bundle identifier)
+- TestFlight internal testing (5-10 internal testers, 1 week)
+- TestFlight external testing (50-100 beta testers, 1-2 weeks)
+- Bug fixes from beta feedback (crash logs, edge cases)
+- App Store screenshots created (6.9" iPhone 1320x2868px + 13" iPad 2064x2752px)
+- App Store metadata written (description naming third-party AI, keywords, categories)
+- Demo account created for App Review (if auth required)
+- Device token registration tested (FCM token → backend → push notification delivery)
+- ATT opt-in rate measured (target >30%, iterate on pre-prompt if <30%)
+- Voice consent acceptance tracked (ensure no confusion/drop-off)
+- Final privacy audit (all labels accurate, no under-reporting)
+- Submission checklist completed (all P1 features verified)
+
+**Addresses features:**
+- TestFlight Beta Testing (P1 table stakes)
+- App Store Screenshots (P1 table stakes)
+- Distribution Certificate & Profile (P1 table stakes)
+- Demo Account (P1 table stakes)
+- Device token registration testing (validates Phase 2 backend work)
+
+**Uses stack:**
+- TestFlight (Apple built-in beta distribution)
+- App Store Connect (screenshot upload, metadata entry)
+
+**Implements architecture:**
+- Device Token Registration integration point (testing validation)
+
+**Avoids pitfalls:**
+- TestFlight skipped → critical bugs discovered during App Review
+- Missing screenshots → submission blocked
+- Device token silent failure → push notifications don't work
+
+**Research flags:** Standard submission process (Apple App Store submission guide). No phase-specific research needed. Consider usability testing if ATT acceptance <30% or voice consent drop-off >20%.
 
 ---
 
 ### Phase Ordering Rationale
 
 **Why this order:**
-- **Phases 1-2 before 3-6:** Infrastructure and manual CRUD validate entire architecture without AI complexity. If users don't want pantry management at all, stop before investing in scanning.
-- **Phase 3 before 4:** Camera capture isolated from ML processing. Permission flow and file handling are orthogonal concerns; decoupling reduces debugging complexity.
-- **Phase 4 before 5:** Recipe matching requires populated pantry. Users must have ingredients (from scanning or manual entry) before matching provides value.
-- **Phase 6 last:** Notifications are enhancement to existing pantry. Core features (add items, match recipes) work without notifications; can deprioritize if timeline compresses.
+- **Phase 1 before all others:** Privacy violations cause immediate rejection. Consent frameworks (ATT, voice cloning) are prerequisites for features that use them (ads, narration). Legal review on Phase 1 voice consent can run parallel to technical work in Phase 2-3.
+- **Phase 2 parallel to Phase 1:** Backend work (billing verification, device token API) doesn't depend on iOS consent UIs. Different skill sets (backend vs iOS) enable parallel team work.
+- **Phase 3 after Phase 1:** ATT consent flow requires Privacy Manifest and NSUserTrackingUsageDescription from Phase 1. Pre-prompt screen needs voice consent patterns established in Phase 1.
+- **Phase 4 depends on Phase 2:** Voice playback R2 URLs require backend GraphQL queries from Phase 2. Can overlap with Phase 3 (ATT is separate iOS feature).
+- **Phase 5 last:** TestFlight requires all features integrated and working. Cannot test incomplete features or catch integration bugs without full implementation.
 
 **Dependency enforcement:**
-- Phase 2 depends on Phase 1 (needs VisionClient interface, PantryItem model, normalization strategy)
-- Phase 4 depends on Phase 3 (needs captured images from camera flow)
-- Phase 5 depends on Phase 2 (needs populated pantry from manual/scan sources)
-- Phase 6 depends on Phase 2 (needs pantry items with expiry dates)
+- Phase 3 (ATT) depends on Phase 1 (Privacy Manifest, Info.plist keys)
+- Phase 4 (voice playback) depends on Phase 2 (backend GraphQL API)
+- Phase 5 (TestFlight) depends on all previous phases complete
 
 **Parallel work opportunities:**
-- Phases 1-2 can overlap (infrastructure + CRUD use different files)
-- Phase 3 (camera) + Phase 4 (AI) can overlap with stub (camera returns test image while AI develops)
-- Phase 5 (matching) independent of camera/AI, only needs PantryClient interface
+- Phase 1 (privacy documentation) + Phase 2 (backend code) can overlap fully
+- Phase 3 (ATT iOS) + Phase 2 (backend) can overlap (different platforms)
+- Phase 4 tasks can split: voice playback (depends on Phase 2) parallel with paywall (independent)
+- Phase 1 legal review (2-4 weeks external) doesn't block Phase 2-3 technical implementation
 
 **Pitfall avoidance:**
-- Early phases establish patterns that prevent late-phase disasters (normalization in Phase 1 prevents chaos in Phase 5)
-- Progressive complexity reveals integration issues early (manual CRUD before AI complexity)
-- Each phase is independently testable with clear exit criteria
+- Early privacy compliance (Phase 1) prevents late-stage rejection discoveries
+- Backend hardening (Phase 2) before iOS features prevents fraud risk in production
+- ATT consent (Phase 3) tested in TestFlight (Phase 5) with real users measures actual opt-in rates
+- TestFlight (Phase 5) catches integration bugs before 14+ day App Review submission
 
 ### Research Flags
 
 **Phases needing deeper research during planning:**
-- **Phase 4 (AI Image Analysis):** Gemini prompt engineering is experimental domain. Need phase research on optimal prompts for food recognition, confidence threshold tuning based on real fridge photos (not just clean test images), and fallback strategies when recognition fails. Sparse documentation on production food recognition accuracy.
-- **Phase 5 (Recipe Matching):** If Jaccard similarity proves insufficient (doesn't handle partial ingredients, synonyms, or unit conversions), may need research on semantic similarity (vector embeddings), ingredient substitution rules, or recipe recommendation systems. Standard Jaccard likely sufficient for MVP.
+- **Phase 1 (Privacy Compliance):** Voice cloning consent legal requirements vary by state (Tennessee ELVIS Act, California AB 1836, New York Right of Publicity). May need phase research on multi-state compliance or legal counsel recommendations for consent copy. Official Apple guideline 5.1.2(i) is clear but legal enforceability requires counsel review ($20-50K budget).
 
 **Phases with standard patterns (skip research-phase):**
-- **Phase 1 (Foundation):** Well-documented TCA dependency injection, SwiftData models, Prisma migrations, USDA IngID integration.
-- **Phase 2 (Pantry CRUD):** Standard CRUD operations with TCA, established Apollo cache patterns from FeedFeature.
-- **Phase 3 (Camera Capture):** UIImagePickerController is documented iOS pattern; Cloudflare R2 upload established in existing codebase.
-- **Phase 6 (Expiry Tracking):** UNUserNotificationCenter local notifications are standard iOS pattern with extensive documentation.
+- **Phase 2 (Backend Hardening):** @apple/app-store-server-library has official documentation with SignedDataVerifier examples. Prisma migrations and GraphQL mutations are established NestJS patterns used throughout Kindred codebase.
+- **Phase 3 (ATT Consent):** Apple official AppTrackingTransparency documentation provides complete implementation guide. Google UMP SDK integration documented in AdMob iOS privacy guides. Pattern validated across thousands of production apps.
+- **Phase 4 (Voice Playback):** GraphQL query creation and TCA reducer modifications are standard patterns used in existing Kindred features. AVPlayer HTTP streaming already configured (AudioPlayerManager.swift:41).
+- **Phase 5 (TestFlight):** Apple official TestFlight guide covers complete beta testing workflow. App Store screenshot specifications and submission process documented in App Store Connect Help.
 
 **When to trigger phase research:**
-- During Phase 4 planning, if Gemini recognition accuracy <70% on initial tests → research alternative ML models (CoreML Food101, specialized food APIs)
-- During Phase 5 planning, if recipe match rate <50% user satisfaction → research semantic matching, ingredient embeddings
+- During Phase 1 planning, if voice consent legal requirements unclear for all 50 US states → research multi-state compliance or consult legal counsel
+- During Phase 3 execution, if ATT opt-in rate <30% in TestFlight → research alternative pre-prompt messaging, timing strategies, or value demonstration approaches
+- During Phase 5 execution, if App Review rejects for undisclosed reason → research Apple guideline interpretation or consult App Store review consultants
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All recommended technologies already validated in existing Kindred codebase (Gemini 2.0 Flash, SwiftData, Apollo iOS 2.0.6, TCA). Only additions are built-in iOS frameworks (VisionKit) and standard NestJS packages (class-validator). Source quality: official Apple documentation, Firebase docs, NestJS official guides. |
-| Features | MEDIUM | Based on verified competitor analysis (Cooklist, SuperCook, Portions Master), UX case studies, and user expectation research. Confidence is MEDIUM (not HIGH) because CoreML food classification accuracy claims need independent verification beyond GitHub examples, and receipt OCR accuracy standards come from vendor marketing (TabScanner, Yomio) rather than peer-reviewed research. |
-| Architecture | HIGH | TCA patterns verified with existing codebase (FeedFeature, VoicePlaybackFeature, GuestSessionClient). Apollo offline-first cache patterns, SwiftData local-first persistence, and UIImagePickerController integration all have official Apple/Apollo documentation. Component boundaries follow established SPM package structure. Build order dependencies validated against existing project. |
-| Pitfalls | MEDIUM | Based on production app case studies (Yuka food scanner, KitchenPal, CalCam), technical deep-dives (PHPicker memory usage, GraphQL file upload patterns), and AI reliability research. Confidence is MEDIUM because some pitfalls (AI hallucination rates, OCR misread frequency) cite specific percentages from recent sources (2026 benchmarks) but lack longitudinal validation. Prevention strategies verified with established patterns (CRDT for offline sync, USDA IngID for normalization). |
+| Stack | HIGH | All recommended technologies have official documentation (Apple ATT, Google UMP SDK, @apple/app-store-server-library, Firebase Cloud Messaging). Only additions are built-in iOS frameworks (AppTrackingTransparency, AdSupport) or standard npm packages. Existing Kindred stack validated (SwiftUI + TCA, NestJS + GraphQL). Zero new architectural frameworks. |
+| Features | HIGH | Based on official Apple App Store Review Guidelines, App Store Connect requirements documentation, and verified 2026 submission checklists. Privacy Nutrition Labels requirements from Apple Privacy Labels official page. Voice cloning consent from Federal AI Voice Act text, state law summaries (Tennessee ELVIS Act, California AB 1836), and Apple Guideline 5.1.2(i) announcement (Nov 2025). TestFlight and screenshot requirements from Apple official developer documentation. |
+| Architecture | HIGH | Integration points verified with existing Kindred codebase (VoicePlaybackReducer.swift line 299 TODO, subscription.service.ts line 70-79 base64url decode, AppDelegate.swift line 192 device token storage). All changes are additive extensions following established TCA patterns (dependency injection, reducer actions, GraphQL mutations). Build order dependencies validated against codebase structure. No circular dependencies or refactoring required. |
+| Pitfalls | MEDIUM | Based on production app case studies (ATT opt-in rates from Adjust/Sourcepoint research, AdMob account suspension from support forums, JWS fraud risk from Apple security bulletins), official Apple rejection reasons (guideline 5.1.1 privacy, 5.1.2 AI disclosure, 3.1.2 subscription terms), and legal compliance research (voice cloning laws from Holon Law, Soundverse multi-state guides). Confidence MEDIUM (not HIGH) because ATT opt-in rate estimates (10-20% immediate vs 30-60% delayed) cite industry benchmarks without Kindred-specific testing, and voice consent legal liability relies on law firm summaries rather than direct statute interpretation. |
 
 **Overall confidence:** HIGH
 
-Research quality benefits from existing validated stack (no new framework risks), clear competitor feature landscape (table stakes vs differentiators well-defined), and documented architectural patterns (TCA + SwiftData + Apollo). Confidence reduced slightly by reliance on vendor claims for ML accuracy and lack of direct food recognition benchmarks in production conditions, but mitigation strategies (manual correction flows, confidence thresholds, conservative defaults) address uncertainty.
+Research quality benefits from reliance on official Apple documentation (App Store Review Guidelines, ATT framework, TestFlight guide) and verified iOS patterns (UMP + ATT coordination, StoreKit 2 JWS verification, progressive permission requests). Stack confidence highest because zero new architectural dependencies—all additions extend existing validated infrastructure. Features confidence high due to clear Apple requirement documents (not ambiguous community interpretation). Architecture confidence high because integration points verified in existing codebase with specific line numbers. Pitfalls confidence slightly lower (MEDIUM) due to reliance on industry benchmark estimates and legal summaries requiring counsel validation.
 
 ### Gaps to Address
 
 **Gaps identified during research:**
 
-1. **Gemini 2.0 Flash food recognition accuracy in production conditions** — Research cites general image recognition capabilities but lacks specific benchmarks for fridge photos with poor lighting, occlusion, and varied angles. Vendor blog (CalCam) shows proof-of-concept but not production accuracy metrics.
-   - **Mitigation:** Build confidence threshold testing into Phase 4 with 30+ real fridge photos. If accuracy <70%, trigger phase research on alternative models (CoreML Food101, ML Kit) or adjust UX to require more user confirmation.
+1. **Voice cloning consent multi-state legal compliance** — Research identifies Federal AI Voice Act (2026 enforcement) and prominent state laws (Tennessee ELVIS Act, California AB 1836, New York Right of Publicity) but doesn't provide comprehensive 50-state compliance matrix or model consent language approved by counsel.
+   - **Mitigation:** Budget $20-50K for legal counsel specializing in AI/media rights to draft consent screen copy, terms addendum, and privacy policy voice cloning section. Counsel provides multi-state compliance opinion and audit trail documentation requirements. Timeline: 2-4 weeks for legal review during Phase 1.
 
-2. **Receipt OCR retailer-specific abbreviation coverage** — Research identifies problem (Fred Meyer "STO LRG BRUNN", Whole Foods "EDGS") but doesn't provide comprehensive abbreviation database or solution beyond "crowdsource from users."
-   - **Mitigation:** Start with two-stage Gemini pipeline (semantic understanding should handle abbreviations better than regex). Track OCR match rate during Phase 4 beta. If <60%, consider building retailer-specific mapping database or integrating specialized receipt OCR service (TabScanner API).
+2. **ATT opt-in rate benchmarks for recipe/cooking apps** — Research cites general mobile app opt-in rates (10-20% immediate prompt, 30-60% delayed progressive disclosure) from Adjust and Sourcepoint studies but lacks cooking app-specific data. Kindred's actual rates may vary.
+   - **Mitigation:** Instrument Phase 3 ATT implementation with detailed analytics (acceptance rate, denial rate, timing of request, pre-prompt screen variation). A/B test pre-prompt messaging in TestFlight (Phase 5) with 50%/50% split. Target >30% acceptance; if <30%, iterate on value proposition and timing before full launch.
 
-3. **Unit conversion density database integration** — Research recommends FAO density data and ingredient-aware conversion but doesn't specify integration path or library availability.
-   - **Mitigation:** For MVP (Phase 5), match on normalized ingredient names only, ignore unit conversions. Display "200g (~1.5 cups)" as informational but don't block matches. Defer intelligent unit conversion to v1.x, research density libraries (convert-units with extensions) during Phase 5 if user feedback demands it.
+3. **AdMob production unit ID setup process timeline** — Research identifies requirement to create AdMob account and generate production unit IDs but doesn't specify approval timeline or potential rejection reasons during AdMob account setup.
+   - **Mitigation:** Start AdMob account creation early in Phase 3 (don't wait until end of phase). AdMob typically approves accounts within 24-48 hours but may request additional verification for new accounts. Budget 3-5 business days for approval. If rejected, provides time to resolve verification issues before TestFlight deadline.
 
-4. **Offline-first CRDT implementation details** — Research recommends operation-based CRDT for quantities but doesn't specify library or implementation pattern for SwiftData + Apollo.
-   - **Mitigation:** Phase 1 architecture research should identify CRDT approach: either Automerge/Yjs Swift bindings or custom operation log with conflict resolution UI. If no clear Swift CRDT library, implement simpler version-based optimistic locking with conflict detection (show UI for user resolution rather than auto-merge).
+4. **SignedDataVerifier performance impact on subscription queries** — Research recommends full x5c certificate chain validation with @apple/app-store-server-library but doesn't quantify latency impact vs current base64url decode approach. Certificate validation involves cryptographic operations and potential OCSP/CRL checks.
+   - **Mitigation:** Phase 2 backend implementation should measure SignedDataVerifier latency in staging environment. If verification >500ms, consider caching verified transactions with TTL (1 hour) and implementing async verification queue for non-blocking subscription checks. Apple documentation suggests enabling online checks (second parameter: true) but can be disabled for performance at cost of revocation detection latency.
 
-5. **iOS notification permission acceptance benchmarks** — Research cites 60%+ denial for early requests and 70%+ target with progressive disclosure but doesn't provide iOS-specific benchmarks (vs general mobile).
-   - **Mitigation:** Instrument Phase 6 with analytics tracking permission request timing and acceptance rate. A/B test permission priming screen variations. If acceptance <60%, iterate on timing and messaging before declaring phase complete.
+5. **TestFlight external review timeline variability** — Research states external TestFlight builds require 24-48hr Apple review but doesn't account for holiday periods, guideline updates, or rejection scenarios requiring resubmission.
+   - **Mitigation:** Phase 5 should allocate 1 week buffer for external TestFlight review (not 24-48hr minimum). Submit external build early in testing period to catch potential rejections (privacy violations, missing entitlements) with time to fix and resubmit. Internal testing (instant, no review) should catch obvious crashes before external submission.
 
 **How to handle gaps during execution:**
-- Phase 1: Resolve CRDT implementation strategy (research libraries or design custom conflict UI)
-- Phase 4: Validate Gemini food recognition accuracy with real-world testing; trigger phase research if <70%
-- Phase 4: Track receipt OCR match rate; build retailer abbreviation mappings if <60%
-- Phase 5: Defer unit conversion to v1.x unless user feedback demands it
-- Phase 6: Instrument permission acceptance rate; iterate on priming screen if needed
+- Phase 1: Engage legal counsel early for voice consent review (2-4 week timeline, critical path)
+- Phase 3: Start AdMob account creation immediately, instrument ATT with detailed analytics, prepare A/B test variations
+- Phase 2: Measure SignedDataVerifier latency in staging, implement caching if >500ms
+- Phase 5: Allocate 1-week buffer for external TestFlight review, submit early to catch rejections with resubmit time
 
 ## Sources
 
 ### Primary (HIGH confidence)
 
-**Stack (official documentation):**
-- [VisionKit DataScannerViewController](https://developer.apple.com/documentation/visionkit/datascannerviewcontroller) — Apple official docs for iOS 17+ live OCR
-- [WWDC22: Capture machine-readable codes and text with VisionKit](https://developer.apple.com/videos/play/wwdc2022/10025/) — Apple official session introducing DataScannerViewController
-- [Gemini 2.0 Flash Documentation](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-0-flash) — Google Cloud official docs for image understanding
-- [Firebase AI Logic SDK](https://firebase.google.com/docs/ai-logic/get-started) — Official Firebase SDK for Gemini on iOS
-- [Apollo iOS 2.0 Documentation](https://www.apollographql.com/docs/ios) — Official Apollo GraphQL iOS docs for cache transactions
-- [NestJS GraphQL Documentation](https://docs.nestjs.com/graphql/resolvers) — Official NestJS code-first GraphQL patterns
-- [SwiftData in iOS 17](https://developer.apple.com/documentation/swiftdata) — Apple official SwiftData documentation
-- [Prisma PostgreSQL Quickstart](https://www.prisma.io/docs/prisma-orm/quickstart/postgresql) — Official Prisma 7 with PostgreSQL 15+ docs
+**Official Apple Documentation:**
+- [App Store Review Guidelines](https://developer.apple.com/app-store/review/guidelines/) — Guideline 5.1.1 (privacy), 5.1.2 (AI disclosure), 3.1.2 (subscription terms)
+- [App Tracking Transparency | Apple Developer Documentation](https://developer.apple.com/documentation/apptrackingtransparency) — ATT framework reference
+- [Privacy manifest files | Apple Developer Documentation](https://developer.apple.com/documentation/bundleresources/privacy-manifest-files) — PrivacyInfo.xcprivacy structure
+- [App Privacy Details - App Store - Apple Developer](https://developer.apple.com/app-store/app-privacy-details/) — Privacy Nutrition Labels requirements
+- [TestFlight - Apple Developer](https://developer.apple.com/testflight/) — Beta testing workflow
+- [Screenshot specifications - Apple Developer](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/) — 6.9" iPhone + 13" iPad requirements
 
-**Architecture (official frameworks):**
-- [TCA GitHub Repository](https://github.com/pointfreeco/swift-composable-architecture) — Official Composable Architecture library and patterns
-- [Apollo iOS Cache Transactions](https://www.apollographql.com/docs/ios/caching/cache-transactions) — Official cache mutation patterns
-- [UIImagePickerController](https://developer.apple.com/documentation/uikit/uiimagepickercontroller) — Apple official camera capture docs
+**Official Google/Firebase Documentation:**
+- [Set up UMP SDK | iOS | Google for Developers](https://developers.google.com/admob/ios/privacy) — UMP SDK 3.0.0 integration guide
+- [Present IDFA message | iOS | Google for Developers](https://developers.google.com/admob/ios/privacy/idfa) — ATT + UMP coordination
+- [Get started with Firebase Cloud Messaging in Apple platform apps](https://firebase.google.com/docs/cloud-messaging/ios/get-started) — APNs device token registration
+
+**Official Libraries:**
+- [@apple/app-store-server-library](https://github.com/apple/app-store-server-library-node) — GitHub repository for JWS SignedDataVerifier (Node.js implementation)
 
 ### Secondary (MEDIUM confidence)
 
-**Features (competitor analysis, case studies):**
-- [GE Profile Smart Refrigerator](https://pressroom.geappliances.com/news/ge-profileTM-unveils-game-changing-smart-refrigerator-with-kitchen-assistantTM-revolutionizing-grocery-shopping-and-meal-planning) — Enterprise investment validation ($4,899 fridge with barcode scanner)
-- [Cooklist App Store](https://apps.apple.com/us/app/cooklist-pantry-meals-recipes/id1352600944) — Loyalty card integration competitor analysis
-- [Portions Master](https://portionsmaster.com/blog/best-pantry-inventory-app-and-fridge-management-tool/) — AI meal recommendations + image recognition competitor
-- [Best Meal Planning Apps 2026](https://www.foodieprep.ai/blog/meal-planning-apps-in-2026-which-tools-actually-simplify-your-kitchen) — User expectation research for pantry features
-- [ConsumeSmart](https://www.consumesmart.com/) — AI grocery/pantry app with receipt scanning validation
-- [NourishMate Complete Guide](https://www.nourishmate.app/blog/complete-guide-smart-pantry-management) — User value research ($2K+ annual savings)
+**Implementation Guides & Best Practices:**
+- [How to implement App Tracking Transparency in Swift? | Prograils](https://prograils.com/app-tracking-transparency-swift) — Swift implementation patterns
+- [Getting Ready for App Tracking Transparency - Swift Senpai](https://swiftsenpai.com/development/get-ready-apptrackingtransparency/) — Progressive disclosure best practices
+- [How to Validate iOS and macOS In-App Purchases Using StoreKit 2 and Server-Side Swift | Ronald Mannak | Medium](https://medium.com/@ronaldmannak/how-to-validate-ios-and-macos-in-app-purchases-using-storekit-2-and-server-side-swift-98626641d3ea) — SignedDataVerifier patterns
+- [iOS App Store Review Guidelines 2026: Requirements, Rejections & Submission Guide](https://theapplaunchpad.com/blog/app-store-review-guidelines) — 2026 submission checklist
 
-**Architecture (implementation guides):**
-- [Getting Started with TCA | Kodeco](https://www.kodeco.com/24550178-getting-started-with-the-composable-architecture) — Multi-step TCA flow patterns
-- [SwiftData Local-First Architectures](https://medium.com/@gauravharkhani01/designing-efficient-local-first-architectures-with-swiftdata-cc74048526f2) — Offline-first patterns with SwiftData
-- [SwiftUI Camera Integration 2026](https://www.createwithswift.com/camera-capture-setup-in-a-swiftui-app/) — Modern camera capture patterns
-- [Recipe Similarity Networks | Nature](https://www.nature.com/articles/s41598-025-17189-6) — Jaccard similarity for recipe matching (peer-reviewed)
-
-**Pitfalls (production case studies, benchmarks):**
-- [Yuka Food Scanner Case Study](https://www.scandit.com/resources/case-studies/yuka/) — Real-world barcode scanning accuracy (99% availability, 79% within 5% accuracy)
-- [CalCam: Gemini API Food Tracking](https://developers.googleblog.com/calcam-transforming-food-tracking-with-the-gemini-api/) — Gemini production use case for food recognition
-- [OCR for Receipts Data Extraction](https://surveyinsights.org/?p=17190) — Receipt OCR accuracy benchmarks (>95% for vendor/date, lower for items)
-- [AI Hallucination Rates 2026](https://suprmind.ai/hub/ai-hallucination-rates-and-benchmarks/) — LLM hallucination frequency and prevention
-- [Using PHPickerViewController Efficiently](https://christianselig.com/2020/09/phpickerviewcontroller-efficiently/) — Memory management for batch photo processing
-- [Push Notification Best Practices 2025](https://www.pushwoosh.com/blog/push-notification-best-practices/) — Permission acceptance rates (73% disable if overwhelmed, 60%+ deny early requests)
+**Industry Benchmarks:**
+- [Opt-in design do's and don'ts for Apple's App Tracking Transparency | Adjust](https://www.adjust.com/blog/opt-in-design-for-apple-app-tracking-transparency-att-ios14/) — ATT opt-in rate benchmarks (10-20% immediate, 30-60% delayed)
+- [Best practices: iOS tracking message – Sourcepoint](https://docs.sourcepoint.com/hc/en-us/articles/4401990990355-Best-practices-iOS-tracking-message) — Pre-prompt screen patterns
 
 ### Tertiary (LOW confidence, needs validation)
 
-**Features (vendor claims):**
-- [CoreML Food101 GitHub](https://github.com/ph1ps/Food101-CoreML) — Food classification accuracy claims (86.97% Top-1, 97.42% Top-5) from repository readme, not peer-reviewed
-- [TabScanner Receipt OCR](https://tabscanner.com/ocr-supermarket-receipts/) — Vendor marketing claims (>95% accuracy for line items) without independent verification
+**Legal Compliance (requires counsel review):**
+- [Apple's new App Review Guidelines clamp down on apps sharing personal data with 'third-party AI' | TechCrunch](https://techcrunch.com/2025/11/13/apples-new-app-review-guidelines-clamp-down-on-apps-sharing-personal-data-with-third-party-ai/) — Guideline 5.1.2(i) announcement (Nov 2025)
+- [Voice Cloning Consent Laws by Country: Understanding Global Voice Rights in 2026 | Soundverse](https://www.soundverse.ai/blog/article/voice-cloning-consent-laws-by-country-1049) — International compliance summary
+- [Synthetic Media & Voice Cloning: Right of Publicity Risks for 2026 | Holon Law](https://holonlaw.com/entertainment-law/synthetic-media-voice-cloning-and-the-new-right-of-publicity-risk-map-for-2026/) — US state law requirements (Tennessee ELVIS Act, California AB 1836)
 
-**Pitfalls (specific numeric claims):**
-- [Ingredient Matching Research](https://www.researchgate.net/publication/234061858_Ingredient_Matching_to_Determine_the_Nutritional_Properties_of_Internet-Sourced_Recipes) — 47.2% match without rules, 91.1% with rules (single study, 2012)
-- [Food Barcode Scanning Quality](https://pmc.ncbi.nlm.nih.gov/articles/PMC10260744/) — 79% products within 5% accuracy (specific to energy values, may not generalize)
-
-**Stack (specialized use cases):**
-- [USDA IngID Thesaurus](https://www.ars.usda.gov/ARSUSERFILES/80400535/DATA/INGID/USDA_INGID_THESAURUS_FOR_RELEASE_FINAL.PDF) — Ingredient normalization canonical mappings (official USDA resource)
-- [FooDB](https://foodb.ca/) — Food constituent database for synonym mapping (academic resource, unclear maintenance status)
+**Submission Checklists (community resources):**
+- [App Store Requirements: iOS & Android Submission Guide 2026 | Natively](https://natively.dev/articles/app-store-requirements) — 2026 submission checklist
+- [TestFlight Beta Testing: The Complete Guide for iOS Developers](https://iossubmissionguide.com/testflight-beta-testing-complete-guide/) — Beta testing workflow
 
 ---
-*Research completed: 2026-03-11*
+*Research completed: 2026-03-30*
 *Ready for roadmap: yes*
