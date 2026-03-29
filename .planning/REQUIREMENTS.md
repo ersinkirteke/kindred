@@ -87,32 +87,39 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PRIV-01 | — | Pending |
-| PRIV-02 | — | Pending |
-| PRIV-03 | — | Pending |
-| PRIV-04 | — | Pending |
-| PRIV-05 | — | Pending |
-| PRIV-06 | — | Pending |
-| PRIV-07 | — | Pending |
-| VOICE-01 | — | Pending |
-| VOICE-02 | — | Pending |
-| VOICE-03 | — | Pending |
-| BILL-01 | — | Pending |
-| BILL-02 | — | Pending |
-| BILL-03 | — | Pending |
-| PUSH-01 | — | Pending |
-| PUSH-02 | — | Pending |
-| NAV-01 | — | Pending |
-| DATA-01 | — | Pending |
-| SUBMIT-01 | — | Pending |
-| SUBMIT-02 | — | Pending |
-| SUBMIT-03 | — | Pending |
+| PRIV-01 | Phase 20 | Pending |
+| PRIV-02 | Phase 18 | Pending |
+| PRIV-03 | Phase 18 | Pending |
+| PRIV-04 | Phase 18 | Pending |
+| PRIV-05 | Phase 18 | Pending |
+| PRIV-06 | Phase 18 | Pending |
+| PRIV-07 | Phase 18 | Pending |
+| VOICE-01 | Phase 21 | Pending |
+| VOICE-02 | Phase 21 | Pending |
+| VOICE-03 | Phase 19 | Pending |
+| BILL-01 | Phase 19 | Pending |
+| BILL-02 | Phase 21 | Pending |
+| BILL-03 | Phase 20 | Pending |
+| PUSH-01 | Phase 19 | Pending |
+| PUSH-02 | Phase 19 | Pending |
+| NAV-01 | Phase 21 | Pending |
+| DATA-01 | Phase 21 | Pending |
+| SUBMIT-01 | Phase 22 | Pending |
+| SUBMIT-02 | Phase 22 | Pending |
+| SUBMIT-03 | Phase 22 | Pending |
 
 **Coverage:**
-- v4.0 requirements: 19 total
-- Mapped to phases: 0
-- Unmapped: 19 (pending roadmap creation)
+- v4.0 requirements: 20 total
+- Mapped to phases: 20
+- Unmapped: 0
+
+**Phase distribution:**
+- Phase 18 (Privacy Compliance): 6 requirements (PRIV-02, PRIV-03, PRIV-04, PRIV-05, PRIV-06, PRIV-07)
+- Phase 19 (Backend Hardening): 4 requirements (BILL-01, PUSH-01, PUSH-02, VOICE-03)
+- Phase 20 (ATT & Ads): 2 requirements (PRIV-01, BILL-03)
+- Phase 21 (Voice & Monetization): 5 requirements (VOICE-01, VOICE-02, BILL-02, NAV-01, DATA-01)
+- Phase 22 (TestFlight & Submission): 3 requirements (SUBMIT-01, SUBMIT-02, SUBMIT-03)
 
 ---
 *Requirements defined: 2026-03-30*
-*Last updated: 2026-03-30 after initial definition*
+*Last updated: 2026-03-30 after roadmap creation*

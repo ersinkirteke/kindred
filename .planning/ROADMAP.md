@@ -4,7 +4,8 @@
 
 - ✅ **v1.5 Backend & AI Pipeline** — Phases 1-3 (shipped 2026-03-01)
 - ✅ **v2.0 iOS App** — Phases 4-11 (shipped 2026-03-11)
-- 🚧 **v3.0 Smart Pantry** — Phases 12-17 (in progress)
+- ✅ **v3.0 Smart Pantry** — Phases 12-17 (shipped 2026-03-29)
+- 🚧 **v4.0 App Store Launch Prep** — Phases 18-22 (in progress)
 
 ## Phases
 
@@ -37,126 +38,126 @@
 
 </details>
 
-### 🚧 v3.0 Smart Pantry (In Progress)
+<details>
+<summary>✅ v3.0 Smart Pantry (Phases 12-17) — SHIPPED 2026-03-29</summary>
 
-**Milestone Goal:** Add ingredient intelligence — fridge scanning, receipt scanning, persistent pantry, expiry tracking, and recipe-ingredient matching to transform Kindred from recipe discovery into a complete cooking companion.
+- [x] Phase 12: Pantry Infrastructure (3/3 plans) — Backend GraphQL pantry API, ingredient normalization, PantryFeature SPM package
+- [x] Phase 13: Manual Pantry Management (3/3 plans) — Local-first SwiftData CRUD, offline-first sync, storage categorization
+- [x] Phase 14: Camera Capture (3/3 plans) — Progressive permission, AVCaptureSession, R2 upload, Pro paywall gate
+- [x] Phase 15: AI Scanning (3/3 plans) — Gemini 2.0 Flash fridge scanning, VisionKit receipt OCR, Pro paywall
+- [x] Phase 16: Recipe Matching (2/2 plans) — Match % badges on feed cards, shopping list generation
+- [x] Phase 17: Expiry Tracking (3/3 plans) — AI expiry estimation, push notifications, visual indicators
 
-- [x] **Phase 12: Pantry Infrastructure** - Backend GraphQL schema, ingredient normalization, PantryFeature SPM package foundation (completed 2026-03-11)
-- [x] **Phase 13: Manual Pantry Management** - Local-first CRUD with SwiftData, offline-first sync, storage categorization (completed 2026-03-11)
-- [x] **Phase 14: Camera Capture** - Progressive permission request, photo capture, R2 upload, memory-safe processing (completed 2026-03-13)
-- [x] **Phase 15: AI Scanning** - Fridge photo recognition (Pro), receipt OCR (Pro), Gemini analysis, Pro paywall (completed 2026-03-15)
-- [x] **Phase 16: Recipe Matching** - Match % badge on feed cards, shopping list generation, ingredient normalization (completed 2026-03-16)
-- [ ] **Phase 17: Expiry Tracking** - AI expiry estimation, push notifications, visual indicators, consumption tracking
+**Total:** 6 phases, 17 plans, 26/26 requirements satisfied
+**Archive:** `.planning/milestones/v3.0-ROADMAP.md`
+
+</details>
+
+<details open>
+<summary>🚧 v4.0 App Store Launch Prep (Phases 18-22) — IN PROGRESS</summary>
+
+- [ ] **Phase 18: Privacy Compliance & Consent Infrastructure** - Privacy policy, nutrition labels, voice consent, privacy manifest
+- [ ] **Phase 19: Backend Production Hardening** - JWS verification, device token API, narration URL resolver
+- [ ] **Phase 20: ATT Consent & Production Ads** - ATT flow, production AdMob unit IDs, pre-prompt screen
+- [ ] **Phase 21: Voice Playback & Monetization Integration** - R2 URLs wiring, paywall triggering, navigation, SwiftData fix
+- [ ] **Phase 22: TestFlight Beta & Submission Prep** - Screenshots, metadata, beta testing, final validation
+
+</details>
 
 ## Phase Details
 
-### Phase 12: Pantry Infrastructure
-**Goal**: Build backend and iOS foundation for pantry features with ingredient normalization and data models
-**Depends on**: Phase 11
-**Requirements**: INFRA-01, INFRA-02, INFRA-03
+<details open>
+<summary><strong>v4.0 App Store Launch Prep (Phases 18-22)</strong></summary>
+
+### Phase 18: Privacy Compliance & Consent Infrastructure
+**Goal**: App meets all privacy disclosure and consent requirements for App Store submission
+
+**Depends on**: Nothing (foundational compliance work)
+
+**Requirements**: PRIV-02, PRIV-03, PRIV-04, PRIV-05, PRIV-06, PRIV-07
+
 **Success Criteria** (what must be TRUE):
-  1. Backend GraphQL schema supports pantry CRUD operations (queries, mutations, subscriptions)
-  2. Ingredient normalization maps user input to canonical forms (handles "eggs" vs "large eggs")
-  3. PantryFeature SPM package exists following TCA architecture patterns (reducers, clients, models)
-  4. PantryItem SwiftData model persists locally with validation and migrations
-**Plans**: 3 plans
+1. User sees clear voice cloning consent screen before first voice upload naming ElevenLabs as AI provider
+2. User can delete their voice profile from Settings with confirmation dialog
+3. Privacy Policy is publicly accessible and linked in app Settings and App Store Connect
+4. Privacy Nutrition Labels accurately declare all data collection across 14 categories (AdMob, ElevenLabs, Firebase, Mapbox, Clerk)
+5. PrivacyInfo.xcprivacy manifest exists declaring tracking domains and API usage with approved reason codes
 
-Plans:
-- [ ] 12-01-PLAN.md — Backend Prisma schema + NestJS PantryModule + ingredient normalization + seed
-- [ ] 12-02-PLAN.md — iOS PantryFeature SPM package + SwiftData models + PantryClient + tab bar
-- [ ] 12-03-PLAN.md — GraphQL operations + Apollo codegen + NetworkClient + device verification
+**Plans**: TBD
 
-### Phase 13: Manual Pantry Management
-**Goal**: Users can manually add, edit, delete, and view their pantry inventory with offline-first persistence
-**Depends on**: Phase 12
-**Requirements**: PANTRY-01, PANTRY-02, PANTRY-03, PANTRY-04, PANTRY-05, PANTRY-06, PANTRY-07
+---
+
+### Phase 19: Backend Production Hardening
+**Goal**: Backend is production-ready with fraud prevention and push notification delivery
+
+**Depends on**: Nothing (parallel to Phase 18, backend work)
+
+**Requirements**: BILL-01, PUSH-01, PUSH-02, VOICE-03
+
 **Success Criteria** (what must be TRUE):
-  1. User can add a pantry item with name, quantity, unit, and storage location (fridge/freezer/pantry)
-  2. User can edit existing pantry items (all fields including category)
-  3. User can delete pantry items with swipe-to-delete gesture
-  4. User sees pantry list grouped by storage location with item counts
-  5. Pantry data persists locally via SwiftData and syncs to backend when online
-  6. Pantry works offline with changes queued and synced when connectivity returns
-**Plans**: 3 plans
+1. Backend validates StoreKit 2 JWS transactions using SignedDataVerifier with x5c certificate chain verification
+2. Device FCM tokens are registered with backend via GraphQL mutation on app launch
+3. Backend stores device tokens per user and can deliver push notifications to registered devices
+4. Narration URL GraphQL query returns Cloudflare R2 CDN URLs from NarrationAudio cache lookup
 
-Plans:
-- [ ] 13-01-PLAN.md — AddEditItem form reducer + view + PantryClient extensions (autocomplete, duplicate check, category suggest)
-- [ ] 13-02-PLAN.md — Wire form into PantryReducer/PantryView + search, sort, expiry badges, delete confirmation, localization
-- [ ] 13-03-PLAN.md — Offline-first sync worker (push/pull, retry, connectivity monitoring, UI indicators)
+**Plans**: TBD
 
-### Phase 14: Camera Capture
-**Goal**: Users can capture photos from camera with progressive permission request, custom AVCaptureSession viewfinder, memory-safe photo processing, and R2 upload via backend GraphQL mutation
-**Depends on**: Phase 13
-**Requirements**: INFRA-04, SCAN-06
+---
+
+### Phase 20: ATT Consent & Production Ads
+**Goal**: Users can opt into personalized ads through compliant ATT consent flow
+
+**Depends on**: Phase 18 (Privacy Manifest, NSUserTrackingUsageDescription)
+
+**Requirements**: PRIV-01, BILL-03
+
 **Success Criteria** (what must be TRUE):
-  1. Camera permission requested with progressive disclosure (not at launch, on first Scan items tap)
-  2. User can capture photos using custom AVCaptureSession with edge-to-edge viewfinder, flash toggle, pinch-to-zoom
-  3. Captured photos compress to JPEG 80% quality (max 2048px) and upload to Cloudflare R2 via backend GraphQL mutation
-  4. Photo processing uses autoreleasepool for memory-safe compression of 48MP+ camera photos
-  5. Pro paywall appears for free-tier users when tapping Scan items in expandable FAB
-**Plans**: 3 plans
+1. User sees pre-prompt explanation screen before ATT system dialog explaining ad personalization benefits
+2. App coordinates UMP consent (GDPR/CCPA) before requesting ATT authorization
+3. Production AdMob unit IDs are active in Info.plist and AdClient.swift (test IDs removed)
+4. AdMob initializes with correct consent status showing personalized or non-personalized ads
 
-Plans:
-- [ ] 14-01-PLAN.md — Camera infrastructure: CameraClient dependency, expandable FAB, Pro paywall gate, backend scan upload mutation
-- [ ] 14-02-PLAN.md — Camera capture experience: CameraManager, viewfinder, capture UI, photo preview, blur detection, scan classification
-- [ ] 14-03-PLAN.md — Upload pipeline: JPEG compression, GraphQL multipart upload, progress UI, offline queue, device verification
+**Plans**: TBD
 
-### Phase 15: AI Scanning
-**Goal**: Pro users can scan fridge photos or supermarket receipts to auto-populate their pantry inventory
-**Depends on**: Phase 14
-**Requirements**: SCAN-01, SCAN-02, SCAN-03, SCAN-04, SCAN-05
+---
+
+### Phase 21: Voice Playback & Monetization Integration
+**Goal**: Voice narration plays from production URLs and all monetization paths are connected
+
+**Depends on**: Phase 19 (backend narration URL resolver)
+
+**Requirements**: VOICE-01, VOICE-02, BILL-02, NAV-01, DATA-01
+
 **Success Criteria** (what must be TRUE):
-  1. Pro user can photograph their fridge and get identified ingredients via Gemini 2.0 Flash
-  2. Fridge scan results show editable ingredient list with confidence indicators (>70% auto-accept)
-  3. After fridge scan, user sees matching recipes based on identified ingredients
-  4. Pro user can scan supermarket receipt using VisionKit live OCR preview
-  5. Receipt scan extracts item names and quantities, adding them to pantry with expiry estimates
-  6. Scanning features gracefully handle AI failures (low confidence, OCR misreads) with manual correction
-**Plans**: 3 plans
+1. Voice playback streams audio from backend R2 CDN URLs (TestAudioGenerator removed)
+2. All GraphQL voice profile TODO markers are resolved with real backend data
+3. User tapping "Subscribe" in ScanPaywallView triggers MonetizationFeature purchase flow
+4. User tapping recipe suggestion carousel card navigates to recipe detail view
+5. SwiftData uses named ModelConfiguration committed with PantryStore/GuestStore separation
 
-Plans:
-- [x] 15-01-PLAN.md -- Backend AI pipeline: Prisma ScanJob model, ScanAnalyzerService (Gemini Vision + receipt text), analyzeScan/analyzeReceiptText mutations, free scan quota (completed 2026-03-13)
-- [x] 15-02-PLAN.md -- iOS scan results UI: DetectedItem model, ScanResultsReducer (checklist with confidence badges, inline edit, bulk add), ScanResultsView, VisionKit ReceiptScannerView (completed 2026-03-13)
-- [ ] 15-03-PLAN.md -- End-to-end wiring: GraphQL operations, upload-to-analysis transition, recipe suggestion carousel, Pro paywall with free trial, device verification
+**Plans**: TBD
 
-### Phase 16: Recipe Matching
-**Goal**: Recipe feed cards display ingredient match percentage based on pantry contents with shopping list generation
-**Depends on**: Phase 13 (needs populated pantry)
-**Requirements**: MATCH-01, MATCH-02, MATCH-03, MATCH-04
+---
+
+### Phase 22: TestFlight Beta & Submission Prep
+**Goal**: App is tested, validated, and ready for App Store submission
+
+**Depends on**: Phases 18-21 (all features complete)
+
+**Requirements**: SUBMIT-01, SUBMIT-02, SUBMIT-03
+
 **Success Criteria** (what must be TRUE):
-  1. Recipe cards display match % badge showing pantry ingredient overlap (green >70%, yellow >50%, hidden <50%)
-  2. Match badge uses color coding that's accessible (WCAG AAA contrast)
-  3. User can tap recipe to generate shopping list of missing ingredients
-  4. Ingredient matching uses normalized names and fuzzy matching (handles variants like "eggs" vs "large eggs")
-  5. Match % recalculates automatically when pantry contents change
-**Plans**: 2 plans
+1. App Store screenshots created for required device sizes (6.9" iPhone 1320x2868px, 13" iPad 2064x2752px)
+2. App Store metadata completed with third-party AI disclosure and privacy labels validated
+3. TestFlight internal testing completed with 5-10 testers (1 week minimum)
+4. TestFlight external testing completed with 50-100 beta testers (1-2 weeks minimum)
+5. All critical bugs from beta feedback are resolved with no known crashers or blockers
 
-Plans:
-- [ ] 16-01-PLAN.md — IngredientMatcher utility, RecipeCard model extension, MatchBadge component, FeedReducer match computation
-- [ ] 16-02-PLAN.md — Detail view match state, shopping list bottom sheet, share/copy, device verification checkpoint
+**Plans**: TBD
 
-### Phase 17: Expiry Tracking
-**Goal**: Users receive push notifications before pantry items expire with AI-estimated expiry dates and visual indicators
-**Depends on**: Phase 13 (needs pantry items)
-**Requirements**: EXPIRY-01, EXPIRY-02, EXPIRY-03, EXPIRY-04, EXPIRY-05
-**Success Criteria** (what must be TRUE):
-  1. Each pantry item has an AI-estimated expiry date based on item type (conservative estimates)
-  2. User receives push notifications 1-2 days before items expire (batched, not spam)
-  3. Pantry view shows expiry status with visual indicators (green fresh, yellow expiring soon, red expired)
-  4. AI estimates include disclaimers ("Estimated expiry—verify packaging"), user can manually override dates
-  5. User can mark expired items as consumed or discarded with one tap
-  6. Notification permission requested progressively (after first pantry add, not at launch)
-**Plans**: 3 plans
-
-Plans:
-- [ ] 17-01-PLAN.md -- Backend expiry pipeline: ExpiryEstimatorService (IngredientCatalog + Gemini), ExpiryNotificationScheduler cron job (8 AM UTC daily digest), PantryService.getExpiringItems
-- [ ] 17-02-PLAN.md -- iOS expiry UI: ExpiryStatus model, color-coded left edge strips, dimmed expired rows, swipe consume/discard, DatePicker override, NotificationClient dependency
-- [ ] 17-03-PLAN.md -- Wiring and verification: AppDelegate device token handling, localization, physical device verification checkpoint
+</details>
 
 ## Progress
-
-**Execution Order:**
-Phases execute in numeric order: 12 → 13 → 14 → 15 → 16 → 17
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -165,22 +166,28 @@ Phases execute in numeric order: 12 → 13 → 14 → 15 → 16 → 17
 | 3. Voice Core | v1.5 | 3/3 | Complete | 2026-03-01 |
 | 4. Foundation & Architecture | v2.0 | 4/4 | Complete | 2026-03-01 |
 | 5. Guest Browsing & Feed | v2.0 | 4/4 | Complete | 2026-03-02 |
-| 6. Dietary Filtering & Personalization | v2.0 | 3/3 | Complete | 2026-03-03 |
-| 7. Voice Playback & Streaming | v2.0 | 6/6 | Complete | 2026-03-03 |
-| 8. Authentication & Onboarding | v2.0 | 4/4 | Complete | 2026-03-06 |
-| 9. Monetization & Voice Tiers | v2.0 | 5/5 | Complete | 2026-03-08 |
-| 10. Accessibility & Polish | v2.0 | 7/7 | Complete | 2026-03-08 |
+| 6. Dietary Filtering | v2.0 | 3/3 | Complete | 2026-03-03 |
+| 7. Voice Playback | v2.0 | 6/6 | Complete | 2026-03-03 |
+| 8. Authentication | v2.0 | 4/4 | Complete | 2026-03-06 |
+| 9. Monetization | v2.0 | 5/5 | Complete | 2026-03-08 |
+| 10. Accessibility | v2.0 | 7/7 | Complete | 2026-03-08 |
 | 11. Auth Gap Closure | v2.0 | 2/2 | Complete | 2026-03-09 |
-| 12. Pantry Infrastructure | 3/3 | Complete    | 2026-03-11 | - |
-| 13. Manual Pantry Management | 3/3 | Complete    | 2026-03-12 | - |
-| 14. Camera Capture | 3/3 | Complete    | 2026-03-13 | - |
-| 15. AI Scanning | 3/3 | Complete    | 2026-03-15 | - |
-| 16. Recipe Matching | 2/2 | Complete    | 2026-03-16 | - |
-| 17. Expiry Tracking | 2/3 | In Progress|  | - |
+| 12. Pantry Infrastructure | v3.0 | 3/3 | Complete | 2026-03-11 |
+| 13. Manual Pantry Management | v3.0 | 3/3 | Complete | 2026-03-12 |
+| 14. Camera Capture | v3.0 | 3/3 | Complete | 2026-03-13 |
+| 15. AI Scanning | v3.0 | 3/3 | Complete | 2026-03-15 |
+| 16. Recipe Matching | v3.0 | 2/2 | Complete | 2026-03-16 |
+| 17. Expiry Tracking | v3.0 | 3/3 | Complete | 2026-03-17 |
+| 18. Privacy Compliance | v4.0 | 0/TBD | Not started | - |
+| 19. Backend Hardening | v4.0 | 0/TBD | Not started | - |
+| 20. ATT & Ads | v4.0 | 0/TBD | Not started | - |
+| 21. Voice & Monetization | v4.0 | 0/TBD | Not started | - |
+| 22. TestFlight & Submission | v4.0 | 0/TBD | Not started | - |
 
 ---
 
 *Roadmap created: 2026-02-28*
 *v1.5 shipped: 2026-03-01*
 *v2.0 shipped: 2026-03-11*
-*v3.0 started: 2026-03-11*
+*v3.0 shipped: 2026-03-29*
+*v4.0 started: 2026-03-30*
