@@ -1,68 +1,71 @@
-# Requirements: Kindred
+# Requirements: Kindred v4.0 App Store Launch Prep
 
-**Defined:** 2026-03-11
+**Defined:** 2026-03-30
 **Core Value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
 
-## v3.0 Requirements
+## v4.0 Requirements
 
-Requirements for Smart Pantry milestone. Each maps to roadmap phases.
+Requirements for App Store submission readiness. Each maps to roadmap phases.
 
-### Pantry Management
+### Privacy & Consent
 
-- [x] **PANTRY-01**: User can add a pantry item with name, quantity, and unit
-- [x] **PANTRY-02**: User can edit existing pantry items (name, quantity, unit, category)
-- [ ] **PANTRY-03**: User can delete pantry items individually
-- [x] **PANTRY-04**: User can categorize items by storage location (fridge, freezer, pantry)
-- [x] **PANTRY-05**: Pantry data persists locally and syncs to backend across devices
-- [ ] **PANTRY-06**: User can view their pantry as a list grouped by storage location
-- [x] **PANTRY-07**: Pantry works offline with changes synced when connectivity returns
+- [ ] **PRIV-01**: App shows ATT consent prompt with pre-prompt explanation before personalized ads
+- [ ] **PRIV-02**: Privacy Nutrition Labels accurately declare all data collection in App Store Connect
+- [ ] **PRIV-03**: PrivacyInfo.xcprivacy manifest declares tracking domains and API usage with approved reason codes
+- [ ] **PRIV-04**: Voice cloning consent screen shown before first voice upload naming ElevenLabs as AI provider
+- [ ] **PRIV-05**: Voice consent audit trail stores userId, timestamp, IP, and app version in backend
+- [ ] **PRIV-06**: User can delete voice profile from Settings with confirmation dialog
+- [ ] **PRIV-07**: Privacy Policy hosted at public URL and linked in App Store Connect
 
-### Smart Scanning
+### Voice Playback
 
-- [x] **SCAN-01**: Pro user can photograph their fridge and get identified ingredients (Gemini 2.0 Flash)
-- [x] **SCAN-02**: Fridge scan results show editable ingredient list with confidence indicators
-- [x] **SCAN-03**: After fridge scan, user sees matching recipes based on identified ingredients
-- [x] **SCAN-04**: Pro user can scan a supermarket receipt to extract purchased items
-- [x] **SCAN-05**: Receipt scan extracts item names and quantities, adding them to the pantry
-- [x] **SCAN-06**: Scanning features show Pro paywall for free-tier users
+- [ ] **VOICE-01**: Voice narration plays from backend R2 CDN URLs replacing TestAudioGenerator
+- [ ] **VOICE-02**: All GraphQL voice profile TODO markers resolved with real backend data
+- [ ] **VOICE-03**: Narration URL returned via GraphQL query with NarrationAudio cache lookup
 
-### Recipe Integration
+### Billing & Monetization
 
-- [x] **MATCH-01**: Recipe cards display ingredient match % badge based on pantry contents
-- [x] **MATCH-02**: Match badge uses color coding (green >70%, yellow >50%, hidden below 50%)
-- [x] **MATCH-03**: User can generate a shopping list of missing ingredients for any recipe
-- [x] **MATCH-04**: Ingredient matching uses normalized names (handles "eggs" vs "large eggs")
+- [ ] **BILL-01**: Backend validates StoreKit 2 JWS transactions using SignedDataVerifier with x5c chain
+- [ ] **BILL-02**: ScanPaywallView subscribe button triggers MonetizationFeature purchase flow
+- [ ] **BILL-03**: Production AdMob unit IDs replace test IDs in Info.plist and AdClient.swift
 
-### Expiry Tracking
+### Push Notifications
 
-- [x] **EXPIRY-01**: Each pantry item has an AI-estimated expiry date based on item type
-- [x] **EXPIRY-02**: User receives push notifications before items expire
-- [x] **EXPIRY-03**: Pantry view shows expiry status with visual indicators (fresh, expiring soon, expired)
-- [x] **EXPIRY-04**: AI estimates include disclaimers; user can manually override dates
-- [x] **EXPIRY-05**: User can mark expired items as consumed or discarded
+- [ ] **PUSH-01**: Device FCM token registered with backend via GraphQL mutation on app launch
+- [ ] **PUSH-02**: Backend stores FCM token per user and uses it for push notification delivery
 
-### Infrastructure
+### Navigation
 
-- [x] **INFRA-01**: Backend GraphQL schema supports pantry CRUD operations
-- [x] **INFRA-02**: Ingredient normalization maps items to canonical forms
-- [x] **INFRA-03**: PantryFeature SPM package follows existing TCA architecture patterns
-- [x] **INFRA-04**: Camera permission requested with progressive disclosure (not at launch)
+- [ ] **NAV-01**: Recipe suggestion carousel card tap navigates to recipe detail view
+
+### Data Persistence
+
+- [ ] **DATA-01**: SwiftData named ModelConfiguration committed (PantryStore/GuestStore separation)
+
+### App Store Submission
+
+- [ ] **SUBMIT-01**: App Store screenshots created for required device sizes
+- [ ] **SUBMIT-02**: App Store metadata written with third-party AI disclosure
+- [ ] **SUBMIT-03**: TestFlight beta testing completed with internal and external testers
 
 ## Future Requirements
 
-Deferred to future release. Tracked but not in current roadmap.
+Deferred to post-launch. Tracked but not in current roadmap.
 
-### Enhanced Scanning
+### Subscription Management
 
-- **SCAN-07**: User can scan barcodes on packaged goods to add items
-- **SCAN-08**: Voice-based pantry updates via Siri ("add 3 eggs to my pantry")
+- **SUB-01**: App Store Server API integration for refund and subscription lifecycle events
+- **SUB-02**: Staged ATT rollout with A/B testing for opt-in rate optimization
 
-### Advanced Features
+### Localization
 
-- **ADV-01**: "Cookable now" filter on recipe feed (match >= 50%)
-- **ADV-02**: Sort recipes by ingredient match % descending
-- **ADV-03**: Food waste analytics dashboard (Pro) — "You saved $47 this month"
-- **ADV-04**: Pantry-aware meal planning with weekly calendar
+- **LOC-01**: Localized permission strings for non-English markets
+- **LOC-02**: Localized voice consent copy for Turkish
+
+### Analytics
+
+- **ANAL-01**: Advanced subscription analytics dashboard
+- **ANAL-02**: ATT acceptance rate tracking by cohort
 
 ## Out of Scope
 
@@ -70,12 +73,13 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Feature | Reason |
 |---------|--------|
-| Loyalty card integration | Requires partnership agreements with grocery chains; high business development effort |
-| Household collaboration / shared pantry | Multi-user complexity (conflict resolution, permissions); defer until single-user validated |
-| Ingredient substitution engine | Complex cooking chemistry logic; high risk of recipe failure eroding trust |
-| Real-time continuous fridge monitoring | Requires expensive smart fridge hardware or drains battery |
-| Automatic expiry OCR from package photos | OCR accuracy <60% due to format variability; frustrating UX |
-| Barcode scanning | Deferred to future — focus on AI photo scanning as differentiator |
+| Force ATT Accept | Apple views as "nagging", causes rejection under guideline 5.1.1(iv) |
+| Skip StoreKit Validation | Fraud risk, subscription abuse, revenue loss |
+| RevenueCat integration | @apple/app-store-server-library sufficient for v4.0 launch |
+| Android parity | iOS-first strategy, Android is separate milestone |
+| AI cooking video (Veo) | $4.50-9/user/month cost, 30-120s latency |
+| Social features | Not core to emotional utility |
+| Custom ATT-only (no UMP) | UMP already integrated, provides GDPR/CCPA coverage |
 
 ## Traceability
 
@@ -83,38 +87,32 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PANTRY-01 | Phase 13 | Complete |
-| PANTRY-02 | Phase 13 | Complete |
-| PANTRY-03 | Phase 13 | Pending |
-| PANTRY-04 | Phase 13 | Complete |
-| PANTRY-05 | Phase 13 | Complete |
-| PANTRY-06 | Phase 13 | Pending |
-| PANTRY-07 | Phase 13 | Complete |
-| SCAN-01 | Phase 15 | Complete |
-| SCAN-02 | Phase 15 | Complete |
-| SCAN-03 | Phase 15 | Complete |
-| SCAN-04 | Phase 15 | Complete |
-| SCAN-05 | Phase 15 | Complete |
-| SCAN-06 | Phase 14 | Complete |
-| MATCH-01 | Phase 16 | Complete |
-| MATCH-02 | Phase 16 | Complete |
-| MATCH-03 | Phase 16 | Complete |
-| MATCH-04 | Phase 16 | Complete |
-| EXPIRY-01 | Phase 17 | Complete |
-| EXPIRY-02 | Phase 17 | Complete |
-| EXPIRY-03 | Phase 17 | Complete |
-| EXPIRY-04 | Phase 17 | Complete |
-| EXPIRY-05 | Phase 17 | Complete |
-| INFRA-01 | Phase 12 | Complete |
-| INFRA-02 | Phase 12 | Complete |
-| INFRA-03 | Phase 12 | Complete |
-| INFRA-04 | Phase 14 | Complete |
+| PRIV-01 | — | Pending |
+| PRIV-02 | — | Pending |
+| PRIV-03 | — | Pending |
+| PRIV-04 | — | Pending |
+| PRIV-05 | — | Pending |
+| PRIV-06 | — | Pending |
+| PRIV-07 | — | Pending |
+| VOICE-01 | — | Pending |
+| VOICE-02 | — | Pending |
+| VOICE-03 | — | Pending |
+| BILL-01 | — | Pending |
+| BILL-02 | — | Pending |
+| BILL-03 | — | Pending |
+| PUSH-01 | — | Pending |
+| PUSH-02 | — | Pending |
+| NAV-01 | — | Pending |
+| DATA-01 | — | Pending |
+| SUBMIT-01 | — | Pending |
+| SUBMIT-02 | — | Pending |
+| SUBMIT-03 | — | Pending |
 
 **Coverage:**
-- v3.0 requirements: 24 total
-- Mapped to phases: 24 (100%)
-- Unmapped: 0 ✓
+- v4.0 requirements: 19 total
+- Mapped to phases: 0
+- Unmapped: 19 (pending roadmap creation)
 
 ---
-*Requirements defined: 2026-03-11*
-*Last updated: 2026-03-11 after roadmap creation*
+*Requirements defined: 2026-03-30*
+*Last updated: 2026-03-30 after initial definition*
