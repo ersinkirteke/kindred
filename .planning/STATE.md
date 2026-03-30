@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
-milestone: v4.0
-milestone_name: App Store Launch Prep
-status: ready_to_plan
-last_updated: "2026-03-30"
+milestone: v1.5
+milestone_name: milestone
+status: planning
+last_updated: "2026-03-30T04:57:35.976Z"
 progress:
-  total_phases: 5
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_phases: 15
+  completed_phases: 13
+  total_plans: 55
+  completed_plans: 53
 ---
 
 # Project State: Kindred
@@ -31,9 +31,9 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Milestone: v4.0 App Store Launch Prep
 Phase: 18 of 22 (Privacy Compliance & Consent Infrastructure)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: Executing
-Last activity: 2026-03-30 — Completed plan 18-02 (PrivacyInfo.xcprivacy & Nutrition Labels)
+Last activity: 2026-03-30 — Completed plan 18-01 (Voice Cloning Consent Gate)
 
 Progress: [████████████████░░░░] 78% (64/82 plans complete across all milestones)
 
@@ -58,6 +58,7 @@ Progress: [████████████████░░░░] 78% (64
 **Recent Trend:** Phase 18 executing (1 of 3 plans complete)
 
 ---
+| Phase 18 P01 | 5 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,9 @@ Recent decisions affecting v4.0 work:
 - **Test AdMob IDs** (v2.0): Used test unit IDs throughout development — must replace with production IDs (BILL-03 in Phase 20)
 - **Base64url JWS verification** (v2.0): Current backend uses simple decode without x5c chain validation — production fraud risk (BILL-01 in Phase 19)
 - **Device token storage** (v3.0 partial): Tokens registered locally but not sent to backend — blocks push delivery (PUSH-01, PUSH-02 in Phase 19)
+- [Phase 18]: Per-upload consent (not once-per-user) for GDPR Article 7 compliance and Tennessee ELVIS Act requirements
+- [Phase 18]: interactiveDismissDisabled on consent modal to prevent accidental dismissal via swipe gesture
+- [Phase 18]: consentAppVersion as nullable field to support existing records without breaking changes
 
 ### Pending Todos
 
@@ -97,9 +101,9 @@ Recent decisions affecting v4.0 work:
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Completed Phase 18 Plan 02 (PrivacyInfo.xcprivacy & Nutrition Labels)
+Stopped at: Completed Phase 18 Plan 01 (Voice Cloning Consent Gate)
 Resume file: None
-Next action: Continue Phase 18 with Plan 03 (Privacy Policy content and hosting)
+Next action: Continue Phase 18 with Plan 02
 
 ---
 
