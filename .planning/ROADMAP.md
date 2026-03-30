@@ -56,7 +56,7 @@
 <details open>
 <summary>🚧 v4.0 App Store Launch Prep (Phases 18-22) — IN PROGRESS</summary>
 
-- [x] **Phase 18: Privacy Compliance & Consent Infrastructure** - Privacy policy, nutrition labels, voice consent, privacy manifest (completed 2026-03-30)
+- [ ] **Phase 18: Privacy Compliance & Consent Infrastructure** - Privacy policy, nutrition labels, voice consent, privacy manifest (gap closure in progress)
 - [ ] **Phase 19: Backend Production Hardening** - JWS verification, device token API, narration URL resolver
 - [ ] **Phase 20: ATT Consent & Production Ads** - ATT flow, production AdMob unit IDs, pre-prompt screen
 - [ ] **Phase 21: Voice Playback & Monetization Integration** - R2 URLs wiring, paywall triggering, navigation, SwiftData fix
@@ -83,12 +83,13 @@
 4. Privacy Nutrition Labels accurately declare all data collection across 14 categories (AdMob, ElevenLabs, Firebase, Mapbox, Clerk)
 5. PrivacyInfo.xcprivacy manifest exists declaring tracking domains and API usage with approved reason codes
 
-**Plans**: 3 plans
+**Plans**: 4 plans
 
 Plans:
-- [ ] 18-01-PLAN.md — Voice consent modal + backend audit trail (PRIV-04, PRIV-05)
-- [x] 18-02-PLAN.md — PrivacyInfo.xcprivacy manifest + nutrition labels checklist (PRIV-02, PRIV-03) ✅ 2026-03-30
-- [ ] 18-03-PLAN.md — Voice profile deletion in Settings + hosted privacy policy (PRIV-06, PRIV-07)
+- [x] 18-01-PLAN.md — Voice consent modal + backend audit trail (PRIV-04, PRIV-05)
+- [x] 18-02-PLAN.md — PrivacyInfo.xcprivacy manifest + nutrition labels checklist (PRIV-02, PRIV-03)
+- [x] 18-03-PLAN.md — Voice profile deletion in Settings + hosted privacy policy (PRIV-06, PRIV-07)
+- [ ] 18-04-PLAN.md — Gap closure: iOS appVersion in voice upload form data (PRIV-05)
 
 ---
 
@@ -183,7 +184,7 @@ Plans:
 | 15. AI Scanning | v3.0 | 3/3 | Complete | 2026-03-15 |
 | 16. Recipe Matching | v3.0 | 2/2 | Complete | 2026-03-16 |
 | 17. Expiry Tracking | v3.0 | 3/3 | Complete | 2026-03-17 |
-| 18. Privacy Compliance | 3/3 | Complete   | 2026-03-30 | - |
+| 18. Privacy Compliance | v4.0 | 3/4 | Gap closure | - |
 | 19. Backend Hardening | v4.0 | 0/TBD | Not started | - |
 | 20. ATT & Ads | v4.0 | 0/TBD | Not started | - |
 | 21. Voice & Monetization | v4.0 | 0/TBD | Not started | - |
