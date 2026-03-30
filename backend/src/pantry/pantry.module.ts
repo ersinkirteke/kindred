@@ -6,6 +6,7 @@ import { PantryService } from './pantry.service';
 import { PantryResolver } from './pantry.resolver';
 import { ExpiryEstimatorService } from './expiry-estimator.service';
 import { ExpiryNotificationScheduler } from './expiry-notification.scheduler';
+import { EngagementNotificationScheduler } from './engagement-notification.scheduler';
 
 /**
  * PantryModule
@@ -20,6 +21,7 @@ import { ExpiryNotificationScheduler } from './expiry-notification.scheduler';
  * - Bulk operations for receipt scanning
  * - AI-powered expiry date estimation (catalog + Gemini fallback)
  * - Daily expiry digest notifications at 8 AM UTC
+ * - Daily engagement nudge notifications at 10 AM UTC
  */
 @Module({
   imports: [PrismaModule, PushModule, ConfigModule],
@@ -28,6 +30,7 @@ import { ExpiryNotificationScheduler } from './expiry-notification.scheduler';
     PantryResolver,
     ExpiryEstimatorService,
     ExpiryNotificationScheduler,
+    EngagementNotificationScheduler,
   ],
   exports: [PantryService],
 })
