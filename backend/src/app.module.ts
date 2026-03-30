@@ -19,6 +19,7 @@ import { FeedModule } from './feed/feed.module';
 import { VoiceModule } from './voice/voice.module';
 import { PantryModule } from './pantry/pantry.module';
 import { ScanModule } from './scan/scan.module';
+import { PrivacyModule } from './privacy/privacy.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { ScanModule } from './scan/scan.module';
     VoiceModule,
     PantryModule,
     ScanModule,
+    PrivacyModule,
   ],
 })
 export class AppModule {}
