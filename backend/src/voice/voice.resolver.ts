@@ -9,8 +9,11 @@ import { VoiceService } from './voice.service';
 import { SubscriptionService } from '../subscription/subscription.service';
 import { VoiceProfileDto } from './dto/voice-profile.dto';
 import { NarrationMetadataDto } from './dto/narration-request.dto';
+import { NarrationUrlDto } from './dto/narration-url.dto';
 import { NarrationService } from './narration.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { GraphQLError } from 'graphql';
+import { GraphQLErrorCode } from '../common/errors/graphql-error-codes.enum';
 
 /**
  * VoiceResolver
@@ -127,5 +130,75 @@ export class VoiceResolver {
       voiceProfileId,
       user.clerkId,
     );
+  }
+
+  /**
+   * Query: narrationUrl
+   *
+   * Get cached narration URL with metadata and duration.
+   * iOS client calls this to check if audio is cached before deciding
+   * whether to trigger REST streaming. Returns null URL if not yet cached.
+   */
+  @Query(() => NarrationUrlDto)
+  @UseGuards(ClerkAuthGuard)
+  async narrationUrl(
+    @Args('recipeId') recipeId: string,
+    @Args('voiceProfileId', { nullable: true }) voiceProfileId: string | null,
+    @CurrentUser() user: CurrentUserContext,
+  ): Promise<NarrationUrlDto> {
+    // Find database user from Clerk ID
+    const dbUser = await this.prisma.user.findUnique({
+      where: { clerkId: user.clerkId },
+    });
+
+    if (!dbUser) {
+      throw new GraphQLError('User not found', {
+        extensions: { code: GraphQLErrorCode.USER_NOT_FOUND },
+      });
+    }
+
+    // If no voiceProfileId provided, use user's primary (first READY) voice profile
+    let profileId = voiceProfileId;
+    if (!profileId) {
+      const primaryProfile = await this.prisma.voiceProfile.findFirst({
+        where: { userId: dbUser.id, status: 'READY' },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      if (!primaryProfile) {
+        throw new GraphQLError('No voice profiles found', {
+          extensions: { code: GraphQLErrorCode.VOICE_PROFILE_NOT_FOUND },
+        });
+      }
+      profileId = primaryProfile.id;
+    }
+
+    // Load voice profile for metadata (verifies ownership)
+    const profile = await this.voiceService.getVoiceProfile(profileId, dbUser.id);
+
+    // Load recipe
+    const recipe = await this.prisma.recipe.findUnique({
+      where: { id: recipeId },
+      select: { id: true, name: true },
+    });
+
+    if (!recipe) {
+      throw new GraphQLError('Recipe not found', {
+        extensions: { code: 'RECIPE_NOT_FOUND' },
+      });
+    }
+
+    // Check for cached narration audio (includes durationMs from Plan 01 schema)
+    const cached = await this.prisma.narrationAudio.findUnique({
+      where: { recipeId_voiceProfileId: { recipeId, voiceProfileId: profileId } },
+    });
+
+    return {
+      url: cached?.r2Url ?? null,
+      speakerName: profile.speakerName,
+      relationship: profile.relationship,
+      recipeName: recipe.name,
+      durationMs: cached?.durationMs ?? null,
+    };
   }
 }
