@@ -191,7 +191,7 @@ Plans:
 | 16. Recipe Matching | v3.0 | 2/2 | Complete | 2026-03-16 |
 | 17. Expiry Tracking | v3.0 | 3/3 | Complete | 2026-03-17 |
 | 18. Privacy Compliance | 4/4 | Complete    | 2026-03-30 | - |
-| 19. Backend Hardening | 4/4 | Complete   | 2026-03-30 | - |
+| 19. Backend Hardening | 4/4 | Complete    | 2026-03-30 | - |
 | 20. ATT & Ads | v4.0 | 0/TBD | Not started | - |
 | 21. Voice & Monetization | v4.0 | 0/TBD | Not started | - |
 | 22. TestFlight & Submission | v4.0 | 0/TBD | Not started | - |

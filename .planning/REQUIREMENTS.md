@@ -25,7 +25,7 @@ Requirements for App Store submission readiness. Each maps to roadmap phases.
 
 ### Billing & Monetization
 
-- [ ] **BILL-01**: Backend validates StoreKit 2 JWS transactions using SignedDataVerifier with x5c chain
+- [x] **BILL-01**: Backend validates StoreKit 2 JWS transactions using SignedDataVerifier with x5c chain
 - [ ] **BILL-02**: ScanPaywallView subscribe button triggers MonetizationFeature purchase flow
 - [ ] **BILL-03**: Production AdMob unit IDs replace test IDs in Info.plist and AdClient.swift
 
@@ -97,7 +97,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VOICE-01 | Phase 21 | Pending |
 | VOICE-02 | Phase 21 | Pending |
 | VOICE-03 | Phase 19 | Complete |
-| BILL-01 | Phase 19 | Pending |
+| BILL-01 | Phase 19 | Complete |
 | BILL-02 | Phase 21 | Pending |
 | BILL-03 | Phase 20 | Pending |
 | PUSH-01 | Phase 19 | Complete |
