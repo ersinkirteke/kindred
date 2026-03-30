@@ -251,6 +251,7 @@ model VoiceProfile {
 
   consentedAt        DateTime?   // legal compliance timestamp
   consentIpAddress   String?     // IP when consent given
+  consentAppVersion  String?     // App version when consent was given (for audit trail)
 
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
@@ -339,8 +340,24 @@ model ScanJob {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  contentHash String?  // SHA-256 hash for deduplication
+
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([userId, scanType])
+  @@index([userId, contentHash])
+}
+
+// NarrationAudio model - cached TTS audio in R2 to avoid redundant ElevenLabs calls
+model NarrationAudio {
+  id             String   @id @default(cuid())
+  recipeId       String
+  voiceProfileId String
+  r2Url          String
+  sizeBytes      Int
+  createdAt      DateTime @default(now())
+
+  @@unique([recipeId, voiceProfileId])
+  @@index([recipeId])
 }

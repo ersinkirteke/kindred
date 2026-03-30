@@ -1,5 +1,5 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { IsString, IsNotEmpty, IsBoolean } from 'class-validator';
+import { IsString, IsNotEmpty, IsBoolean, IsOptional } from 'class-validator';
 
 /**
  * UploadVoiceInput
@@ -22,4 +22,9 @@ export class UploadVoiceInput {
   @Field()
   @IsBoolean()
   consentGiven: boolean;
+
+  @Field({ nullable: true })
+  @IsString()
+  @IsOptional()
+  appVersion?: string;
 }

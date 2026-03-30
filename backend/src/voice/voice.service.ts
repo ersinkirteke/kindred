@@ -94,6 +94,7 @@ export class VoiceService {
         relationship: input.relationship,
         consentedAt: new Date(),
         consentIpAddress: ipAddress,
+        consentAppVersion: input.appVersion ?? null,
       },
     });
 
@@ -199,6 +200,7 @@ export class VoiceService {
    * @param userId - User ID
    * @param audioBuffer - New audio file buffer
    * @param ipAddress - IP address for consent tracking
+   * @param appVersion - App version for consent audit trail
    * @returns Updated VoiceProfile with PENDING status
    * @throws NotFoundException if profile not found or doesn't belong to user
    */
@@ -207,6 +209,7 @@ export class VoiceService {
     userId: string,
     audioBuffer: Buffer,
     ipAddress: string,
+    appVersion?: string,
   ): Promise<VoiceProfile> {
     // Verify ownership
     const profile = await this.getVoiceProfile(id, userId);
@@ -255,6 +258,7 @@ export class VoiceService {
         elevenLabsVoiceId: null,
         consentedAt: new Date(),
         consentIpAddress: ipAddress,
+        consentAppVersion: appVersion ?? null,
       },
     });
 
