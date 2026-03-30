@@ -56,7 +56,7 @@
 <details open>
 <summary>🚧 v4.0 App Store Launch Prep (Phases 18-22) — IN PROGRESS</summary>
 
-- [ ] **Phase 18: Privacy Compliance & Consent Infrastructure** - Privacy policy, nutrition labels, voice consent, privacy manifest (gap closure in progress)
+- [x] **Phase 18: Privacy Compliance & Consent Infrastructure** - Privacy policy, nutrition labels, voice consent, privacy manifest (gap closure in progress) (completed 2026-03-30)
 - [ ] **Phase 19: Backend Production Hardening** - JWS verification, device token API, narration URL resolver
 - [ ] **Phase 20: ATT Consent & Production Ads** - ATT flow, production AdMob unit IDs, pre-prompt screen
 - [ ] **Phase 21: Voice Playback & Monetization Integration** - R2 URLs wiring, paywall triggering, navigation, SwiftData fix
@@ -184,7 +184,7 @@ Plans:
 | 15. AI Scanning | v3.0 | 3/3 | Complete | 2026-03-15 |
 | 16. Recipe Matching | v3.0 | 2/2 | Complete | 2026-03-16 |
 | 17. Expiry Tracking | v3.0 | 3/3 | Complete | 2026-03-17 |
-| 18. Privacy Compliance | v4.0 | 3/4 | Gap closure | - |
+| 18. Privacy Compliance | 4/4 | Complete   | 2026-03-30 | - |
 | 19. Backend Hardening | v4.0 | 0/TBD | Not started | - |
 | 20. ATT & Ads | v4.0 | 0/TBD | Not started | - |
 | 21. Voice & Monetization | v4.0 | 0/TBD | Not started | - |

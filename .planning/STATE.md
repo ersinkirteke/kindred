@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 status: planning
-last_updated: "2026-03-30T05:07:26.645Z"
+last_updated: "2026-03-30T08:17:57.182Z"
 progress:
   total_phases: 15
   completed_phases: 14
-  total_plans: 55
-  completed_plans: 54
+  total_plans: 56
+  completed_plans: 55
 ---
 
 # Project State: Kindred
@@ -31,20 +31,20 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Milestone: v4.0 App Store Launch Prep
 Phase: 18 of 22 (Privacy Compliance & Consent Infrastructure)
-Plan: 3 of 3 in current phase (Phase 18 complete)
+Plan: 4 of 4 in current phase (Phase 18 complete)
 Status: Ready for next phase
-Last activity: 2026-03-30 — Completed plan 18-03 (Voice Profile Deletion & Privacy Policy)
+Last activity: 2026-03-30 — Completed plan 18-04 (PRIV-05 AppVersion Gap Closure)
 
-Progress: [████████████████░░░░] 80% (66/82 plans complete across all milestones)
+Progress: [████████████████░░░░] 81% (67/82 plans complete across all milestones)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 66 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 3)
-- Total execution time: 18 days + 13m 43s across 3 milestones
-- v4.0: 3 plans completed (Phase 18 complete: consent gate, privacy manifest, voice deletion + policy)
+- Total plans completed: 67 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 4)
+- Total execution time: 18 days + 14m 49s across 3 milestones
+- v4.0: 4 plans completed (Phase 18 complete: consent gate, privacy manifest, voice deletion + policy, appVersion audit trail)
 
 **By Milestone:**
 
@@ -53,9 +53,9 @@ Progress: [████████████████░░░░] 80% (66
 | v1.5 Backend & AI | 3 | 11 | 2 days |
 | v2.0 iOS App | 8 | 35 | 9 days |
 | v3.0 Smart Pantry | 6 | 17 | 7 days |
-| v4.0 Launch Prep | 5 | 3/TBD | 13m 43s |
+| v4.0 Launch Prep | 5 | 4/TBD | 14m 49s |
 
-**Recent Trend:** Phase 18 complete (3 of 3 plans)
+**Recent Trend:** Phase 18 complete (4 of 4 plans)
 
 ---
 
@@ -64,6 +64,7 @@ Progress: [████████████████░░░░] 80% (66
 | Phase 18 | P01 | 5 | 2 | 7 |
 | Phase 18 | P02 | 130 | 1 | 1 |
 | Phase 18 | P03 | 383 | 2 | 11 |
+| Phase 18 | P04 | 66 | 1 | 2 |
 
 ## Accumulated Context
 
@@ -86,6 +87,7 @@ Recent decisions affecting v4.0 work:
 - [Phase 18]: VoiceProfileInfo as local struct in ProfileReducer to avoid package dependencies
 - [Phase 18]: GraphQL via URLSession directly (no new network client) for voice profile queries
 - [Phase 18]: SFSafariViewController for privacy policy (App Store preferred over WKWebView)
+- [Phase 18]: Use CFBundleShortVersionString (not CFBundleVersion) for consent audit trail versioning
 
 ### Pending Todos
 
@@ -109,7 +111,7 @@ Recent decisions affecting v4.0 work:
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Completed 18-03-PLAN.md (Voice Profile Deletion & Privacy Policy)
+Stopped at: Completed 18-04-PLAN.md (PRIV-05 AppVersion Gap Closure)
 Resume file: None
 Next action: Phase 18 complete — proceed to Phase 19 or next v4.0 phase
 
