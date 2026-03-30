@@ -3,7 +3,10 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { join } from 'path';
+
+import { RequestIdInterceptor } from './common/interceptors/request-id.interceptor';
 
 import { ConfigModule } from './config/config.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -42,12 +45,10 @@ import { PrivacyModule } from './privacy/privacy.module';
     // Scheduled tasks
     ScheduleModule.forRoot(),
 
-    // Rate limiting (60 requests per minute by default)
+    // Rate limiting with named contexts
     ThrottlerModule.forRoot([
-      {
-        ttl: 60000, // 60 seconds
-        limit: 100, // 100 requests
-      },
+      { name: 'default', ttl: 60000, limit: 100 },     // 100 req/min standard
+      { name: 'expensive', ttl: 60000, limit: 10 },     // 10 req/min for narration/subscription
     ]),
 
     // Global Prisma module
@@ -69,6 +70,12 @@ import { PrivacyModule } from './privacy/privacy.module';
     PantryModule,
     ScanModule,
     PrivacyModule,
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RequestIdInterceptor,
+    },
   ],
 })
 export class AppModule {}
