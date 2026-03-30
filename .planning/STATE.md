@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 status: completed
-last_updated: "2026-03-30T08:23:19.992Z"
+last_updated: "2026-03-30T18:14:14.533Z"
 progress:
-  total_phases: 15
+  total_phases: 16
   completed_phases: 14
-  total_plans: 56
-  completed_plans: 55
+  total_plans: 60
+  completed_plans: 58
 ---
 
 # Project State: Kindred
@@ -31,20 +31,20 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Milestone: v4.0 App Store Launch Prep
 Phase: 19 of 22 (Backend Production Hardening)
-Plan: 1 of 4 in current phase (Plan 19-01 complete)
+Plan: 4 of 4 in current phase (Plans 19-01, 19-03, 19-04 complete)
 Status: In progress
-Last activity: 2026-03-30 — Completed plan 19-01 (Production Hardening Infrastructure)
+Last activity: 2026-03-30 — Completed plan 19-04 (Narration Cache with Duration & GraphQL Query)
 
-Progress: [████████████████░░░░] 82% (68/82 plans complete across all milestones)
+Progress: [████████████████░░░░] 83% (69/82 plans complete across all milestones)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 68 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 5)
-- Total execution time: 18 days + 17m 5s across 3 milestones
-- v4.0: 5 plans completed (Phase 18 complete, Phase 19 plan 1 complete: Prisma models, error codes, request tracing)
+- Total plans completed: 70 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 7)
+- Total execution time: 18 days + 24m 23s across 3 milestones
+- v4.0: 7 plans completed (Phase 18 complete, Phase 19 plans 1, 3, 4 complete: Prisma models, error codes, request tracing, push preferences, engagement nudges, narration cache)
 
 **By Milestone:**
 
@@ -53,9 +53,9 @@ Progress: [████████████████░░░░] 82% (68
 | v1.5 Backend & AI | 3 | 11 | 2 days |
 | v2.0 iOS App | 8 | 35 | 9 days |
 | v3.0 Smart Pantry | 6 | 17 | 7 days |
-| v4.0 Launch Prep | 5 | 5/TBD | 17m 5s |
+| v4.0 Launch Prep | 5 | 6/TBD | 20m 40s |
 
-**Recent Trend:** Phase 18 complete (4 of 4 plans), Phase 19 plan 1 complete
+**Recent Trend:** Phase 18 complete (4 of 4 plans), Phase 19 plans 1 and 3 complete
 
 ---
 
@@ -66,6 +66,8 @@ Progress: [████████████████░░░░] 82% (68
 | Phase 18 | P03 | 383 | 2 | 11 |
 | Phase 18 | P04 | 66 | 1 | 2 |
 | Phase 19 | P01 | 136 | 3 | 5 |
+| Phase 19 P04 | 223 | 2 tasks | 6 files |
+| Phase 19 P03 | 215 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -92,6 +94,12 @@ Recent decisions affecting v4.0 work:
 - [Phase 19-01]: Named ThrottlerModule contexts ('default' 100 req/min, 'expensive' 10 req/min) for differential rate limiting
 - [Phase 19-01]: Request ID generation with crypto.randomUUID() (Node.js built-in, zero dependencies)
 - [Phase 19-01]: TransactionHistory without foreign key to User to support webhook events before user creation
+- [Phase 19]: MD5 hash for cache invalidation (8-char hash provides collision-resistant cache keys)
+- [Phase 19]: get-mp3-duration for audio duration computation (lightweight library without ffmpeg dependency)
+- [Phase 19]: Engagement nudge rate limit: Max 3 per user per week (7-day rolling window) to prevent notification fatigue
+- [Phase 19]: Default all notification preferences to enabled (opt-out model for utility notifications)
+- [Phase 19]: Cascade delete narration audio before marking profile DELETED (ensures cleanup completes)
+- [Phase 19]: Inactivity detection via DeviceToken.updatedAt (no additional analytics infrastructure needed)
 
 ### Pending Todos
 
@@ -115,9 +123,9 @@ Recent decisions affecting v4.0 work:
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Completed 19-01-PLAN.md (Production Hardening Infrastructure)
+Stopped at: Completed 19-03-PLAN.md (Push Notification Preferences and Engagement Nudges)
 Resume file: None
-Next action: Continue Phase 19 with plan 19-02 (StoreKit 2 JWS verification)
+Next action: Continue Phase 19 with plan 19-02 (StoreKit 2 JWS verification) or 19-04 (Backend production hardening)
 
 ---
 

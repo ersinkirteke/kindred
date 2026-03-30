@@ -21,7 +21,7 @@ Requirements for App Store submission readiness. Each maps to roadmap phases.
 
 - [ ] **VOICE-01**: Voice narration plays from backend R2 CDN URLs replacing TestAudioGenerator
 - [ ] **VOICE-02**: All GraphQL voice profile TODO markers resolved with real backend data
-- [ ] **VOICE-03**: Narration URL returned via GraphQL query with NarrationAudio cache lookup
+- [x] **VOICE-03**: Narration URL returned via GraphQL query with NarrationAudio cache lookup
 
 ### Billing & Monetization
 
@@ -31,8 +31,8 @@ Requirements for App Store submission readiness. Each maps to roadmap phases.
 
 ### Push Notifications
 
-- [ ] **PUSH-01**: Device FCM token registered with backend via GraphQL mutation on app launch
-- [ ] **PUSH-02**: Backend stores FCM token per user and uses it for push notification delivery
+- [x] **PUSH-01**: Device FCM token registered with backend via GraphQL mutation on app launch
+- [x] **PUSH-02**: Backend stores FCM token per user and uses it for push notification delivery
 
 ### Navigation
 
@@ -96,12 +96,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PRIV-07 | Phase 18 | Complete |
 | VOICE-01 | Phase 21 | Pending |
 | VOICE-02 | Phase 21 | Pending |
-| VOICE-03 | Phase 19 | Pending |
+| VOICE-03 | Phase 19 | Complete |
 | BILL-01 | Phase 19 | Pending |
 | BILL-02 | Phase 21 | Pending |
 | BILL-03 | Phase 20 | Pending |
-| PUSH-01 | Phase 19 | Pending |
-| PUSH-02 | Phase 19 | Pending |
+| PUSH-01 | Phase 19 | Complete |
+| PUSH-02 | Phase 19 | Complete |
 | NAV-01 | Phase 21 | Pending |
 | DATA-01 | Phase 21 | Pending |
 | SUBMIT-01 | Phase 22 | Pending |
