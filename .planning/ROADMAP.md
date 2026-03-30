@@ -111,8 +111,8 @@ Plans:
 Plans:
 - [x] 19-01-PLAN.md -- Prisma schema (TransactionHistory, NotificationPreferences, NotificationLog, NarrationAudio.durationMs), error codes, request ID interceptor, ThrottlerModule named contexts
 - [ ] 19-02-PLAN.md -- StoreKit 2 JWS verification with SignedDataVerifier, ClerkAuthGuard on SubscriptionResolver, Apple Server Notifications V2 webhook (BILL-01)
-- [ ] 19-03-PLAN.md -- Push notification preference checks, engagement notification scheduler, notification preferences GraphQL resolver (PUSH-01, PUSH-02)
-- [ ] 19-04-PLAN.md -- narrationUrl GraphQL query, MP3 duration computation, hash-based R2 keys, cascade delete (VOICE-03)
+- [x] 19-03-PLAN.md -- Push notification preference checks, engagement notification scheduler, notification preferences GraphQL resolver (PUSH-01, PUSH-02)
+- [x] 19-04-PLAN.md -- narrationUrl GraphQL query, MP3 duration computation, hash-based R2 keys, cascade delete (VOICE-03)
 
 ---
 
