@@ -12,10 +12,10 @@ Requirements for App Store submission readiness. Each maps to roadmap phases.
 - [ ] **PRIV-01**: App shows ATT consent prompt with pre-prompt explanation before personalized ads
 - [x] **PRIV-02**: Privacy Nutrition Labels accurately declare all data collection in App Store Connect
 - [x] **PRIV-03**: PrivacyInfo.xcprivacy manifest declares tracking domains and API usage with approved reason codes
-- [ ] **PRIV-04**: Voice cloning consent screen shown before first voice upload naming ElevenLabs as AI provider
-- [ ] **PRIV-05**: Voice consent audit trail stores userId, timestamp, IP, and app version in backend
-- [ ] **PRIV-06**: User can delete voice profile from Settings with confirmation dialog
-- [ ] **PRIV-07**: Privacy Policy hosted at public URL and linked in App Store Connect
+- [x] **PRIV-04**: Voice cloning consent screen shown before first voice upload naming ElevenLabs as AI provider
+- [x] **PRIV-05**: Voice consent audit trail stores userId, timestamp, IP, and app version in backend
+- [x] **PRIV-06**: User can delete voice profile from Settings with confirmation dialog
+- [x] **PRIV-07**: Privacy Policy hosted at public URL and linked in App Store Connect
 
 ### Voice Playback
 
@@ -90,10 +90,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PRIV-01 | Phase 20 | Pending |
 | PRIV-02 | Phase 18 | Complete |
 | PRIV-03 | Phase 18 | Complete |
-| PRIV-04 | Phase 18 | Pending |
-| PRIV-05 | Phase 18 | Pending |
-| PRIV-06 | Phase 18 | Pending |
-| PRIV-07 | Phase 18 | Pending |
+| PRIV-04 | Phase 18 | Complete |
+| PRIV-05 | Phase 18 | Complete |
+| PRIV-06 | Phase 18 | Complete |
+| PRIV-07 | Phase 18 | Complete |
 | VOICE-01 | Phase 21 | Pending |
 | VOICE-02 | Phase 21 | Pending |
 | VOICE-03 | Phase 19 | Pending |
