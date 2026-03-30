@@ -356,8 +356,52 @@ model NarrationAudio {
   voiceProfileId String
   r2Url          String
   sizeBytes      Int
+  durationMs     Int?     // MP3 duration in milliseconds, computed at upload time
   createdAt      DateTime @default(now())
 
   @@unique([recipeId, voiceProfileId])
   @@index([recipeId])
+}
+
+// TransactionHistory model - audit trail for StoreKit transactions and App Store Server Notifications
+model TransactionHistory {
+  id                    String   @id @default(cuid())
+  userId                String?
+  transactionId         String?
+  originalTransactionId String?
+  productId             String?
+  jwsPayload            String
+  environment           String   // "PRODUCTION" | "SANDBOX"
+  verificationResult    String   // "SUCCESS" | "FAILURE"
+  errorMessage          String?
+  expiresDate           DateTime?
+  notificationType      String?  // For App Store Server Notifications V2
+  receivedAt            DateTime @default(now())
+
+  @@index([userId])
+  @@index([transactionId])
+  @@index([environment])
+}
+
+// NotificationPreferences model - per-category push notification opt-out
+model NotificationPreferences {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  expiryAlerts  Boolean  @default(true)
+  voiceReady    Boolean  @default(true)
+  engagement    Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// NotificationLog model - tracking for engagement notification rate limiting (max 3/week)
+model NotificationLog {
+  id     String   @id @default(cuid())
+  userId String
+  type   String   // "EXPIRY" | "VOICE_READY" | "ENGAGEMENT"
+  sentAt DateTime @default(now())
+
+  @@index([userId, type, sentAt])
 }
