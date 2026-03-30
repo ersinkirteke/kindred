@@ -147,19 +147,35 @@ export class VoiceCloningProcessor {
         `✓ Voice cloning completed for profile ${job.voiceProfileId} (ElevenLabs ID: ${elevenLabsVoiceId})`,
       );
 
-      // Send push notification
-      await this.pushService.sendToUser(job.userId, {
-        title: "Your voice is ready!",
-        body: "Start listening to recipes in your loved one's voice",
-        data: {
-          type: 'VOICE_READY',
-          voiceProfileId: job.voiceProfileId,
-        },
+      // Check notification preferences before sending push
+      const prefs = await this.prisma.notificationPreferences.findUnique({
+        where: { userId: job.userId },
       });
 
-      this.logger.log(
-        `Push notification sent to user ${job.userId} for voice profile ${job.voiceProfileId}`,
-      );
+      // Default to enabled if no preferences record
+      if (!prefs || prefs.voiceReady) {
+        await this.pushService.sendToUser(job.userId, {
+          title: "Your voice is ready!",
+          body: "Start listening to recipes in your loved one's voice",
+          data: {
+            type: 'VOICE_READY',
+            voiceProfileId: job.voiceProfileId,
+          },
+        });
+
+        // Log notification
+        await this.prisma.notificationLog.create({
+          data: { userId: job.userId, type: 'VOICE_READY', sentAt: new Date() },
+        });
+
+        this.logger.log(
+          `Push notification sent to user ${job.userId} for voice profile ${job.voiceProfileId}`,
+        );
+      } else {
+        this.logger.debug(
+          `User ${job.userId} disabled voice-ready notifications, skipping push`,
+        );
+      }
     } catch (error) {
       this.logger.error(
         `Voice cloning failed for profile ${job.voiceProfileId}:`,

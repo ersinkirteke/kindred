@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { PantryService } from './pantry.service';
 import { PushService } from '../push/push.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 interface NotificationPayload {
   title: string;
@@ -28,6 +29,7 @@ export class ExpiryNotificationScheduler {
   constructor(
     private readonly pantryService: PantryService,
     private readonly pushService: PushService,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -88,8 +90,25 @@ export class ExpiryNotificationScheduler {
    */
   private async sendExpiryNotification(userId: string, items: any[]) {
     try {
+      // Check if user enabled expiry alerts
+      const prefs = await this.prisma.notificationPreferences.findUnique({
+        where: { userId },
+      });
+
+      // Default to enabled if no preferences record exists (all default true)
+      if (prefs && !prefs.expiryAlerts) {
+        this.logger.debug(`User ${userId} disabled expiry alerts, skipping`);
+        return;
+      }
+
       const notification = this.buildNotificationMessage(items);
       await this.pushService.sendToUser(userId, notification);
+
+      // Log notification for analytics
+      await this.prisma.notificationLog.create({
+        data: { userId, type: 'EXPIRY', sentAt: new Date() },
+      });
+
       this.logger.debug(
         `Sent expiry notification to user ${userId} (${items.length} items)`,
       );
