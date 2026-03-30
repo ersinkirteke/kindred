@@ -106,7 +106,13 @@ Plans:
 3. Backend stores device tokens per user and can deliver push notifications to registered devices
 4. Narration URL GraphQL query returns Cloudflare R2 CDN URLs from NarrationAudio cache lookup
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 19-01-PLAN.md -- Prisma schema (TransactionHistory, NotificationPreferences, NotificationLog, NarrationAudio.durationMs), error codes, request ID interceptor, ThrottlerModule named contexts
+- [ ] 19-02-PLAN.md -- StoreKit 2 JWS verification with SignedDataVerifier, ClerkAuthGuard on SubscriptionResolver, Apple Server Notifications V2 webhook (BILL-01)
+- [ ] 19-03-PLAN.md -- Push notification preference checks, engagement notification scheduler, notification preferences GraphQL resolver (PUSH-01, PUSH-02)
+- [ ] 19-04-PLAN.md -- narrationUrl GraphQL query, MP3 duration computation, hash-based R2 keys, cascade delete (VOICE-03)
 
 ---
 
@@ -185,7 +191,7 @@ Plans:
 | 16. Recipe Matching | v3.0 | 2/2 | Complete | 2026-03-16 |
 | 17. Expiry Tracking | v3.0 | 3/3 | Complete | 2026-03-17 |
 | 18. Privacy Compliance | 4/4 | Complete    | 2026-03-30 | - |
-| 19. Backend Hardening | v4.0 | 0/TBD | Not started | - |
+| 19. Backend Hardening | v4.0 | 0/4 | Not started | - |
 | 20. ATT & Ads | v4.0 | 0/TBD | Not started | - |
 | 21. Voice & Monetization | v4.0 | 0/TBD | Not started | - |
 | 22. TestFlight & Submission | v4.0 | 0/TBD | Not started | - |
