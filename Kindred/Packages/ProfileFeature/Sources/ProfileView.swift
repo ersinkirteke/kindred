@@ -54,6 +54,17 @@ public struct ProfileView: View {
                     affinities: store.culinaryDNAAffinities
                 )
                 .padding(.horizontal, KindredSpacing.md)
+
+                // Privacy & Data section (only when authenticated)
+                if case .authenticated = store.authState {
+                    PrivacyDataSection(
+                        voiceProfile: store.voiceProfile,
+                        isDeleting: store.isDeletingVoice,
+                        onDelete: { store.send(.deleteVoiceTapped) },
+                        onPrivacyPolicyTapped: { store.send(.privacyPolicyTapped) }
+                    )
+                    .padding(.horizontal, KindredSpacing.md)
+                }
             }
             .padding(.vertical, KindredSpacing.lg)
         }
@@ -61,6 +72,48 @@ public struct ProfileView: View {
         .onAppear {
             store.send(.onAppear)
         }
+        .confirmationDialog(
+            String(localized: "profile.privacy_data.delete_confirmation_title", bundle: .main),
+            isPresented: Binding(
+                get: { store.showDeleteConfirmation },
+                set: { _ in store.send(.cancelDeleteVoice) }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "profile.privacy_data.delete_confirmation_action", bundle: .main), role: .destructive) {
+                store.send(.confirmDeleteVoice)
+            }
+            Button(String(localized: "profile.privacy_data.delete_confirmation_cancel", bundle: .main), role: .cancel) {
+                store.send(.cancelDeleteVoice)
+            }
+        } message: {
+            Text(String(localized: "profile.privacy_data.delete_confirmation_message", bundle: .main))
+        }
+        .sheet(isPresented: Binding(
+            get: { store.showPrivacyPolicy },
+            set: { _ in store.send(.dismissPrivacyPolicy) }
+        )) {
+            SafariView(url: URL(string: "https://api.kindred.app/privacy")!)
+        }
+        .overlay(alignment: .top) {
+            if store.showDeleteSuccessToast {
+                Text(String(localized: "profile.privacy_data.voice_deleted_success", bundle: .main))
+                    .font(.kindredBodyScaled(size: bodySize))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, KindredSpacing.lg)
+                    .padding(.vertical, KindredSpacing.sm)
+                    .background(Color.kindredAccent.cornerRadius(8))
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .onAppear {
+                        // Auto-dismiss after 2 seconds
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            store.send(.dismissDeleteSuccessToast)
+                        }
+                    }
+                    .padding(.top, KindredSpacing.md)
+            }
+        }
+        .animation(.easeInOut, value: store.showDeleteSuccessToast)
     }
 
     private func authenticatedHeader(userId: String) -> some View {

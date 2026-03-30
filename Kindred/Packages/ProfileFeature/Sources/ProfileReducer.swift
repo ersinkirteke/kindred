@@ -5,6 +5,10 @@ import MonetizationFeature
 import StoreKit
 import OSLog
 
+#if canImport(ClerkSDK)
+import ClerkSDK
+#endif
+
 extension Logger {
     private static var subsystem = Bundle.main.bundleIdentifier!
     static let profile = Logger(subsystem: subsystem, category: "profile")
@@ -16,6 +20,29 @@ public typealias SubscriptionStatus = MonetizationFeature.SubscriptionStatus
 public enum AuthState: Equatable {
     case guest
     case authenticated(userId: String)
+}
+
+// Voice profile info for Privacy & Data section
+public struct VoiceProfileInfo: Equatable, Identifiable {
+    public let id: String
+    public let speakerName: String
+    public let relationship: String
+    public let createdAt: Date
+    public let status: VoiceProfileStatus
+
+    public init(id: String, speakerName: String, relationship: String, createdAt: Date, status: VoiceProfileStatus) {
+        self.id = id
+        self.speakerName = speakerName
+        self.relationship = relationship
+        self.createdAt = createdAt
+        self.status = status
+    }
+}
+
+public enum VoiceProfileStatus: String, Equatable {
+    case ready = "READY"
+    case processing = "PROCESSING"
+    case failed = "FAILED"
 }
 
 @Reducer
@@ -34,6 +61,13 @@ public struct ProfileReducer {
         public var subscriptionStatus: SubscriptionStatus = .unknown
         public var displayPrice: String = "$9.99"
         public var subscriptionProducts: [Product] = []
+
+        // Voice profile (Privacy & Data section)
+        public var voiceProfile: VoiceProfileInfo? = nil
+        public var showDeleteConfirmation: Bool = false
+        public var isDeletingVoice: Bool = false
+        public var showDeleteSuccessToast: Bool = false
+        public var showPrivacyPolicy: Bool = false
 
         public init() {}
     }
@@ -57,6 +91,18 @@ public struct ProfileReducer {
         case manageSubscriptionTapped
         case restorePurchasesTapped
         case restoreCompleted(SubscriptionStatus)
+        case authStateUpdated(AuthState)
+        case signOutTapped
+        case loadVoiceProfile
+        case voiceProfileLoaded(VoiceProfileInfo?)
+        case deleteVoiceTapped
+        case confirmDeleteVoice
+        case cancelDeleteVoice
+        case voiceDeleted
+        case voiceDeletionFailed(String)
+        case dismissDeleteSuccessToast
+        case privacyPolicyTapped
+        case dismissPrivacyPolicy
     }
 
     @Dependency(\.guestSessionClient) var guestSession
@@ -69,11 +115,12 @@ public struct ProfileReducer {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                // Load dietary preferences, culinary DNA, and subscription status on appear
+                // Load dietary preferences, culinary DNA, subscription status, and voice profile on appear
                 return .merge(
                     .send(.loadDietaryPreferences),
                     .send(.loadCulinaryDNA),
-                    .send(.loadSubscriptionStatus)
+                    .send(.loadSubscriptionStatus),
+                    .send(.loadVoiceProfile)
                 )
 
             case .loadDietaryPreferences:
@@ -114,7 +161,11 @@ public struct ProfileReducer {
                 return .none
 
             case .signInTapped:
-                // Placeholder - auth flow in Phase 8
+                // Handled by parent AppReducer — presents auth gate
+                return .none
+
+            case let .authStateUpdated(authState):
+                state.authState = authState
                 return .none
 
             case .continueAsGuestTapped:
@@ -211,7 +262,182 @@ public struct ProfileReducer {
             case let .restoreCompleted(status):
                 state.subscriptionStatus = status
                 return .none
+
+            case .signOutTapped:
+                // Handled by parent AppReducer
+                return .none
+
+            case .loadVoiceProfile:
+                guard case .authenticated(let userId) = state.authState else {
+                    return .none
+                }
+                return .run { send in
+                    do {
+                        // GraphQL query to fetch voice profiles
+                        let query = """
+                        query MyVoiceProfiles {
+                            myVoiceProfiles {
+                                id
+                                speakerName
+                                relationship
+                                createdAt
+                                status
+                            }
+                        }
+                        """
+
+                        var request = URLRequest(url: URL(string: "https://api.kindred.app/v1/graphql")!)
+                        request.httpMethod = "POST"
+                        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+                        // Get Clerk token for auth
+                        let clerkToken = try await getClerkToken()
+                        request.setValue("Bearer \(clerkToken)", forHTTPHeaderField: "Authorization")
+
+                        let body = ["query": query]
+                        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+                        let (data, _) = try await URLSession.shared.data(for: request)
+                        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+                        guard let dataObj = json?["data"] as? [String: Any],
+                              let profiles = dataObj["myVoiceProfiles"] as? [[String: Any]],
+                              let firstProfile = profiles.first(where: { profile in
+                                  let status = profile["status"] as? String
+                                  return status == "READY" || status == "PROCESSING"
+                              }) else {
+                            await send(.voiceProfileLoaded(nil))
+                            return
+                        }
+
+                        // Parse first non-DELETED profile
+                        let id = firstProfile["id"] as? String ?? ""
+                        let speakerName = firstProfile["speakerName"] as? String ?? ""
+                        let relationship = firstProfile["relationship"] as? String ?? ""
+                        let statusString = firstProfile["status"] as? String ?? "PENDING"
+                        let status = VoiceProfileStatus(rawValue: statusString) ?? .processing
+
+                        // Parse createdAt
+                        var createdAt = Date()
+                        if let createdAtString = firstProfile["createdAt"] as? String {
+                            let formatter = ISO8601DateFormatter()
+                            if let date = formatter.date(from: createdAtString) {
+                                createdAt = date
+                            }
+                        }
+
+                        let profileInfo = VoiceProfileInfo(
+                            id: id,
+                            speakerName: speakerName,
+                            relationship: relationship,
+                            createdAt: createdAt,
+                            status: status
+                        )
+                        await send(.voiceProfileLoaded(profileInfo))
+                    } catch {
+                        Logger.profile.error("Failed to load voice profile: \(error.localizedDescription)")
+                        await send(.voiceProfileLoaded(nil))
+                    }
+                }
+
+            case let .voiceProfileLoaded(profile):
+                state.voiceProfile = profile
+                return .none
+
+            case .deleteVoiceTapped:
+                state.showDeleteConfirmation = true
+                return .none
+
+            case .confirmDeleteVoice:
+                state.showDeleteConfirmation = false
+                guard let voiceId = state.voiceProfile?.id else {
+                    return .none
+                }
+                state.isDeletingVoice = true
+
+                return .run { send in
+                    do {
+                        // GraphQL mutation to delete voice profile
+                        let mutation = """
+                        mutation DeleteVoiceProfile($id: String!) {
+                            deleteVoiceProfile(id: $id) {
+                                id
+                                status
+                            }
+                        }
+                        """
+
+                        var request = URLRequest(url: URL(string: "https://api.kindred.app/v1/graphql")!)
+                        request.httpMethod = "POST"
+                        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+                        // Get Clerk token for auth
+                        let clerkToken = try await getClerkToken()
+                        request.setValue("Bearer \(clerkToken)", forHTTPHeaderField: "Authorization")
+
+                        let body: [String: Any] = [
+                            "query": mutation,
+                            "variables": ["id": voiceId]
+                        ]
+                        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+                        let (data, _) = try await URLSession.shared.data(for: request)
+                        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+                        // Check for GraphQL errors
+                        if let errors = json?["errors"] as? [[String: Any]], !errors.isEmpty {
+                            let errorMessage = errors.first?["message"] as? String ?? "Unknown error"
+                            await send(.voiceDeletionFailed(errorMessage))
+                            return
+                        }
+
+                        await send(.voiceDeleted)
+                    } catch {
+                        await send(.voiceDeletionFailed(error.localizedDescription))
+                    }
+                } catch: { error, send in
+                    await send(.voiceDeletionFailed(error.localizedDescription))
+                }
+
+            case .cancelDeleteVoice:
+                state.showDeleteConfirmation = false
+                return .none
+
+            case .voiceDeleted:
+                state.isDeletingVoice = false
+                state.voiceProfile = nil
+                state.showDeleteSuccessToast = true
+                return .none
+
+            case let .voiceDeletionFailed(message):
+                state.isDeletingVoice = false
+                Logger.profile.error("Voice deletion failed: \(message)")
+                return .none
+
+            case .dismissDeleteSuccessToast:
+                state.showDeleteSuccessToast = false
+                return .none
+
+            case .privacyPolicyTapped:
+                state.showPrivacyPolicy = true
+                return .none
+
+            case .dismissPrivacyPolicy:
+                state.showPrivacyPolicy = false
+                return .none
             }
         }
     }
+}
+
+// Helper function to get Clerk token
+@Sendable
+private func getClerkToken() async throws -> String {
+    #if canImport(ClerkSDK)
+    // Get token from Clerk
+    if let session = Clerk.shared.session {
+        return try await session.getToken()
+    }
+    #endif
+    throw NSError(domain: "ProfileReducer", code: -1, userInfo: [NSLocalizedDescriptionKey: "No Clerk session"])
 }
