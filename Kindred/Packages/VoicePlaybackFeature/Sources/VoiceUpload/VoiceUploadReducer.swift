@@ -20,6 +20,8 @@ public struct VoiceUploadReducer {
         public var error: String?
         public var uploadComplete: Bool = false
         public var showFilePicker: Bool = false
+        public var showConsentModal: Bool = false
+        public var consentGiven: Bool = false
 
         public var isValid: Bool {
             guard let duration = fileDuration else { return false }
@@ -37,7 +39,9 @@ public struct VoiceUploadReducer {
             uploadProgress: Double = 0,
             error: String? = nil,
             uploadComplete: Bool = false,
-            showFilePicker: Bool = false
+            showFilePicker: Bool = false,
+            showConsentModal: Bool = false,
+            consentGiven: Bool = false
         ) {
             self.selectedFileURL = selectedFileURL
             self.fileName = fileName
@@ -48,12 +52,17 @@ public struct VoiceUploadReducer {
             self.error = error
             self.uploadComplete = uploadComplete
             self.showFilePicker = showFilePicker
+            self.showConsentModal = showConsentModal
+            self.consentGiven = consentGiven
         }
     }
 
     // MARK: - Action
 
     public enum Action: Equatable {
+        case uploadVoiceTapped
+        case consentAccepted
+        case consentDeclined
         case selectFile
         case fileSelected(URL)
         case fileDurationLoaded(TimeInterval)
@@ -75,6 +84,20 @@ public struct VoiceUploadReducer {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .uploadVoiceTapped:
+                state.showConsentModal = true
+                return .none
+
+            case .consentAccepted:
+                state.showConsentModal = false
+                state.consentGiven = true
+                state.showFilePicker = true
+                return .none
+
+            case .consentDeclined:
+                state.showConsentModal = false
+                return .none
+
             case .selectFile:
                 state.showFilePicker = true
                 state.error = nil

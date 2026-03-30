@@ -44,6 +44,15 @@ public struct VoiceUploadView: View {
                 store.send(.uploadFailed(error.localizedDescription))
             }
         }
+        .fullScreenCover(isPresented: Binding(
+            get: { store.showConsentModal },
+            set: { _ in store.send(.consentDeclined) }
+        )) {
+            VoiceConsentView(
+                onAccept: { store.send(.consentAccepted) },
+                onDecline: { store.send(.consentDeclined) }
+            )
+        }
     }
 
     // MARK: - Upload Form View
@@ -96,7 +105,13 @@ public struct VoiceUploadView: View {
 
     private var fileSelectionArea: some View {
         Button {
-            store.send(.selectFile)
+            // If no file selected yet, show consent first
+            // If file already selected, allow direct file change (consent already given for this session)
+            if store.fileName == nil {
+                store.send(.uploadVoiceTapped)
+            } else {
+                store.send(.selectFile)
+            }
         } label: {
             VStack(spacing: 16) {
                 if let fileName = store.fileName, let duration = store.fileDuration {
