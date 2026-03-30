@@ -132,6 +132,44 @@ export class R2StorageService {
   }
 
   /**
+   * Upload narration audio to R2 with immutable cache headers
+   *
+   * @param recipeId - Recipe ID for key generation
+   * @param voiceProfileId - Voice profile ID for key generation
+   * @param audioBuffer - Binary audio data (MP3)
+   * @param customKey - Optional custom key (for hash-based cache invalidation)
+   * @returns Public CDN URL for the uploaded narration
+   */
+  async uploadNarrationAudio(
+    recipeId: string,
+    voiceProfileId: string,
+    audioBuffer: Buffer,
+    customKey?: string,
+  ): Promise<string> {
+    const key = customKey || `narration/${recipeId}/${voiceProfileId}.mp3`;
+
+    try {
+      const command: PutObjectCommandInput = {
+        Bucket: this.bucketName,
+        Key: key,
+        Body: audioBuffer,
+        ContentType: 'audio/mpeg',
+        CacheControl: 'public, max-age=31536000',
+      };
+
+      await this.s3Client.send(new PutObjectCommand(command));
+
+      const publicUrl = `${this.publicUrl}/${key}`;
+      this.logger.log(`Narration audio uploaded: ${key} -> ${publicUrl}`);
+
+      return publicUrl;
+    } catch (error) {
+      this.logger.error(`Failed to upload narration audio to R2: ${key}`, error);
+      throw new Error(`R2 narration upload failed: ${error.message}`);
+    }
+  }
+
+  /**
    * Delete a voice sample from R2 storage
    *
    * Used for cleanup when user deletes their voice profile.
@@ -153,6 +191,26 @@ export class R2StorageService {
     } catch (error) {
       // Swallow errors if file already deleted
       this.logger.warn(`Failed to delete voice sample (may already be deleted): ${url}`, error);
+    }
+  }
+
+  /**
+   * Delete narration audio from R2 storage
+   *
+   * Used for cleanup when voice profile is deleted.
+   *
+   * @param url - Public URL of the narration audio
+   */
+  async deleteNarrationAudio(url: string): Promise<void> {
+    try {
+      const key = url.replace(`${this.publicUrl}/`, '');
+      await this.s3Client.send(new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      }));
+      this.logger.log(`Narration audio deleted: ${key}`);
+    } catch (error) {
+      this.logger.warn(`Failed to delete narration audio (may already be deleted): ${url}`, error);
     }
   }
 }

@@ -147,12 +147,30 @@ export class VoiceService {
   /**
    * Delete a voice profile
    * Removes ElevenLabs voice and R2 audio sample, updates status to DELETED
+   * Cascade deletes all narration audio for this voice profile
    *
    * @throws NotFoundException if profile not found or doesn't belong to user
    */
   async deleteVoiceProfile(id: string, userId: string): Promise<VoiceProfile> {
     // Verify ownership
     const profile = await this.getVoiceProfile(id, userId);
+
+    // Cascade delete: remove all narration audio for this voice profile
+    const narrationAudios = await this.prisma.narrationAudio.findMany({
+      where: { voiceProfileId: id },
+    });
+
+    // Delete R2 files
+    for (const audio of narrationAudios) {
+      await this.r2Storage.deleteNarrationAudio(audio.r2Url);
+    }
+
+    // Delete database records
+    await this.prisma.narrationAudio.deleteMany({
+      where: { voiceProfileId: id },
+    });
+
+    this.logger.log(`Cascade-deleted ${narrationAudios.length} narration audios for voice profile ${id}`);
 
     // Delete ElevenLabs voice if exists (swallow errors)
     if (profile.elevenLabsVoiceId) {

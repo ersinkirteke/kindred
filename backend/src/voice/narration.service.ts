@@ -4,6 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { ElevenLabsService } from './elevenlabs.service';
+import { R2StorageService } from '../images/r2-storage.service';
 import { NarrationMetadataDto } from './dto/narration-request.dto';
 
 /**
@@ -24,6 +25,7 @@ export class NarrationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly elevenLabsService: ElevenLabsService,
+    private readonly r2Storage: R2StorageService,
     private readonly configService: ConfigService,
   ) {
     const apiKey = this.configService.get<string>('GOOGLE_AI_API_KEY');
@@ -146,10 +148,28 @@ Output only the narration script, no explanations.`;
   }
 
   /**
+   * Check for cached narration audio and return CDN URL if available
+   *
+   * @returns CDN URL if cached, null if not
+   */
+  async getCachedNarrationUrl(
+    recipeId: string,
+    voiceProfileId: string,
+  ): Promise<string | null> {
+    const cached = await this.prisma.narrationAudio.findUnique({
+      where: {
+        recipeId_voiceProfileId: { recipeId, voiceProfileId },
+      },
+    });
+    return cached?.r2Url ?? null;
+  }
+
+  /**
    * Stream recipe narration audio to client
    *
    * Rewrites recipe text via Gemini, then streams ElevenLabs TTS audio
    * with chunked transfer encoding for low-latency playback.
+   * After streaming completes, uploads the audio to R2 for future cache hits.
    *
    * @param recipeId - Recipe to narrate
    * @param voiceProfileId - Voice profile to use
@@ -228,20 +248,32 @@ Output only the narration script, no explanations.`;
         );
 
       const reader = audioStream.getReader();
+      const chunks: Buffer[] = [];
 
-      // Pipe chunks to response
+      // Pipe chunks to response while collecting for cache
       let done = false;
       while (!done) {
         const { value, done: streamDone } = await reader.read();
         done = streamDone;
 
         if (value) {
-          response.write(Buffer.from(value));
+          const buf = Buffer.from(value);
+          response.write(buf);
+          chunks.push(buf);
         }
       }
 
       response.end();
       this.logger.log(`Narration stream completed for recipe ${recipeId}`);
+
+      // Upload to R2 cache in background (non-blocking, failure won't break playback)
+      const fullBuffer = Buffer.concat(chunks);
+      this.cacheNarrationAudio(recipeId, voiceProfileId, fullBuffer).catch(
+        (err) =>
+          this.logger.warn(
+            `Failed to cache narration audio for recipe ${recipeId}: ${err.message}`,
+          ),
+      );
     } catch (error) {
       this.logger.error(
         `Failed to stream narration for recipe ${recipeId}`,
@@ -258,6 +290,55 @@ Output only the narration script, no explanations.`;
         response.end();
       }
     }
+  }
+
+  /**
+   * Upload narration audio to R2 and save cache record with duration metadata
+   */
+  async cacheNarrationAudio(
+    recipeId: string,
+    voiceProfileId: string,
+    audioBuffer: Buffer,
+  ): Promise<void> {
+    const crypto = require('crypto');
+    const getMp3Duration = require('get-mp3-duration');
+
+    // Generate hash from audio content for cache busting
+    const hash = crypto.createHash('md5').update(audioBuffer).digest('hex').substring(0, 8);
+    const key = `narration/${recipeId}/${voiceProfileId}-${hash}.mp3`;
+
+    // Calculate duration from MP3 buffer
+    let durationMs: number | null = null;
+    try {
+      durationMs = getMp3Duration(audioBuffer);
+    } catch (err) {
+      this.logger.warn(`Failed to calculate MP3 duration: ${err.message}`);
+    }
+
+    const r2Url = await this.r2Storage.uploadNarrationAudio(
+      recipeId,
+      voiceProfileId,
+      audioBuffer,
+      key,
+    );
+
+    await this.prisma.narrationAudio.upsert({
+      where: {
+        recipeId_voiceProfileId: { recipeId, voiceProfileId },
+      },
+      update: { r2Url, sizeBytes: audioBuffer.length, durationMs },
+      create: {
+        recipeId,
+        voiceProfileId,
+        r2Url,
+        sizeBytes: audioBuffer.length,
+        durationMs,
+      },
+    });
+
+    this.logger.log(
+      `Cached narration audio for recipe ${recipeId}, voice ${voiceProfileId} (${audioBuffer.length} bytes, ${durationMs}ms, key: ${key})`,
+    );
   }
 
   /**

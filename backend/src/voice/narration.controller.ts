@@ -7,6 +7,7 @@ import {
   UseGuards,
   NotFoundException,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { Response } from 'express';
 import { ClerkAuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -40,6 +41,7 @@ export class NarrationController {
    * @param response - Express response for streaming
    */
   @Get(':recipeId/stream')
+  @Throttle({ expensive: { limit: 10, ttl: 60000 } })
   async streamNarration(
     @Param('recipeId') recipeId: string,
     @Query('voiceProfileId') voiceProfileId: string,
@@ -51,6 +53,17 @@ export class NarrationController {
     }
 
     try {
+      // Check for cached narration audio → redirect to CDN
+      const cachedUrl = await this.narrationService.getCachedNarrationUrl(
+        recipeId,
+        voiceProfileId,
+      );
+      if (cachedUrl) {
+        response.redirect(302, cachedUrl);
+        return;
+      }
+
+      // No cache — stream from ElevenLabs (will cache after completion)
       await this.narrationService.streamRecipeNarration(
         recipeId,
         voiceProfileId,
