@@ -68,6 +68,7 @@ export class VoiceController {
     @Body('speakerName') speakerName: string,
     @Body('relationship') relationship: string,
     @Body('consentGiven') consentGiven: string, // Form data sends as string
+    @Body('appVersion') appVersion: string,
     @Req() req: any,
   ): Promise<VoiceProfile> {
     if (!file) {
@@ -94,6 +95,7 @@ export class VoiceController {
       speakerName,
       relationship,
       consentGiven: consentGiven === 'true',
+      appVersion: appVersion || undefined,
     };
 
     // Upload and enqueue for cloning

@@ -157,6 +157,12 @@ public struct VoiceUploadReducer {
                         body.append("Content-Disposition: form-data; name=\"name\"\r\n\r\n".data(using: .utf8)!)
                         body.append("\(voiceName)\r\n".data(using: .utf8)!)
 
+                        // Add app version field for consent audit trail (PRIV-05)
+                        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+                        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+                        body.append("Content-Disposition: form-data; name=\"appVersion\"\r\n\r\n".data(using: .utf8)!)
+                        body.append("\(appVersion)\r\n".data(using: .utf8)!)
+
                         // Add audio file field
                         body.append("--\(boundary)\r\n".data(using: .utf8)!)
                         body.append("Content-Disposition: form-data; name=\"audioFile\"; filename=\"\(fileURL.lastPathComponent)\"\r\n".data(using: .utf8)!)
