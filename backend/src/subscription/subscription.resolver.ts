@@ -1,31 +1,32 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { ClerkAuthGuard } from '../auth/auth.guard';
+import { CurrentUser, CurrentUserContext } from '../common/decorators/current-user.decorator';
 import { SubscriptionService } from './subscription.service';
-// import { UseGuards } from '@nestjs/common';
-// import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-// import { CurrentUser } from '../auth/current-user.decorator';
 
 @Resolver()
 export class SubscriptionResolver {
   constructor(private subscriptionService: SubscriptionService) {}
 
   @Mutation(() => Boolean)
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(ClerkAuthGuard)
+  @Throttle({ expensive: { limit: 10, ttl: 60000 } })
   async verifySubscription(
     @Args('jwsRepresentation') jwsRepresentation: string,
-    // @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserContext,
   ): Promise<boolean> {
-    // TODO: Uncomment auth guard and CurrentUser decorator for production
-    const userId = 'placeholder-user-id'; // Replace with user.id
-    return this.subscriptionService.verifyAndSyncSubscription(userId, jwsRepresentation);
+    return this.subscriptionService.verifyAndSyncSubscription(user.clerkId, jwsRepresentation);
   }
 
   @Query(() => Boolean)
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(ClerkAuthGuard)
   async canCreateVoiceProfile(
-    // @CurrentUser() user: { id: string },
+    @CurrentUser() user: CurrentUserContext,
   ): Promise<boolean> {
-    const userId = 'placeholder-user-id'; // Replace with user.id
-    const result = await this.subscriptionService.checkVoiceSlotLimit(userId);
+    // Resolve database userId from clerkId
+    const dbUserId = await this.subscriptionService.resolveUserId(user.clerkId);
+    const result = await this.subscriptionService.checkVoiceSlotLimit(dbUserId);
     return result.allowed;
   }
 }
