@@ -89,7 +89,7 @@ Plans:
 - [x] 18-01-PLAN.md — Voice consent modal + backend audit trail (PRIV-04, PRIV-05)
 - [x] 18-02-PLAN.md — PrivacyInfo.xcprivacy manifest + nutrition labels checklist (PRIV-02, PRIV-03)
 - [x] 18-03-PLAN.md — Voice profile deletion in Settings + hosted privacy policy (PRIV-06, PRIV-07)
-- [ ] 18-04-PLAN.md — Gap closure: iOS appVersion in voice upload form data (PRIV-05)
+- [x] 18-04-PLAN.md — Gap closure: iOS appVersion in voice upload form data (PRIV-05)
 
 ---
 
@@ -109,7 +109,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 19-01-PLAN.md -- Prisma schema (TransactionHistory, NotificationPreferences, NotificationLog, NarrationAudio.durationMs), error codes, request ID interceptor, ThrottlerModule named contexts
+- [x] 19-01-PLAN.md -- Prisma schema (TransactionHistory, NotificationPreferences, NotificationLog, NarrationAudio.durationMs), error codes, request ID interceptor, ThrottlerModule named contexts
 - [ ] 19-02-PLAN.md -- StoreKit 2 JWS verification with SignedDataVerifier, ClerkAuthGuard on SubscriptionResolver, Apple Server Notifications V2 webhook (BILL-01)
 - [ ] 19-03-PLAN.md -- Push notification preference checks, engagement notification scheduler, notification preferences GraphQL resolver (PUSH-01, PUSH-02)
 - [ ] 19-04-PLAN.md -- narrationUrl GraphQL query, MP3 duration computation, hash-based R2 keys, cascade delete (VOICE-03)

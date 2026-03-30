@@ -30,21 +30,21 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 ## Current Position
 
 Milestone: v4.0 App Store Launch Prep
-Phase: 18 of 22 (Privacy Compliance & Consent Infrastructure)
-Plan: 4 of 4 in current phase (Phase 18 complete)
-Status: Ready for next phase
-Last activity: 2026-03-30 — Completed plan 18-04 (PRIV-05 AppVersion Gap Closure)
+Phase: 19 of 22 (Backend Production Hardening)
+Plan: 1 of 4 in current phase (Plan 19-01 complete)
+Status: In progress
+Last activity: 2026-03-30 — Completed plan 19-01 (Production Hardening Infrastructure)
 
-Progress: [████████████████░░░░] 81% (67/82 plans complete across all milestones)
+Progress: [████████████████░░░░] 82% (68/82 plans complete across all milestones)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 67 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 4)
-- Total execution time: 18 days + 14m 49s across 3 milestones
-- v4.0: 4 plans completed (Phase 18 complete: consent gate, privacy manifest, voice deletion + policy, appVersion audit trail)
+- Total plans completed: 68 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 5)
+- Total execution time: 18 days + 17m 5s across 3 milestones
+- v4.0: 5 plans completed (Phase 18 complete, Phase 19 plan 1 complete: Prisma models, error codes, request tracing)
 
 **By Milestone:**
 
@@ -53,9 +53,9 @@ Progress: [████████████████░░░░] 81% (67
 | v1.5 Backend & AI | 3 | 11 | 2 days |
 | v2.0 iOS App | 8 | 35 | 9 days |
 | v3.0 Smart Pantry | 6 | 17 | 7 days |
-| v4.0 Launch Prep | 5 | 4/TBD | 14m 49s |
+| v4.0 Launch Prep | 5 | 5/TBD | 17m 5s |
 
-**Recent Trend:** Phase 18 complete (4 of 4 plans)
+**Recent Trend:** Phase 18 complete (4 of 4 plans), Phase 19 plan 1 complete
 
 ---
 
@@ -65,6 +65,7 @@ Progress: [████████████████░░░░] 81% (67
 | Phase 18 | P02 | 130 | 1 | 1 |
 | Phase 18 | P03 | 383 | 2 | 11 |
 | Phase 18 | P04 | 66 | 1 | 2 |
+| Phase 19 | P01 | 136 | 3 | 5 |
 
 ## Accumulated Context
 
@@ -88,6 +89,9 @@ Recent decisions affecting v4.0 work:
 - [Phase 18]: GraphQL via URLSession directly (no new network client) for voice profile queries
 - [Phase 18]: SFSafariViewController for privacy policy (App Store preferred over WKWebView)
 - [Phase 18]: Use CFBundleShortVersionString (not CFBundleVersion) for consent audit trail versioning
+- [Phase 19-01]: Named ThrottlerModule contexts ('default' 100 req/min, 'expensive' 10 req/min) for differential rate limiting
+- [Phase 19-01]: Request ID generation with crypto.randomUUID() (Node.js built-in, zero dependencies)
+- [Phase 19-01]: TransactionHistory without foreign key to User to support webhook events before user creation
 
 ### Pending Todos
 
@@ -111,9 +115,9 @@ Recent decisions affecting v4.0 work:
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: Completed 18-04-PLAN.md (PRIV-05 AppVersion Gap Closure)
+Stopped at: Completed 19-01-PLAN.md (Production Hardening Infrastructure)
 Resume file: None
-Next action: Phase 18 complete — proceed to Phase 19 or next v4.0 phase
+Next action: Continue Phase 19 with plan 19-02 (StoreKit 2 JWS verification)
 
 ---
 
