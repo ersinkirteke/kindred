@@ -87,7 +87,7 @@
 
 Plans:
 - [ ] 18-01-PLAN.md — Voice consent modal + backend audit trail (PRIV-04, PRIV-05)
-- [ ] 18-02-PLAN.md — PrivacyInfo.xcprivacy manifest + nutrition labels checklist (PRIV-02, PRIV-03)
+- [x] 18-02-PLAN.md — PrivacyInfo.xcprivacy manifest + nutrition labels checklist (PRIV-02, PRIV-03) ✅ 2026-03-30
 - [ ] 18-03-PLAN.md — Voice profile deletion in Settings + hosted privacy policy (PRIV-06, PRIV-07)
 
 ---

@@ -31,20 +31,20 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Milestone: v4.0 App Store Launch Prep
 Phase: 18 of 22 (Privacy Compliance & Consent Infrastructure)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-03-30 — Roadmap created for v4.0 milestone
+Plan: 1 of 3 in current phase
+Status: Executing
+Last activity: 2026-03-30 — Completed plan 18-02 (PrivacyInfo.xcprivacy & Nutrition Labels)
 
-Progress: [████████████████░░░░] 77% (63/82 plans complete across all milestones)
+Progress: [████████████████░░░░] 78% (64/82 plans complete across all milestones)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 63 (v1.5: 11, v2.0: 35, v3.0: 17)
-- Total execution time: 18 days across 3 milestones
-- v4.0: Not yet started
+- Total plans completed: 64 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 1)
+- Total execution time: 18 days + 2m 10s across 3 milestones
+- v4.0: 1 plan completed (Phase 18: PrivacyInfo.xcprivacy)
 
 **By Milestone:**
 
@@ -53,11 +53,9 @@ Progress: [████████████████░░░░] 77% (63
 | v1.5 Backend & AI | 3 | 11 | 2 days |
 | v2.0 iOS App | 8 | 35 | 9 days |
 | v3.0 Smart Pantry | 6 | 17 | 7 days |
-| v4.0 Launch Prep | 5 | TBD | In progress |
+| v4.0 Launch Prep | 5 | 1/TBD | 2m 10s |
 
-**Recent Trend:** Not yet established for v4.0
-
-*Will be updated after first plan completion*
+**Recent Trend:** Phase 18 executing (1 of 3 plans complete)
 
 ---
 
@@ -69,6 +67,9 @@ See PROJECT.md Key Decisions table for full list (28 decisions tracked).
 
 Recent decisions affecting v4.0 work:
 
+- **NSPrivacyTracking false** (Phase 18-02): No IDFA usage, no cross-app tracking in v4.0 — ATT prompt not needed
+- **Required Reason API codes** (Phase 18-02): UserDefaults CA92.1 for app config, FileTimestamp C617.1 for pantry dates
+- **7 data types declared** (Phase 18-02): AudioData (ElevenLabs), CoarseLocation (Mapbox), EmailAddress (Clerk), UserID (Clerk), ProductInteraction (Firebase), CrashData (Firebase), PurchaseHistory (StoreKit)
 - **SwiftData persistence pattern** (v3.0): Named ModelConfiguration with PantryStore/GuestStore separation — needs commit (DATA-01 in Phase 21)
 - **Test AdMob IDs** (v2.0): Used test unit IDs throughout development — must replace with production IDs (BILL-03 in Phase 20)
 - **Base64url JWS verification** (v2.0): Current backend uses simple decode without x5c chain validation — production fraud risk (BILL-01 in Phase 19)
@@ -96,9 +97,9 @@ Recent decisions affecting v4.0 work:
 ## Session Continuity
 
 Last session: 2026-03-30
-Stopped at: v4.0 roadmap, STATE.md, and REQUIREMENTS.md traceability created
+Stopped at: Completed Phase 18 Plan 02 (PrivacyInfo.xcprivacy & Nutrition Labels)
 Resume file: None
-Next action: `/gsd:plan-phase 18` to begin Phase 18 planning
+Next action: Continue Phase 18 with Plan 03 (Privacy Policy content and hosting)
 
 ---
 
