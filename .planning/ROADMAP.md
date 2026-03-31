@@ -129,7 +129,12 @@ Plans:
 3. Production AdMob unit IDs are active in Info.plist and AdClient.swift (test IDs removed)
 4. AdMob initializes with correct consent status showing personalized or non-personalized ads
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 20-01-PLAN.md — Consent infrastructure: ConsentClient, ConsentReducer, PrePromptView, AppReducer wiring (PRIV-01)
+- [ ] 20-02-PLAN.md — Production ad config: xcconfig files, AdModels refactor, AdClient consent integration (BILL-03)
+- [ ] 20-03-PLAN.md — Testing & verification: ConsentReducer tests, debug menu, physical device checkpoint (PRIV-01, BILL-03)
 
 ---
 
@@ -192,7 +197,7 @@ Plans:
 | 17. Expiry Tracking | v3.0 | 3/3 | Complete | 2026-03-17 |
 | 18. Privacy Compliance | 4/4 | Complete    | 2026-03-30 | - |
 | 19. Backend Hardening | 4/4 | Complete    | 2026-03-30 | - |
-| 20. ATT & Ads | v4.0 | 0/TBD | Not started | - |
+| 20. ATT & Ads | v4.0 | 0/3 | Planned | - |
 | 21. Voice & Monetization | v4.0 | 0/TBD | Not started | - |
 | 22. TestFlight & Submission | v4.0 | 0/TBD | Not started | - |
 
