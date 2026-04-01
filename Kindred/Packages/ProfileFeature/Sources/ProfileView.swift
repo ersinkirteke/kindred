@@ -61,7 +61,8 @@ public struct ProfileView: View {
                         voiceProfile: store.voiceProfile,
                         isDeleting: store.isDeletingVoice,
                         onDelete: { store.send(.deleteVoiceTapped) },
-                        onPrivacyPolicyTapped: { store.send(.privacyPolicyTapped) }
+                        onPrivacyPolicyTapped: { store.send(.privacyPolicyTapped) },
+                        onTrackingSettingsTapped: { store.send(.trackingSettingsTapped) }
                     )
                     .padding(.horizontal, KindredSpacing.md)
                 }

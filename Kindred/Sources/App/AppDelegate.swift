@@ -45,8 +45,10 @@ class AppDelegate: NSObject, UIApplicationDelegate, MXMetricManagerSubscriber {
             }
         }
 
-        // Initialize AdMob SDK with test device for development
+        // Initialize AdMob SDK — consent status configured before loading ads
+        #if DEBUG
         GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [GADSimulatorID]
+        #endif
         GADMobileAds.sharedInstance().start(completionHandler: nil)
 
         // Mark first launch complete when app enters background (ads suppressed during first session)

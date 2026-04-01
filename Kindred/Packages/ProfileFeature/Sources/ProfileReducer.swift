@@ -103,6 +103,7 @@ public struct ProfileReducer {
         case dismissDeleteSuccessToast
         case privacyPolicyTapped
         case dismissPrivacyPolicy
+        case trackingSettingsTapped
     }
 
     @Dependency(\.guestSessionClient) var guestSession
@@ -424,6 +425,15 @@ public struct ProfileReducer {
 
             case .dismissPrivacyPolicy:
                 state.showPrivacyPolicy = false
+                return .none
+
+            case .trackingSettingsTapped:
+                // Open iOS Settings to manage tracking permission
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    #if canImport(UIKit)
+                    UIApplication.shared.open(url)
+                    #endif
+                }
                 return .none
             }
         }

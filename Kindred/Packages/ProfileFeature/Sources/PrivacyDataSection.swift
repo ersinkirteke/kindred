@@ -3,10 +3,11 @@ import DesignSystem
 import SwiftUI
 
 struct PrivacyDataSection: View {
-    let voiceProfile: ProfileReducer.VoiceProfileInfo?
+    let voiceProfile: VoiceProfileInfo?
     let isDeleting: Bool
     let onDelete: () -> Void
     let onPrivacyPolicyTapped: () -> Void
+    let onTrackingSettingsTapped: () -> Void
 
     @ScaledMetric(relativeTo: .title2) private var heading2Size: CGFloat = 22
     @ScaledMetric(relativeTo: .body) private var bodySize: CGFloat = 16
@@ -26,6 +27,27 @@ struct PrivacyDataSection: View {
                     onDelete: onDelete
                 )
             }
+
+            // Tracking Permission row
+            Button {
+                onTrackingSettingsTapped()
+            } label: {
+                HStack {
+                    Text("Tracking Permission")
+                        .font(.kindredBodyScaled(size: bodySize))
+                        .foregroundColor(.kindredTextPrimary)
+
+                    Spacer()
+
+                    Image(systemName: "gear")
+                        .foregroundColor(.kindredAccent)
+                }
+                .padding(.vertical, KindredSpacing.sm)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Tracking Permission")
+            .accessibilityHint("Opens iOS Settings to manage ad tracking permission")
 
             // Privacy Policy link
             Button {

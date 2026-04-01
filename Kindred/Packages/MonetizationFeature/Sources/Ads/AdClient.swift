@@ -21,6 +21,10 @@ public struct AdClient: Sendable {
     /// Checks if this is the very first app launch ever
     /// Returns true if the "kindredFirstLaunchComplete" flag does not exist
     public var isFirstLaunchEver: @Sendable () -> Bool = { true }
+
+    /// Configures AdMob SDK ad personalization based on consent status
+    /// Must be called BEFORE loading any ads, and whenever consent status changes
+    public var configurePersonalization: @Sendable (ConsentStatus) -> Void = { _ in }
 }
 
 // MARK: - Dependency Key
@@ -42,13 +46,28 @@ extension AdClient: DependencyKey {
         },
         isFirstLaunchEver: {
             UserDefaults.standard.object(forKey: "kindredFirstLaunchComplete") == nil
+        },
+        configurePersonalization: { consentStatus in
+            let config = GADMobileAds.sharedInstance().requestConfiguration
+            switch consentStatus {
+            case .fullyGranted:
+                // Personalized ads
+                config.setPublisherPrivacyPersonalizationState(.allowed)
+            case .attDenied, .umpDenied, .bothDenied:
+                // Non-personalized ads
+                config.setPublisherPrivacyPersonalizationState(.notAllowed)
+            case .notDetermined:
+                // Default to non-personalized until consent obtained
+                config.setPublisherPrivacyPersonalizationState(.notAllowed)
+            }
         }
     )
 
     public static let testValue = AdClient(
         initializeSDK: {},
         shouldShowAds: { false },
-        isFirstLaunchEver: { true }
+        isFirstLaunchEver: { true },
+        configurePersonalization: { _ in }
     )
 }
 
