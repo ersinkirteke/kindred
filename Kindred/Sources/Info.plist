@@ -55,5 +55,7 @@
 			<string>cstr6suwn9.skadnetwork</string>
 		</dict>
 	</array>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Kindred uses this to show you ads for kitchen tools and ingredients that match your cooking style.</string>
 </dict>
 </plist>

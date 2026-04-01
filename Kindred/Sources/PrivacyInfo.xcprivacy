@@ -4,10 +4,16 @@
 <dict>
 	<!-- Privacy Tracking -->
 	<key>NSPrivacyTracking</key>
-	<false/>
+	<true/>
 
 	<key>NSPrivacyTrackingDomains</key>
-	<array/>
+	<array>
+		<string>googleads.g.doubleclick.net</string>
+		<string>pagead2.googlesyndication.com</string>
+		<string>www.googleadservices.com</string>
+		<string>www.google-analytics.com</string>
+		<string>app-measurement.com</string>
+	</array>
 
 	<!-- Collected Data Types -->
 	<key>NSPrivacyCollectedDataTypes</key>
