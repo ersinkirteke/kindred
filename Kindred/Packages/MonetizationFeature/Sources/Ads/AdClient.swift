@@ -51,14 +51,11 @@ extension AdClient: DependencyKey {
             let config = GADMobileAds.sharedInstance().requestConfiguration
             switch consentStatus {
             case .fullyGranted:
-                // Personalized ads
-                config.setPublisherPrivacyPersonalizationState(.allowed)
+                config.publisherPrivacyPersonalizationState = .enabled
             case .attDenied, .umpDenied, .bothDenied:
-                // Non-personalized ads
-                config.setPublisherPrivacyPersonalizationState(.notAllowed)
+                config.publisherPrivacyPersonalizationState = .disabled
             case .notDetermined:
-                // Default to non-personalized until consent obtained
-                config.setPublisherPrivacyPersonalizationState(.notAllowed)
+                config.publisherPrivacyPersonalizationState = .disabled
             }
         }
     )

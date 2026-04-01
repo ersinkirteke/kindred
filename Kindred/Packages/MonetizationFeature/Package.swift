@@ -14,7 +14,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
         .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads", from: "11.0.0"),
-        .package(url: "https://github.com/googleads/swift-package-manager-google-user-messaging-platform", from: "3.0.0"),
+        .package(url: "https://github.com/googleads/swift-package-manager-google-user-messaging-platform", from: "2.0.0"),
         .package(name: "DesignSystem", path: "../DesignSystem"),
     ],
     targets: [

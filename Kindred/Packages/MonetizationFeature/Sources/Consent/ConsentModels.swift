@@ -9,8 +9,8 @@ public enum ConsentStatus: Equatable, Sendable {
     case bothDenied        // Both ATT denied and UMP denied
 }
 
-/// Internal state for consent flow progression
-enum ConsentFlowStep: Equatable {
+/// State for consent flow progression
+public enum ConsentFlowStep: Equatable {
     case idle
     case checkingUMP
     case showingUMPForm

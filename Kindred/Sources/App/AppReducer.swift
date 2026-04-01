@@ -180,7 +180,8 @@ struct AppReducer {
                         .send(.feed(.recipeDetail(.presented(.authStateUpdated(authState))))),
                         .send(.pantry(.authStateUpdated(pantryUserId))),
                         .send(.profile(.authStateUpdated(profileAuthState))),
-                        .send(.checkPendingMigration)
+                        .send(.checkPendingMigration),
+                        .send(.checkConsentStatus)
                     )
                 }
 
@@ -324,15 +325,17 @@ struct AppReducer {
                 }
 
                 // If user wants voice upload, present it after onboarding dismisses
+                // Skip consent flow when voice upload is active — two sheets crash SwiftUI
+                // Consent will trigger on next app launch via checkConsentStatus
                 if wantsVoiceUpload {
                     effects.append(.run { send in
                         try await clock.sleep(for: .milliseconds(300))
                         await send(.voicePlayback(.showVoiceUpload))
                     })
+                } else {
+                    // Trigger consent flow after onboarding (only when no voice upload sheet)
+                    effects.append(.send(.triggerConsentFlow))
                 }
-
-                // Trigger consent flow after onboarding
-                effects.append(.send(.triggerConsentFlow))
 
                 return .concatenate(effects)
 

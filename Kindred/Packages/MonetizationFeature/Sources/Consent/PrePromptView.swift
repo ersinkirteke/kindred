@@ -22,19 +22,19 @@ public struct PrePromptView: View {
             // Icon
             Image(systemName: "heart.text.square")
                 .font(.system(size: iconSize))
-                .foregroundStyle(.kindredAccent)
+                .foregroundStyle(Color.kindredAccent)
                 .padding(.bottom, KindredSpacing.md)
 
             // Heading
             Text("Hey! Let's personalize your experience")
-                .font(.kindredHeading2Scaled)
+                .font(.kindredHeading2Scaled(size: headingSize))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.primary)
                 .padding(.horizontal, KindredSpacing.xl)
 
             // Body
             Text("We'd like to show you ads that match your tastes — think kitchen tools and ingredients you'll actually use. Tap Continue to help us personalize your ads.")
-                .font(.kindredBodyScaled)
+                .font(.kindredBodyScaled(size: bodySize))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, KindredSpacing.xl)
@@ -47,7 +47,7 @@ public struct PrePromptView: View {
                 onContinue()
             }) {
                 Text("Continue")
-                    .font(.kindredBodyScaled.weight(.semibold))
+                    .font(.kindredBodyScaled(size: bodySize).weight(.semibold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, KindredSpacing.md)

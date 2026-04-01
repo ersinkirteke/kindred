@@ -1,6 +1,6 @@
 import Foundation
 import AppTrackingTransparency
-import GoogleUserMessagingPlatform
+import UserMessagingPlatform
 import Dependencies
 import DependenciesMacros
 import OSLog
@@ -71,7 +71,7 @@ extension ConsentClient: DependencyKey {
             let form = try await UMPConsentForm.load()
 
             logger.info("Presenting UMP consent form")
-            await form.present(from: nil) // Uses key window
+            try await form.present(from: nil) // Uses key window
             logger.info("UMP consent form dismissed")
         }
 
@@ -103,15 +103,19 @@ extension ConsentClient: DependencyKey {
     public static let testValue = ConsentClient()
 
     // Named test presets
-    public static let allGranted = ConsentClient(
-        checkATTStatus: { .authorized },
-        getUMPConsentStatus: { 3 } // obtained
-    )
+    public static var allGranted: ConsentClient {
+        var client = ConsentClient()
+        client.checkATTStatus = { .authorized }
+        client.getUMPConsentStatus = { 3 } // obtained
+        return client
+    }
 
-    public static let attDenied = ConsentClient(
-        checkATTStatus: { .denied },
-        getUMPConsentStatus: { 3 } // obtained
-    )
+    public static var attDenied: ConsentClient {
+        var client = ConsentClient()
+        client.checkATTStatus = { .denied }
+        client.getUMPConsentStatus = { 3 } // obtained
+        return client
+    }
 }
 
 extension DependencyValues {
