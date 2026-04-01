@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
-status: active
-last_updated: "2026-04-01T06:03:18.664Z"
+status: Active
+last_updated: "2026-04-01T06:09:45.072Z"
 progress:
   total_phases: 17
   completed_phases: 15
@@ -31,20 +31,20 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Milestone: v4.0 App Store Launch Prep
 Phase: 20 of 22 (ATT Consent & Production Ads)
-Plan: 1 of 3 in current phase (Phase 20 in progress)
+Plan: 2 of 3 in current phase (Phase 20 in progress)
 Status: Active
-Last activity: 2026-04-01 — Completed plan 20-01 (ATT Consent Infrastructure)
+Last activity: 2026-04-01 — Completed plan 20-02 (xcconfig Ad Configuration & Consent Integration)
 
-Progress: [████████████████░░░░] 86% (71/82 plans complete across all milestones)
+Progress: [████████████████░░░░] 87% (72/82 plans complete across all milestones)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 71 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 8)
-- Total execution time: 18 days + 32m 23s across 3 milestones
-- v4.0: 8 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 in progress: ATT consent infrastructure)
+- Total plans completed: 72 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 9)
+- Total execution time: 18 days + 35m 13s across 3 milestones
+- v4.0: 9 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 in progress: ATT consent + xcconfig ads)
 
 **By Milestone:**
 
@@ -53,7 +53,7 @@ Progress: [████████████████░░░░] 86% (71
 | v1.5 Backend & AI | 3 | 11 | 2 days |
 | v2.0 iOS App | 8 | 35 | 9 days |
 | v3.0 Smart Pantry | 6 | 17 | 7 days |
-| v4.0 Launch Prep | 5 | 7/TBD | 29m 40s |
+| v4.0 Launch Prep | 5 | 9/TBD | 32m 50s |
 
 **Recent Trend:** Phase 18 complete (4 of 4 plans), Phase 19 complete (4 of 4 plans)
 
@@ -70,7 +70,8 @@ Progress: [████████████████░░░░] 86% (71
 | Phase 19 P03 | 215 | 2 tasks | 6 files |
 | Phase 19 P02 | 317 | 2 tasks | 8 files |
 | Phase 20 | P01 | 203 | 2 | 9 |
-| Phase 20 P01 | 203 | 2 tasks | 9 files |
+| Phase 20 | P02 | 170 | 2 | 9 |
+| Phase 20 P02 | 170 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -110,6 +111,9 @@ Recent decisions affecting v4.0 work:
 - [Phase 20]: UMP failure does not block ATT flow — graceful degradation for user consent
 - [Phase 20]: Firebase Analytics disabled on ATT denial to respect user privacy choice
 - [Phase 20]: Pre-prompt shown once per device matching iOS ATT dialog behavior
+- [Phase 20]: xcconfig-based ad unit ID configuration separates Debug test IDs from Release production IDs
+- [Phase 20]: fatalError for unconfigured Release builds prevents shipping test ads to production
+- [Phase 20]: ConsentStatus drives ad personalization (fullyGranted = personalized, denied = non-personalized)
 
 ### Pending Todos
 
@@ -132,10 +136,10 @@ Recent decisions affecting v4.0 work:
 
 ## Session Continuity
 
-Last session: 2026-03-30
-Stopped at: Completed 19-02-PLAN.md (StoreKit 2 JWS Verification) - Phase 19 now complete
+Last session: 2026-04-01
+Stopped at: Completed 20-02-PLAN.md (xcconfig Ad Configuration & Consent Integration) - Phase 20 in progress
 Resume file: None
-Next action: Begin Phase 20 (iOS Feature Completion & Polish)
+Next action: Continue Phase 20 (ATT Consent & Production Ads) - Plan 03 remaining
 
 ---
 
