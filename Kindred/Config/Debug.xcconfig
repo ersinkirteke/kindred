@@ -1,0 +1,6 @@
+// Debug build settings for Kindred
+// Google test ad unit IDs for development
+
+ADMOB_APP_ID = ca-app-pub-3940256099942544~1458002511
+ADMOB_FEED_NATIVE_ID = ca-app-pub-3940256099942544/3986624511
+ADMOB_DETAIL_BANNER_ID = ca-app-pub-3940256099942544/2435281174

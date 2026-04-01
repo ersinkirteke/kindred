@@ -1,0 +1,7 @@
+// Release build settings for Kindred
+// TODO: Replace placeholder IDs with production AdMob unit IDs from https://apps.admob.com/
+// Production IDs will be added before App Store submission
+
+ADMOB_APP_ID = REPLACE_WITH_PRODUCTION_APP_ID
+ADMOB_FEED_NATIVE_ID = REPLACE_WITH_PRODUCTION_FEED_NATIVE_ID
+ADMOB_DETAIL_BANNER_ID = REPLACE_WITH_PRODUCTION_DETAIL_BANNER_ID

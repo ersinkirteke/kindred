@@ -47,7 +47,11 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Kindred uses your camera to scan ingredients from fridge photos and receipts.</string>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<string>$(ADMOB_APP_ID)</string>
+	<key>ADMOB_FEED_NATIVE_ID</key>
+	<string>$(ADMOB_FEED_NATIVE_ID)</string>
+	<key>ADMOB_DETAIL_BANNER_ID</key>
+	<string>$(ADMOB_DETAIL_BANNER_ID)</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
