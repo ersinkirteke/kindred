@@ -6,6 +6,7 @@ import ProfileFeature
 import VoicePlaybackFeature
 import AuthClient
 import AuthFeature
+import MonetizationFeature
 import UIKit
 import OSLog
 
@@ -22,6 +23,7 @@ struct AppReducer {
         var pantryState = PantryReducer.State()
         var profileState = ProfileReducer.State()
         var voicePlaybackState = VoicePlaybackReducer.State()
+        var consentState = ConsentReducer.State()
         var selectedTab: Tab = .feed
 
         // Auth state management
@@ -32,6 +34,9 @@ struct AppReducer {
         var isMigrating: Bool = false
         var migrationRetryCount: Int = 0
         var pendingGatedAction: GatedAction? = nil
+
+        // Consent state
+        var needsConsentFlow: Bool = false
 
         // Connectivity state
         var isOffline: Bool = false
@@ -55,6 +60,7 @@ struct AppReducer {
         case pantry(PantryReducer.Action)
         case profile(ProfileReducer.Action)
         case voicePlayback(VoicePlaybackReducer.Action)
+        case consent(ConsentReducer.Action)
         case tabSelected(Tab)
 
         // Auth actions
@@ -67,6 +73,10 @@ struct AppReducer {
         case onboarding(PresentationAction<OnboardingReducer.Action>)
         case presentOnboarding
         case persistOnboardingCompletion
+
+        // Consent actions
+        case checkConsentStatus
+        case triggerConsentFlow
 
         // Migration actions
         case startMigration
@@ -85,6 +95,7 @@ struct AppReducer {
     @Dependency(\.guestSessionClient) var guestSession
     @Dependency(\.continuousClock) var clock
     @Dependency(\.networkMonitorClient) var networkMonitor
+    @Dependency(\.consentClient) var consentClient
 
     var body: some ReducerOf<Self> {
         Scope(state: \.feedState, action: \.feed) {
@@ -98,6 +109,9 @@ struct AppReducer {
         }
         Scope(state: \.voicePlaybackState, action: \.voicePlayback) {
             VoicePlaybackReducer()
+        }
+        Scope(state: \.consentState, action: \.consent) {
+            ConsentReducer()
         }
         Reduce { state, action in
             switch action {
@@ -317,6 +331,9 @@ struct AppReducer {
                     })
                 }
 
+                // Trigger consent flow after onboarding
+                effects.append(.send(.triggerConsentFlow))
+
                 return .concatenate(effects)
 
             case .onboarding(.dismiss):
@@ -333,6 +350,44 @@ struct AppReducer {
                     // Clean up step persistence
                     UserDefaults.standard.removeObject(forKey: "onboardingCurrentStep")
                 }
+
+            case .checkConsentStatus:
+                // Check if consent flow is needed for existing users on app launch
+                guard state.hasCompletedOnboarding else { return .none }
+                guard case .authenticated = state.currentAuthState else { return .none }
+
+                // Check ATT status
+                let attStatus = consentClient.checkATTStatus()
+                guard attStatus == .notDetermined else { return .none }
+
+                // TODO: Check subscription status - skip for pro subscribers
+                // For now, trigger consent flow for all users with .notDetermined ATT status
+                state.needsConsentFlow = true
+                return .send(.consent(.checkConsentOnLaunch))
+
+            case .triggerConsentFlow:
+                // Trigger consent flow after onboarding for new users
+                guard case .authenticated = state.currentAuthState else { return .none }
+
+                // Check ATT status
+                let attStatus = consentClient.checkATTStatus()
+                guard attStatus == .notDetermined else { return .none }
+
+                // TODO: Check subscription status - skip for pro subscribers
+                state.needsConsentFlow = true
+                return .send(.consent(.checkConsentOnLaunch))
+
+            case .consent(.consentFlowCompleted(let status)):
+                state.needsConsentFlow = false
+                // TODO: Forward consent status to FeedReducer for ad visibility
+                // For now, just log completion
+                Logger(subsystem: "com.ersinkirteke.kindred", category: "consent")
+                    .info("Consent flow completed with status: \(String(describing: status))")
+                return .none
+
+            case .consent:
+                // Other consent actions handled by child reducer
+                return .none
 
             case .checkPendingMigration:
                 if UserDefaults.standard.bool(forKey: "pendingMigration"),

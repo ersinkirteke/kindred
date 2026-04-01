@@ -6,6 +6,7 @@ import ProfileFeature
 import SwiftUI
 import VoicePlaybackFeature
 import AuthFeature
+import MonetizationFeature
 
 struct RootView: View {
     @Bindable var store: StoreOf<AppReducer>
@@ -113,6 +114,14 @@ struct RootView: View {
         }
         .fullScreenCover(item: $store.scope(state: \.onboarding, action: \.onboarding)) { onboardingStore in
             OnboardingView(store: onboardingStore)
+        }
+        .sheet(isPresented: Binding(
+            get: { store.consentState.isShowingPrePrompt },
+            set: { _ in } // Reducer controls dismissal
+        )) {
+            PrePromptView {
+                store.send(.consent(.prePromptContinueTapped))
+            }
         }
         .onAppear {
             store.send(.observeAuth)
