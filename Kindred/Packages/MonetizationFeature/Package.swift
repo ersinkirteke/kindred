@@ -32,6 +32,14 @@ let package = Package(
             linkerSettings: [
                 .linkedFramework("AppTrackingTransparency")
             ]
+        ),
+        .testTarget(
+            name: "MonetizationFeatureTests",
+            dependencies: [
+                "MonetizationFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ],
+            path: "Tests"
         )
     ]
 )

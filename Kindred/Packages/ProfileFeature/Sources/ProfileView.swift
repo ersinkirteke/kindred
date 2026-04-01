@@ -13,6 +13,10 @@ public struct ProfileView: View {
     @ScaledMetric(relativeTo: .headline) private var bodySize: CGFloat = 18
     @ScaledMetric(relativeTo: .caption) private var captionSize: CGFloat = 14
 
+    #if DEBUG
+    @State private var showDebugMenu = false
+    #endif
+
     public init(store: StoreOf<ProfileReducer>) {
         self.store = store
     }
@@ -66,6 +70,10 @@ public struct ProfileView: View {
                     )
                     .padding(.horizontal, KindredSpacing.md)
                 }
+
+                // App version label at bottom
+                versionLabel
+                    .padding(.top, KindredSpacing.xl)
             }
             .padding(.vertical, KindredSpacing.lg)
         }
@@ -96,6 +104,12 @@ public struct ProfileView: View {
         )) {
             SafariView(url: URL(string: "https://api.kindred.app/privacy")!)
         }
+        #if DEBUG
+        .sheet(isPresented: $showDebugMenu) {
+            ConsentDebugMenu()
+                .presentationDetents([.medium])
+        }
+        #endif
         .overlay(alignment: .top) {
             if store.showDeleteSuccessToast {
                 Text(String(localized: "profile.privacy_data.voice_deleted_success", bundle: .main))
@@ -180,5 +194,19 @@ public struct ProfileView: View {
             .padding(.horizontal, KindredSpacing.xl)
         }
         .padding(.horizontal, KindredSpacing.lg)
+    }
+
+    private var versionLabel: some View {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
+
+        return Text("Version \(version) (\(build))")
+            .font(.kindredCaptionScaled(size: captionSize))
+            .foregroundColor(.kindredTextSecondary)
+            #if DEBUG
+            .onLongPressGesture(minimumDuration: 1.0) {
+                showDebugMenu = true
+            }
+            #endif
     }
 }
