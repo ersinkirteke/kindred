@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
-status: completed
-last_updated: "2026-03-30T18:22:07.569Z"
+status: active
+last_updated: "2026-04-01T06:03:18.664Z"
 progress:
-  total_phases: 16
+  total_phases: 17
   completed_phases: 15
-  total_plans: 60
-  completed_plans: 59
+  total_plans: 63
+  completed_plans: 61
 ---
 
 # Project State: Kindred
 
-**Last Updated:** 2026-03-30
-**Status:** Milestone complete
+**Last Updated:** 2026-04-01
+**Status:** Active
 
 ---
 
@@ -23,28 +23,28 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-30)
 
 **Core value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
-**Current focus:** Phase 18 - Privacy Compliance & Consent Infrastructure
+**Current focus:** Phase 20 - ATT Consent & Production Ads
 
 ---
 
 ## Current Position
 
 Milestone: v4.0 App Store Launch Prep
-Phase: 19 of 22 (Backend Production Hardening)
-Plan: 4 of 4 in current phase (Phase 19 complete)
-Status: Phase complete
-Last activity: 2026-03-30 — Completed plan 19-02 (StoreKit 2 JWS Verification)
+Phase: 20 of 22 (ATT Consent & Production Ads)
+Plan: 1 of 3 in current phase (Phase 20 in progress)
+Status: Active
+Last activity: 2026-04-01 — Completed plan 20-01 (ATT Consent Infrastructure)
 
-Progress: [████████████████░░░░] 85% (70/82 plans complete across all milestones)
+Progress: [████████████████░░░░] 86% (71/82 plans complete across all milestones)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 70 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 7)
-- Total execution time: 18 days + 29m 40s across 3 milestones
-- v4.0: 7 plans completed (Phase 18 complete, Phase 19 complete: Privacy compliance, production hardening, push notifications, subscription verification)
+- Total plans completed: 71 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 8)
+- Total execution time: 18 days + 32m 23s across 3 milestones
+- v4.0: 8 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 in progress: ATT consent infrastructure)
 
 **By Milestone:**
 
@@ -69,6 +69,8 @@ Progress: [████████████████░░░░] 85% (70
 | Phase 19 P04 | 223 | 2 tasks | 6 files |
 | Phase 19 P03 | 215 | 2 tasks | 6 files |
 | Phase 19 P02 | 317 | 2 tasks | 8 files |
+| Phase 20 | P01 | 203 | 2 | 9 |
+| Phase 20 P01 | 203 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -105,6 +107,9 @@ Recent decisions affecting v4.0 work:
 - [Phase 19]: Default all notification preferences to enabled (opt-out model for utility notifications)
 - [Phase 19]: Cascade delete narration audio before marking profile DELETED (ensures cleanup completes)
 - [Phase 19]: Inactivity detection via DeviceToken.updatedAt (no additional analytics infrastructure needed)
+- [Phase 20]: UMP failure does not block ATT flow — graceful degradation for user consent
+- [Phase 20]: Firebase Analytics disabled on ATT denial to respect user privacy choice
+- [Phase 20]: Pre-prompt shown once per device matching iOS ATT dialog behavior
 
 ### Pending Todos
 
