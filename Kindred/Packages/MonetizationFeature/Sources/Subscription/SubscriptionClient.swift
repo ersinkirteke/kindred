@@ -1,6 +1,7 @@
 import Foundation
 import StoreKit
 import Dependencies
+import ClerkKit
 
 public struct SubscriptionClient: Sendable {
     /// Loads available subscription products from the App Store
@@ -135,24 +136,27 @@ extension SubscriptionClient: DependencyKey {
                     throw SubscriptionError.networkError("Invalid backend URL")
                 }
 
-                // Build GraphQL mutation
-                let mutation = """
-                mutation {
-                    verifySubscription(jwsRepresentation: "\(jws)")
-                }
-                """
+                // Build GraphQL mutation with variables to prevent injection
+                let mutation = "mutation VerifySubscription($jws: String!) { verifySubscription(jwsRepresentation: $jws) }"
+                let variables: [String: Any] = ["jws": jws]
 
-                let body: [String: Any] = ["query": mutation]
+                let body: [String: Any] = ["query": mutation, "variables": variables]
 
                 guard let bodyData = try? JSONSerialization.data(withJSONObject: body) else {
                     throw SubscriptionError.networkError("Failed to serialize request")
                 }
 
-                // Create request
+                // Create request with auth header
                 var request = URLRequest(url: url)
                 request.httpMethod = "POST"
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                 request.httpBody = bodyData
+
+                // Add Authorization header from Clerk session
+                if let session = Clerk.shared.session,
+                   let token = try? await session.getToken() {
+                    request.setValue("Bearer \(token.jwt)", forHTTPHeaderField: "Authorization")
+                }
 
                 // Send request
                 let (data, response) = try await URLSession.shared.data(for: request)
