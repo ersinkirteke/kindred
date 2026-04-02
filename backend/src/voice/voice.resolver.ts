@@ -143,7 +143,7 @@ export class VoiceResolver {
   @UseGuards(ClerkAuthGuard)
   async narrationUrl(
     @Args('recipeId') recipeId: string,
-    @Args('voiceProfileId', { nullable: true }) voiceProfileId: string | null,
+    @Args('voiceProfileId', { nullable: true, type: () => String }) voiceProfileId: string | null,
     @CurrentUser() user: CurrentUserContext,
   ): Promise<NarrationUrlDto> {
     // Find database user from Clerk ID
