@@ -1,6 +1,6 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Logger, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 /**
@@ -13,6 +13,8 @@ import { join } from 'path';
  */
 @Controller('privacy')
 export class PrivacyController {
+  private readonly logger = new Logger(PrivacyController.name);
+
   /**
    * GET /privacy
    *
@@ -21,11 +23,27 @@ export class PrivacyController {
    */
   @Get()
   getPrivacyPolicy(@Res() res: Response) {
-    const htmlPath = join(__dirname, 'privacy-policy.html');
-    const html = readFileSync(htmlPath, 'utf-8');
+    // Try multiple paths since nest build asset copying and tsc output
+    // may place the HTML in different locations depending on rootDir
+    const candidates = [
+      join(__dirname, 'privacy-policy.html'),
+      join(process.cwd(), 'dist', 'privacy', 'privacy-policy.html'),
+      join(process.cwd(), 'dist', 'src', 'privacy', 'privacy-policy.html'),
+    ];
 
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
-    res.send(html);
+    for (const htmlPath of candidates) {
+      if (existsSync(htmlPath)) {
+        const html = readFileSync(htmlPath, 'utf-8');
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.send(html);
+        return;
+      }
+    }
+
+    this.logger.error(
+      `privacy-policy.html not found. Tried: ${candidates.join(', ')}`,
+    );
+    res.status(500).send('Privacy policy page is currently unavailable.');
   }
 }

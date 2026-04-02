@@ -173,7 +173,7 @@ public struct VoiceUploadReducer {
 
                         // Create request
                         // TODO: Replace with actual backend URL from environment
-                        guard let url = URL(string: "https://api.kindred.app/api/voice-profiles/upload") else {
+                        guard let url = URL(string: "https://api.kindredcook.app/api/voice-profiles/upload") else {
                             await send(.uploadFailed("Invalid API URL"))
                             return
                         }

@@ -15,7 +15,7 @@ async function bootstrap() {
   app.enableCors({
     origin:
       configService.get('NODE_ENV') === 'production'
-        ? ['https://kindred.app'] // Restrict in production
+        ? ['https://kindredcook.app'] // Restrict in production
         : true, // Allow all origins in development
     credentials: true,
   });

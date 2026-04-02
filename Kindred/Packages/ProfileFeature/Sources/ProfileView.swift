@@ -102,7 +102,7 @@ public struct ProfileView: View {
             get: { store.showPrivacyPolicy },
             set: { _ in store.send(.dismissPrivacyPolicy) }
         )) {
-            SafariView(url: URL(string: "https://api.kindred.app/privacy")!)
+            SafariView(url: URL(string: "https://api.kindredcook.app/privacy")!)
         }
         #if DEBUG
         .sheet(isPresented: $showDebugMenu) {
