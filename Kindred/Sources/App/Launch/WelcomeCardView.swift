@@ -12,11 +12,13 @@ struct WelcomeCardView: View {
     var body: some View {
         ZStack {
             // Semi-transparent background overlay
-            Color.black.opacity(0.4)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    dismissCard()
-                }
+            Button {
+                dismissCard()
+            } label: {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+            }
+            .accessibilityLabel("Dismiss welcome card")
 
             // Welcome card
             CardSurface {
@@ -24,7 +26,7 @@ struct WelcomeCardView: View {
                     // Headline
                     Text("Kindred discovers viral recipes near you. Swipe to explore.")
                         .font(.kindredHeading2())
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
                         .multilineTextAlignment(.leading)
 
                     // Dismiss button

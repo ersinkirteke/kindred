@@ -45,7 +45,7 @@ struct DietaryPrefsStepView: View {
                 } label: {
                     Text(String(localized: "Skip", bundle: .main))
                         .font(.kindredBody())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                 }
                 .padding(.horizontal, KindredSpacing.lg)
                 .padding(.top, KindredSpacing.md)
@@ -63,14 +63,14 @@ struct DietaryPrefsStepView: View {
                 }
             }
             .font(.kindredHeading1())
-            .foregroundColor(.kindredTextPrimary)
+            .foregroundStyle(.kindredTextPrimary)
             .multilineTextAlignment(.center)
             .padding(.bottom, KindredSpacing.xs)
 
             // Subheading
             Text(String(localized: "onboarding.dietary.subtitle", bundle: .main))
                 .font(.kindredBody())
-                .foregroundColor(.kindredTextSecondary)
+                .foregroundStyle(.kindredTextSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, KindredSpacing.xl)
 
@@ -117,11 +117,11 @@ struct DietaryChip: View {
         Button(action: action) {
             Text(label)
                 .font(.kindredBody())
-                .foregroundColor(isSelected ? .white : .kindredAccent)
+                .foregroundStyle(isSelected ? .white : .kindredAccent)
                 .padding(.horizontal, KindredSpacing.md)
                 .frame(minWidth: 56, minHeight: 56) // WCAG AAA touch target
                 .background(isSelected ? Color.kindredAccent : Color.clear)
-                .cornerRadius(28) // Pill shape
+                .clipShape(.rect(cornerRadius: 28)) // Pill shape
                 .overlay(
                     RoundedRectangle(cornerRadius: 28)
                         .stroke(Color.kindredAccent, lineWidth: 2)

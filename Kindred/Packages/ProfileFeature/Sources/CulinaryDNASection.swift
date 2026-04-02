@@ -28,7 +28,7 @@ public struct CulinaryDNASection: View {
         VStack(alignment: .leading, spacing: KindredSpacing.md) {
             Text(String(localized: "profile.culinary_dna.title", bundle: .main))
                 .font(.kindredHeading3())
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
 
             if interactionCount < threshold {
                 // Before activation: progress indicator
@@ -38,7 +38,7 @@ public struct CulinaryDNASection: View {
 
                     Text(String(localized: "profile.culinary_dna.learning \(interactionCount) \(threshold)", bundle: .main))
                         .font(.kindredCaption())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(String(localized: "accessibility.profile.culinary_dna_learning \(interactionCount) \(threshold)", bundle: .main))
@@ -56,7 +56,7 @@ public struct CulinaryDNASection: View {
         }
         .padding(KindredSpacing.md)
         .background(Color.kindredCardSurface)
-        .cornerRadius(12)
+        .clipShape(.rect(cornerRadius: 12))
     }
 }
 
@@ -72,13 +72,13 @@ private struct AffinityBar: View {
                 Text(cuisineType.capitalized)
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
 
                 Spacer()
 
                 Text("\(Int(score * 100))%")
                     .font(.caption)
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
             }
 
             // Progress bar

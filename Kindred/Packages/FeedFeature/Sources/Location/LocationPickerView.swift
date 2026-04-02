@@ -107,11 +107,11 @@ public struct LocationPickerView: View {
     private var searchField: some View {
         HStack(spacing: KindredSpacing.sm) {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.kindredTextSecondary)
+                .foregroundStyle(.kindredTextSecondary)
 
             TextField(String(localized: "Search cities...", bundle: .main), text: $searchText)
                 .font(.kindredBody())
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
                 .autocorrectionDisabled()
 
             if !searchText.isEmpty {
@@ -119,7 +119,7 @@ public struct LocationPickerView: View {
                     searchText = ""
                 } label: {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                 }
                 .accessibilityLabel(String(localized: "Clear search", bundle: .main))
             }
@@ -137,7 +137,7 @@ public struct LocationPickerView: View {
         VStack(alignment: .leading, spacing: KindredSpacing.sm) {
             Text(String(localized: "Popular Cities", bundle: .main))
                 .font(.kindredHeading3())
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
                 .padding(.horizontal, KindredSpacing.md)
                 .padding(.top, KindredSpacing.sm)
 
@@ -167,10 +167,10 @@ public struct LocationPickerView: View {
                     VStack(spacing: KindredSpacing.sm) {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 48))
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
                         Text(String(localized: "No cities found", bundle: .main))
                             .font(.kindredBody())
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
                     }
                     Spacer()
                 }
@@ -196,18 +196,18 @@ public struct LocationPickerView: View {
                     Text(city.name)
                         .font(.kindredBody())
                         .fontWeight(.semibold)
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
 
                     Text(city.fullName)
                         .font(.kindredCaption())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14))
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
             }
             .padding(.horizontal, KindredSpacing.md)
             .padding(.vertical, KindredSpacing.sm)

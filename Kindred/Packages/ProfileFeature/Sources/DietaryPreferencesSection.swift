@@ -27,7 +27,7 @@ public struct DietaryPreferencesSection: View {
         VStack(alignment: .leading, spacing: KindredSpacing.md) {
             Text(String(localized: "profile.dietary_prefs.title", bundle: .main))
                 .font(.kindredHeading3())
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
 
             // Dietary chips
             DietaryChipsGrid(
@@ -42,14 +42,14 @@ public struct DietaryPreferencesSection: View {
                 } label: {
                     Text(String(localized: "profile.dietary_prefs.reset", bundle: .main))
                         .font(.subheadline)
-                        .foregroundColor(.red)
+                        .foregroundStyle(.red)
                 }
                 .padding(.top, KindredSpacing.xs)
             }
         }
         .padding(KindredSpacing.md)
         .background(Color.kindredCardSurface)
-        .cornerRadius(12)
+        .clipShape(.rect(cornerRadius: 12))
     }
 }
 
@@ -124,24 +124,26 @@ private struct DietaryChipView: View {
     let onTap: () -> Void
 
     var body: some View {
-        Text(title)
-            .font(.subheadline)
-            .fontWeight(.medium)
-            .foregroundColor(isSelected ? .white : .kindredAccent)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .frame(minHeight: 44) // Ensure 44pt tappable height
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(isSelected ? Color.kindredAccent : Color.clear)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.kindredAccent, lineWidth: isSelected ? 0 : 1.5)
-                    )
-            )
-            .onTapGesture(perform: onTap)
-            .accessibilityLabel(title)
-            .accessibilityAddTraits(isSelected ? .isSelected : [])
-            .accessibilityHint(String(localized: isSelected ? "accessibility.hint.remove_filter \(title)" : "accessibility.hint.add_filter \(title)"))
+        Button(action: onTap) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundStyle(isSelected ? .white : .kindredAccent)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .frame(minHeight: 44) // Ensure 44pt tappable height
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(isSelected ? Color.kindredAccent : Color.clear)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.kindredAccent, lineWidth: isSelected ? 0 : 1.5)
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityHint(String(localized: isSelected ? "accessibility.hint.remove_filter \(title)" : "accessibility.hint.add_filter \(title)"))
     }
 }

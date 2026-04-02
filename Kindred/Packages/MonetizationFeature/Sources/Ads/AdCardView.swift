@@ -60,11 +60,11 @@ public struct AdCardView: View {
                 // "Sponsored" label
                 Text(String(localized: "ads.sponsored", bundle: .main))
                     .font(.kindredCaption())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .padding(.horizontal, KindredSpacing.sm)
                     .padding(.vertical, 4)
                     .background(Color.kindredCardSurface.opacity(0.9))
-                    .cornerRadius(8)
+                    .clipShape(.rect(cornerRadius: 8))
                     .padding(KindredSpacing.md)
             }
 
@@ -74,7 +74,7 @@ public struct AdCardView: View {
             if let headline = ad.headline {
                 Text(headline)
                     .font(.kindredHeading2())
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
                     .lineLimit(2)
             }
 
@@ -82,7 +82,7 @@ public struct AdCardView: View {
             if let body = ad.body {
                 Text(body)
                     .font(.kindredBody())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .lineLimit(2)
             }
 
@@ -92,7 +92,7 @@ public struct AdCardView: View {
             Button(action: onUpgradeTapped) {
                 Text(String(localized: "ads.remove_ads_pro", bundle: .main))
                     .font(.kindredCaption())
-                    .foregroundColor(.kindredAccent)
+                    .foregroundStyle(.kindredAccent)
                     .underline()
             }
             .accessibilityLabel(String(localized: "accessibility.ads.remove_ads", bundle: .main))
@@ -119,12 +119,12 @@ public struct AdCardView: View {
                 Rectangle()
                     .fill(Color.kindredDivider.opacity(0.3))
                     .frame(height: 20)
-                    .cornerRadius(4)
+                    .clipShape(.rect(cornerRadius: 4))
 
                 Rectangle()
                     .fill(Color.kindredDivider.opacity(0.2))
                     .frame(height: 16)
-                    .cornerRadius(4)
+                    .clipShape(.rect(cornerRadius: 4))
 
                 Spacer()
             }

@@ -61,5 +61,7 @@
 	</array>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Kindred uses this to show you ads for kitchen tools and ingredients that match your cooking style.</string>
+	<key>ClerkPublishableKey</key>
+	<string>$(CLERK_PUBLISHABLE_KEY)</string>
 </dict>
 </plist>

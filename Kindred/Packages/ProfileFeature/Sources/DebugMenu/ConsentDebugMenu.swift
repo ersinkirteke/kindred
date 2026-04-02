@@ -10,7 +10,7 @@ struct ConsentDebugMenu: View {
         VStack(spacing: KindredSpacing.md) {
             Text("Debug: Consent")
                 .font(.kindredHeading2Scaled(size: 20))
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
                 .padding(.top, KindredSpacing.lg)
 
             Divider()
@@ -26,18 +26,18 @@ struct ConsentDebugMenu: View {
                         Text("Reset Consent Pre-Prompt")
                             .font(.kindredBodyScaled(size: 16))
                     }
-                    .foregroundColor(.red)
+                    .foregroundStyle(.red)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, KindredSpacing.md)
                     .background(Color.red.opacity(0.1))
-                    .cornerRadius(8)
+                    .clipShape(.rect(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
 
                 // Instructions
                 Text("Resets the pre-prompt flag so the ATT consent flow shows again on next launch.\n\nATT permission itself must be reset via:\nSettings > General > Transfer or Reset iPhone > Reset Location & Privacy")
                     .font(.kindredCaptionScaled(size: 12))
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
 

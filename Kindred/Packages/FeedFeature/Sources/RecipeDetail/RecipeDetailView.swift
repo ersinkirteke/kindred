@@ -92,7 +92,7 @@ public struct RecipeDetailView: View {
                 .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
             Text(String(localized: "Loading recipe...", bundle: .main))
                 .font(.kindredBodyScaled(size: bodySize))
-                .foregroundColor(.kindredTextSecondary)
+                .foregroundStyle(.kindredTextSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, KindredSpacing.xxl)
@@ -119,7 +119,7 @@ public struct RecipeDetailView: View {
             // Recipe name
             Text(recipe.name)
                 .font(.kindredLargeTitleScaled(size: titleSize))
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
                 .accessibilityAddTraits(.isHeader)
 
             // Dietary tag pills
@@ -137,7 +137,7 @@ public struct RecipeDetailView: View {
             if let description = recipe.description {
                 Text(description)
                     .font(.kindredBodyScaled(size: bodySize))
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .multilineTextAlignment(.leading)
             }
 
@@ -149,7 +149,7 @@ public struct RecipeDetailView: View {
                 VStack(alignment: .leading, spacing: KindredSpacing.sm) {
                     Text("You have \(store.matchedCount) of \(store.eligibleCount) ingredients (\(matchPct)%)")
                         .font(.kindredBodyScaled(size: bodySize))
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
 
                     if store.matchedCount < store.eligibleCount {
                         Button {
@@ -199,7 +199,7 @@ public struct RecipeDetailView: View {
                 ForEach(tags, id: \.self) { tag in
                     Text(tag.uppercased())
                         .font(.kindredCaptionScaled(size: captionSize))
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .padding(.horizontal, KindredSpacing.md)
                         .padding(.vertical, KindredSpacing.xs)
                         .background(
@@ -241,7 +241,7 @@ public struct RecipeDetailView: View {
             Text(text)
                 .font(.kindredCaptionScaled(size: captionSize))
         }
-        .foregroundColor(.kindredTextSecondary)
+        .foregroundStyle(.kindredTextSecondary)
     }
 
     private func metadataAccessibilityLabel(_ recipe: RecipeDetail) -> String {
@@ -261,7 +261,7 @@ public struct RecipeDetailView: View {
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
             .font(.kindredHeading3Scaled(size: heading3Size))
-            .foregroundColor(.kindredTextPrimary)
+            .foregroundStyle(.kindredTextPrimary)
             .padding(.top, KindredSpacing.sm)
             .accessibilityAddTraits(.isHeader)
     }
@@ -304,13 +304,13 @@ public struct RecipeDetailView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .frame(minHeight: 56)
-                    .foregroundColor(.kindredAccent)
+                    .foregroundStyle(.kindredAccent)
                     .background(Color.clear)
+                    .clipShape(.rect(cornerRadius: 12))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color.kindredAccent, lineWidth: 2)
                     )
-                    .cornerRadius(12)
                 }
                 .disabled(store.playbackStatus == .loading || store.playbackStatus == .buffering)
                 .accessibilityLabel(store.playbackStatus == .playing ? String(localized: "Pause narration", bundle: .main) : String(localized: "Listen to this recipe", bundle: .main))
@@ -329,9 +329,9 @@ public struct RecipeDetailView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .frame(minHeight: 56)
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .background(Color.kindredAccent)
-                    .cornerRadius(12)
+                    .clipShape(.rect(cornerRadius: 12))
                 }
                 .accessibilityLabel(store.isBookmarked ? String(localized: "Remove bookmark", bundle: .main) : String(localized: "Bookmark recipe", bundle: .main))
             }

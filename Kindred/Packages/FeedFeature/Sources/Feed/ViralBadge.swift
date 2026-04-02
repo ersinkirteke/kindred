@@ -6,11 +6,11 @@ struct ViralBadge: View {
         Text(String(localized: "VIRAL", bundle: .main))
             .font(.kindredCaption())
             .fontWeight(.bold)
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .padding(.horizontal, KindredSpacing.sm)
             .padding(.vertical, KindredSpacing.xs)
             .background(Color.kindredAccent)
-            .cornerRadius(4)
+            .clipShape(.rect(cornerRadius: 4))
             .rotationEffect(.degrees(-15))
             .accessibilityHidden(true) // Conveyed in card's accessibility label
     }

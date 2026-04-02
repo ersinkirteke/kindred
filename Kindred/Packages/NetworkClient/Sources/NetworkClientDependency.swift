@@ -23,7 +23,7 @@ private enum ApolloClientKey: DependencyKey {
     static let testValue: ApolloClient = {
         // Test client with in-memory cache
         let store = ApolloStore(cache: InMemoryNormalizedCache())
-        let url = URL(string: "https://test.kindred.app/graphql")!
+        let url = URL(string: "https://api.kindredcook.app/v1/graphql")!
         let transport = RequestChainNetworkTransport(
             urlSession: URLSession.shared,
             interceptorProvider: DefaultInterceptorProvider.shared,

@@ -27,7 +27,7 @@ public struct PaywallView: View {
                 // Heading
                 Text(String(localized: "paywall.title", bundle: .main))
                     .font(.kindredHeading1Scaled(size: heading1Size))
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
                     .accessibilityAddTraits(.isHeader)
 
                 // Benefits
@@ -55,24 +55,24 @@ public struct PaywallView: View {
                                 .tint(.white)
                             Text(String(localized: "paywall.loading", bundle: .main))
                                 .font(.kindredBodyScaled(size: bodySize))
-                                .foregroundColor(.white)
+                                .foregroundStyle(.white)
                         }
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
                         .background(Color.kindredAccent.opacity(0.5))
-                        .cornerRadius(16)
+                        .clipShape(.rect(cornerRadius: 16))
                     } else if store.isPurchasing {
                         HStack {
                             ProgressView()
                                 .tint(.white)
                             Text(String(localized: "paywall.processing", bundle: .main))
                                 .font(.kindredBodyScaled(size: bodySize))
-                                .foregroundColor(.white)
+                                .foregroundStyle(.white)
                         }
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
                         .background(Color.kindredAccent)
-                        .cornerRadius(16)
+                        .clipShape(.rect(cornerRadius: 16))
                     } else {
                         KindredButton(
                             String(localized: "paywall.subscribe_button \(store.displayPrice)", bundle: .main),
@@ -94,12 +94,12 @@ public struct PaywallView: View {
                                     .controlSize(.small)
                                 Text(String(localized: "paywall.restoring", bundle: .main))
                                     .font(.kindredCaptionScaled(size: captionSize))
-                                    .foregroundColor(.kindredAccent)
+                                    .foregroundStyle(.kindredAccent)
                             }
                         } else {
                             Text(String(localized: "paywall.restore_purchases", bundle: .main))
                                 .font(.kindredCaptionScaled(size: captionSize))
-                                .foregroundColor(.kindredAccent)
+                                .foregroundStyle(.kindredAccent)
                         }
                     }
                     .accessibilityLabel(String(localized: "accessibility.paywall.restore", bundle: .main))
@@ -110,7 +110,7 @@ public struct PaywallView: View {
                 if let error = store.error, !error.isEmpty {
                     Text(error)
                         .font(.kindredCaptionScaled(size: captionSize))
-                        .foregroundColor(.red)
+                        .foregroundStyle(.red)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, KindredSpacing.md)
                         .accessibilityLabel("Error: \(error)")
@@ -140,18 +140,18 @@ private struct BenefitRow: View {
         HStack(alignment: .top, spacing: KindredSpacing.md) {
             Image(systemName: icon)
                 .font(.system(size: 24))
-                .foregroundColor(.kindredAccent)
+                .foregroundStyle(.kindredAccent)
                 .frame(width: 32, height: 32)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: KindredSpacing.xs) {
                 Text(title)
                     .font(.kindredBodyBoldScaled(size: bodySize))
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
 
                 Text(description)
                     .font(.kindredBodyScaled(size: bodySize))
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }

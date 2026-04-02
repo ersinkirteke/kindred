@@ -39,12 +39,12 @@ public struct ErrorStateView: View {
             ContentUnavailableView {
                 Label(title, systemImage: icon)
                     .font(.kindredHeading1())
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
             } description: {
                 VStack(spacing: KindredSpacing.md) {
                     Text(message)
                         .font(.kindredBody())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                         .multilineTextAlignment(.center)
 
                     if let retryAction = retryAction {
@@ -60,15 +60,15 @@ public struct ErrorStateView: View {
             VStack(spacing: KindredSpacing.lg) {
                 Image(systemName: icon)
                     .font(.system(size: 48))
-                    .foregroundColor(.kindredAccent)
+                    .foregroundStyle(.kindredAccent)
 
                 Text(title)
                     .font(.kindredHeading1())
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
 
                 Text(message)
                     .font(.kindredBody())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .multilineTextAlignment(.center)
 
                 if let retryAction = retryAction {

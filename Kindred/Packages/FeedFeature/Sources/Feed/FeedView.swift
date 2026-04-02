@@ -178,7 +178,7 @@ public struct FeedView: View {
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(.kindredAccent)
+                    .foregroundStyle(.kindredAccent)
                     .frame(width: 56, height: 56)
                     .background(Color.kindredCardSurface)
                     .clipShape(Circle())
@@ -194,7 +194,7 @@ public struct FeedView: View {
             } label: {
                 Image(systemName: "headphones")
                     .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(.kindredAccent)
+                    .foregroundStyle(.kindredAccent)
                     .frame(width: 56, height: 56)
                     .background(Color.kindredCardSurface)
                     .clipShape(Circle())
@@ -210,7 +210,7 @@ public struct FeedView: View {
             } label: {
                 Image(systemName: "heart.fill")
                     .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .frame(width: 56, height: 56)
                     .background(Color.kindredAccent)
                     .clipShape(Circle())
@@ -263,16 +263,16 @@ public struct FeedView: View {
                 VStack(spacing: KindredSpacing.md) {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 48))
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
 
                     Text(String(localized: "feed.no_filtered_recipes \(filterDescription)", bundle: .main))
                         .font(.kindredHeading2())
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
                         .multilineTextAlignment(.center)
 
                     Text(String(localized: "feed.try_removing_filter", bundle: .main))
                         .font(.kindredBody())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                         .multilineTextAlignment(.center)
 
                     KindredButton(String(localized: "feed.clear_filters", bundle: .main), style: .secondary) {
@@ -329,17 +329,17 @@ public struct FeedView: View {
                 Rectangle()
                     .fill(Color.kindredDivider)
                     .aspectRatio(16/9, contentMode: .fit)
-                    .cornerRadius(8)
+                    .clipShape(.rect(cornerRadius: 8))
 
                 // Title line
                 Text(String(localized: "feed.skeleton.title", bundle: .main))
                     .font(.kindredHeading2())
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
 
                 // Subtitle line
                 Text(String(localized: "feed.skeleton.description", bundle: .main))
                     .font(.kindredBody())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
 
                 // Metadata row
                 HStack {
@@ -350,7 +350,7 @@ public struct FeedView: View {
                     Text(String(localized: "feed.skeleton.difficulty", bundle: .main))
                         .font(.kindredCaption())
                 }
-                .foregroundColor(.kindredTextSecondary)
+                .foregroundStyle(.kindredTextSecondary)
             }
         }
         .redacted(reason: .placeholder)
@@ -369,7 +369,7 @@ public struct FeedView: View {
                     .font(.kindredBody())
                     .fontWeight(.medium)
             }
-            .foregroundColor(.kindredTextPrimary)
+            .foregroundStyle(.kindredTextPrimary)
             .padding(.horizontal, KindredSpacing.sm)
             .padding(.vertical, KindredSpacing.xs)
             .background(
@@ -387,24 +387,25 @@ public struct FeedView: View {
             Text(String(localized: "You're offline — showing cached recipes", bundle: .main))
                 .font(.kindredCaption())
         }
-        .foregroundColor(.white)
+        .foregroundStyle(.white)
         .padding(.vertical, KindredSpacing.xs)
         .frame(maxWidth: .infinity)
         .background(Color.orange)
     }
 
     private var newRecipesBanner: some View {
-        HStack {
-            Image(systemName: "arrow.clockwise.circle.fill")
-            Text(String(localized: "New recipes available — pull to refresh", bundle: .main))
-                .font(.kindredCaption())
-        }
-        .foregroundColor(.kindredTextPrimary)
-        .padding(.vertical, KindredSpacing.xs)
-        .frame(maxWidth: .infinity)
-        .background(Color.kindredAccent.opacity(0.2))
-        .onTapGesture {
+        Button {
             store.send(.acknowledgeNewRecipes)
+        } label: {
+            HStack {
+                Image(systemName: "arrow.clockwise.circle.fill")
+                Text(String(localized: "New recipes available — pull to refresh", bundle: .main))
+                    .font(.kindredCaption())
+            }
+            .foregroundStyle(.kindredTextPrimary)
+            .padding(.vertical, KindredSpacing.xs)
+            .frame(maxWidth: .infinity)
+            .background(Color.kindredAccent.opacity(0.2))
         }
         .accessibilityLabel(String(localized: "New recipes available", bundle: .main))
         .accessibilityHint(String(localized: "accessibility.feed.refresh_hint", bundle: .main))

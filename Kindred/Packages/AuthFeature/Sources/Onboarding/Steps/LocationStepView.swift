@@ -17,7 +17,7 @@ struct LocationStepView: View {
                 } label: {
                     Text(String(localized: "Skip", bundle: .main))
                         .font(.kindredBody())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                 }
                 .padding(.horizontal, KindredSpacing.lg)
                 .padding(.top, KindredSpacing.md)
@@ -29,13 +29,13 @@ struct LocationStepView: View {
             // Location icon
             Image(systemName: "mappin.circle.fill")
                 .font(.system(size: 80))
-                .foregroundColor(.kindredAccent)
+                .foregroundStyle(.kindredAccent)
                 .padding(.bottom, KindredSpacing.lg)
 
             // Heading
             Text(String(localized: "onboarding.location.title", bundle: .main))
                 .font(.kindredHeading1())
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, KindredSpacing.xl)
                 .padding(.horizontal, KindredSpacing.lg)
@@ -49,7 +49,7 @@ struct LocationStepView: View {
                             .tint(.kindredAccent)
                         Text(String(localized: "onboarding.location.getting_location", bundle: .main))
                             .font(.kindredBody())
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
                     }
                     .frame(height: 56)
                 } else {
@@ -72,7 +72,7 @@ struct LocationStepView: View {
                 if store.locationAuthStatus == .denied {
                     Text(String(localized: "onboarding.location.permission_denied", bundle: .main))
                         .font(.kindredCaption())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.top, KindredSpacing.sm)
                         .padding(.horizontal, KindredSpacing.md)
@@ -102,16 +102,16 @@ struct CityPickerView: View {
     @State private var isSearching = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 0) {
                 // Search field
                 HStack {
                     Image(systemName: "magnifyingglass")
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
 
                     TextField(String(localized: "onboarding.location.search_placeholder", bundle: .main), text: $searchText)
                         .font(.kindredBody())
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
                         .textFieldStyle(.plain)
                         .onChange(of: searchText) { _, newValue in
                             performSearch(query: newValue)
@@ -123,14 +123,14 @@ struct CityPickerView: View {
                             searchResults = []
                         } label: {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.kindredTextSecondary)
+                                .foregroundStyle(.kindredTextSecondary)
                         }
                     }
                 }
                 .padding(.horizontal, KindredSpacing.md)
                 .padding(.vertical, KindredSpacing.sm)
                 .background(Color.kindredCardSurface)
-                .cornerRadius(12)
+                .clipShape(.rect(cornerRadius: 12))
                 .padding(.horizontal, KindredSpacing.lg)
                 .padding(.vertical, KindredSpacing.md)
 
@@ -143,7 +143,7 @@ struct CityPickerView: View {
                 } else if searchResults.isEmpty && !searchText.isEmpty {
                     Text(String(localized: "onboarding.location.no_cities_found", bundle: .main))
                         .font(.kindredBody())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                         .padding(.top, KindredSpacing.xl)
                 } else {
                     List {
@@ -156,12 +156,12 @@ struct CityPickerView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(mapItem.placemark.locality ?? mapItem.placemark.name ?? "Unknown")
                                         .font(.kindredBody())
-                                        .foregroundColor(.kindredTextPrimary)
+                                        .foregroundStyle(.kindredTextPrimary)
 
                                     if let country = mapItem.placemark.country {
                                         Text(country)
                                             .font(.kindredCaption())
-                                            .foregroundColor(.kindredTextSecondary)
+                                            .foregroundStyle(.kindredTextSecondary)
                                     }
                                 }
                                 .padding(.vertical, KindredSpacing.xs)
@@ -182,7 +182,7 @@ struct CityPickerView: View {
                     } label: {
                         Text(String(localized: "Cancel", bundle: .main))
                             .font(.kindredBody())
-                            .foregroundColor(.kindredAccent)
+                            .foregroundStyle(.kindredAccent)
                     }
                 }
             }

@@ -68,7 +68,7 @@ public struct ShoppingListView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
                             .font(.system(size: 24))
                     }
                     .accessibilityLabel(String(localized: "Close", bundle: .main))
@@ -83,7 +83,7 @@ public struct ShoppingListView: View {
     private var summaryHeader: some View {
         Text("You have \(store.matchedCount) of \(store.totalEligible) ingredients. Missing:")
             .font(.kindredBodyScaled(size: bodySize))
-            .foregroundColor(.kindredTextSecondary)
+            .foregroundStyle(.kindredTextSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 
@@ -94,7 +94,7 @@ public struct ShoppingListView: View {
             // Category header
             Text(group.categoryName)
                 .font(.kindredHeading2Scaled(size: headlineSize))
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
                 .accessibilityAddTraits(.isHeader)
 
             // Items in category
@@ -124,22 +124,22 @@ public struct ShoppingListView: View {
         VStack(spacing: KindredSpacing.md) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 48))
-                .foregroundColor(.kindredSuccess)
+                .foregroundStyle(.kindredSuccess)
 
             Text(String(localized: "All done!", bundle: .main))
                 .font(.kindredHeading2Scaled(size: headlineSize))
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
 
             Button {
                 dismiss()
             } label: {
                 Text(String(localized: "Ready to cook? Start listening", bundle: .main))
                     .font(.kindredBodyBoldScaled(size: bodySize))
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .padding(.horizontal, KindredSpacing.lg)
                     .padding(.vertical, KindredSpacing.md)
                     .background(Color.kindredAccent)
-                    .cornerRadius(12)
+                    .clipShape(.rect(cornerRadius: 12))
             }
         }
         .frame(maxWidth: .infinity)
@@ -164,13 +164,13 @@ public struct ShoppingListView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 56)
-                .foregroundColor(.kindredAccent)
+                .foregroundStyle(.kindredAccent)
                 .background(Color.clear)
+                .clipShape(.rect(cornerRadius: 12))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color.kindredAccent, lineWidth: 2)
                 )
-                .cornerRadius(12)
             }
             .accessibilityLabel(String(localized: "Copy shopping list to clipboard", bundle: .main))
 
@@ -190,9 +190,9 @@ public struct ShoppingListView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 56)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .background(Color.kindredAccent)
-                .cornerRadius(12)
+                .clipShape(.rect(cornerRadius: 12))
             }
             .accessibilityHint(String(localized: "Share shopping list via Messages, Mail, or other apps", bundle: .main))
         }
@@ -331,12 +331,12 @@ private struct ShoppingListItemRow: View {
                 // Checkbox icon
                 Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 24))
-                    .foregroundColor(isChecked ? .kindredSuccess : .kindredTextSecondary)
+                    .foregroundStyle(isChecked ? .kindredSuccess : .kindredTextSecondary)
 
                 // Ingredient text
                 Text(ingredient.formattedText)
                     .font(.kindredBody())
-                    .foregroundColor(isChecked ? .kindredTextSecondary : .kindredTextPrimary)
+                    .foregroundStyle(isChecked ? .kindredTextSecondary : .kindredTextPrimary)
                     .strikethrough(isChecked, color: .kindredTextSecondary)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)

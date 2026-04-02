@@ -8,6 +8,6 @@ struct CardCountIndicator: View {
     var body: some View {
         Text(String(localized: "\(current) of \(total)", bundle: .main))
             .font(.kindredCaption())
-            .foregroundColor(.kindredTextSecondary)
+            .foregroundStyle(.kindredTextSecondary)
     }
 }

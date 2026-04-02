@@ -10,6 +10,7 @@ import MetricKit
 import BackgroundTasks
 import OSLog
 import UserNotifications
+import Security
 
 /// AppDelegate for Firebase and Kingfisher cache configuration
 class AppDelegate: NSObject, UIApplicationDelegate, MXMetricManagerSubscriber {
@@ -24,8 +25,13 @@ class AppDelegate: NSObject, UIApplicationDelegate, MXMetricManagerSubscriber {
         cache.memoryStorage.config.countLimit = 50 // 50 images in memory
         cache.diskStorage.config.sizeLimit = 500 * 1024 * 1024 // 500MB disk
 
-        // Configure Clerk SDK for authentication
-        Clerk.configure(publishableKey: "pk_test_ZHJpdmluZy1wb3NzdW0tNjUuY2xlcmsuYWNjb3VudHMuZGV2JA")
+        // Configure Clerk SDK for authentication (key from xcconfig → Info.plist)
+        guard let clerkKey = Bundle.main.object(forInfoDictionaryKey: "ClerkPublishableKey") as? String,
+              !clerkKey.isEmpty,
+              !clerkKey.hasPrefix("REPLACE_WITH") else {
+            fatalError("Missing ClerkPublishableKey in Info.plist — check xcconfig files")
+        }
+        Clerk.configure(publishableKey: clerkKey)
         ClerkConfigurationState.isConfigured = true
 
         // Configure AVAudioSession for background voice playback
@@ -188,10 +194,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, MXMetricManagerSubscriber {
         let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
         Logger.appLifecycle.info("Registered for remote notifications with token: \(tokenString.prefix(10))...")
 
-        // Send token to backend via GraphQL mutation
-        // For now, store token for when backend integration is ready
+        // Store token in Keychain (not UserDefaults) for when backend integration is ready
         // TODO: Wire to GraphQL registerDeviceToken mutation when Firebase is configured
-        UserDefaults.standard.set(tokenString, forKey: "apnsDeviceToken")
+        Self.storeAPNSToken(tokenString)
     }
 
     func application(
@@ -199,6 +204,29 @@ class AppDelegate: NSObject, UIApplicationDelegate, MXMetricManagerSubscriber {
         didFailToRegisterForRemoteNotificationsWithError error: Error
     ) {
         Logger.appLifecycle.error("Failed to register for remote notifications: \(error.localizedDescription)")
+    }
+
+    // MARK: - Keychain
+
+    private static let apnsTokenKeychainAccount = "com.ersinkirteke.kindred.apnsDeviceToken"
+
+    private static func storeAPNSToken(_ token: String) {
+        let data = Data(token.utf8)
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: apnsTokenKeychainAccount,
+        ]
+        // Delete any existing item first
+        SecItemDelete(query as CFDictionary)
+
+        var addQuery = query
+        addQuery[kSecValueData as String] = data
+        addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
+
+        let status = SecItemAdd(addQuery as CFDictionary, nil)
+        if status != errSecSuccess {
+            Logger.appLifecycle.error("Failed to store APNS token in Keychain: \(status)")
+        }
     }
 }
 

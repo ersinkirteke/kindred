@@ -80,11 +80,11 @@ struct SkeletonShimmer_Previews: PreviewProvider {
                 VStack(alignment: .leading, spacing: KindredSpacing.sm) {
                     Text("Recipe Title Placeholder")
                         .font(.kindredHeading2())
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
 
                     Text("This is a placeholder description that shows how the shimmer animation looks on loading content.")
                         .font(.kindredBody())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
 
                     HStack {
                         Text("30 min")
@@ -94,7 +94,7 @@ struct SkeletonShimmer_Previews: PreviewProvider {
                         Text("Medium")
                             .font(.kindredCaption())
                     }
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                 }
             }
             .redacted(reason: .placeholder)
@@ -105,11 +105,11 @@ struct SkeletonShimmer_Previews: PreviewProvider {
                 VStack(alignment: .leading, spacing: KindredSpacing.sm) {
                     Text("Loaded Recipe")
                         .font(.kindredHeading2())
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
 
                     Text("This card has finished loading and shows real content.")
                         .font(.kindredBody())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                 }
             }
         }

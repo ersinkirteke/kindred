@@ -12,13 +12,13 @@ struct VoiceTeaserStepView: View {
             // Voice icon
             Image(systemName: "waveform.circle.fill")
                 .font(.system(size: 80))
-                .foregroundColor(.kindredAccent)
+                .foregroundStyle(.kindredAccent)
                 .padding(.bottom, KindredSpacing.lg)
 
             // Heading
             Text(String(localized: "onboarding.voice_teaser.title", bundle: .main))
                 .font(.kindredHeading1())
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, KindredSpacing.sm)
                 .padding(.horizontal, KindredSpacing.lg)
@@ -26,7 +26,7 @@ struct VoiceTeaserStepView: View {
             // Body text
             Text(String(localized: "onboarding.voice_teaser.subtitle", bundle: .main))
                 .font(.kindredBody())
-                .foregroundColor(.kindredTextSecondary)
+                .foregroundStyle(.kindredTextSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, KindredSpacing.xl)
 

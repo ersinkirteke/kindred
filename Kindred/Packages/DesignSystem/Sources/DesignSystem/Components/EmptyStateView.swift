@@ -30,11 +30,11 @@ public struct EmptyStateView: View {
             ContentUnavailableView {
                 Label(title, systemImage: icon)
                     .font(.kindredHeading1())
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
             } description: {
                 Text(message)
                     .font(.kindredBody())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .multilineTextAlignment(.center)
             }
         } else {
@@ -42,15 +42,15 @@ public struct EmptyStateView: View {
             VStack(spacing: KindredSpacing.lg) {
                 Image(systemName: icon)
                     .font(.system(size: 48))
-                    .foregroundColor(.kindredAccentDecorative)
+                    .foregroundStyle(.kindredAccentDecorative)
 
                 Text(title)
                     .font(.kindredHeading1())
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
 
                 Text(message)
                     .font(.kindredBody())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .multilineTextAlignment(.center)
             }
             .padding(KindredSpacing.xl)

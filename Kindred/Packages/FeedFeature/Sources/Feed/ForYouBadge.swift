@@ -7,7 +7,7 @@ struct ForYouBadge: View {
         Text(String(localized: "For You", bundle: .main))
             .font(.kindredCaption())
             .fontWeight(.semibold)
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .padding(.horizontal, KindredSpacing.sm)
             .padding(.vertical, KindredSpacing.xs)
             .background(

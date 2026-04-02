@@ -26,7 +26,7 @@ public struct CardSurface<Content: View>: View {
         content
             .padding(KindredSpacing.md)
             .background(Color.kindredCardSurface)
-            .cornerRadius(16)
+            .clipShape(.rect(cornerRadius: 16))
             .shadow(
                 color: hasShadow ? Color.black.opacity(0.1) : .clear,
                 radius: hasShadow ? 8 : 0,
@@ -48,18 +48,18 @@ struct CardSurface_Previews: PreviewProvider {
                     VStack(alignment: .leading, spacing: KindredSpacing.sm) {
                         Text("Recipe Title")
                             .font(.kindredHeading2())
-                            .foregroundColor(.kindredTextPrimary)
+                            .foregroundStyle(.kindredTextPrimary)
 
                         Text("A delicious recipe description that spans multiple lines to show how content looks inside a card surface.")
                             .font(.kindredBody())
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
                     }
                 }
 
                 CardSurface(hasShadow: false) {
                     Text("Card without shadow")
                         .font(.kindredBody())
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
                 }
             }
             .padding()
@@ -70,11 +70,11 @@ struct CardSurface_Previews: PreviewProvider {
                     VStack(alignment: .leading, spacing: KindredSpacing.sm) {
                         Text("Recipe Title")
                             .font(.kindredHeading2())
-                            .foregroundColor(.kindredTextPrimary)
+                            .foregroundStyle(.kindredTextPrimary)
 
                         Text("A delicious recipe description in dark mode with warm brown background.")
                             .font(.kindredBody())
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
                     }
                 }
             }

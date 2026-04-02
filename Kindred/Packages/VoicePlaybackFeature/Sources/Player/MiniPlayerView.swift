@@ -61,7 +61,7 @@ public struct MiniPlayerView: View {
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
             }
             .frame(width: 44, height: 44)
             .accessibilityLabel(String(localized: "Close player", bundle: .main))
@@ -105,7 +105,7 @@ public struct MiniPlayerView: View {
                         .fill(Color.kindredDivider)
                         .overlay(
                             Image(systemName: "photo")
-                                .foregroundColor(.kindredTextSecondary)
+                                .foregroundStyle(.kindredTextSecondary)
                         )
                 }
                 .resizable()
@@ -118,7 +118,7 @@ public struct MiniPlayerView: View {
                 .frame(width: 48, height: 48)
                 .overlay(
                     Image(systemName: "photo")
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                 )
         }
     }
@@ -129,20 +129,20 @@ public struct MiniPlayerView: View {
             if case let .error(message) = playback.status {
                 Text(String(localized: "Error", bundle: .main))
                     .font(.kindredBodyBold())
-                    .foregroundColor(.red)
+                    .foregroundStyle(.red)
                     .lineLimit(1)
                 Text(message)
                     .font(.kindredCaption())
-                    .foregroundColor(.red)
+                    .foregroundStyle(.red)
                     .lineLimit(2)
             } else {
                 Text(playback.recipeName)
                     .font(.kindredBodyBold())
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
                     .lineLimit(1)
                 Text(playback.speakerName)
                     .font(.kindredBody())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .lineLimit(1)
             }
         }
@@ -160,7 +160,7 @@ public struct MiniPlayerView: View {
             if case .error = playback.status {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 20))
-                    .foregroundColor(.red)
+                    .foregroundStyle(.red)
             } else if store.isLoadingNarration || playback.status == .loading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
@@ -168,7 +168,7 @@ public struct MiniPlayerView: View {
             } else {
                 Image(systemName: (playback.status == .playing || playback.status == .buffering) ? "pause.fill" : "play.fill")
                     .font(.system(size: 20))
-                    .foregroundColor(.kindredAccent)
+                    .foregroundStyle(.kindredAccent)
             }
         }
         .frame(width: 44, height: 44)

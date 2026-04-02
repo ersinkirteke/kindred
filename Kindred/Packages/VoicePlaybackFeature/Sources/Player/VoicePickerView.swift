@@ -45,7 +45,7 @@ public struct VoicePickerView: View {
             // Header
             Text(String(localized: "Choose a Voice", bundle: .main))
                 .font(.kindredHeading3())
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
 
@@ -73,18 +73,18 @@ public struct VoicePickerView: View {
                             } label: {
                                 HStack(spacing: 12) {
                                     Image(systemName: "crown.fill")
-                                        .foregroundColor(.kindredAccent)
+                                        .foregroundStyle(.kindredAccent)
                                         .font(.system(size: 20, weight: .semibold))
 
                                     Text(String(localized: "Upgrade to Pro for more voices", bundle: .main))
                                         .font(.kindredBodyBold())
-                                        .foregroundColor(.kindredAccent)
+                                        .foregroundStyle(.kindredAccent)
 
                                     Spacer()
                                 }
                                 .padding(16)
                                 .background(Color.kindredCardSurface)
-                                .cornerRadius(12)
+                                .clipShape(.rect(cornerRadius: 12))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(Color.kindredAccent, lineWidth: 2)
@@ -102,13 +102,13 @@ public struct VoicePickerView: View {
                                         .frame(width: 44, height: 44)
                                         .overlay(
                                             Image(systemName: "plus")
-                                                .foregroundColor(.kindredAccent)
+                                                .foregroundStyle(.kindredAccent)
                                                 .font(.system(size: 20, weight: .semibold))
                                         )
 
                                     Text(String(localized: "Create Voice Profile", bundle: .main))
                                         .font(.kindredBodyBold())
-                                        .foregroundColor(.kindredAccent)
+                                        .foregroundStyle(.kindredAccent)
 
                                     Spacer()
                                 }
@@ -118,7 +118,7 @@ public struct VoicePickerView: View {
                                         .strokeBorder(
                                             style: StrokeStyle(lineWidth: 1.5, dash: [6, 4])
                                         )
-                                        .foregroundColor(.kindredAccent.opacity(0.4))
+                                        .foregroundStyle(.kindredAccent.opacity(0.4))
                                 )
                             }
                             .accessibilityLabel(String(localized: "accessibility.voice_picker.create_profile_label", bundle: .main))
@@ -169,7 +169,7 @@ struct VoiceCardView: View {
                                 .fill(Color.kindredDivider)
                                 .overlay(
                                     Image(systemName: "person.crop.circle")
-                                        .foregroundColor(.kindredTextSecondary)
+                                        .foregroundStyle(.kindredTextSecondary)
                                 )
                         }
                         .resizable()
@@ -182,7 +182,7 @@ struct VoiceCardView: View {
                         .frame(width: 44, height: 44)
                         .overlay(
                             Image(systemName: "person.crop.circle")
-                                .foregroundColor(.kindredTextSecondary)
+                                .foregroundStyle(.kindredTextSecondary)
                                 .font(.system(size: 24))
                         )
                 }
@@ -191,12 +191,12 @@ struct VoiceCardView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(profile.name)
                         .font(.kindredBodyBold())
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
 
                     if profile.isOwnVoice {
                         Text(String(localized: "Your Voice", bundle: .main))
                             .font(.kindredCaption())
-                            .foregroundColor(.kindredAccent)
+                            .foregroundStyle(.kindredAccent)
                     }
                 }
 
@@ -209,7 +209,7 @@ struct VoiceCardView: View {
                     } label: {
                         Image(systemName: "speaker.wave.2")
                             .font(.system(size: 16))
-                            .foregroundColor(.kindredAccent)
+                            .foregroundStyle(.kindredAccent)
                             .frame(width: 24, height: 24)
                     }
                     .accessibilityLabel(String(localized: "Preview \(profile.name)'s voice", bundle: .main))
@@ -220,7 +220,7 @@ struct VoiceCardView: View {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 24))
-                        .foregroundColor(.kindredAccent)
+                        .foregroundStyle(.kindredAccent)
                 }
             }
             .padding(16)
@@ -250,15 +250,15 @@ struct EmptyStateView: View {
         VStack(spacing: 16) {
             Image(systemName: "mic.slash")
                 .font(.system(size: 48))
-                .foregroundColor(.kindredTextSecondary)
+                .foregroundStyle(.kindredTextSecondary)
 
             Text(String(localized: "No Voice Profiles", bundle: .main))
                 .font(.kindredHeading3())
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
 
             Text(String(localized: "Create a voice profile to hear recipes narrated in your voice or a loved one's voice.", bundle: .main))
                 .font(.kindredBody())
-                .foregroundColor(.kindredTextSecondary)
+                .foregroundStyle(.kindredTextSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
 
@@ -266,7 +266,7 @@ struct EmptyStateView: View {
                 onCreateProfile()
             }
             .font(.kindredBodyBold())
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
             .background(

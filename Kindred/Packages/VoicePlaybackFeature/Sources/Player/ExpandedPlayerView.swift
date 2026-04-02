@@ -34,7 +34,7 @@ public struct ExpandedPlayerView: View {
                                     .fill(Color.kindredDivider)
                                     .overlay(
                                         Image(systemName: "photo")
-                                            .foregroundColor(.kindredTextSecondary)
+                                            .foregroundStyle(.kindredTextSecondary)
                                     )
                             }
                             .resizable()
@@ -48,7 +48,7 @@ public struct ExpandedPlayerView: View {
                             .frame(width: 80, height: 80)
                             .overlay(
                                 Image(systemName: "person.crop.circle.fill")
-                                    .foregroundColor(.kindredTextSecondary)
+                                    .foregroundStyle(.kindredTextSecondary)
                                     .font(.system(size: 40))
                             )
                     }
@@ -57,17 +57,17 @@ public struct ExpandedPlayerView: View {
                         // Recipe name
                         Text(playback.recipeName)
                             .font(.kindredHeading3Scaled(size: heading3Size))
-                            .foregroundColor(.kindredTextPrimary)
+                            .foregroundStyle(.kindredTextPrimary)
                             .lineLimit(2)
 
                         // Speaker name (prominently displayed)
                         Text(playback.speakerName)
                             .font(.kindredHeading2Scaled(size: heading2Size))
-                            .foregroundColor(.kindredAccent)
+                            .foregroundStyle(.kindredAccent)
 
                         Text(String(localized: "Narrating", bundle: .main))
                             .font(.kindredCaptionScaled(size: captionSize))
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
                     }
 
                     Spacer()
@@ -81,7 +81,7 @@ public struct ExpandedPlayerView: View {
                     ScrollView {
                         Text(String(localized: "Step \(stepIndex + 1): \(store.recipeSteps[stepIndex])", bundle: .main))
                             .font(.kindredBodyScaled(size: bodySize))
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
                     }
@@ -104,13 +104,13 @@ public struct ExpandedPlayerView: View {
                     HStack {
                         Text(formatTime(playback.currentTime))
                             .font(.kindredCaptionScaled(size: captionSize))
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
 
                         Spacer()
 
                         Text("-\(formatTime(playback.duration - playback.currentTime))")
                             .font(.kindredCaptionScaled(size: captionSize))
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
                     }
                 }
                 .padding(.horizontal, 24)
@@ -137,7 +137,7 @@ public struct ExpandedPlayerView: View {
                     } label: {
                         Text("\(String(format: "%.2g", playback.speed.rawValue))×")
                             .font(.kindredBodyBoldScaled(size: bodySize))
-                            .foregroundColor(.kindredAccent)
+                            .foregroundStyle(.kindredAccent)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
                             .background(
@@ -160,7 +160,7 @@ public struct ExpandedPlayerView: View {
                                 Text(String(localized: "Voice", bundle: .main))
                                     .font(.kindredBodyBoldScaled(size: bodySize))
                             }
-                            .foregroundColor(.kindredAccent)
+                            .foregroundStyle(.kindredAccent)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
                             .background(
@@ -191,7 +191,7 @@ public struct ExpandedPlayerView: View {
         } label: {
             Image(systemName: "gobackward.15")
                 .font(.title2)
-                .foregroundColor(.kindredAccent)
+                .foregroundStyle(.kindredAccent)
                 .frame(width: 56, height: 56)
         }
         .accessibilityLabel(String(localized: "Skip back 15 seconds", bundle: .main))
@@ -214,7 +214,7 @@ public struct ExpandedPlayerView: View {
             } else {
                 Image(systemName: (playback.status == .playing || playback.status == .buffering) ? "pause.circle.fill" : "play.circle.fill")
                     .font(.system(size: playButtonSize))
-                    .foregroundColor(.kindredAccent)
+                    .foregroundStyle(.kindredAccent)
             }
         }
         .frame(width: playButtonSize, height: playButtonSize)
@@ -228,7 +228,7 @@ public struct ExpandedPlayerView: View {
         } label: {
             Image(systemName: "goforward.30")
                 .font(.title2)
-                .foregroundColor(.kindredAccent)
+                .foregroundStyle(.kindredAccent)
                 .frame(width: 56, height: 56)
         }
         .accessibilityLabel(String(localized: "Skip forward 30 seconds", bundle: .main))

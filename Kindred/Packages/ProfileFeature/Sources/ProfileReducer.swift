@@ -287,7 +287,7 @@ public struct ProfileReducer {
                         }
                         """
 
-                        var request = URLRequest(url: URL(string: "https://api.kindred.app/v1/graphql")!)
+                        var request = URLRequest(url: URL(string: "https://api.kindredcook.app/v1/graphql")!)
                         request.httpMethod = "POST"
                         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
@@ -368,7 +368,7 @@ public struct ProfileReducer {
                         }
                         """
 
-                        var request = URLRequest(url: URL(string: "https://api.kindred.app/v1/graphql")!)
+                        var request = URLRequest(url: URL(string: "https://api.kindredcook.app/v1/graphql")!)
                         request.httpMethod = "POST"
                         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 

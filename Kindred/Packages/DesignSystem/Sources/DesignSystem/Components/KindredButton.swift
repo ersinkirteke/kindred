@@ -47,8 +47,8 @@ public struct KindredButton: View {
             .frame(minWidth: 56, minHeight: 56) // WCAG AAA 56dp minimum touch target
             .padding(.horizontal, KindredSpacing.md)
             .background(style.backgroundColor)
-            .foregroundColor(style.foregroundColor)
-            .cornerRadius(12)
+            .foregroundStyle(style.foregroundColor)
+            .clipShape(.rect(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(style.borderColor, lineWidth: style.borderWidth)

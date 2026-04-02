@@ -25,11 +25,7 @@ public final class ApolloClientFactory: Sendable {
         )
 
         // 3. Network transport with GraphQL endpoint
-        #if DEBUG
-        let url = URL(string: "http://192.168.0.162:3001/v1/graphql")!
-        #else
-        let url = URL(string: "https://api.kindred.app/graphql")!
-        #endif
+        let url = URL(string: "https://api.kindredcook.app/v1/graphql")!
         let transport = RequestChainNetworkTransport(
             urlSession: URLSession.shared,
             interceptorProvider: interceptorProvider,

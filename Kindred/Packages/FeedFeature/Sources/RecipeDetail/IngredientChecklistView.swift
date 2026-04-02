@@ -69,12 +69,12 @@ private struct IngredientRow: View {
                 // Checkbox icon
                 Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 24))
-                    .foregroundColor(isChecked ? .kindredSuccess : .kindredTextSecondary)
+                    .foregroundStyle(isChecked ? .kindredSuccess : .kindredTextSecondary)
 
                 // Ingredient text
                 Text(ingredient.formattedText)
                     .font(.kindredBody())
-                    .foregroundColor(isChecked ? .kindredTextSecondary : .kindredTextPrimary)
+                    .foregroundStyle(isChecked ? .kindredTextSecondary : .kindredTextPrimary)
                     .strikethrough(isChecked, color: .kindredTextSecondary)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -92,10 +92,10 @@ private struct IngredientRow: View {
         switch status {
         case .available:
             Image(systemName: "leaf.circle.fill")
-                .foregroundColor(.kindredSuccess)
+                .foregroundStyle(.kindredSuccess)
         case .missing:
             Image(systemName: "cart.circle")
-                .foregroundColor(.kindredAccent)
+                .foregroundStyle(.kindredAccent)
         case .staple:
             EmptyView()
         }

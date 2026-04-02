@@ -114,10 +114,11 @@ public struct ProfileView: View {
             if store.showDeleteSuccessToast {
                 Text(String(localized: "profile.privacy_data.voice_deleted_success", bundle: .main))
                     .font(.kindredBodyScaled(size: bodySize))
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .padding(.horizontal, KindredSpacing.lg)
                     .padding(.vertical, KindredSpacing.sm)
-                    .background(Color.kindredAccent.cornerRadius(8))
+                    .background(Color.kindredAccent)
+                    .clipShape(.rect(cornerRadius: 8))
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .onAppear {
                         // Auto-dismiss after 2 seconds
@@ -135,14 +136,14 @@ public struct ProfileView: View {
         HStack(spacing: KindredSpacing.sm) {
             Text(String(localized: "profile.title", bundle: .main))
                 .font(.kindredHeading1Scaled(size: heading1Size))
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
 
             // PRO badge (only shown if user has Pro subscription)
             if case .pro = store.subscriptionStatus {
                 Text(String(localized: "profile.pro_badge", bundle: .main))
                     .font(.kindredCaptionScaled(size: captionSize))
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .padding(.horizontal, KindredSpacing.sm)
                     .padding(.vertical, KindredSpacing.xs)
                     .background(Color.kindredAccent)
@@ -162,18 +163,18 @@ public struct ProfileView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 80, height: 80)
-                .foregroundColor(.kindredAccentDecorative)
+                .foregroundStyle(.kindredAccentDecorative)
 
             // Message
             VStack(spacing: KindredSpacing.sm) {
                 Text(String(localized: "profile.guest_gate.title", bundle: .main))
                     .font(.kindredHeading2Scaled(size: heading2Size))
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
                     .multilineTextAlignment(.center)
 
                 Text(String(localized: "profile.guest_gate.subtitle", bundle: .main))
                     .font(.kindredBodyScaled(size: bodySize))
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .multilineTextAlignment(.center)
             }
 
@@ -188,7 +189,7 @@ public struct ProfileView: View {
                 } label: {
                     Text(String(localized: "profile.guest_gate.continue_guest", bundle: .main))
                         .font(.kindredBodyScaled(size: bodySize))
-                        .foregroundColor(.kindredAccent)
+                        .foregroundStyle(.kindredAccent)
                 }
             }
             .padding(.horizontal, KindredSpacing.xl)
@@ -202,7 +203,7 @@ public struct ProfileView: View {
 
         return Text("Version \(version) (\(build))")
             .font(.kindredCaptionScaled(size: captionSize))
-            .foregroundColor(.kindredTextSecondary)
+            .foregroundStyle(.kindredTextSecondary)
             #if DEBUG
             .onLongPressGesture(minimumDuration: 1.0) {
                 showDebugMenu = true

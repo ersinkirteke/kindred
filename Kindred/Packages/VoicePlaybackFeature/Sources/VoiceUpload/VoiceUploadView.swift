@@ -64,11 +64,11 @@ public struct VoiceUploadView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(String(localized: "Create Voice Profile", bundle: .main))
                         .font(.kindredHeading2())
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
 
                     Text(String(localized: "Upload a 30-60 second voice clip", bundle: .main))
                         .font(.kindredBody())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 24)
@@ -119,21 +119,21 @@ public struct VoiceUploadView: View {
                     VStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 48))
-                            .foregroundColor(.kindredAccent)
+                            .foregroundStyle(.kindredAccent)
 
                         Text(fileName)
                             .font(.kindredBodyBold())
-                            .foregroundColor(.kindredTextPrimary)
+                            .foregroundStyle(.kindredTextPrimary)
                             .lineLimit(1)
                             .truncationMode(.middle)
 
                         Text(formatDuration(duration))
                             .font(.kindredBody())
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
 
                         Text(String(localized: "Tap to change file", bundle: .main))
                             .font(.kindredCaption())
-                            .foregroundColor(.kindredAccent)
+                            .foregroundStyle(.kindredAccent)
                     }
                     .padding(24)
                 } else {
@@ -141,15 +141,15 @@ public struct VoiceUploadView: View {
                     VStack(spacing: 12) {
                         Image(systemName: "mic.fill")
                             .font(.system(size: 48))
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
 
                         Text(String(localized: "Select Audio File", bundle: .main))
                             .font(.kindredBodyBold())
-                            .foregroundColor(.kindredAccent)
+                            .foregroundStyle(.kindredAccent)
 
                         Text(String(localized: ".mp3, .m4a, .wav, .aac", bundle: .main))
                             .font(.kindredCaption())
-                            .foregroundColor(.kindredTextSecondary)
+                            .foregroundStyle(.kindredTextSecondary)
                     }
                     .padding(32)
                 }
@@ -160,7 +160,7 @@ public struct VoiceUploadView: View {
                     .strokeBorder(
                         style: StrokeStyle(lineWidth: 2, dash: [8, 4])
                     )
-                    .foregroundColor(.kindredDivider)
+                    .foregroundStyle(.kindredDivider)
             )
         }
         .accessibilityLabel(String(localized: "accessibility.voice_upload.select_file_label", bundle: .main))
@@ -176,16 +176,16 @@ public struct VoiceUploadView: View {
 
                 Image(systemName: isValid ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                     .font(.system(size: 24))
-                    .foregroundColor(isValid ? .green : .kindredError)
+                    .foregroundStyle(isValid ? .green : .kindredError)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(isValid ? String(localized: "Duration Valid", bundle: .main) : String(localized: "Invalid Duration", bundle: .main))
                         .font(.kindredBodyBold())
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
 
                     Text(isValid ? String(localized: "Perfect length for voice cloning", bundle: .main) : String(localized: "Must be 30-60 seconds", bundle: .main))
                         .font(.kindredBody())
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                 }
 
                 Spacer()
@@ -211,14 +211,14 @@ public struct VoiceUploadView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(String(localized: "Voice Profile Name", bundle: .main))
                 .font(.kindredBodyBold())
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
 
             TextField(String(localized: "e.g., My Voice, Mom, Dad", bundle: .main), text: Binding(
                 get: { store.voiceName },
                 set: { store.send(.voiceNameChanged($0)) }
             ))
                 .font(.kindredBody())
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
                 .padding(16)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
@@ -239,11 +239,11 @@ public struct VoiceUploadView: View {
         HStack(spacing: 12) {
             Image(systemName: "exclamationmark.circle.fill")
                 .font(.system(size: 20))
-                .foregroundColor(.kindredError)
+                .foregroundStyle(.kindredError)
 
             Text(message)
                 .font(.kindredBody())
-                .foregroundColor(.kindredError)
+                .foregroundStyle(.kindredError)
 
             Spacer()
         }
@@ -267,11 +267,11 @@ public struct VoiceUploadView: View {
 
                     Text(String(localized: "Uploading...", bundle: .main))
                         .font(.kindredBodyBold())
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                 } else {
                     Text(String(localized: "Upload Voice Clip", bundle: .main))
                         .font(.kindredBodyBold())
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -294,16 +294,16 @@ public struct VoiceUploadView: View {
 
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 80))
-                .foregroundColor(.kindredAccent)
+                .foregroundStyle(.kindredAccent)
 
             VStack(spacing: 8) {
                 Text(String(localized: "Voice Profile Created!", bundle: .main))
                     .font(.kindredHeading2())
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
 
                 Text(String(localized: "Your voice is ready to use", bundle: .main))
                     .font(.kindredBody())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
             }
 
             Spacer()
@@ -313,7 +313,7 @@ public struct VoiceUploadView: View {
             } label: {
                 Text(String(localized: "Done", bundle: .main))
                     .font(.kindredBodyBold())
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
                     .background(

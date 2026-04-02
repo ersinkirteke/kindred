@@ -19,22 +19,22 @@ struct VoiceProfileCardView: View {
 
                 Image(systemName: "waveform")
                     .font(.system(size: 20))
-                    .foregroundColor(.kindredAccent)
+                    .foregroundStyle(.kindredAccent)
             }
 
             // Voice info
             VStack(alignment: .leading, spacing: KindredSpacing.xs) {
                 Text(profile.speakerName)
                     .font(.kindredBodyBoldScaled(size: bodySize))
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
 
                 Text(profile.relationship)
                     .font(.kindredCaptionScaled(size: captionSize))
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
 
                 Text("Created \(formattedDate)")
                     .font(.kindredCaptionScaled(size: captionSize))
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
 
                 // Status badge
                 HStack(spacing: 4) {
@@ -44,7 +44,7 @@ struct VoiceProfileCardView: View {
 
                     Text(statusText)
                         .font(.kindredCaptionScaled(size: captionSize))
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                 }
             }
 
@@ -60,7 +60,7 @@ struct VoiceProfileCardView: View {
                 } label: {
                     Text(String(localized: "profile.privacy_data.delete_voice", bundle: .main))
                         .font(.kindredBodyScaled(size: bodySize))
-                        .foregroundColor(.red)
+                        .foregroundStyle(.red)
                 }
             }
         }
@@ -75,11 +75,15 @@ struct VoiceProfileCardView: View {
         )
     }
 
-    private var formattedDate: String {
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
-        return formatter.string(from: profile.createdAt)
+        return formatter
+    }()
+
+    private var formattedDate: String {
+        Self.dateFormatter.string(from: profile.createdAt)
     }
 
     private var statusColor: Color {

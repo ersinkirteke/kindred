@@ -11,7 +11,7 @@ struct MatchBadge: View {
         Text("\(percentage)%")
             .font(.kindredCaption())
             .fontWeight(.bold)
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .padding(.horizontal, KindredSpacing.sm)
             .padding(.vertical, KindredSpacing.xs)
             .background(

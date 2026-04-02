@@ -19,7 +19,7 @@ struct SplashView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 120, height: 120)
-                .foregroundColor(.kindredAccent)
+                .foregroundStyle(.kindredAccent)
                 .opacity(logoOpacity)
                 .scaleEffect(logoScale)
         }

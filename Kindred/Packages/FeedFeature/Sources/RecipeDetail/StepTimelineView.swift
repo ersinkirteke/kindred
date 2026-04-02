@@ -56,7 +56,7 @@ private struct StepRow: View {
 
                     Text("\(step.orderIndex)")
                         .font(.kindredBodyBold())
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                 }
 
                 // Connector line (except for last step)
@@ -72,7 +72,7 @@ private struct StepRow: View {
             VStack(alignment: .leading, spacing: KindredSpacing.sm) {
                 Text(step.text)
                     .font(.kindredBody())
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
                     .multilineTextAlignment(.leading)
 
                 // Duration badge if present
@@ -83,7 +83,7 @@ private struct StepRow: View {
                         Text(String(localized: "~\(duration) min", bundle: .main))
                             .font(.kindredCaption())
                     }
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

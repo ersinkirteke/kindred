@@ -17,7 +17,7 @@ struct PrivacyDataSection: View {
             // Section title
             Text(String(localized: "profile.privacy_data.title", bundle: .main))
                 .font(.kindredHeading2Scaled(size: heading2Size))
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
 
             // Voice profile card (if exists)
             if let profile = voiceProfile {
@@ -35,12 +35,12 @@ struct PrivacyDataSection: View {
                 HStack {
                     Text("Tracking Permission")
                         .font(.kindredBodyScaled(size: bodySize))
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
 
                     Spacer()
 
                     Image(systemName: "gear")
-                        .foregroundColor(.kindredAccent)
+                        .foregroundStyle(.kindredAccent)
                 }
                 .padding(.vertical, KindredSpacing.sm)
                 .contentShape(Rectangle())
@@ -56,12 +56,12 @@ struct PrivacyDataSection: View {
                 HStack {
                     Text(String(localized: "profile.privacy_data.privacy_policy", bundle: .main))
                         .font(.kindredBodyScaled(size: bodySize))
-                        .foregroundColor(.kindredTextPrimary)
+                        .foregroundStyle(.kindredTextPrimary)
 
                     Spacer()
 
                     Image(systemName: "arrow.up.right.square")
-                        .foregroundColor(.kindredAccent)
+                        .foregroundStyle(.kindredAccent)
                 }
                 .padding(.vertical, KindredSpacing.sm)
                 .contentShape(Rectangle())

@@ -27,7 +27,7 @@ public struct ToastNotification: View {
         if isShowing {
             Text(message)
                 .font(.kindredCaption())
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .background(

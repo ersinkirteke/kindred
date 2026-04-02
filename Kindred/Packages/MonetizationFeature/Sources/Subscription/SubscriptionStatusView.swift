@@ -47,7 +47,7 @@ private struct LoadingStateView: View {
             ProgressView()
             Text(String(localized: "subscription.loading_status", bundle: .main))
                 .kindredBody()
-                .foregroundColor(.kindredTextSecondary)
+                .foregroundStyle(.kindredTextSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(KindredSpacing.lg)
@@ -64,7 +64,7 @@ private struct FreeStateView: View {
         VStack(alignment: .leading, spacing: KindredSpacing.md) {
             Text(String(localized: "subscription.unlock_pro", bundle: .main))
                 .kindredHeading2()
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
                 .accessibilityAddTraits(.isHeader)
 
             VStack(alignment: .leading, spacing: KindredSpacing.sm) {
@@ -95,7 +95,7 @@ private struct ProStateView: View {
             HStack {
                 Text(String(localized: "subscription.kindred_pro", bundle: .main))
                     .kindredHeading2()
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
                     .accessibilityAddTraits(.isHeader)
 
                 Spacer()
@@ -104,7 +104,7 @@ private struct ProStateView: View {
                 Text(String(localized: "subscription.pro_badge", bundle: .main))
                     .kindredCaption()
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .padding(.horizontal, KindredSpacing.sm)
                     .padding(.vertical, KindredSpacing.xs)
                     .background(Color.kindredAccent)
@@ -116,12 +116,12 @@ private struct ProStateView: View {
             if isInGracePeriod {
                 HStack(spacing: KindredSpacing.sm) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.orange)
+                        .foregroundStyle(.orange)
                         .accessibilityHidden(true)
 
                     Text(String(localized: "subscription.payment_issue", bundle: .main))
                         .kindredCaption()
-                        .foregroundColor(.orange)
+                        .foregroundStyle(.orange)
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(String(localized: "accessibility.subscription.payment_warning", bundle: .main))
@@ -131,11 +131,11 @@ private struct ProStateView: View {
             VStack(alignment: .leading, spacing: KindredSpacing.xs) {
                 Text(String(localized: "subscription.renews_on", bundle: .main))
                     .kindredCaption()
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
 
                 Text(expiresDate, style: .date)
                     .kindredBody()
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
             }
             .accessibilityElement(children: .combine)
             .accessibilityLabel(String(localized: "accessibility.subscription.renews_on \(expiresDate.formatted(date: .long, time: .omitted))", bundle: .main))
@@ -146,7 +146,7 @@ private struct ProStateView: View {
             } label: {
                 Text(String(localized: "subscription.manage_button", bundle: .main))
                     .kindredBody()
-                    .foregroundColor(.kindredAccent)
+                    .foregroundStyle(.kindredAccent)
             }
             .accessibilityLabel(String(localized: "accessibility.subscription.manage", bundle: .main))
             .accessibilityHint(String(localized: "accessibility.subscription.manage_hint", bundle: .main))
@@ -163,13 +163,13 @@ private struct BenefitItem: View {
     var body: some View {
         HStack(spacing: KindredSpacing.sm) {
             Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(.kindredAccent)
+                .foregroundStyle(.kindredAccent)
                 .font(.system(size: 16))
                 .accessibilityHidden(true)
 
             Text(text)
                 .kindredBody()
-                .foregroundColor(.kindredTextSecondary)
+                .foregroundStyle(.kindredTextSecondary)
         }
         .accessibilityElement(children: .combine)
     }

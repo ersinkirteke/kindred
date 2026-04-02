@@ -29,5 +29,9 @@ let package = Package(
                 "MonetizationFeature",
             ]
         ),
+        .testTarget(
+            name: "PantryFeatureTests",
+            dependencies: ["PantryFeature"]
+        ),
     ]
 )

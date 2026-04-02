@@ -131,12 +131,12 @@ struct RecipeCardView: View {
             VStack(alignment: .leading, spacing: KindredSpacing.sm) {
                 Text(recipe.name)
                     .font(.kindredHeading2Scaled(size: heading2Size))
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
                     .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
 
                 Text(recipe.description ?? " ")
                     .font(.kindredBodyScaled(size: bodySize))
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
 
                 metadataRow
@@ -175,7 +175,7 @@ struct RecipeCardView: View {
                 .overlay(
                     Image(systemName: "fork.knife")
                         .font(.system(size: 48))
-                        .foregroundColor(.kindredTextSecondary)
+                        .foregroundStyle(.kindredTextSecondary)
                 )
                 .accessibilityLabel(String(localized: "Photo of \(recipe.name)", bundle: .main))
         }
@@ -209,7 +209,7 @@ struct RecipeCardView: View {
             }
         }
         .font(.kindredCaptionScaled(size: captionSize))
-        .foregroundColor(.kindredTextSecondary)
+        .foregroundStyle(.kindredTextSecondary)
     }
 
     private var accessibilityLabelText: String {

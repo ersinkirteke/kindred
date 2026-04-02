@@ -16,7 +16,7 @@ public struct BannerAdView: View {
             if let error = adError {
                 Text("Ad error: \(error)")
                     .font(.caption2)
-                    .foregroundColor(.red)
+                    .foregroundStyle(.red)
             } else if !adLoaded {
                 ProgressView()
                     .controlSize(.small)
@@ -25,7 +25,7 @@ public struct BannerAdView: View {
             BannerViewRepresentable(adLoaded: $adLoaded, adError: $adError)
         }
         .frame(height: 60)
-        .cornerRadius(8)
+        .clipShape(.rect(cornerRadius: 8))
         .accessibilityLabel(String(localized: "accessibility.ads.advertisement", bundle: .main))
     }
 }

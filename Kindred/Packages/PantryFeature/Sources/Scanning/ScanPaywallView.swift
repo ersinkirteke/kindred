@@ -104,7 +104,7 @@ public struct ScanPaywallView: View {
             .frame(height: 200)
             .frame(maxWidth: .infinity)
             .background(Color(.systemGray6))
-            .cornerRadius(16)
+            .clipShape(.rect(cornerRadius: 16))
             .padding(.horizontal)
         }
         .onAppear {
@@ -134,7 +134,7 @@ public struct ScanPaywallView: View {
             }
             .padding()
             .background(Color(.systemGray6))
-            .cornerRadius(16)
+            .clipShape(.rect(cornerRadius: 16))
             .padding(.horizontal)
 
             Text("Scan → Analyze → Results")
@@ -203,7 +203,7 @@ public struct ScanPaywallView: View {
         }
         .padding()
         .background(Color(.systemBackground))
-        .cornerRadius(8)
+        .clipShape(.rect(cornerRadius: 8))
     }
 
     @ViewBuilder

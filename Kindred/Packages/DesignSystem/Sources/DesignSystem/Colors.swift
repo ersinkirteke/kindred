@@ -57,3 +57,19 @@ public extension Color {
     /// Light: #27AE60 (green) | Dark: #2ECC71 (lighter green)
     static let kindredSuccess = Color("Success", bundle: .module)
 }
+
+// MARK: - ShapeStyle Extensions
+// Allows using .kindred* colors directly in .foregroundStyle() without Color. prefix
+
+public extension ShapeStyle where Self == Color {
+    static var kindredPrimary: Color { .kindredPrimary }
+    static var kindredBackground: Color { .kindredBackground }
+    static var kindredCardSurface: Color { .kindredCardSurface }
+    static var kindredAccent: Color { .kindredAccent }
+    static var kindredAccentDecorative: Color { .kindredAccentDecorative }
+    static var kindredTextPrimary: Color { .kindredTextPrimary }
+    static var kindredTextSecondary: Color { .kindredTextSecondary }
+    static var kindredDivider: Color { .kindredDivider }
+    static var kindredError: Color { .kindredError }
+    static var kindredSuccess: Color { .kindredSuccess }
+}

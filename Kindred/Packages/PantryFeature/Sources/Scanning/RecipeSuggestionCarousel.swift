@@ -55,7 +55,7 @@ public struct RecipeSuggestionCarousel: View {
         }
         .padding(.vertical, 20)
         .background(Color(.systemBackground))
-        .cornerRadius(16, corners: [.topLeft, .topRight])
+        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 16, topTrailingRadius: 16))
         .shadow(radius: 8, y: -2)
     }
 
@@ -64,13 +64,15 @@ public struct RecipeSuggestionCarousel: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 16) {
                 ForEach(recipes) { recipe in
-                    RecipeCardView(
-                        recipe: recipe,
-                        scannedItemNames: scannedItemNames
-                    )
-                    .onTapGesture {
+                    Button {
                         onRecipeTapped(recipe.id)
+                    } label: {
+                        RecipeCardView(
+                            recipe: recipe,
+                            scannedItemNames: scannedItemNames
+                        )
                     }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal)
@@ -148,30 +150,18 @@ private struct RecipeCardView: View {
         .frame(width: 260)
         .padding(12)
         .background(Color(.secondarySystemBackground))
-        .cornerRadius(16)
+        .clipShape(.rect(cornerRadius: 16))
         .shadow(radius: 2, y: 1)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
     }
 
     private var matchingIngredientsCount: Int? {
-        guard !scannedItemNames.isEmpty else { return nil }
-
-        let normalizedScannedNames = Set(scannedItemNames.map { $0.lowercased() })
-        let matchingCount = recipe.ingredients.filter { ingredient in
-            normalizedScannedNames.contains(ingredient.normalizedName?.lowercased() ?? ingredient.name.lowercased())
-        }.count
-
-        return matchingCount > 0 ? matchingCount : nil
+        recipe.matchingIngredientsCount(scannedItemNames: scannedItemNames)
     }
 
     private var accessibilityLabel: String {
-        var label = recipe.name
-        label += ", \(recipe.prepTime) minutes"
-        if let count = matchingIngredientsCount {
-            label += ", \(count) of \(recipe.ingredients.count) ingredients available"
-        }
-        return label
+        recipe.accessibilityLabel(scannedItemNames: scannedItemNames)
     }
 }
 
@@ -190,6 +180,26 @@ public struct RecipeCard: Identifiable {
         self.prepTime = prepTime
         self.ingredients = ingredients
     }
+
+    public func matchingIngredientsCount(scannedItemNames: [String]) -> Int? {
+        guard !scannedItemNames.isEmpty else { return nil }
+
+        let normalizedScannedNames = Set(scannedItemNames.map { $0.lowercased() })
+        let matchingCount = ingredients.filter { ingredient in
+            normalizedScannedNames.contains(ingredient.normalizedName?.lowercased() ?? ingredient.name.lowercased())
+        }.count
+
+        return matchingCount > 0 ? matchingCount : nil
+    }
+
+    public func accessibilityLabel(scannedItemNames: [String]) -> String {
+        var label = name
+        label += ", \(prepTime) minutes"
+        if let count = matchingIngredientsCount(scannedItemNames: scannedItemNames) {
+            label += ", \(count) of \(ingredients.count) ingredients available"
+        }
+        return label
+    }
 }
 
 public struct RecipeIngredient {
@@ -199,26 +209,5 @@ public struct RecipeIngredient {
     public init(name: String, normalizedName: String?) {
         self.name = name
         self.normalizedName = normalizedName
-    }
-}
-
-// Helper for rounded corners on specific corners
-extension View {
-    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(RoundedCorner(radius: radius, corners: corners))
-    }
-}
-
-private struct RoundedCorner: Shape {
-    var radius: CGFloat = .infinity
-    var corners: UIRectCorner = .allCorners
-
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(
-            roundedRect: rect,
-            byRoundingCorners: corners,
-            cornerRadii: CGSize(width: radius, height: radius)
-        )
-        return Path(path.cgPath)
     }
 }

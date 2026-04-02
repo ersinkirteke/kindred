@@ -21,7 +21,7 @@ public struct OfflineBanner: View {
                 .font(.kindredCaption())
                 .fontWeight(.medium)
         }
-        .foregroundColor(.white)
+        .foregroundStyle(.white)
         .padding(.vertical, 8)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity)
@@ -42,7 +42,7 @@ struct OfflineBanner_Previews: PreviewProvider {
             VStack {
                 Text("Screen content below")
                     .font(.kindredBody())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.kindredBackground)

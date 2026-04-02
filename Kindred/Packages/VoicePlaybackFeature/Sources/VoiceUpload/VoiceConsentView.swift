@@ -23,20 +23,20 @@ public struct VoiceConsentView: View {
                 // Icon
                 Image(systemName: "waveform.circle.fill")
                     .font(.system(size: 80))
-                    .foregroundColor(.kindredAccent)
+                    .foregroundStyle(.kindredAccent)
                     .padding(.top, KindredSpacing.xl)
 
                 // Title
                 Text(String(localized: "voice.consent.title", bundle: .main))
                     .font(.kindredHeading1())
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, KindredSpacing.md)
 
                 // ElevenLabs disclosure
                 Text(String(localized: "voice.consent.elevenlabs_disclosure", bundle: .main))
                     .font(.kindredBody())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, KindredSpacing.lg)
                     .fixedSize(horizontal: false, vertical: true)
@@ -83,12 +83,12 @@ private struct ConsentBullet: View {
         HStack(alignment: .top, spacing: KindredSpacing.sm) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 20))
-                .foregroundColor(.kindredAccent)
+                .foregroundStyle(.kindredAccent)
                 .frame(width: 20, height: 20)
 
             Text(text)
                 .font(.kindredBody())
-                .foregroundColor(.kindredTextPrimary)
+                .foregroundStyle(.kindredTextPrimary)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }

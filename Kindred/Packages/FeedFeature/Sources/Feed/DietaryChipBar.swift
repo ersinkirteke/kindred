@@ -47,7 +47,7 @@ struct DietaryChipBar: View {
                         } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 20))
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                                 .frame(width: 44, height: 44)
                         }
                         .accessibilityLabel(String(localized: "accessibility.dietary_filter.clear_all", bundle: .main))
@@ -75,7 +75,7 @@ struct DietaryChipBar: View {
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                                     .font(.system(size: 20))
-                                    .foregroundColor(.secondary)
+                                    .foregroundStyle(.secondary)
                                     .frame(width: 44, height: 44)
                             }
                             .accessibilityLabel(String(localized: "accessibility.dietary_filter.clear_all", bundle: .main))
@@ -89,7 +89,7 @@ struct DietaryChipBar: View {
             if !activeFilters.isEmpty {
                 Text(String(localized: "feed.showing_filtered_recipes \(chipDescription)", bundle: .main))
                     .font(.kindredCaption())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .padding(.horizontal, 16)
             }
         }

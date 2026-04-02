@@ -127,11 +127,7 @@ extension SubscriptionClient: DependencyKey {
             },
             syncSubscriptionToBackend: { jws in
                 // Backend URL matches Apollo client configuration
-                #if DEBUG
-                let urlString = "http://192.168.0.162:3001/v1/graphql"
-                #else
-                let urlString = "https://api.kindred.app/graphql"
-                #endif
+                let urlString = "https://api.kindredcook.app/graphql"
                 guard let url = URL(string: urlString) else {
                     throw SubscriptionError.networkError("Invalid backend URL")
                 }
@@ -153,9 +149,9 @@ extension SubscriptionClient: DependencyKey {
                 request.httpBody = bodyData
 
                 // Add Authorization header from Clerk session
-                if let session = Clerk.shared.session,
+                if let session = await Clerk.shared.session,
                    let token = try? await session.getToken() {
-                    request.setValue("Bearer \(token.jwt)", forHTTPHeaderField: "Authorization")
+                    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
                 }
 
                 // Send request

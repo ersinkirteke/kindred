@@ -16,16 +16,16 @@ struct DNAActivationCard: View {
             VStack(spacing: KindredSpacing.md) {
                 Image(systemName: "sparkles")
                     .font(.system(size: 40))
-                    .foregroundColor(.kindredAccent)
+                    .foregroundStyle(.kindredAccent)
 
                 Text("Your Culinary DNA is ready!")
                     .font(.kindredHeading2())
-                    .foregroundColor(.kindredTextPrimary)
+                    .foregroundStyle(.kindredTextPrimary)
                     .multilineTextAlignment(.center)
 
                 Text("Your feed is now personalized based on your taste.")
                     .font(.kindredBody())
-                    .foregroundColor(.kindredTextSecondary)
+                    .foregroundStyle(.kindredTextSecondary)
                     .multilineTextAlignment(.center)
 
                 KindredButton("Got it!", style: .primary) {

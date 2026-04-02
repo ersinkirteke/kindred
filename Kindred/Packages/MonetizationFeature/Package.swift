@@ -16,6 +16,7 @@ let package = Package(
         .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads", from: "11.0.0"),
         .package(url: "https://github.com/googleads/swift-package-manager-google-user-messaging-platform", from: "2.0.0"),
         .package(name: "DesignSystem", path: "../DesignSystem"),
+        .package(url: "https://github.com/clerk/clerk-ios", from: "1.0.0"),
     ],
     targets: [
         .target(
@@ -27,6 +28,7 @@ let package = Package(
                 .product(name: "GoogleMobileAds", package: "swift-package-manager-google-mobile-ads"),
                 .product(name: "GoogleUserMessagingPlatform", package: "swift-package-manager-google-user-messaging-platform"),
                 "DesignSystem",
+                .product(name: "ClerkKit", package: "clerk-ios"),
             ],
             path: "Sources",
             linkerSettings: [
