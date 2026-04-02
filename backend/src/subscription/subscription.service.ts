@@ -27,24 +27,26 @@ export class SubscriptionService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    // Load Apple Root CA certificates
-    const certDir = path.join(__dirname, '../../config/certs');
-    const rootCAG2 = fs.readFileSync(path.join(certDir, 'AppleRootCA-G2.cer'));
-    const rootCAG3 = fs.readFileSync(path.join(certDir, 'AppleRootCA-G3.cer'));
-    const rootCAs = [rootCAG2, rootCAG3];
-
     // Get required configuration
     const bundleId = this.configService.get<string>('APPLE_BUNDLE_ID');
     if (!bundleId) {
-      throw new Error('APPLE_BUNDLE_ID environment variable is required');
+      this.logger.warn('APPLE_BUNDLE_ID not configured - subscription verification disabled');
+      return;
     }
     this.bundleId = bundleId;
 
     const appAppleIdStr = this.configService.get<string>('APPLE_APP_ID');
     const appAppleId = appAppleIdStr ? Number(appAppleIdStr) : undefined;
     if (!appAppleId) {
-      this.logger.warn('APPLE_APP_ID not set - production verifier may fail');
+      this.logger.warn('APPLE_APP_ID not set - subscription verification disabled');
+      return;
     }
+
+    // Load Apple Root CA certificates
+    const certDir = path.join(__dirname, '../../config/certs');
+    const rootCAG2 = fs.readFileSync(path.join(certDir, 'AppleRootCA-G2.cer'));
+    const rootCAG3 = fs.readFileSync(path.join(certDir, 'AppleRootCA-G3.cer'));
+    const rootCAs = [rootCAG2, rootCAG3];
 
     // Parse allowed product IDs
     const productIdsEnv = this.configService.get<string>('APPLE_ALLOWED_PRODUCT_IDS', 'com.kindred.pro.monthly');
@@ -72,6 +74,12 @@ export class SubscriptionService implements OnModuleInit {
   }
 
   async verifyAndSyncSubscription(clerkId: string, jwsRepresentation: string): Promise<boolean> {
+    if (!this.productionVerifier) {
+      throw new GraphQLError('Subscription verification is not configured', {
+        extensions: { code: GraphQLErrorCode.SUBSCRIPTION_VERIFICATION_FAILED },
+      });
+    }
+
     try {
       // Resolve database userId from clerkId
       const user = await this.prisma.user.findUnique({ where: { clerkId } });
@@ -205,6 +213,11 @@ export class SubscriptionService implements OnModuleInit {
   }
 
   async handleNotification(signedPayload: string): Promise<void> {
+    if (!this.productionVerifier) {
+      this.logger.warn('Subscription verification not configured, ignoring notification');
+      return;
+    }
+
     try {
       let decodedPayload: ResponseBodyV2DecodedPayload;
       let environment: Environment;
