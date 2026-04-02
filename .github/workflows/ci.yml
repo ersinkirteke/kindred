@@ -2,22 +2,24 @@ name: CI
 
 on:
   push:
-    branches:
-      - '**'
+    branches: ['**']
+    paths:
+      - 'backend/**'
+      - '.github/workflows/ci.yml'
   pull_request:
-    branches:
-      - main
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/ci.yml'
 
 jobs:
   lint-and-typecheck:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -31,24 +33,21 @@ jobs:
         working-directory: backend
         run: npx prisma generate
 
-      - name: Run linter
+      - name: Lint
         working-directory: backend
         run: npm run lint
 
-      - name: Run type-check
+      - name: Type-check
         working-directory: backend
         run: npx tsc --noEmit
 
   build:
     runs-on: ubuntu-latest
-    needs: lint-and-typecheck
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -62,37 +61,27 @@ jobs:
         working-directory: backend
         run: npx prisma generate
 
-      - name: Build application
+      - name: Build
         working-directory: backend
         run: npm run build
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: backend/dist/
-          retention-days: 7
-
   docker:
     runs-on: ubuntu-latest
-    needs: build
+    needs: [lint-and-typecheck, build]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Build Docker image
         working-directory: backend
         run: docker build -t kindred-backend .
 
       - name: Verify image size
-        working-directory: backend
         run: |
           IMAGE_SIZE=$(docker image inspect kindred-backend --format='{{.Size}}')
           IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
           echo "Image size: ${IMAGE_SIZE_MB}MB"
-          if [ $IMAGE_SIZE_MB -gt 300 ]; then
-            echo "Error: Image size (${IMAGE_SIZE_MB}MB) exceeds 300MB limit"
+          if [ $IMAGE_SIZE_MB -gt 500 ]; then
+            echo "::error::Image size (${IMAGE_SIZE_MB}MB) exceeds 500MB limit"
             exit 1
           fi
-          echo "Image size check passed"

@@ -32,6 +32,7 @@ COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
 COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nestjs:nodejs /app/prisma.config.ts ./
 
 # Switch to non-root user
 USER nestjs
@@ -40,8 +41,8 @@ USER nestjs
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD node -e "const http=require('http');const data=JSON.stringify({query:'{health}'});const req=http.request({hostname:'localhost',port:3000,path:'/v1/graphql',method:'POST',headers:{'Content-Type':'application/json','Content-Length':data.length}},(r)=>{process.exit(r.statusCode===200?0:1)});req.write(data);req.end();"
 
 # Start application
 CMD ["node", "dist/src/main"]

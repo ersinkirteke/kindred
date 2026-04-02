@@ -1,0 +1,57 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy.yml'
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: ci
+    environment: production
+
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+
+            echo "==> Pulling latest code..."
+            cd /opt/kindred/repo
+            git pull origin main
+
+            echo "==> Building app container..."
+            cd /opt/kindred
+            docker compose build app
+
+            echo "==> Running database migrations..."
+            docker compose run --rm app npx prisma migrate deploy
+
+            echo "==> Starting app..."
+            docker compose up -d app
+
+            echo "==> Waiting for app to start..."
+            sleep 10
+
+            echo "==> Health check..."
+            RESPONSE=$(curl -sf -X POST http://localhost:3001/v1/graphql \
+              -H 'Content-Type: application/json' \
+              -d '{"query":"{ health }"}' || true)
+
+            if echo "$RESPONSE" | grep -q '"health":"ok"'; then
+              echo "Health check passed!"
+            else
+              echo "::error::Health check failed. Response: $RESPONSE"
+              docker compose logs app --tail=50
+              exit 1
+            fi
