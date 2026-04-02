@@ -63,7 +63,15 @@ export class FeedService {
     if (after) {
       try {
         const cursor = this.decodeCursor(after);
-        // Keyset pagination: (velocity < cursor.velocity) OR (velocity = cursor.velocity AND id > cursor.id)
+        // Validate cursor values to prevent SQL injection
+        const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!UUID_REGEX.test(cursor.id)) {
+          throw new Error('Invalid cursor id format');
+        }
+        if (typeof cursor.velocity !== 'number' || !isFinite(cursor.velocity)) {
+          throw new Error('Invalid cursor velocity');
+        }
+        // Safe: cursor.id validated as UUID, cursor.velocity validated as finite number
         cursorCondition = `AND ("velocityScore" < ${cursor.velocity} OR ("velocityScore" = ${cursor.velocity} AND id > '${cursor.id}'))`;
       } catch (error) {
         this.logger.warn(`Invalid cursor: ${after}`);
@@ -375,27 +383,52 @@ export class FeedService {
   /**
    * Build SQL filter clause from FeedFiltersInput
    */
+  // Valid enum values for SQL injection prevention
+  private static readonly VALID_CUISINE_TYPES = new Set([
+    'ITALIAN', 'CHINESE', 'INDIAN', 'JAPANESE', 'MEXICAN', 'THAI', 'FRENCH',
+    'SPANISH', 'GREEK', 'KOREAN', 'VIETNAMESE', 'TURKISH', 'LEBANESE',
+    'MOROCCAN', 'ETHIOPIAN', 'BRAZILIAN', 'PERUVIAN', 'CARIBBEAN',
+    'AMERICAN', 'BRITISH', 'GERMAN', 'RUSSIAN', 'POLISH', 'IRISH',
+    'AUSTRALIAN', 'FILIPINO', 'INDONESIAN', 'MALAYSIAN', 'OTHER',
+  ]);
+
+  private static readonly VALID_MEAL_TYPES = new Set([
+    'BREAKFAST', 'LUNCH', 'DINNER', 'SNACK', 'DESSERT', 'APPETIZER', 'DRINK',
+  ]);
+
+  // Strict pattern for dietary tags: only letters, numbers, spaces, hyphens
+  private static readonly SAFE_TAG_REGEX = /^[a-zA-Z0-9 -]{1,50}$/;
+
   private buildFilterClause(filters?: FeedFiltersInput): string {
     if (!filters) return '';
 
     const conditions: string[] = [];
 
-    // CuisineTypes: OR within category
+    // CuisineTypes: validate against enum whitelist to prevent SQL injection
     if (filters.cuisineTypes && filters.cuisineTypes.length > 0) {
-      const cuisines = filters.cuisineTypes.map(c => `'${c}'`).join(',');
-      conditions.push(`"cuisineType" = ANY(ARRAY[${cuisines}]::"CuisineType"[])`);
+      const validCuisines = filters.cuisineTypes.filter(c => FeedService.VALID_CUISINE_TYPES.has(c));
+      if (validCuisines.length > 0) {
+        const cuisines = validCuisines.map(c => `'${c}'`).join(',');
+        conditions.push(`"cuisineType" = ANY(ARRAY[${cuisines}]::"CuisineType"[])`);
+      }
     }
 
-    // MealTypes: OR within category
+    // MealTypes: validate against enum whitelist to prevent SQL injection
     if (filters.mealTypes && filters.mealTypes.length > 0) {
-      const meals = filters.mealTypes.map(m => `'${m}'`).join(',');
-      conditions.push(`"mealType" = ANY(ARRAY[${meals}]::"MealType"[])`);
+      const validMeals = filters.mealTypes.filter(m => FeedService.VALID_MEAL_TYPES.has(m));
+      if (validMeals.length > 0) {
+        const meals = validMeals.map(m => `'${m}'`).join(',');
+        conditions.push(`"mealType" = ANY(ARRAY[${meals}]::"MealType"[])`);
+      }
     }
 
-    // DietaryTags: AND logic (must have ALL tags)
+    // DietaryTags: strict regex validation to prevent SQL injection (free-form strings)
     if (filters.dietaryTags && filters.dietaryTags.length > 0) {
-      const tags = filters.dietaryTags.map(t => `'${t}'`).join(',');
-      conditions.push(`"dietaryTags" @> ARRAY[${tags}]::text[]`);
+      const validTags = filters.dietaryTags.filter(t => FeedService.SAFE_TAG_REGEX.test(t));
+      if (validTags.length > 0) {
+        const tags = validTags.map(t => `'${t}'`).join(',');
+        conditions.push(`"dietaryTags" @> ARRAY[${tags}]::text[]`);
+      }
     }
 
     // Combine across categories with AND

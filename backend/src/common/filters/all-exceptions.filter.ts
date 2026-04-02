@@ -28,7 +28,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       const response = exception.getResponse();
       message = typeof response === 'string' ? response : (response as any).message;
     } else if (exception instanceof Error) {
-      message = exception.message;
+      // Don't expose raw error messages to clients (may leak DB details, file paths)
+      message = 'Internal server error';
     }
 
     // Log the error with structured format

@@ -1,5 +1,5 @@
-import { IsString, IsNotEmpty, IsEnum, IsOptional, IsInt } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsString, IsNotEmpty, IsEnum, IsOptional, IsInt, validateSync } from 'class-validator';
+import { plainToInstance, Transform } from 'class-transformer';
 
 enum NodeEnv {
   Development = 'development',
@@ -55,7 +55,12 @@ export class EnvironmentVariables {
 }
 
 export function validate(config: Record<string, unknown>) {
-  const validatedConfig = new EnvironmentVariables();
-  Object.assign(validatedConfig, config);
+  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
+    enableImplicitConversion: true,
+  });
+  const errors = validateSync(validatedConfig, { skipMissingProperties: false });
+  if (errors.length > 0) {
+    throw new Error(`Environment validation failed:\n${errors.toString()}`);
+  }
   return validatedConfig;
 }

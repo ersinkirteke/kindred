@@ -308,9 +308,9 @@ export class PantryService {
       });
     } catch (error) {
       // Log but don't throw — this is a best-effort background operation
-      console.error(
-        `Failed to estimate expiry for item ${itemId}: ${error.message}`,
-      );
+      // Use structured logger instead of console.error
+      const { Logger } = require('@nestjs/common');
+      new Logger('PantryService').error(`Failed to estimate expiry for item ${itemId}: ${error.message}`);
     }
   }
 

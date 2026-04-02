@@ -33,7 +33,8 @@ import { PrivacyModule } from './privacy/privacy.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'schema.gql'),
-      playground: true, // Enable GraphQL Playground in development
+      playground: process.env.NODE_ENV !== 'production',
+      introspection: process.env.NODE_ENV !== 'production',
       sortSchema: true,
       path: '/v1/graphql', // Versioned endpoint
       subscriptions: {

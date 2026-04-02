@@ -61,7 +61,10 @@ export class ClerkWebhookController {
       const wh = new Webhook(this.webhookSecret);
 
       // Verify signature using raw body
-      const rawBody = req.rawBody?.toString('utf-8') || JSON.stringify(payload);
+      const rawBody = req.rawBody?.toString('utf-8');
+      if (!rawBody) {
+        throw new UnauthorizedException('Raw body not available for signature verification');
+      }
 
       // svix.verify validates signature, timestamp, and prevents replay attacks
       wh.verify(rawBody, {

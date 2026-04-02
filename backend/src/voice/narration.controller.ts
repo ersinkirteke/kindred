@@ -96,10 +96,7 @@ export class NarrationController {
       } else {
         response.status(500).json({
           error: 'Internal server error',
-          message:
-            error instanceof Error
-              ? error.message
-              : 'Unknown error',
+          message: 'An unexpected error occurred',
         });
       }
     }
