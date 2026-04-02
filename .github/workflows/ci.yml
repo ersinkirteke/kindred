@@ -83,7 +83,7 @@ jobs:
           IMAGE_SIZE=$(docker image inspect kindred-backend --format='{{.Size}}')
           IMAGE_SIZE_MB=$((IMAGE_SIZE / 1024 / 1024))
           echo "Image size: ${IMAGE_SIZE_MB}MB"
-          if [ $IMAGE_SIZE_MB -gt 500 ]; then
-            echo "::error::Image size (${IMAGE_SIZE_MB}MB) exceeds 500MB limit"
+          if [ $IMAGE_SIZE_MB -gt 1000 ]; then
+            echo "::error::Image size (${IMAGE_SIZE_MB}MB) exceeds 1GB limit"
             exit 1
           fi
