@@ -29,10 +29,7 @@ jobs:
             cd /opt/kindred/repo
             git pull origin main
 
-            echo "==> Syncing backend to deploy directory..."
-            rsync -a --delete /opt/kindred/repo/backend/ /opt/kindred/
-
-            echo "==> Building app container (no cache)..."
+            echo "==> Building app container..."
             cd /opt/kindred
             docker compose build --no-cache app
 
