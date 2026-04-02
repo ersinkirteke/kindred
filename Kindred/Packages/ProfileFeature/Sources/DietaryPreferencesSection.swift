@@ -61,12 +61,28 @@ private struct DietaryChipsGrid: View {
 
     private let dietaryTags = ["Vegan", "Vegetarian", "Gluten-Free", "Dairy-Free", "Keto", "Halal", "Nut-Free", "Kosher", "Low-Carb", "Pescatarian"]
 
+    private func localizedName(for tag: String) -> String {
+        switch tag {
+        case "Vegan": return String(localized: "dietary.vegan", bundle: .main)
+        case "Vegetarian": return String(localized: "dietary.vegetarian", bundle: .main)
+        case "Gluten-Free": return String(localized: "dietary.gluten_free", bundle: .main)
+        case "Dairy-Free": return String(localized: "dietary.dairy_free", bundle: .main)
+        case "Keto": return String(localized: "dietary.keto", bundle: .main)
+        case "Halal": return String(localized: "dietary.halal", bundle: .main)
+        case "Nut-Free": return String(localized: "dietary.nut_free", bundle: .main)
+        case "Kosher": return String(localized: "dietary.kosher", bundle: .main)
+        case "Low-Carb": return String(localized: "dietary.low_carb", bundle: .main)
+        case "Pescatarian": return String(localized: "dietary.pescatarian", bundle: .main)
+        default: return tag
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ForEach(Array(stride(from: 0, to: dietaryTags.count, by: 2)), id: \.self) { index in
                 HStack(spacing: 8) {
                     DietaryChipView(
-                        title: dietaryTags[index],
+                        title: localizedName(for: dietaryTags[index]),
                         isSelected: activeFilters.contains(dietaryTags[index]),
                         onTap: {
                             toggleFilter(dietaryTags[index])
@@ -75,7 +91,7 @@ private struct DietaryChipsGrid: View {
 
                     if index + 1 < dietaryTags.count {
                         DietaryChipView(
-                            title: dietaryTags[index + 1],
+                            title: localizedName(for: dietaryTags[index + 1]),
                             isSelected: activeFilters.contains(dietaryTags[index + 1]),
                             onTap: {
                                 toggleFilter(dietaryTags[index + 1])

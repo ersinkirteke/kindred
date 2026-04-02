@@ -56,6 +56,15 @@ public struct MiniPlayerView: View {
             trackInfo(playback: playback)
             Spacer()
             playPauseButton(playback: playback)
+            Button {
+                store.send(.dismiss)
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.kindredTextSecondary)
+            }
+            .frame(width: 44, height: 44)
+            .accessibilityLabel(String(localized: "Close player", bundle: .main))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)

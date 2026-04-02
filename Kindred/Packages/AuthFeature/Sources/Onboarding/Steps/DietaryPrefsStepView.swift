@@ -5,7 +5,7 @@ import DesignSystem
 struct DietaryPrefsStepView: View {
     let store: StoreOf<OnboardingReducer>
 
-    // Dietary preference options
+    // Dietary preference options (English keys used as identifiers)
     private let dietaryOptions = [
         "Vegetarian",
         "Vegan",
@@ -18,6 +18,22 @@ struct DietaryPrefsStepView: View {
         "Low-Carb",
         "Pescatarian"
     ]
+
+    private func localizedName(for tag: String) -> String {
+        switch tag {
+        case "Vegan": return String(localized: "dietary.vegan", bundle: .main)
+        case "Vegetarian": return String(localized: "dietary.vegetarian", bundle: .main)
+        case "Gluten-Free": return String(localized: "dietary.gluten_free", bundle: .main)
+        case "Dairy-Free": return String(localized: "dietary.dairy_free", bundle: .main)
+        case "Keto": return String(localized: "dietary.keto", bundle: .main)
+        case "Halal": return String(localized: "dietary.halal", bundle: .main)
+        case "Nut-Free": return String(localized: "dietary.nut_free", bundle: .main)
+        case "Kosher": return String(localized: "dietary.kosher", bundle: .main)
+        case "Low-Carb": return String(localized: "dietary.low_carb", bundle: .main)
+        case "Pescatarian": return String(localized: "dietary.pescatarian", bundle: .main)
+        default: return tag
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -66,7 +82,7 @@ struct DietaryPrefsStepView: View {
                 ], spacing: KindredSpacing.md) {
                     ForEach(dietaryOptions, id: \.self) { option in
                         DietaryChip(
-                            label: option,
+                            label: localizedName(for: option),
                             isSelected: store.selectedDietaryPrefs.contains(option)
                         ) {
                             store.send(.toggleDietaryPref(option))

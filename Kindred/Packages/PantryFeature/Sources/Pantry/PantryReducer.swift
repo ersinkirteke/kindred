@@ -338,6 +338,7 @@ public struct PantryReducer {
                             pantryClient: pantryClient,
                             apolloClient: apolloClient
                         )
+                        print("[Pantry] Sync completed: pushed=\(result.pushed), pulled=\(result.pulled)")
                         await send(.syncCompleted(result))
                     } catch {
                         print("Sync failed: \(error)")

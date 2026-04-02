@@ -93,7 +93,8 @@ class PantryStore {
 
     private init() {
         do {
-            modelContainer = try ModelContainer(for: PantryItem.self)
+            let config = ModelConfiguration("PantryStore", schema: Schema([PantryItem.self]))
+            modelContainer = try ModelContainer(for: PantryItem.self, configurations: config)
         } catch {
             fatalError("Failed to create PantryItem ModelContainer: \(error)")
         }

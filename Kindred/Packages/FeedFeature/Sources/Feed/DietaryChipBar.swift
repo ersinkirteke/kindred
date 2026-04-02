@@ -8,6 +8,22 @@ struct DietaryChipBar: View {
 
     private let dietaryTags = ["Vegan", "Vegetarian", "Gluten-Free", "Dairy-Free", "Keto", "Halal", "Nut-Free", "Kosher", "Low-Carb", "Pescatarian"]
 
+    private func localizedName(for tag: String) -> String {
+        switch tag {
+        case "Vegan": return String(localized: "dietary.vegan", bundle: .main)
+        case "Vegetarian": return String(localized: "dietary.vegetarian", bundle: .main)
+        case "Gluten-Free": return String(localized: "dietary.gluten_free", bundle: .main)
+        case "Dairy-Free": return String(localized: "dietary.dairy_free", bundle: .main)
+        case "Keto": return String(localized: "dietary.keto", bundle: .main)
+        case "Halal": return String(localized: "dietary.halal", bundle: .main)
+        case "Nut-Free": return String(localized: "dietary.nut_free", bundle: .main)
+        case "Kosher": return String(localized: "dietary.kosher", bundle: .main)
+        case "Low-Carb": return String(localized: "dietary.low_carb", bundle: .main)
+        case "Pescatarian": return String(localized: "dietary.pescatarian", bundle: .main)
+        default: return tag
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: KindredSpacing.xs) {
             // At AX sizes: wrapping layout; otherwise: horizontal scroll
@@ -16,7 +32,7 @@ struct DietaryChipBar: View {
                 FlowLayout(spacing: 8) {
                     ForEach(dietaryTags, id: \.self) { tag in
                         DietaryChip(
-                            title: tag,
+                            title: localizedName(for: tag),
                             isSelected: activeFilters.contains(tag),
                             onTap: {
                                 toggleFilter(tag)
@@ -44,7 +60,7 @@ struct DietaryChipBar: View {
                     HStack(spacing: 8) {
                         ForEach(dietaryTags, id: \.self) { tag in
                             DietaryChip(
-                                title: tag,
+                                title: localizedName(for: tag),
                                 isSelected: activeFilters.contains(tag),
                                 onTap: {
                                     toggleFilter(tag)
@@ -71,7 +87,7 @@ struct DietaryChipBar: View {
 
             // Filter count text below chips (when filters active)
             if !activeFilters.isEmpty {
-                Text(String(localized: "Showing \(chipDescription) recipes", bundle: .main))
+                Text(String(localized: "feed.showing_filtered_recipes \(chipDescription)", bundle: .main))
                     .font(.kindredCaption())
                     .foregroundColor(.kindredTextSecondary)
                     .padding(.horizontal, 16)
@@ -91,15 +107,16 @@ struct DietaryChipBar: View {
     }
 
     private var chipDescription: String {
-        let sortedFilters = activeFilters.sorted()
+        let connector = String(localized: "feed.list_connector", bundle: .main)
+        let sortedFilters = activeFilters.sorted().map { localizedName(for: $0) }
         if sortedFilters.count == 1 {
             return sortedFilters[0]
         } else if sortedFilters.count == 2 {
-            return "\(sortedFilters[0]) and \(sortedFilters[1])"
+            return "\(sortedFilters[0]) \(connector) \(sortedFilters[1])"
         } else {
             let allButLast = sortedFilters.dropLast().joined(separator: ", ")
             let last = sortedFilters.last!
-            return "\(allButLast), and \(last)"
+            return "\(allButLast), \(connector) \(last)"
         }
     }
 }

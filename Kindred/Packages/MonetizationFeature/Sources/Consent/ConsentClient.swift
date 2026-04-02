@@ -7,6 +7,13 @@ import OSLog
 
 private let logger = Logger(subsystem: "com.ersinkirteke.kindred", category: "consent")
 
+/// UMP SDK requires main queue for all form operations (per Google docs).
+/// Uses the safer `loadAndPresentIfRequired` API which checks consent status internally.
+@MainActor
+private func loadAndPresentUMPFormIfRequired() async throws {
+    try await UMPConsentForm.loadAndPresentIfRequired(from: nil)
+}
+
 @DependencyClient
 public struct ConsentClient: Sendable {
     /// Returns current ATT authorization status
@@ -43,15 +50,9 @@ extension ConsentClient: DependencyKey {
         }
 
         @Sendable func _requestATTAuthorization() async -> ATTrackingManager.AuthorizationStatus {
-            do {
-                let status = await ATTrackingManager.requestTrackingAuthorization()
-                logger.info("ATT authorization requested, status: \(status.rawValue)")
-                return status
-            } catch {
-                logger.error("ATT authorization failed: \(error.localizedDescription)")
-                // Per plan: treat error as denied, no retry
-                return .denied
-            }
+            let status = await ATTrackingManager.requestTrackingAuthorization()
+            logger.info("ATT authorization requested, status: \(status.rawValue)")
+            return status
         }
 
         @Sendable func _requestUMPConsentUpdate() async throws -> Bool {
@@ -67,12 +68,9 @@ extension ConsentClient: DependencyKey {
         }
 
         @Sendable func _presentUMPForm() async throws {
-            logger.info("Loading UMP consent form")
-            let form = try await UMPConsentForm.load()
-
-            logger.info("Presenting UMP consent form")
-            try await form.present(from: nil) // Uses key window
-            logger.info("UMP consent form dismissed")
+            logger.info("Presenting UMP consent form if required")
+            try await loadAndPresentUMPFormIfRequired()
+            logger.info("UMP consent form flow completed")
         }
 
         @Sendable func _getUMPConsentStatus() -> Int {

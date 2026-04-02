@@ -28,14 +28,14 @@ public struct VoiceConsentView: View {
 
                 // Title
                 Text(String(localized: "voice.consent.title", bundle: .main))
-                    .font(.kindredHeading1Scaled(size: .large))
+                    .font(.kindredHeading1())
                     .foregroundColor(.kindredTextPrimary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, KindredSpacing.md)
 
                 // ElevenLabs disclosure
                 Text(String(localized: "voice.consent.elevenlabs_disclosure", bundle: .main))
-                    .font(.kindredBodyScaled(size: .medium))
+                    .font(.kindredBody())
                     .foregroundColor(.kindredTextSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, KindredSpacing.lg)
@@ -55,13 +55,13 @@ public struct VoiceConsentView: View {
                 // Buttons
                 VStack(spacing: KindredSpacing.sm) {
                     KindredButton(
-                        title: String(localized: "voice.consent.accept_button", bundle: .main),
+                        String(localized: "voice.consent.accept_button", bundle: .main),
                         style: .primary,
                         action: onAccept
                     )
 
                     KindredButton(
-                        title: String(localized: "voice.consent.decline_button", bundle: .main),
+                        String(localized: "voice.consent.decline_button", bundle: .main),
                         style: .secondary,
                         action: onDecline
                     )
@@ -87,7 +87,7 @@ private struct ConsentBullet: View {
                 .frame(width: 20, height: 20)
 
             Text(text)
-                .font(.kindredBodyScaled(size: .medium))
+                .font(.kindredBody())
                 .foregroundColor(.kindredTextPrimary)
                 .fixedSize(horizontal: false, vertical: true)
         }

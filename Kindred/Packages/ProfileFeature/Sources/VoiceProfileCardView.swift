@@ -2,7 +2,7 @@ import DesignSystem
 import SwiftUI
 
 struct VoiceProfileCardView: View {
-    let profile: ProfileReducer.VoiceProfileInfo
+    let profile: VoiceProfileInfo
     let isDeleting: Bool
     let onDelete: () -> Void
 
@@ -67,11 +67,11 @@ struct VoiceProfileCardView: View {
         .padding(KindredSpacing.md)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.kindredSurface)
+                .fill(Color.kindredCardSurface)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.kindredBorder, lineWidth: 1)
+                .stroke(Color.kindredDivider, lineWidth: 1)
         )
     }
 

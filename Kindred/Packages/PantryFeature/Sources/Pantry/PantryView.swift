@@ -298,7 +298,7 @@ public struct PantryView: View {
                     }
                 } header: {
                     Label {
-                        Text("\(StorageLocation.fridge.displayName) (\(store.fridgeItems.count) items)")
+                        Text("\(StorageLocation.fridge.displayName) (\(store.fridgeItems.count) \(String(localized: "pantry.section.items_label", defaultValue: "items", bundle: .main)))")
                     } icon: {
                         Image(systemName: StorageLocation.fridge.iconName)
                     }
@@ -338,7 +338,7 @@ public struct PantryView: View {
                     }
                 } header: {
                     Label {
-                        Text("\(StorageLocation.freezer.displayName) (\(store.freezerItems.count) items)")
+                        Text("\(StorageLocation.freezer.displayName) (\(store.freezerItems.count) \(String(localized: "pantry.section.items_label", defaultValue: "items", bundle: .main)))")
                     } icon: {
                         Image(systemName: StorageLocation.freezer.iconName)
                     }
@@ -378,7 +378,7 @@ public struct PantryView: View {
                     }
                 } header: {
                     Label {
-                        Text("\(StorageLocation.pantry.displayName) (\(store.pantryItems.count) items)")
+                        Text("\(StorageLocation.pantry.displayName) (\(store.pantryItems.count) \(String(localized: "pantry.section.items_label", defaultValue: "items", bundle: .main)))")
                     } icon: {
                         Image(systemName: StorageLocation.pantry.iconName)
                     }
@@ -468,7 +468,7 @@ private struct PantryItemRow: View {
                         if let expiry = item.expiryDate, onExpiryTapped != nil {
                             Button(action: { onExpiryTapped?() }) {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Expires ~\(expiry.formatted(.dateTime.month(.abbreviated).day()))")
+                                    Text("\(String(localized: "pantry.item.expires_prefix", defaultValue: "Expires", bundle: .main)) ~\(expiry.formatted(.dateTime.month(.abbreviated).day()))")
                                         .font(.caption2)
                                         .foregroundStyle(.tertiary)
                                     Text(String(localized: "pantry.expiry.disclaimer", defaultValue: "AI estimate — check packaging", bundle: .main))
@@ -505,7 +505,8 @@ private struct PantryItemRow: View {
     private var subtitleText: String? {
         var parts: [String] = []
         if let expiry = item.expiryDate {
-            parts.append("Expires ~\(expiry.formatted(.dateTime.month(.abbreviated).day()))")
+            let expiresLabel = String(localized: "pantry.item.expires_prefix", defaultValue: "Expires", bundle: .main)
+            parts.append("\(expiresLabel) ~\(expiry.formatted(.dateTime.month(.abbreviated).day()))")
         }
         if let notes = item.notes, !notes.isEmpty {
             let firstLine = notes.components(separatedBy: .newlines).first ?? notes

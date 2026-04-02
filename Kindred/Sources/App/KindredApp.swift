@@ -14,6 +14,11 @@ struct KindredApp: App {
         AppReducer()
     }
 
+    let guestContainer: ModelContainer = {
+        let config = ModelConfiguration("GuestStore", schema: Schema([GuestBookmark.self, GuestSkip.self]))
+        return try! ModelContainer(for: GuestBookmark.self, GuestSkip.self, configurations: config)
+    }()
+
     var body: some Scene {
         WindowGroup {
             ZStack {
@@ -24,6 +29,6 @@ struct KindredApp: App {
                 }
             }
         }
-        .modelContainer(for: [GuestBookmark.self, GuestSkip.self])
+        .modelContainer(guestContainer)
     }
 }

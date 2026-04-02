@@ -9,6 +9,7 @@ public struct CameraView: View {
     let store: StoreOf<CameraReducer>
     @StateObject private var cameraManager = CameraManager()
     @Environment(\.accessibilityReduceMotion) var reduceMotion
+    @Environment(\.dismiss) var dismiss
 
     public init(store: StoreOf<CameraReducer>) {
         self.store = store
@@ -94,6 +95,7 @@ public struct CameraView: View {
             // Close button
             Button {
                 store.send(.closeTapped)
+                dismiss()
             } label: {
                 Image(systemName: "xmark")
                     .font(.body.weight(.semibold))

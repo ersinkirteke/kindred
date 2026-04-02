@@ -1,10 +1,13 @@
 import { Resolver, Mutation, Args } from '@nestjs/graphql';
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, UseGuards } from '@nestjs/common';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { ScanService } from './scan.service';
 import { ScanAnalyzerService } from './scan-analyzer.service';
 import { ScanJobResponse, ScanType } from './dto/scan.dto';
 import { ScanResultResponse } from './dto/scan-result.dto';
 import { PrismaService } from '../prisma/prisma.service';
+
+const DAILY_SCAN_LIMIT = 20;
 
 /**
  * GraphQL resolver for scan photo upload and analysis
@@ -49,6 +52,8 @@ export class ScanResolver {
    * @returns Detected items with confidence scores
    */
   @Mutation(() => ScanResultResponse)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   async analyzeScan(
     @Args('jobId') jobId: string,
     @Args('userId') userId: string,
@@ -60,7 +65,23 @@ export class ScanResolver {
         throw new Error('Scan job not found or unauthorized');
       }
 
-      // 2. Check free scan quota
+      // 2. Check for duplicate scan (same content hash)
+      if (job.contentHash) {
+        const duplicate = await this.scanService.findDuplicateScan(
+          userId,
+          job.contentHash,
+        );
+        if (duplicate && duplicate.results) {
+          await this.scanService.saveScanResults(jobId, duplicate.results as any);
+          return {
+            jobId,
+            items: duplicate.results as any,
+            scanType: job.scanType as ScanType,
+          };
+        }
+      }
+
+      // 3. Check free scan quota
       const scanCount = await this.scanService.getUserScanCount(userId);
       if (scanCount >= 1) {
         // Check for active subscription
@@ -76,15 +97,23 @@ export class ScanResolver {
             'Pro subscription required for additional scans',
           );
         }
+
+        // 4. Check daily scan limit for Pro users
+        const dailyCount = await this.scanService.getDailyScanCount(userId);
+        if (dailyCount >= DAILY_SCAN_LIMIT) {
+          throw new ForbiddenException(
+            'Daily scan limit reached. Try again tomorrow.',
+          );
+        }
       }
 
-      // 3. Analyze photo with Gemini Vision
+      // 5. Analyze photo with Gemini Vision
       const items = await this.scanAnalyzer.analyzeFridgePhoto(job.photoUrl);
 
-      // 4. Normalize detected items via IngredientCatalog
+      // 6. Normalize detected items via IngredientCatalog
       const normalizedItems = await this.scanService.normalizeDetectedItems(items);
 
-      // 5. Save results to database
+      // 7. Save results to database
       await this.scanService.saveScanResults(jobId, normalizedItems);
 
       return {
@@ -110,6 +139,8 @@ export class ScanResolver {
    * @returns Detected food items
    */
   @Mutation(() => ScanResultResponse)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   async analyzeReceiptText(
     @Args('userId') userId: string,
     @Args('text') text: string,
@@ -117,10 +148,37 @@ export class ScanResolver {
     let jobId: string;
 
     try {
-      // 1. Create scan job in database
+      // 1. Hash receipt text for deduplication
+      const contentHash = this.scanService.hashContent(text);
+
+      // 2. Check for duplicate scan
+      const duplicate = await this.scanService.findDuplicateScan(
+        userId,
+        contentHash,
+      );
+      if (duplicate && duplicate.results) {
+        // Create a completed job referencing cached results
+        const job = await this.scanService.createScanJob(
+          userId,
+          ScanType.RECEIPT,
+          undefined,
+          contentHash,
+        );
+        jobId = job.id;
+        await this.scanService.saveScanResults(jobId, duplicate.results as any);
+        return {
+          jobId,
+          items: duplicate.results as any,
+          scanType: ScanType.RECEIPT,
+        };
+      }
+
+      // 3. Create scan job in database
       const job = await this.scanService.createScanJob(
         userId,
         ScanType.RECEIPT,
+        undefined,
+        contentHash,
       );
       jobId = job.id;
 
@@ -130,7 +188,7 @@ export class ScanResolver {
         data: { ocrText: text },
       });
 
-      // 2. Check free scan quota
+      // 4. Check free scan quota
       const scanCount = await this.scanService.getUserScanCount(userId);
       if (scanCount >= 1) {
         // Check for active subscription
@@ -146,15 +204,23 @@ export class ScanResolver {
             'Pro subscription required for additional scans',
           );
         }
+
+        // 5. Check daily scan limit for Pro users
+        const dailyCount = await this.scanService.getDailyScanCount(userId);
+        if (dailyCount >= DAILY_SCAN_LIMIT) {
+          throw new ForbiddenException(
+            'Daily scan limit reached. Try again tomorrow.',
+          );
+        }
       }
 
-      // 3. Analyze receipt text with Gemini
+      // 6. Analyze receipt text with Gemini
       const items = await this.scanAnalyzer.analyzeReceiptText(text);
 
-      // 4. Normalize detected items via IngredientCatalog
+      // 7. Normalize detected items via IngredientCatalog
       const normalizedItems = await this.scanService.normalizeDetectedItems(items);
 
-      // 5. Save results to database
+      // 8. Save results to database
       await this.scanService.saveScanResults(jobId, normalizedItems);
 
       return {

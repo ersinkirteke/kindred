@@ -1,5 +1,29 @@
 # Milestones
 
+## v3.0 Smart Pantry (Shipped: 2026-03-29)
+
+**Phases completed:** 6 phases, 17 plans, 19 tasks
+**Requirements:** 26/26 satisfied (24 clean, 2 checkbox discrepancies fixed)
+**Git range:** feat(12-01) → feat(17-03) (33 feat commits, 78 total)
+**LOC:** ~23,105 Swift + ~8,113 TypeScript (+30,669 lines added)
+**Timeline:** 7 days (2026-03-11 → 2026-03-17)
+
+**Key accomplishments:**
+- Persistent digital pantry with local-first SwiftData CRUD, offline-first sync (last-write-wins), and grouped storage location views
+- AI fridge photo scanning via Gemini 2.0 Flash with confidence-based ingredient checklist and IngredientCatalog normalization (Pro)
+- Receipt scanning with VisionKit live OCR + Gemini parsing to auto-populate pantry items (Pro)
+- Client-side recipe-ingredient matching with colored match % badges on feed cards and grouped shopping list generation
+- AI-estimated expiry tracking with color-coded visual indicators, push notification alerts, and consume/discard swipe gestures
+- Custom AVCaptureSession camera pipeline with blur detection, R2 upload, expandable FAB, and Pro paywall gate
+
+### Known Gaps (Tech Debt)
+- EXPIRY-02 partial: device token registered but not sent to backend for push delivery
+- ScanPaywallView subscribe button placeholder — not wired to MonetizationFeature purchase flow
+- Recipe suggestion carousel card tap does not navigate to recipe detail view
+- 8 manual test scenarios in Phase 13 pending human execution
+
+---
+
 ## v2.0 iOS App (Shipped: 2026-03-11)
 
 **Phases completed:** 8 phases, 35 plans

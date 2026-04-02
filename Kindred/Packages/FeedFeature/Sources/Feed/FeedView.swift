@@ -265,17 +265,17 @@ public struct FeedView: View {
                         .font(.system(size: 48))
                         .foregroundColor(.kindredTextSecondary)
 
-                    Text(String(localized: "No \(filterDescription) recipes nearby", bundle: .main))
+                    Text(String(localized: "feed.no_filtered_recipes \(filterDescription)", bundle: .main))
                         .font(.kindredHeading2())
                         .foregroundColor(.kindredTextPrimary)
                         .multilineTextAlignment(.center)
 
-                    Text(String(localized: "Try removing a filter or changing your location", bundle: .main))
+                    Text(String(localized: "feed.try_removing_filter", bundle: .main))
                         .font(.kindredBody())
                         .foregroundColor(.kindredTextSecondary)
                         .multilineTextAlignment(.center)
 
-                    KindredButton(String(localized: "Clear Filters", bundle: .main), style: .secondary) {
+                    KindredButton(String(localized: "feed.clear_filters", bundle: .main), style: .secondary) {
                         store.send(.dietaryFilterChanged([]))
                     }
                     .padding(.top, KindredSpacing.sm)
@@ -292,16 +292,33 @@ public struct FeedView: View {
         }
     }
 
+    private func localizedTagName(for tag: String) -> String {
+        switch tag {
+        case "Vegan": return String(localized: "dietary.vegan", bundle: .main)
+        case "Vegetarian": return String(localized: "dietary.vegetarian", bundle: .main)
+        case "Gluten-Free": return String(localized: "dietary.gluten_free", bundle: .main)
+        case "Dairy-Free": return String(localized: "dietary.dairy_free", bundle: .main)
+        case "Keto": return String(localized: "dietary.keto", bundle: .main)
+        case "Halal": return String(localized: "dietary.halal", bundle: .main)
+        case "Nut-Free": return String(localized: "dietary.nut_free", bundle: .main)
+        case "Kosher": return String(localized: "dietary.kosher", bundle: .main)
+        case "Low-Carb": return String(localized: "dietary.low_carb", bundle: .main)
+        case "Pescatarian": return String(localized: "dietary.pescatarian", bundle: .main)
+        default: return tag
+        }
+    }
+
     private var filterDescription: String {
-        let sortedFilters = store.activeDietaryFilters.sorted()
+        let connector = String(localized: "feed.list_connector", bundle: .main)
+        let sortedFilters = store.activeDietaryFilters.sorted().map { localizedTagName(for: $0).lowercased() }
         if sortedFilters.count == 1 {
-            return sortedFilters[0].lowercased()
+            return sortedFilters[0]
         } else if sortedFilters.count == 2 {
-            return "\(sortedFilters[0].lowercased()) and \(sortedFilters[1].lowercased())"
+            return "\(sortedFilters[0]) \(connector) \(sortedFilters[1])"
         } else {
-            let allButLast = sortedFilters.dropLast().map { $0.lowercased() }.joined(separator: ", ")
-            let last = sortedFilters.last!.lowercased()
-            return "\(allButLast), and \(last)"
+            let allButLast = sortedFilters.dropLast().joined(separator: ", ")
+            let last = sortedFilters.last!
+            return "\(allButLast), \(connector) \(last)"
         }
     }
 

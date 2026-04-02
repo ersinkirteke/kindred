@@ -4,7 +4,7 @@ import { ScanType, ScanJobStatus, ScanJobResponse } from './dto/scan.dto';
 import { DetectedItemDto } from './dto/scan-result.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { PantryService } from '../pantry/pantry.service';
-import { randomUUID } from 'crypto';
+import { randomUUID, createHash } from 'crypto';
 
 /**
  * Service for handling pantry scan photo uploads
@@ -46,8 +46,11 @@ export class ScanService {
 
       this.logger.log(`Scan photo uploaded successfully: ${key} for user ${userId}`);
 
-      // Create scan job in database
-      const job = await this.createScanJob(userId, scanType, photoUrl);
+      // Compute content hash for deduplication
+      const contentHash = this.hashContent(fileBuffer);
+
+      // Create scan job in database with content hash
+      const job = await this.createScanJob(userId, scanType, photoUrl, contentHash);
 
       return {
         id: job.id,
@@ -69,12 +72,14 @@ export class ScanService {
     userId: string,
     scanType: ScanType,
     photoUrl?: string,
+    contentHash?: string,
   ): Promise<any> {
     return this.prisma.scanJob.create({
       data: {
         userId,
         scanType: scanType.toString(),
         photoUrl: photoUrl || null,
+        contentHash: contentHash || null,
         status: 'PROCESSING',
       },
     });
@@ -128,6 +133,51 @@ export class ScanService {
       where: {
         userId,
         status: 'COMPLETED',
+      },
+    });
+  }
+
+  /**
+   * Compute SHA-256 hash of content for deduplication
+   */
+  hashContent(input: string | Buffer): string {
+    const data =
+      typeof input === 'string'
+        ? input.toLowerCase().trim().replace(/\s+/g, ' ')
+        : input;
+    return createHash('sha256').update(data).digest('hex');
+  }
+
+  /**
+   * Find a completed duplicate scan for the same user and content hash
+   */
+  async findDuplicateScan(
+    userId: string,
+    contentHash: string,
+  ): Promise<any | null> {
+    return this.prisma.scanJob.findFirst({
+      where: {
+        userId,
+        contentHash,
+        status: 'COMPLETED',
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /**
+   * Get completed scan count for a user today (UTC)
+   * Used for daily rate limiting Pro users to 20 scans/day
+   */
+  async getDailyScanCount(userId: string): Promise<number> {
+    const todayStart = new Date();
+    todayStart.setUTCHours(0, 0, 0, 0);
+
+    return this.prisma.scanJob.count({
+      where: {
+        userId,
+        status: 'COMPLETED',
+        createdAt: { gte: todayStart },
       },
     });
   }

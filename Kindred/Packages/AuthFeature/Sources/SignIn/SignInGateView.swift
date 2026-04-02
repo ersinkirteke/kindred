@@ -42,9 +42,16 @@ public struct SignInGateView: View {
                             viewStore.send(.appleSignInTapped)
                         } label: {
                             HStack(spacing: 8) {
-                                Image(systemName: "apple.logo")
-                                    .font(.system(size: 18, weight: .medium))
-                                Text(String(localized: "signin_gate.sign_in_apple", bundle: .main))
+                                if viewStore.isSigningIn {
+                                    ProgressView()
+                                        .tint(.white)
+                                } else {
+                                    Image(systemName: "apple.logo")
+                                        .font(.system(size: 18, weight: .medium))
+                                }
+                                Text(viewStore.isSigningIn
+                                    ? "Signing in..."
+                                    : String(localized: "signin_gate.sign_in_apple", bundle: .main))
                                     .font(.kindredBodyBold())
                             }
                             .frame(maxWidth: .infinity)
@@ -53,6 +60,7 @@ public struct SignInGateView: View {
                             .background(Color.black)
                             .cornerRadius(12)
                         }
+                        .disabled(viewStore.isSigningIn)
                         .accessibilityLabel(String(localized: "accessibility.signin_gate.apple_button", bundle: .main))
 
                         // Google Sign In Button

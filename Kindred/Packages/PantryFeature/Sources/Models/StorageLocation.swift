@@ -7,9 +7,9 @@ public enum StorageLocation: String, CaseIterable, Codable, Equatable, Sendable 
 
     public var displayName: String {
         switch self {
-        case .fridge: return "Fridge"
-        case .freezer: return "Freezer"
-        case .pantry: return "Pantry"
+        case .fridge: return String(localized: "pantry.storage.fridge", bundle: .main)
+        case .freezer: return String(localized: "pantry.storage.freezer", bundle: .main)
+        case .pantry: return String(localized: "pantry.storage.pantry", bundle: .main)
         }
     }
 

@@ -1,5 +1,5 @@
 {
-  "originHash" : "3b4f8039e2d41c10f2fe48a9432123d19f3b25750551da0ad86a41f4075efb65",
+  "originHash" : "e243654549a297f67752e8cb4c6b3ab3e98d711448ec078bfd3579bc525c1060",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -88,6 +88,24 @@
       "location" : "https://github.com/pointfreeco/swift-navigation",
       "state" : {
         "revision" : "e7441dc4dfec6a4ae929e614e3c1e67c6639d164",
+        "version" : "2.7.0"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-mobile-ads",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-mobile-ads",
+      "state" : {
+        "revision" : "7778cc1ab037c10dbbe026959e51e616bd961be9",
+        "version" : "11.13.0"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-user-messaging-platform",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git",
+      "state" : {
+        "revision" : "708a282840c2171ee63bd93b87afa49fe507d70e",
         "version" : "2.7.0"
       }
     },

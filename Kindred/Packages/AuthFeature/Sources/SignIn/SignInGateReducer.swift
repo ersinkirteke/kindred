@@ -48,7 +48,6 @@ public struct SignInGateReducer {
                         await send(.signInSucceeded(user))
                     } catch let error as SignInError {
                         if case .cancelled = error {
-                            // User cancelled - just stop loading, don't show error
                             await send(.signInFailed(""))
                         } else {
                             await send(.signInFailed(error.localizedDescription ?? "Sign in failed"))
@@ -68,7 +67,6 @@ public struct SignInGateReducer {
                         await send(.signInSucceeded(user))
                     } catch let error as SignInError {
                         if case .cancelled = error {
-                            // User cancelled - just stop loading, don't show error
                             await send(.signInFailed(""))
                         } else {
                             await send(.signInFailed(error.localizedDescription ?? "Sign in failed"))

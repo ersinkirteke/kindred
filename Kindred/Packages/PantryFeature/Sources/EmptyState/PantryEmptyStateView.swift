@@ -13,17 +13,17 @@ struct PantryEmptyStateView: View {
                 .foregroundStyle(.secondary)
 
             VStack(spacing: 8) {
-                Text("Your pantry is empty")
+                Text(String(localized: "pantry.empty_title", bundle: .main))
                     .font(.title2)
                     .fontWeight(.semibold)
 
                 if isGuest {
-                    Text("Sign in to start tracking your ingredients")
+                    Text(String(localized: "pantry.empty_subtitle_guest", bundle: .main))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                 } else {
-                    Text("Add your first item or scan your fridge to get started")
+                    Text(String(localized: "pantry.empty_subtitle_auth", bundle: .main))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -32,7 +32,7 @@ struct PantryEmptyStateView: View {
 
             if isGuest {
                 Button(action: onSignInTapped) {
-                    Text("Sign In")
+                    Text(String(localized: "pantry.sign_in", bundle: .main))
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
@@ -42,7 +42,7 @@ struct PantryEmptyStateView: View {
                 .padding(.horizontal, 40)
             } else {
                 Button(action: onAddTapped) {
-                    Label("Add Your First Item", systemImage: "plus.circle.fill")
+                    Label(String(localized: "pantry.add_first_item", bundle: .main), systemImage: "plus.circle.fill")
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)

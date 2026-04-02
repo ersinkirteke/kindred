@@ -22,7 +22,7 @@ public enum SignInError: Error, LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .cancelled:
-            return nil  // Don't show error for user cancellation
+            return nil
         case .networkError:
             return "Connection failed. Please try again."
         case .clerkError(let msg):
@@ -33,9 +33,6 @@ public enum SignInError: Error, LocalizedError {
 
 // MARK: - Clerk Configuration Tracking
 
-/// Tracks whether Clerk.configure() has been called.
-/// Set to `true` from AppDelegate after calling Clerk.configure(publishableKey:).
-/// Avoids accessing Clerk.shared before configuration (which triggers assertionFailure).
 public enum ClerkConfigurationState {
     @MainActor public static var isConfigured = false
 }
@@ -50,43 +47,57 @@ extension SignInClient: DependencyKey {
                 throw SignInError.clerkError("Sign-in is not available yet. Please set up your Clerk account first.")
             }
 
+            // Attempt sign-in action
             do {
                 try await action()
-
-                // Read user from Clerk SDK after successful sign-in
-                guard let user = Clerk.shared.user else {
-                    throw SignInError.clerkError("User not found after sign-in")
-                }
-
-                return ClerkUser(
-                    id: user.id,
-                    email: user.emailAddresses.first?.emailAddress ?? "",
-                    displayName: user.firstName ?? user.username ?? ""
-                )
-            } catch let error as SignInError {
-                throw error
             } catch {
-                // Map Clerk errors to SignInError
-                let errorMessage = error.localizedDescription
+                let msg = error.localizedDescription
+                let nsError = error as NSError
 
-                // Check for cancellation patterns
-                if errorMessage.contains("cancel") || errorMessage.contains("Cancel") {
+                // User cancelled — suppress error
+                if nsError.domain.contains("AuthenticationServices") && (nsError.code == 1 || nsError.code == 1001) {
+                    throw SignInError.cancelled
+                }
+                if msg.contains("cancel") || msg.contains("Cancel") || msg.contains("1001") {
                     throw SignInError.cancelled
                 }
 
-                // Check for network errors
-                if errorMessage.contains("network") || errorMessage.contains("internet") {
-                    throw SignInError.networkError(errorMessage)
+                // "Already signed in" — session exists, read user below
+                if msg.contains("already signed in") || msg.contains("Already signed in") {
+                    // Fall through to read user
+                } else if msg.contains("network") || msg.contains("internet") || nsError.domain == NSURLErrorDomain {
+                    throw SignInError.networkError(msg)
+                } else {
+                    throw SignInError.clerkError(msg)
                 }
-
-                throw SignInError.clerkError(errorMessage)
             }
+
+            // Wait for Clerk SDK to propagate user state
+            var user = Clerk.shared.user
+            if user == nil {
+                try? await Task.sleep(nanoseconds: 500_000_000)
+                user = Clerk.shared.user
+            }
+            if user == nil {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                user = Clerk.shared.user
+            }
+
+            guard let user else {
+                throw SignInError.clerkError("User not found after sign-in")
+            }
+
+            return ClerkUser(
+                id: user.id,
+                email: user.emailAddresses.first?.emailAddress ?? "",
+                displayName: user.firstName ?? user.username ?? ""
+            )
         }
 
         return SignInClient(
             signInWithApple: {
                 try await performSignIn {
-                    _ = try await Clerk.shared.auth.signInWithApple()
+                    _ = try await Clerk.shared.auth.signInWithOAuth(provider: .apple)
                 }
             },
             signInWithGoogle: {
@@ -101,9 +112,46 @@ extension SignInClient: DependencyKey {
                 try await Clerk.shared.auth.signOut()
             },
             observeAuthState: {
-                AsyncStream { continuation in
-                    // Start as guest; Clerk.shared is only safe after configure() with a real key
-                    continuation.yield(.guest)
+                // Poll for Clerk user resolution (keychain load is async)
+                let authState: AuthState = await MainActor.run {
+                    guard ClerkConfigurationState.isConfigured else {
+                        return .guest
+                    }
+                    if let user = Clerk.shared.user {
+                        return .authenticated(ClerkUser(
+                            id: user.id,
+                            email: user.emailAddresses.first?.emailAddress ?? "",
+                            displayName: user.firstName ?? user.username ?? ""
+                        ))
+                    }
+                    return .guest
+                }
+
+                // If guest, poll up to 3s for Clerk to resolve user from keychain
+                if case .guest = authState {
+                    return AsyncStream { continuation in
+                        continuation.yield(.guest)
+                        Task { @MainActor in
+                            for _ in 0..<6 {
+                                try? await Task.sleep(nanoseconds: 500_000_000)
+                                if let user = Clerk.shared.user {
+                                    continuation.yield(.authenticated(ClerkUser(
+                                        id: user.id,
+                                        email: user.emailAddresses.first?.emailAddress ?? "",
+                                        displayName: user.firstName ?? user.username ?? ""
+                                    )))
+                                    continuation.finish()
+                                    return
+                                }
+                            }
+                            // Timeout — user is genuinely a guest
+                            continuation.finish()
+                        }
+                    }
+                }
+
+                return AsyncStream { continuation in
+                    continuation.yield(authState)
                     continuation.finish()
                 }
             }
