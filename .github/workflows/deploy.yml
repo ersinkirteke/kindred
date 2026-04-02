@@ -29,9 +29,12 @@ jobs:
             cd /opt/kindred/repo
             git pull origin main
 
-            echo "==> Building app container..."
+            echo "==> Syncing backend to deploy directory..."
+            rsync -a --delete /opt/kindred/repo/backend/ /opt/kindred/
+
+            echo "==> Building app container (no cache)..."
             cd /opt/kindred
-            docker compose build app
+            docker compose build --no-cache app
 
             echo "==> Running database migrations..."
             docker compose run --rm app npx prisma migrate deploy
