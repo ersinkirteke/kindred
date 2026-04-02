@@ -46,4 +46,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD node -e "const http=require('http');const data=JSON.stringify({query:'{health}'});const req=http.request({hostname:'localhost',port:3000,path:'/v1/graphql',method:'POST',headers:{'Content-Type':'application/json','Content-Length':data.length}},(r)=>{process.exit(r.statusCode===200?0:1)});req.write(data);req.end();"
 
 # Start application
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
