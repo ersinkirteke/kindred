@@ -4,6 +4,173 @@ A social cooking app where AI-cloned voices narrate recipes from loved ones. Bui
 
 ## Architecture
 
+### System Overview
+
+```mermaid
+graph TB
+    subgraph iOS["iOS App (SwiftUI + TCA)"]
+        Feed[Feed]
+        Pantry[Pantry]
+        Profile[Profile]
+        VoicePlayer[Voice Player]
+        Apollo[Apollo GraphQL Client]
+    end
+
+    subgraph Backend["NestJS Backend"]
+        GQL[GraphQL API<br/>/v1/graphql]
+        REST[REST Endpoints<br/>/voice/upload, /voice/narrate]
+        Auth[Auth Guard<br/>Clerk JWT]
+        subgraph Modules["Feature Modules"]
+            FeedMod[Feed]
+            RecipesMod[Recipes]
+            VoiceMod[Voice]
+            ScanMod[Scan]
+            PantryMod[Pantry]
+            SubMod[Subscription]
+            PushMod[Push]
+            ScrapeMod[Scraping]
+        end
+    end
+
+    subgraph Data["Data Layer"]
+        PG[(PostgreSQL 15<br/>+ PostGIS)]
+        R2[(Cloudflare R2<br/>Storage)]
+    end
+
+    subgraph External["External Services"]
+        Clerk[Clerk Auth]
+        ElevenLabs[ElevenLabs<br/>Voice Cloning]
+        Gemini[Google Gemini<br/>AI Processing]
+        Mapbox[Mapbox<br/>Geocoding]
+        Firebase[Firebase<br/>Push Notifications]
+        AppStore[App Store<br/>StoreKit 2]
+    end
+
+    iOS -->|GraphQL| GQL
+    iOS -->|Multipart / Stream| REST
+    GQL --> Auth
+    REST --> Auth
+    Auth --> Modules
+
+    VoiceMod --> ElevenLabs
+    VoiceMod --> R2
+    ScanMod --> Gemini
+    ScanMod --> R2
+    RecipesMod --> PG
+    PantryMod --> PG
+    FeedMod --> PG
+    ScrapeMod --> PG
+    PushMod --> Firebase
+    SubMod --> AppStore
+
+    iOS --> Clerk
+    Auth --> Clerk
+    FeedMod --> Mapbox
+```
+
+### Backend Architecture
+
+```mermaid
+graph LR
+    subgraph Client["iOS Client"]
+        ApolloClient[Apollo GraphQL]
+        AVPlayer[AVPlayer]
+    end
+
+    subgraph API["API Layer"]
+        GraphQL["/v1/graphql<br/>Apollo Server"]
+        VoiceREST["/voice/upload<br/>/voice/narrate"]
+        Webhooks["/webhooks<br/>Clerk + App Store"]
+    end
+
+    subgraph Guards["Middleware"]
+        ClerkGuard[Clerk Auth Guard]
+        Throttle[Rate Limiter<br/>100/min default<br/>10/min expensive]
+    end
+
+    subgraph Services["Service Layer"]
+        FeedSvc[FeedService<br/>Geospatial queries]
+        RecipeSvc[RecipeService<br/>CRUD + engagement]
+        VoiceSvc[VoiceService<br/>Clone + narrate]
+        ScanSvc[ScanService<br/>Fridge + receipt AI]
+        PantrySvc[PantryService<br/>Inventory mgmt]
+        SubSvc[SubscriptionService<br/>StoreKit 2 verify]
+        PushSvc[PushService<br/>FCM delivery]
+        ScrapeSvc[ScrapingService<br/>Instagram/X parser]
+        ImageSvc[ImageService<br/>Hero generation]
+        GeoSvc[GeocodingService<br/>City lookup]
+    end
+
+    subgraph Storage["Storage"]
+        Prisma[Prisma ORM]
+        PG[(PostgreSQL<br/>+ PostGIS)]
+        R2[(Cloudflare R2)]
+    end
+
+    ApolloClient --> GraphQL
+    AVPlayer --> VoiceREST
+    GraphQL --> Guards
+    VoiceREST --> Guards
+    Webhooks --> Guards
+    Guards --> Services
+    Services --> Prisma
+    Prisma --> PG
+    VoiceSvc --> R2
+    ScanSvc --> R2
+    ImageSvc --> R2
+```
+
+### iOS App Architecture
+
+```mermaid
+graph TB
+    subgraph App["KindredApp"]
+        AppDelegate[AppDelegate<br/>Clerk + Audio + Firebase]
+        AppReducer[AppReducer]
+    end
+
+    subgraph Features["Feature Packages (TCA)"]
+        AuthFeature[AuthFeature<br/>Sign-in + Onboarding]
+        FeedFeature[FeedFeature<br/>Recipe Discovery]
+        PantryFeature[PantryFeature<br/>Inventory + Scanning]
+        ProfileFeature[ProfileFeature<br/>Settings + Voice Profiles]
+        VoicePlayback[VoicePlaybackFeature<br/>Audio Narration]
+        Monetization[MonetizationFeature<br/>Ads + Subscriptions]
+    end
+
+    subgraph Core["Core Packages"]
+        NetworkClient[NetworkClient<br/>Apollo GraphQL]
+        KindredAPI[KindredAPI<br/>Generated Schema]
+        AuthClient[AuthClient<br/>Clerk Session]
+        DesignSystem[DesignSystem<br/>UI Components]
+    end
+
+    subgraph Navigation["Tab Navigation"]
+        FeedTab[Feed Tab]
+        PantryTab[Pantry Tab]
+        ProfileTab[Profile Tab]
+        MiniPlayer[Mini Player Overlay]
+    end
+
+    AppReducer --> AuthFeature
+    AppReducer --> Navigation
+
+    FeedTab --> FeedFeature
+    PantryTab --> PantryFeature
+    ProfileTab --> ProfileFeature
+    MiniPlayer --> VoicePlayback
+
+    FeedFeature --> NetworkClient
+    PantryFeature --> NetworkClient
+    ProfileFeature --> NetworkClient
+    VoicePlayback --> NetworkClient
+    Monetization --> NetworkClient
+
+    AuthFeature --> AuthClient
+    NetworkClient --> KindredAPI
+    Features --> DesignSystem
+```
+
 ### iOS App (`Kindred/`)
 
 Built with **SwiftUI**, **The Composable Architecture (TCA)**, and a modular **Swift Package Manager** structure targeting **iOS 17.0+**.
