@@ -1,0 +1,1 @@
+tarif,yemek,ses,narrasyon,sesli,aile,kişisel,kiler,malzeme,mutfak,AI,yerel,pratik
