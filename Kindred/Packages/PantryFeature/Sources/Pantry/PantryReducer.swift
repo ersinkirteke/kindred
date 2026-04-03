@@ -36,10 +36,19 @@ public struct PantryReducer {
         @Presents public var scanUpload: ScanUploadReducer.State?
         public var showUploadCompleteBanner: Bool = false
 
+        // Paywall subscription state
+        public var isLoadingPrice: Bool = false
+        public var subscribeButtonTitle: String = "Subscribe"
+        public var isPurchasing: Bool = false
+        public var isRestoring: Bool = false
+        public var purchaseError: String? = nil
+        public var restoreMessage: String? = nil
+
         // Scan results and receipt scanner state
         @Presents public var scanResults: ScanResultsReducer.State?
         @Presents public var receiptScanner: ReceiptScannerReducer.State?
         public var showRecipeSuggestions: Bool = false
+        public var recipeSuggestions: [RecipeCard] = []  // NEW: recipe suggestions for carousel
         public var scannedItemNames: [String] = []
         public var showUpgradeBanner: Bool = false
         public var isAnalyzingReceipt: Bool = false
@@ -135,6 +144,18 @@ public struct PantryReducer {
         case receiptScanTapped
         case paywallDismissed
         case paywallPurchaseCompleted
+        case paywallPresented
+        case priceLoaded(String)
+        case priceLoadFailed
+        case subscribeTapped
+        case purchaseSucceeded
+        case purchaseFailed(String)
+        case restoreTapped
+        case restoreSucceeded
+        case restoreFailed(String)
+        case restoreNoSubscription
+        case dismissPurchaseError
+        case dismissRestoreMessage
         case checkCameraPermission
         case cameraPermissionResult(AVAuthorizationStatus)
         case settingsRedirectDismissed
@@ -149,6 +170,7 @@ public struct PantryReducer {
         case receiptAnalysisCompleted([DetectedItem])
         case receiptAnalysisFailed(String)
         case dismissRecipeSuggestions
+        case recipeSuggestionTapped(String)  // NEW: recipe tap from carousel
         case dismissUpgradeBanner
 
         // Expiry actions
@@ -172,6 +194,7 @@ public struct PantryReducer {
         case delegate(Delegate)
         public enum Delegate {
             case authGateRequested
+            case openRecipe(id: String)  // NEW: navigate to recipe detail from carousel
         }
     }
 
@@ -403,11 +426,13 @@ public struct PantryReducer {
 
             case .scanItemsTapped:
                 // Check subscription status first
+                state.isFABExpanded = false
                 return .run { send in
                     let status = await subscriptionClient.currentEntitlement()
                     switch status {
                     case .free, .unknown:
-                        await send(.paywallPurchaseCompleted) // For now, proceed to camera (paywall presentation TBD)
+                        // Show actual paywall for free users
+                        await send(.paywallPurchaseCompleted)
                     case .pro:
                         await send(.checkCameraPermission)
                     }
@@ -416,11 +441,125 @@ public struct PantryReducer {
             case .paywallDismissed:
                 state.showPaywall = false
                 state.isFABExpanded = false
+                state.isPurchasing = false
+                state.isRestoring = false
+                state.purchaseError = nil
+                state.restoreMessage = nil
                 return .none
 
             case .paywallPurchaseCompleted:
+                // Show paywall for free users (used by scanItemsTapped)
+                state.showPaywall = true
+                return .none
+
+            case .paywallPresented:
+                state.isLoadingPrice = true
+                state.purchaseError = nil
+                return .run { send in
+                    do {
+                        let products = try await subscriptionClient.loadProducts()
+                        guard let product = products.first else {
+                            await send(.priceLoadFailed)
+                            return
+                        }
+                        await send(.priceLoaded(product.displayPrice))
+                    } catch {
+                        await send(.priceLoadFailed)
+                    }
+                }
+
+            case let .priceLoaded(price):
+                state.isLoadingPrice = false
+                state.subscribeButtonTitle = "Subscribe for \(price)/month"
+                return .none
+
+            case .priceLoadFailed:
+                state.isLoadingPrice = false
+                state.subscribeButtonTitle = "Unable to load pricing"
+                return .none
+
+            case .subscribeTapped:
+                guard !state.isLoadingPrice else { return .none }
+                state.isPurchasing = true
+                state.purchaseError = nil
+                return .run { send in
+                    do {
+                        let products = try await subscriptionClient.loadProducts()
+                        guard let product = products.first else {
+                            await send(.purchaseFailed("No subscription products available"))
+                            return
+                        }
+                        let _ = try await subscriptionClient.purchase(product)
+                        await send(.purchaseSucceeded)
+                    } catch let error as SubscriptionError {
+                        switch error {
+                        case .purchaseCancelled:
+                            await send(.purchaseFailed(""))
+                        case .verificationFailed:
+                            await send(.purchaseFailed("Purchase verification failed. Please try again."))
+                        case .purchaseFailed:
+                            await send(.purchaseFailed("Purchase could not be completed. Please try again."))
+                        case .networkError(let msg):
+                            await send(.purchaseFailed(msg))
+                        case .productNotFound:
+                            await send(.purchaseFailed("Subscription product not found"))
+                        }
+                    } catch {
+                        await send(.purchaseFailed(error.localizedDescription))
+                    }
+                }
+
+            case .purchaseSucceeded:
+                state.isPurchasing = false
                 state.showPaywall = false
                 return .send(.checkCameraPermission)
+
+            case let .purchaseFailed(errorMessage):
+                state.isPurchasing = false
+                if !errorMessage.isEmpty {
+                    state.purchaseError = errorMessage
+                }
+                return .none
+
+            case .restoreTapped:
+                state.isRestoring = true
+                state.restoreMessage = nil
+                return .run { send in
+                    do {
+                        try await subscriptionClient.restorePurchases()
+                        let status = await subscriptionClient.currentEntitlement()
+                        if case .pro = status {
+                            await send(.restoreSucceeded)
+                        } else {
+                            await send(.restoreNoSubscription)
+                        }
+                    } catch {
+                        await send(.restoreFailed(error.localizedDescription))
+                    }
+                }
+
+            case .restoreSucceeded:
+                state.isRestoring = false
+                state.showPaywall = false
+                return .send(.checkCameraPermission)
+
+            case let .restoreFailed(msg):
+                state.isRestoring = false
+                state.restoreMessage = msg
+                return .none
+
+            case .restoreNoSubscription:
+                state.isRestoring = false
+                state.restoreMessage = "No active subscription found. Subscribe to unlock Pro features."
+                return .none
+
+            case .dismissPurchaseError:
+                state.purchaseError = nil
+                return .none
+
+            case .dismissRestoreMessage:
+                state.restoreMessage = nil
+                return .none
 
             case .checkCameraPermission:
                 let currentStatus = cameraClient.authorizationStatus()
@@ -612,6 +751,11 @@ public struct PantryReducer {
                 state.showRecipeSuggestions = false
                 state.scannedItemNames = []
                 return .none
+
+            case let .recipeSuggestionTapped(recipeId):
+                state.showRecipeSuggestions = false  // Dismiss carousel per locked decision
+                state.scannedItemNames = []
+                return .send(.delegate(.openRecipe(id: recipeId)))
 
             case .dismissUpgradeBanner:
                 state.showUpgradeBanner = false
