@@ -1,420 +1,353 @@
 # Project Research Summary
 
-**Project:** Kindred v4.0 App Store Launch Prep
-**Domain:** iOS App Store submission readiness & production deployment
-**Researched:** 2026-03-30
+**Project:** Kindred v5.0 - Lean App Store Launch
+**Domain:** iOS Recipe App Migration (Spoonacular API, AVSpeechSynthesizer, App Store Submission)
+**Researched:** 2026-04-04
 **Confidence:** HIGH
 
 ## Executive Summary
 
-App Store launch prep for Kindred requires strategic additions to an already solid foundation. The app has validated core features (SwiftUI + TCA architecture, AdMob SDK, StoreKit 2, Firebase Cloud Messaging) but gaps exist around production-ready consent flows, receipt verification, and privacy compliance. The recommended approach closes these gaps through targeted integrations—not architectural rewrites—focusing on three critical areas: (1) ATT + UMP consent flow for personalized ads, (2) backend JWS verification with x5c certificate chain validation, and (3) voice cloning consent framework meeting 2026 legal requirements (Federal AI Voice Act, ELVIS Act, Apple Guideline 5.1.2(i)).
+The v5.0 Lean App Store Launch represents a strategic pivot from expensive cloud dependencies to free-tier alternatives, enabling $0/month SaaS costs while shipping to the App Store. Research confirms this is achievable by replacing X API scraping with Spoonacular API (150 req/day free tier), replacing ElevenLabs for free users with iOS native AVSpeechSynthesizer, and using Spoonacular's CDN images instead of Imagen 4 generation. The existing NestJS + SwiftUI/TCA architecture supports these integrations through clean abstraction layers without breaking changes.
 
-The winning strategy is compliance-first, feature-complete deployment. All stack additions leverage existing infrastructure: AppTrackingTransparency framework (built-in iOS), Google UMP SDK (already installed), @apple/app-store-server-library for backend receipt verification, and Firebase SDK extensions for device token registration. Implementation follows established iOS patterns (ATT + UMP consent coordination, StoreKit 2 JWS verification, progressive permission requests) with 14-20 hours development time but 3-5 weeks total calendar time due to required legal review for voice cloning consent documentation.
+The recommended approach uses three parallel integration paths: (1) Backend Spoonacular REST-to-GraphQL proxy with aggressive caching (60-90% hit rate expected), (2) iOS tier-based voice strategy pattern selecting between AVSpeechSynthesizer (free) and ElevenLabs (Pro), and (3) Fastlane automation for App Store submission. All three can be developed independently and merged with feature flags, enabling zero-downtime migration from the current X API + Imagen 4 + ElevenLabs-for-all architecture.
 
-Critical risks center on three rejection categories: (1) privacy violations (missing ATT consent, incomplete nutrition labels, vague voice cloning consent), (2) billing fraud (base64url JWS decoding without x5c validation), and (3) production ad policy violations (test AdMob IDs, missing NSUserTrackingUsageDescription). Mitigation requires systematic pre-submission checklist execution, TestFlight beta testing to catch edge cases, and legal counsel review for AI voice consent copy ($20-50K budget). The architecture integrates through 5 clean extension points (voice playback R2 URLs, ATT consent flow, paywall triggering, device token registration, SignedDataVerifier) with no circular dependencies or refactoring needed.
+The primary risk is Spoonacular's 150 req/day quota exhaustion within days of launch without proper caching. Secondary risks include AVSpeechSynthesizer production bugs on iOS 17 (documented crashes, silent failures), App Store rejection for missing third-party AI consent (new Guideline 5.1.2(i) from November 2025), and 7-30 day review delays in March 2026. Mitigation strategies are well-documented: implement caching layer as table stakes (not optimization), test AVSpeechSynthesizer on iOS 17 real devices (not Simulator), show explicit consent modal before ElevenLabs upload, and submit 30 days before target launch date.
 
 ## Key Findings
 
 ### Recommended Stack
 
-Kindred's existing stack supports all App Store launch requirements with minimal additions. The iOS foundation (SwiftUI + TCA, AdMob SDK, Firebase Cloud Messaging) and backend (NestJS + GraphQL + Prisma) are production-ready. Stack research identified only mandatory compliance additions: AppTrackingTransparency framework (built-in iOS 17.0+), @apple/app-store-server-library 2.4.0+ for backend JWS verification, and configuration requirements (Privacy Manifest, production AdMob unit IDs, voice consent framework). No new architectural dependencies needed—all additions extend existing patterns.
+The migration to free-tier alternatives requires minimal new dependencies. **Spoonacular API** replaces X API scraping and Imagen 4 generation with a single REST endpoint providing structured recipe data (365K+ recipes) and CDN images at zero cost (150 requests/day free tier). **AVSpeechSynthesizer** (built into iOS 7.0+) replaces ElevenLabs for free-tier users with on-device text-to-speech supporting 150+ voices and offline synthesis. **Fastlane 3.x** (already configured in v4.0) extends with a new `release` lane automating binary upload, metadata sync, and App Store submission.
 
 **Core technologies:**
-- **AppTrackingTransparency (iOS 17.0+ built-in):** IDFA consent for personalized ads — Mandatory since iOS 14.5 for apps using AdMob. Apple rejects apps without ATT when using ad identifiers.
-- **Google UMP SDK 3.0.0+ (already installed):** Pre-ATT consent flow coordination — Already in project (UserMessagingPlatform.xcframework detected). Coordinates with ATT to show GDPR/CCPA consent before requesting IDFA.
-- **@apple/app-store-server-library 2.4.0+:** Backend JWS transaction verification with x5c chain — Current backend uses base64url decoding (line 74 subscription.service.ts). Production needs cryptographic signature verification to prevent fraud.
-- **Firebase Cloud Messaging (already integrated):** APNs device token registration — SDK present but device tokens not sent to backend (known gap: EXPIRY-02 partial implementation). Need backend API endpoint.
-- **Privacy Manifest (PrivacyInfo.xcprivacy):** API usage declaration with approved reason codes — Required for 2026 App Store compliance. Prevents rejections for undeclared tracking.
+- **Spoonacular API (free tier)**: Recipe data source with 150 req/day quota — replaces $100/mo X API + Gemini parsing + Imagen generation with zero-cost structured data
+- **AVSpeechSynthesizer (iOS built-in)**: On-device TTS for free users — eliminates $0.01-0.03/recipe ElevenLabs cost while ElevenLabs moves behind Pro paywall
+- **axios + @nestjs/throttler**: HTTP client with rate limiting — enforces Spoonacular's 1 req/sec and 2 concurrent request limits
+- **PostgreSQL caching layer**: 60-90 day recipe cache — stays under 150 req/day limit with 60-80% expected hit rate
+- **Fastlane deliver**: App Store metadata automation — uploads screenshots, description, privacy labels alongside binary
 
-**Critical stack decision:** Use ATT + UMP coordinated flow (UMP consent form → ATT system prompt → AdMob initialization) rather than ATT-only approach. UMP SDK already integrated for AdMob compliance; leveraging it provides GDPR/CCPA coverage and higher opt-in rates through pre-prompt explanation screens.
+**Critical version requirements:**
+- **Xcode 16.0+ with iOS 26 SDK**: Hard deadline April 28, 2026 for all App Store submissions
+- **iOS 17.0 minimum deployment**: Existing app target, AVSpeechSynthesizer fully compatible
+- **NestJS 11 + Prisma 7**: Already validated, no breaking changes from new integrations
 
 ### Expected Features
 
-App Store submission requires 14 table-stakes features across privacy compliance, billing validation, and user consent. Missing any blocks submission or creates legal/fraud risk. Feature research categorized by priority: 11 P1 (must have for launch), 6 P2 (should have for trust/optimization), and 6 P3 (nice to have for future iterations). Key finding: voice cloning consent is both legal requirement (ELVIS Act, AB 1836, Federal AI Voice Act) and Apple guideline enforcement (5.1.2(i) effective Nov 2025).
+Research confirms all v5.0 features are achievable with free-tier technologies. **Table stakes** include Spoonacular recipe search with dietary filters (vegan, keto, halal, allergies), structured ingredient lists, step-by-step instructions, nutrition information, and mandatory source attribution (Spoonacular ToS + App Store Guideline 5.2.2). **Privacy compliance** requires third-party AI consent modal (Guideline 5.1.2(i) enforced since November 2025) and Privacy Labels listing Spoonacular as data processor.
 
-**Must have (table stakes for submission):**
-- Privacy Policy URL (guideline 5.1.1 requirement) — Essential for App Store Connect metadata
-- Privacy Nutrition Labels (iOS 14.3+ requirement) — Declare data collection by app and third-party SDKs (AdMob, ElevenLabs, Gemini, Firebase)
-- ATT Consent Flow (required before tracking for ads) — Pre-prompt explanation + system dialog, one chance only
-- NSUserTrackingUsageDescription (required for ATT prompt) — Info.plist key with clear explanation
-- NSMicrophoneUsageDescription (required for voice recording) — Info.plist key explaining voice upload feature
-- Production AdMob Unit IDs (test IDs cause invalid traffic flags) — Replace test IDs before submission to avoid account suspension
-- StoreKit 2 JWS x5c Verification (server-side receipt validation) — Verify certificate chain against Apple's root/intermediate certs
-- App Store Screenshots (6.9" iPhone + 13" iPad mandatory) — 1320x2868px iPhone, 2064x2752px iPad
-- TestFlight Beta Testing (pre-submission bug discovery) — Internal + external testers, 90-day build expiration
-- Distribution Certificate & Profile (code signing for App Store) — Valid for 1 year, must match bundle identifier
-- Privacy Manifest (PrivacyInfo.xcprivacy for 2026 compliance) — Declare API usage with approved reason codes
+**Must have (table stakes):**
+- Recipe search with filters (cuisine, diet, intolerances) — Spoonacular `/recipes/complexSearch` endpoint provides built-in filters
+- Recipe images from Spoonacular CDN — no AI generation needed, zero cost
+- Spoonacular source attribution with logo/link — legal requirement per ToS and App Store 5.2.2
+- Privacy disclosure for Spoonacular data sharing — Apple Guideline 5.1.2(i) requires naming third-party services
+- Offline fallback with local caching (1-hour max per Spoonacular ToS) — graceful degradation when quota exhausted
+- AVSpeechSynthesizer background playback — requires audio session configuration and Background Modes entitlement
 
-**Should have (competitive advantage, reduce rejection risk):**
-- Pre-ATT Value Demonstration (2-3x higher opt-in rates) — Show "first win" before ATT prompt
-- Custom Pre-Prompt Screen (explain "why" in friendly language) — "Help us keep the app free and relevant"
-- Voice Data Deletion Button (user control increases trust) — "Delete Voice Data" in Settings with confirmation
-- Transparent Voice Usage Policy (reduces legal risk) — Plain-English explanation of data collection, storage, access, revocation
-- Transaction.currentEntitlements (real-time subscription validation) — StoreKit 2 API for instant entitlement checks without server round-trip
-- Voice Consent Audit Trail (legal protection) — Log consent timestamp, IP, terms version, voice file hash
+**Should have (competitive):**
+- Enhanced iOS voice quality (100MB+ voice downloads) — user-initiated upgrade from robotic to natural-sounding TTS
+- SSML-enhanced narration (iOS 16+) — use `<break>`, `<emphasis>`, `<prosody>` tags for better recipe pacing
+- Personal Voice integration (iOS 17+) — users narrate in their own AI-generated voice at zero cost (premium feel)
+- Recipe-ingredient pantry matching — Spoonacular `/recipes/findByIngredients` shows used/missed ingredients
+- Cost per serving display — Spoonacular's `pricePerServing` field differentiates from free apps
 
-**Defer (v4.x after validation):**
-- App Store Server API Integration — Add if subscription abuse or refund issues detected
-- Staged ATT Rollout — Measure impact on retention/revenue with 10-20% user cohort
-- Localized Permission Strings — Add when expanding to non-English markets
-- Advanced Subscription Analytics — Not needed until scaling
-
-**Anti-features (commonly requested, problematic for submission):**
-- Force ATT Accept — Apple views as "nagging", causes rejection under guideline 5.1.1(iv)
-- Skip StoreKit Validation — Fraud risk, subscription abuse, revenue loss
-- Vague Privacy Labels — Causes rejection under guideline 5.1.2
-- ATT Prompt at Launch — Lowest opt-in rates (10-20%), poor UX
-- Base64url JWS Only — Production fraud risk without x5c verification
-- Test AdMob IDs in Production — Account flagged for invalid traffic, permanent suspension risk
+**Defer (v2+):**
+- Spoonacular meal planning endpoints — complex UX, defer until retention data shows users bookmark recipes
+- Multi-voice narration (different voices for ingredients vs. steps) — complexity without proven demand
+- Custom recipe uploads to Spoonacular — Spoonacular charges per stored recipe, not cost-effective for lean launch
+- Offline voice synthesis caching — AVSpeechSynthesizer synthesizes on-demand, pre-caching adds complexity
 
 ### Architecture Approach
 
-App Store launch integrates through 5 clean extension points requiring no architectural rewrites. Changes are additive, preserving existing SwiftUI + TCA architecture on iOS and NestJS + GraphQL on backend. Integration points: (1) Voice Playback → Backend R2 URLs (replace TestAudioGenerator with GraphQL query), (2) ATT Consent Flow (add AppTrackingTransparency framework import + UMP coordination), (3) Paywall Triggering (wire ScanPaywallView to MonetizationFeature), (4) Device Token Registration (add GraphQL mutation for FCM token), (5) SignedDataVerifier (replace base64url decode with x5c chain validation).
+All three integrations layer onto existing architecture without breaking changes. **Spoonacular integration** uses REST-to-GraphQL proxy pattern: `SpoonacularService` wraps REST API, `RecipesFeedService` adds caching layer, GraphQL schema exposes internal `Recipe` type (not Spoonacular schema directly). **Voice tier split** uses strategy pattern: `VoiceProvider` interface with `AppleVoiceProvider` (free) and `ElevenLabsVoiceProvider` (Pro) implementations, selected via dependency injection based on user tier. **Fastlane automation** extends existing 3-lane pipeline (`beta_internal`, `beta_external`, new `release` lane) with metadata management from `fastlane/metadata/` directory structure.
 
 **Major components:**
+1. **SpoonacularService (Backend)** — REST proxy translating Spoonacular API to GraphQL, handles rate limiting (1 req/sec), quota tracking (150 points/day), error handling (402 quota exceeded)
+2. **RecipesFeedService (Backend)** — Caching layer checking PostgreSQL cache (6-hour TTL) before calling Spoonacular, daily batch job at 2 AM UTC pre-warms 100 popular recipes
+3. **SpeechSynthesizerManager (iOS)** — AVSpeechSynthesizer wrapper managing audio session, lock screen controls (MPRemoteCommandCenter), background playback, delegate-based status stream
+4. **VoicePlaybackReducer (iOS)** — Tier-based routing checking user subscription, dispatching to AVSpeechSynthesizer (free) or AVPlayer + ElevenLabs (Pro) based on tier
+5. **Fastlane release lane (Build)** — Automates build IPA, upload binary, sync metadata (screenshots, description, privacy labels), submit for review
 
-1. **Voice Playback R2 URL Integration** — Replace local TestAudioGenerator with GraphQL GetNarrationUrl query returning Cloudflare R2 CDN URL or REST streaming endpoint. Modify VoicePlaybackReducer.swift line 299 TODO block, create new GetNarrationUrlQuery.graphql operation, extend voice.resolver.ts to check NarrationAudio cache. AVPlayer already configured for HTTP streaming (AudioPlayerManager.swift:41), R2 supports HTTP range requests for seeking.
-
-2. **ATT Consent Flow** — Add AppTrackingTransparency framework import (built-in, no installation), coordinate with existing UMP SDK (already installed). Implement requestTrackingConsent() async flow: UMP pre-consent (GDPR/CCPA) → ATT system prompt → AdMob initialization. Add NSUserTrackingUsageDescription to Info.plist, create PrivacyInfo.xcprivacy manifest declaring tracking domains. Replace test AdMob IDs with production unit IDs in AdClient.swift.
-
-3. **Paywall Triggering** — Wire ScanPaywallView "Subscribe" button to present MonetizationFeature PaywallView sheet. Add CameraReducer action subscribeToPro that dismisses subscription gate and triggers parent presentation. No changes to existing PaywallView.swift (reuse existing UI). Integration follows established TCA parent-child communication pattern.
-
-4. **Device Token Registration** — Extend AppDelegate.swift MessagingDelegate to send FCM token to backend via new GraphQL mutation. Add RegisterDeviceTokenMutation.graphql operation, create user.resolver.ts mutation, add deviceToken/devicePlatform/deviceTokenUpdatedAt fields to Prisma User model. Implements standard Firebase device token lifecycle (APNs token → FCM token mapping → backend storage).
-
-5. **SignedDataVerifier (Backend)** — Replace base64url JWS decoding (billing.service.ts line 70-79) with @apple/app-store-server-library SignedDataVerifier. Install npm package, download Apple Root CA G3 certificate, configure environment (APPLE_APP_ID, APPLE_TEAM_ID), implement verifyAndDecodeTransaction() with x5c chain validation. Prevents production fraud risk (fake receipts bypass current implementation).
-
-**Data flow:**
-- Voice playback: User taps Play → GraphQL GetNarrationUrl(recipeId, voiceProfileId) → Backend checks cache → R2 CDN URL or /narration/:recipeId/stream → AVPlayer progressive download
-- ATT consent: App launch → UMP consent check → Show form if required → ATT requestTrackingAuthorization() → Initialize AdMob with consent status → Personalized or non-personalized ads
-- Device token: APNs registration → FCM token mapping → GraphQL RegisterDeviceToken mutation → Backend stores in User.deviceToken → Available for push notification delivery
-
-**Build order (15 hours total):**
-- Phase 1: Backend (3.5h) — GraphQL queries/mutations, SignedDataVerifier, Prisma migration
-- Phase 2: Voice Playback (4h) — Wire VoicePlaybackReducer, remove TODO markers (depends on Phase 1.1)
-- Phase 3: ATT (3.5h) — PrivacyInfo.xcprivacy, ATT flow, production ad unit IDs (parallel to Phase 2)
-- Phase 4: Device Token (2h) — GraphQL mutation wiring (parallel to Phase 2-3)
-- Phase 5: Paywall (2h) — ScanPaywallView integration (depends on Phase 3)
-
-**Critical path:** Phase 1.1 (GraphQL queries) → Phase 2.4 (voice playback wiring)
+**Data flow changes:**
+- Recipe feed: `popularRecipes` query replaces `viralRecipes`, removes location dependency, shows popularity score instead of viral badge
+- Free-tier voice: `narrationAudio` query returns `{ url: null, plainText: instructions, tier: FREE }`, client synthesizes locally
+- Pro-tier voice: Existing flow unchanged — `narrationAudio` returns `{ url: R2_CDN, plainText: null, tier: PRO }`, AVPlayer streams
 
 ### Critical Pitfalls
 
-Pitfall research identified 10 critical traps during App Store submission, prioritized by likelihood × impact. Note: PITFALLS.md focused on pantry features (v3.0 milestone) but several universal patterns apply (permission timing, memory management, AI consent). Top 5 risks for v4.0:
+Research identified 10 critical pitfalls with documented production failures. The top 5 by impact:
 
-1. **ATT Prompt Timing → Low Opt-in Rates** — Requesting ATT permission immediately at launch results in 10-20% opt-in rates vs 30-60% with delayed progressive disclosure. Users reflexively deny permissions when value not demonstrated. Prevention: Delay ATT until after user experiences core features (recipe feed), show pre-prompt explanation ("Help us keep the app free and relevant"), respect one-time system prompt (subsequent calls return cached status).
+1. **Spoonacular quota exhaustion within days** — 150 req/day burns fast without caching. Implement 1-hour cache (Spoonacular ToS max) + PostgreSQL long-term storage as table stakes, not optimization. Monitor usage at 80% threshold, pre-populate 50-100 recipes during development. Cache hit rate <70% = production failure.
 
-2. **Base64url JWS Verification Without x5c Chain → Fraud Risk** — Current implementation (subscription.service.ts line 70-79) decodes JWS payload without cryptographic signature verification. Attackers can generate fake transactions, bypass subscription checks, access Pro features without payment. Prevention: Install @apple/app-store-server-library 2.4.0+, implement SignedDataVerifier with Apple Root CA G3 certificate chain validation, verify bundleId and appAppleId match App Store Connect configuration.
+2. **AVSpeechSynthesizer iOS 17/18 production bugs** — Crashes with "Could not find audio unit" on iOS 17.0-17.2, stops mid-utterance on 1200+ word recipes, memory leaks after 5-10 narrations. Test on iPhone 14 Pro (iOS 17.6) and iPhone 16 (iOS 18.2) real devices (not Simulator). Implement error fallback: "Voice unavailable, showing text instead." Limit utterances to 500 words, split longer recipes.
 
-3. **Test AdMob Unit IDs in Production → Account Suspension** — Using test ad units (ca-app-pub-3940256099942544) in production builds violates AdMob Terms of Service. Account flagged for invalid traffic patterns, permanent suspension risk with no appeal process. Prevention: Create AdMob account, register Kindred iOS app, generate production unit IDs, replace test IDs in Info.plist (GADApplicationIdentifier) and AdClient.swift before submission. Configure test device IDs for safe pre-launch testing with production units.
+3. **App Store rejection for missing AI consent (Guideline 5.1.2(i))** — November 2025 enforcement requires explicit consent modal BEFORE voice upload with provider name "ElevenLabs AI." Existing consent bundled with recording flow doesn't meet requirements. Show dedicated modal with "Allow" / "Don't Allow" buttons, block upload on denial, update Privacy Labels to list ElevenLabs.
 
-4. **Incomplete Privacy Nutrition Labels → Rejection** — App Store Connect requires accurate data collection disclosure across 14 categories. Under-reporting third-party SDK data collection (AdMob tracking, ElevenLabs voice data, Firebase identifiers, Mapbox location) causes rejection under guideline 5.1.2. Prevention: Audit all SDK data collection, declare tracking (AdMob usage data), user content (ElevenLabs audio), identifiers (Clerk JWT), location (Mapbox city-level), purchases (StoreKit subscriptions). Review Apple Privacy Labels documentation for each category.
+4. **Spoonacular data model mismatch breaks existing Recipe schema** — Custom scraping uses `viralScore`, `locationId`, `scrapedAt` fields. Spoonacular returns `spoonacularScore`, `analyzedInstructions`, `extendedIngredients` with different structures. Create `SpoonacularAdapter` mapping external schema to internal `Recipe` type, update GraphQL to support both sources during migration with `source: RecipeSource` field.
 
-5. **Voice Cloning Consent Violations → Legal Liability + Rejection** — Voice cloning without explicit written consent violates Federal AI Voice Act (2026 enforcement), state laws (Tennessee ELVIS Act, California AB 1836), and Apple Guideline 5.1.2(i) (effective Nov 2025). App rejection or post-launch legal action from users. Prevention: Implement consent screen before voice upload with explicit disclosure (name ElevenLabs provider, explain data processing, right to revoke), store consent audit trail (userId, timestamp, IP address, app version), provide "Delete Voice Profile" option in Settings, budget $20-50K for legal counsel review of consent copy and terms.
+5. **Mixed TTS quality creates negative user perception** — Free AVSpeechSynthesizer (robotic) vs. Pro ElevenLabs (natural) comparison creates "app unusable without paying" perception. NEVER show ElevenLabs demos to free users. Frame AVSpeech as "built-in narration" not "free tier," add voice customization (pitch/rate), prompt enhanced voice downloads (100MB+). Position Pro as "personalized cloning" not "better quality."
 
-**Secondary pitfalls:**
-- Missing NSUserTrackingUsageDescription → Immediate rejection (Info.plist validation failure)
-- Privacy Manifest missing → 2026 rejection for undeclared API usage (NSUserDefaults, file timestamps without approved reason codes)
-- TestFlight skipped → Critical bugs discovered post-submission during App Review (14+ day delay)
-- Camera/microphone permission without pre-prompt → 40-60% denial rate, broken scanning/voice features
-- Device token not sent to backend → Push notifications silently fail, expiry alerts never delivered
+**Additional critical pitfalls:**
+- **Spoonacular attribution missing** — ToS requires "Powered by Spoonacular" badge + link on recipe detail view, violation risks app removal and legal fees
+- **Nutrition data health claims** — Display without "estimate" disclaimer violates Guideline 1.4.1, must add "Estimates from Spoonacular. Not for medical use."
+- **iOS 26 SDK requirement (April 28, 2026)** — Xcode 15 builds rejected after deadline, upgrade to Xcode 16 + macOS Sequoia 15.0 immediately
+- **App Store review delays (7-30 days in March 2026)** — Submit 30 days before target launch, not 7 days, schedule marketing after "Ready for Sale" not after submission
+- **AVSpeech background audio stops** — iOS 17/18 bug causes audio to stop when app backgrounds despite proper audio session config, document limitation or implement fallback
 
 ## Implications for Roadmap
 
-Based on combined research, suggested 5-phase structure optimized for compliance checkpoints and parallel work opportunities:
+Based on research, the migration follows a 6-phase structure with clear dependencies. Spoonacular integration must complete before iOS voice tier split (backend needs `plainText` field for AVSpeechSynthesizer). Voice schema update must follow iOS adoption (can't break existing clients). Feed UI update must happen after both voice tiers work (avoid breaking narration during framing change). Backend cleanup only after iOS 100% rollout. Fastlane is independent and can happen anytime.
 
-### Phase 1: Privacy Compliance & Consent Infrastructure
-
-**Rationale:** Privacy violations cause immediate rejection with no opportunity to fix during review. Establish consent frameworks first before implementing features that require them. All subsequent phases depend on ATT consent (ads), voice consent (narration), and privacy manifest (API usage declarations).
+### Phase 1: Spoonacular Backend Integration
+**Rationale:** Non-breaking foundation layer — add Spoonacular alongside existing scraping service, expose via new `popularRecipes` query while keeping deprecated `viralRecipes`. Feature flag enables safe testing and rollback.
 
 **Delivers:**
-- Privacy Policy written and hosted (public URL for App Store Connect)
-- Privacy Nutrition Labels completed in App Store Connect (all 14 categories declared)
-- PrivacyInfo.xcprivacy created (declare tracking, API usage with approved reason codes)
-- NSUserTrackingUsageDescription added to Info.plist (8th-grade reading level explanation)
-- NSMicrophoneUsageDescription updated (clear voice upload explanation)
-- Voice Cloning Consent UI designed (legal disclosure, ElevenLabs naming, revocation instructions)
-- Voice Usage Policy written (plain-English data sharing transparency)
+- `SpoonacularService` with REST client (axios)
+- PostgreSQL caching layer (6-hour TTL + 60-day long-term storage)
+- `popularRecipes` GraphQL query with `sourceType: SPOONACULAR` support
+- Rate limiting (1 req/sec, 150 points/day quota tracking)
+- Daily batch job (2 AM UTC) pre-warming 100 recipes
+- "Powered by Spoonacular" attribution badge component
 
-**Addresses features:**
-- Privacy Policy URL (P1 table stakes)
-- Privacy Nutrition Labels (P1 table stakes)
-- Voice Cloning Consent UI (P1 legal compliance)
-- Privacy Manifest (P1 2026 requirement)
+**Addresses:**
+- Spoonacular recipe search with filters (table stakes)
+- Recipe images from CDN (table stakes)
+- Source attribution (legal requirement)
+- Offline fallback with caching (table stakes)
 
-**Avoids pitfalls:**
-- Incomplete privacy labels causing rejection
-- Voice cloning consent violations (legal liability + Apple guideline)
-- Missing NSUserTrackingUsageDescription (immediate rejection)
+**Avoids:**
+- Pitfall 1: Quota exhaustion (caching layer as core requirement)
+- Pitfall 4: Data model mismatch (SpoonacularAdapter maps to internal Recipe schema)
+- Pitfall 6: Missing attribution (badge implemented alongside integration)
 
-**Research flags:** NEEDS LEGAL REVIEW — Voice consent copy and terms require legal counsel ($20-50K budget, 2-4 weeks). Consider external privacy counsel for nutrition label accuracy audit. Standard patterns for Info.plist keys and Privacy Manifest structure (official Apple documentation).
+**Research flag:** Standard REST-to-GraphQL pattern, no additional research needed.
 
 ---
 
-### Phase 2: Backend Production Hardening
-
-**Rationale:** Backend fraud prevention and device token registration are prerequisites for iOS features. SignedDataVerifier must be production-ready before submission (no staged rollout possible for billing). Device token registration enables push notifications tested in Phase 5. Parallel to Phase 1 (different team members/skills).
+### Phase 2: AVSpeechSynthesizer Free-Tier Voice
+**Rationale:** Depends on Phase 1 completing (backend needs to expose `plainText` field in `narrationAudio` query). Strategy pattern isolates free/Pro logic, enables independent testing of AVSpeechSynthesizer without touching ElevenLabs path.
 
 **Delivers:**
-- @apple/app-store-server-library 2.4.0+ installed (npm package)
-- Apple Root CA G3 certificate downloaded and stored (backend/certs/)
-- SignedDataVerifier implemented in billing.service.ts (replace base64url decode)
-- Environment configuration (APPLE_APP_ID, APPLE_TEAM_ID, APP_STORE_ENV)
-- JWS verification test suite (sandbox transactions, invalid signatures, expired certs)
-- Device token GraphQL mutation (RegisterDeviceToken in user.resolver.ts)
-- Prisma schema migration (add deviceToken, devicePlatform, deviceTokenUpdatedAt to User model)
+- `SpeechSynthesizerManager` actor wrapping AVSpeechSynthesizer
+- `AppleVoiceProvider` and `ElevenLabsVoiceProvider` strategies
+- `VoicePlaybackReducer` tier-based routing (checks `userTier` from subscription state)
+- Audio session configuration (`.playback` category, `.spokenAudio` mode)
+- Lock screen controls (MPRemoteCommandCenter integration)
+- Enhanced voice download prompt UI (Settings → Accessibility → Live Speech)
 
-**Uses stack:**
-- @apple/app-store-server-library for JWS verification
-- Prisma 7 for schema migration
-- NestJS GraphQL for mutation resolver
+**Addresses:**
+- AVSpeechSynthesizer for free-tier voice (table stakes)
+- Background audio capability (table stakes)
+- Enhanced iOS voice quality (competitive differentiator)
 
-**Implements architecture:**
-- SignedDataVerifier component (backend fraud prevention)
-- Device token registration integration point
+**Avoids:**
+- Pitfall 2: iOS 17/18 bugs (test plan includes iPhone 14 Pro iOS 17.6 + iPhone 16 iOS 18.2 real devices)
+- Pitfall 5: Mixed quality perception (no ElevenLabs demos shown to free users, frame as "built-in" not "free tier")
+- Pitfall 10: Background audio stops (document limitation or implement screen-awake fallback)
 
-**Avoids pitfalls:**
-- Base64url JWS verification without x5c chain (fraud risk)
-- Device token not sent to backend (push notification failure)
-
-**Research flags:** Standard patterns (NestJS package installation, Prisma migrations, GraphQL mutations). Apple App Store Server Library official documentation provides implementation examples. No phase-specific research needed.
+**Research flag:** AVSpeechSynthesizer iOS 17/18 bugs warrant monitoring during implementation — check Apple Developer Forums for latest workarounds.
 
 ---
 
-### Phase 3: ATT Consent & Production Ads
-
-**Rationale:** ATT consent flow gates ad monetization (60% of users on free tier). Must be implemented before TestFlight beta testing to measure real-world opt-in rates. Depends on Phase 1 (Privacy Manifest, NSUserTrackingUsageDescription). Parallel opportunity: Phase 3 (iOS) + Phase 2 (backend) can run simultaneously.
+### Phase 3: App Store Compliance & Privacy Updates
+**Rationale:** Must complete before TestFlight submission. Apple enforces Guideline 5.1.2(i) strictly (November 2025 update), rejection adds 2-week resubmission delay. Nutrition disclaimers and Xcode 16 requirement are table stakes for approval.
 
 **Delivers:**
-- AppTrackingTransparency framework import (built-in, no installation)
-- UMP consent flow integration (coordinate with existing SDK)
-- requestTrackingConsent() implementation (UMP → ATT → AdMob initialization)
-- Pre-prompt explanation screen ("Help us keep the app free and relevant")
-- Production AdMob account created (register Kindred iOS app)
-- Production ad unit IDs generated (Native feed cards, Banner bottom)
-- Test AdMob IDs replaced in Info.plist (GADApplicationIdentifier) and AdClient.swift
-- Test device IDs configured (safe pre-launch testing with production units)
-- ATT acceptance rate instrumentation (analytics tracking)
+- Third-party AI consent modal (shows BEFORE voice upload with "ElevenLabs AI" provider name)
+- Privacy Policy update (add Spoonacular disclosure)
+- App Privacy Labels (Data Types → Audio → Shared with ElevenLabs, search queries → Shared with Spoonacular)
+- Nutrition disclaimer ("Estimates from Spoonacular. Not for medical use." in 12pt text)
+- PrivacyInfo.xcprivacy manifest updates (Spoonacular API domain)
+- Xcode 16 + iOS 26 SDK verification
+- App Store screenshots refresh (remove "viral near you," replace with "popular recipes")
 
-**Addresses features:**
-- ATT Consent Flow (P1 table stakes)
-- Production AdMob Unit IDs (P1 table stakes)
-- Pre-ATT Value Demonstration (P2 differentiator)
-- Custom Pre-Prompt Screen (P2 differentiator)
+**Addresses:**
+- Privacy disclosure for third-party APIs (table stakes)
+- App Store screenshots matching build (table stakes)
 
-**Uses stack:**
-- AppTrackingTransparency (built-in iOS 17.0+)
-- Google UMP SDK 3.0.0+ (already installed)
-- AdMob SDK (already integrated)
+**Avoids:**
+- Pitfall 3: AI consent rejection (dedicated modal before upload, not bundled with recording)
+- Pitfall 7: Nutrition health claims (disclaimers visible, app category = Food & Drink not Medical)
+- Pitfall 8: iOS 26 SDK requirement (verify Xcode 16 before submission)
 
-**Implements architecture:**
-- ATT Consent Flow integration point
-
-**Avoids pitfalls:**
-- ATT prompt timing → low opt-in rates (progressive disclosure after value demo)
-- Test AdMob IDs in production → account suspension (production unit IDs configured)
-
-**Research flags:** Standard patterns (Apple ATT official documentation, Google UMP SDK integration guide). Consider A/B testing pre-prompt copy if acceptance rate <50% during TestFlight. No upfront phase research needed.
+**Research flag:** No additional research needed — Apple documentation is definitive.
 
 ---
 
-### Phase 4: Voice Playback & Paywall Integration
-
-**Rationale:** Connects existing features to production infrastructure. Voice playback R2 URLs replace TestAudioGenerator (unblocks production narration). Paywall triggering completes monetization flow (scan → paywall → subscription). Depends on Phase 2 (backend GraphQL queries). Can overlap with Phase 3 (different iOS features).
+### Phase 4: Backend Voice Schema Update (Breaking Change)
+**Rationale:** Depends on Phase 2 (iOS must know how to handle tier-based responses). Breaking change requires careful migration — add `UserTier` enum, modify `narrationAudio` resolver to return `{ url, plainText, tier }`. Deploy backend, iOS gracefully handles both old and new schema via Apollo cache.
 
 **Delivers:**
-- GetNarrationUrlQuery.graphql operation (query R2 CDN URL or REST streaming endpoint)
-- VoicePlaybackReducer.swift modifications (line 299 TODO block, replace TestAudioGenerator)
-- Backend voice.resolver.ts extensions (check NarrationAudio cache, return R2 URL)
-- Real audio playback testing (R2 CDN URLs, HTTP range request seeking)
-- CameraReducer.swift subscribeToPro action (dismiss subscription gate, trigger parent)
-- ScanPaywallView integration with MonetizationFeature PaywallView
-- Paywall presentation flow testing (scan limit → paywall → subscribe → unlock)
+- `UserTier` enum (FREE | PRO) on User model
+- Modified `narrationAudio` query returning `{ url: String?, plainText: String, tier: UserTier }`
+- Resolver logic skipping ElevenLabs for FREE tier
+- Cost monitoring dashboard (track ElevenLabs API calls by tier)
 
-**Addresses features:**
-- Voice playback R2 URLs (existing feature, production-ready)
-- Paywall triggering (monetization completion)
+**Addresses:**
+- Tier-based voice routing (enables Pro monetization)
 
-**Uses stack:**
-- Apollo iOS 2.0.6 for GraphQL queries
-- Cloudflare R2 for CDN URLs
-- AVPlayer for HTTP streaming (already configured)
+**Avoids:**
+- Breaking iOS clients (both old and new schema supported during transition)
+- Unnecessary ElevenLabs costs for free users
 
-**Implements architecture:**
-- Voice Playback → Backend R2 URLs integration point
-- Paywall Triggering integration point
-
-**Avoids pitfalls:**
-- Voice playback not working (TestAudioGenerator blocks production narration)
-
-**Research flags:** Standard patterns (GraphQL queries, TCA reducer modifications, AVPlayer HTTP streaming). No phase-specific research needed.
+**Research flag:** Standard GraphQL schema migration, no additional research needed.
 
 ---
 
-### Phase 5: TestFlight Beta & Submission Prep
-
-**Rationale:** Final validation before submission. TestFlight catches bugs App Review would reject (14+ day delay). Screenshot creation and metadata entry are submission blockers. Device token registration testing ensures push notifications work. All previous phases must be complete and integrated.
+### Phase 5: iOS Feed Update & Backend Cleanup
+**Rationale:** Depends on Phase 4 (voice tiers must work before changing feed framing). Replace `viralRecipes` query with `popularRecipes` in FeedFeature, update UI to show popularity score instead of viral badge. After iOS 100% rollout, remove deprecated `viralRecipes` query and old scraping services.
 
 **Delivers:**
-- Distribution Certificate renewed (if needed, 1-year expiration)
-- Provisioning Profile updated (match bundle identifier)
-- TestFlight internal testing (5-10 internal testers, 1 week)
-- TestFlight external testing (50-100 beta testers, 1-2 weeks)
-- Bug fixes from beta feedback (crash logs, edge cases)
-- App Store screenshots created (6.9" iPhone 1320x2868px + 13" iPad 2064x2752px)
-- App Store metadata written (description naming third-party AI, keywords, categories)
-- Demo account created for App Review (if auth required)
-- Device token registration tested (FCM token → backend → push notification delivery)
-- ATT opt-in rate measured (target >30%, iterate on pre-prompt if <30%)
-- Voice consent acceptance tracked (ensure no confusion/drop-off)
-- Final privacy audit (all labels accurate, no under-reporting)
-- Submission checklist completed (all P1 features verified)
+- FeedFeature migration from `viralRecipes` to `popularRecipes` query
+- UI update: POPULAR badge instead of VIRAL badge, popularity score display
+- Backend cleanup: remove `ScrapingService`, `XApiService`, `InstagramService`, `ImageGenerationProcessor`, `viralRecipes` query
+- Feature flag removal (enable `ENABLE_SPOONACULAR_FEED` for 100%)
 
-**Addresses features:**
-- TestFlight Beta Testing (P1 table stakes)
-- App Store Screenshots (P1 table stakes)
-- Distribution Certificate & Profile (P1 table stakes)
-- Demo Account (P1 table stakes)
-- Device token registration testing (validates Phase 2 backend work)
+**Addresses:**
+- Recipe feed transition from viral to popular framing (UX consistency)
 
-**Uses stack:**
-- TestFlight (Apple built-in beta distribution)
-- App Store Connect (screenshot upload, metadata entry)
+**Avoids:**
+- Breaking iOS during feed transition (both queries exist until rollout complete)
 
-**Implements architecture:**
-- Device Token Registration integration point (testing validation)
+**Research flag:** No additional research needed — standard GraphQL query migration.
 
-**Avoids pitfalls:**
-- TestFlight skipped → critical bugs discovered during App Review
-- Missing screenshots → submission blocked
-- Device token silent failure → push notifications don't work
+---
 
-**Research flags:** Standard submission process (Apple App Store submission guide). No phase-specific research needed. Consider usability testing if ATT acceptance <30% or voice consent drop-off >20%.
+### Phase 6: Fastlane App Store Submission (Independent)
+**Rationale:** Can happen anytime after Phase 0 (Xcode 16 setup). Independent of runtime changes — extends build system with `release` lane automating binary upload, metadata sync, App Store submission. Configure once, use repeatedly.
+
+**Delivers:**
+- Fastlane `release` lane in Fastfile
+- Metadata directory structure (`fastlane/metadata/en-US/`, `fastlane/screenshots/`)
+- App Store Connect API key configuration
+- Optional GitHub Actions workflow (automated on git tag push)
+- Manual release checklist (update PROJECT.md, tag version, monitor review status)
+
+**Addresses:**
+- App Store submission automation (operational efficiency)
+
+**Avoids:**
+- Pitfall 9: Review delays (process encourages early submission with 30-day buffer)
+
+**Research flag:** Fastlane is well-documented, no additional research needed.
+
+---
+
+### Phase 0: Environment Setup (Prerequisite)
+**Rationale:** Must happen BEFORE Phase 1. Xcode 16 + iOS 26 SDK required for all submissions after April 28, 2026. Upgrading mid-development causes breaking changes and delays. Do immediately.
+
+**Delivers:**
+- Xcode 16.0+ installed on development machine
+- macOS Sequoia 15.0+ (required for Xcode 16)
+- Project settings: Deployment Target iOS 17.0, Base SDK iOS 26.0
+- Swift 6 strict concurrency warnings addressed (enable SWIFT_STRICT_CONCURRENCY = complete)
+- Deprecated API fixes (AVPlayer, StoreKit 2, Apollo client)
+- Test on iOS 17.0, 17.6, 18.0, 18.2 real devices
+- TestFlight test upload (verify binary accepted before starting phases)
+
+**Avoids:**
+- Pitfall 8: iOS 26 SDK rejection (upgrade before deadline, not at deadline)
+
+**Research flag:** No additional research — Apple documentation is definitive.
 
 ---
 
 ### Phase Ordering Rationale
 
-**Why this order:**
-- **Phase 1 before all others:** Privacy violations cause immediate rejection. Consent frameworks (ATT, voice cloning) are prerequisites for features that use them (ads, narration). Legal review on Phase 1 voice consent can run parallel to technical work in Phase 2-3.
-- **Phase 2 parallel to Phase 1:** Backend work (billing verification, device token API) doesn't depend on iOS consent UIs. Different skill sets (backend vs iOS) enable parallel team work.
-- **Phase 3 after Phase 1:** ATT consent flow requires Privacy Manifest and NSUserTrackingUsageDescription from Phase 1. Pre-prompt screen needs voice consent patterns established in Phase 1.
-- **Phase 4 depends on Phase 2:** Voice playback R2 URLs require backend GraphQL queries from Phase 2. Can overlap with Phase 3 (ATT is separate iOS feature).
-- **Phase 5 last:** TestFlight requires all features integrated and working. Cannot test incomplete features or catch integration bugs without full implementation.
+**Sequential dependencies:**
+- Phase 2 requires Phase 1: iOS needs backend `plainText` field for AVSpeechSynthesizer
+- Phase 4 requires Phase 2: Backend assumes iOS knows how to handle tier-based responses
+- Phase 5 requires Phase 4: Can't remove `viralRecipes` while iOS still calls it
 
-**Dependency enforcement:**
-- Phase 3 (ATT) depends on Phase 1 (Privacy Manifest, Info.plist keys)
-- Phase 4 (voice playback) depends on Phase 2 (backend GraphQL API)
-- Phase 5 (TestFlight) depends on all previous phases complete
+**Parallel opportunities:**
+- Phase 6 (Fastlane) independent of all runtime phases — can configure early and use throughout
+- Phase 3 (Compliance) can start during Phase 2 (no code dependencies)
 
-**Parallel work opportunities:**
-- Phase 1 (privacy documentation) + Phase 2 (backend code) can overlap fully
-- Phase 3 (ATT iOS) + Phase 2 (backend) can overlap (different platforms)
-- Phase 4 tasks can split: voice playback (depends on Phase 2) parallel with paywall (independent)
-- Phase 1 legal review (2-4 weeks external) doesn't block Phase 2-3 technical implementation
+**Grouping logic:**
+- Phases 1-2 are feature additions (non-breaking, additive)
+- Phase 4 is breaking change (requires careful migration)
+- Phase 5 is cleanup (remove deprecated code after migration complete)
+- Phase 0 is prerequisite (environment setup)
+- Phase 6 is independent (build automation)
 
-**Pitfall avoidance:**
-- Early privacy compliance (Phase 1) prevents late-stage rejection discoveries
-- Backend hardening (Phase 2) before iOS features prevents fraud risk in production
-- ATT consent (Phase 3) tested in TestFlight (Phase 5) with real users measures actual opt-in rates
-- TestFlight (Phase 5) catches integration bugs before 14+ day App Review submission
+**Pitfall mitigation:**
+- Phase 1 implements caching as core requirement (avoids quota exhaustion)
+- Phase 2 includes iOS 17 real-device testing (avoids production AVSpeech bugs)
+- Phase 3 frontloads App Store compliance (avoids rejection delays)
+- Phase 0 upgrades Xcode immediately (avoids deadline scramble)
 
 ### Research Flags
 
-**Phases needing deeper research during planning:**
-- **Phase 1 (Privacy Compliance):** Voice cloning consent legal requirements vary by state (Tennessee ELVIS Act, California AB 1836, New York Right of Publicity). May need phase research on multi-state compliance or legal counsel recommendations for consent copy. Official Apple guideline 5.1.2(i) is clear but legal enforceability requires counsel review ($20-50K budget).
+**Phases needing monitoring during implementation:**
+- **Phase 2 (AVSpeechSynthesizer):** iOS 17/18 production bugs are documented but evolving — check Apple Developer Forums for latest workarounds during implementation. Budget extra time for real-device testing and error handling.
 
-**Phases with standard patterns (skip research-phase):**
-- **Phase 2 (Backend Hardening):** @apple/app-store-server-library has official documentation with SignedDataVerifier examples. Prisma migrations and GraphQL mutations are established NestJS patterns used throughout Kindred codebase.
-- **Phase 3 (ATT Consent):** Apple official AppTrackingTransparency documentation provides complete implementation guide. Google UMP SDK integration documented in AdMob iOS privacy guides. Pattern validated across thousands of production apps.
-- **Phase 4 (Voice Playback):** GraphQL query creation and TCA reducer modifications are standard patterns used in existing Kindred features. AVPlayer HTTP streaming already configured (AudioPlayerManager.swift:41).
-- **Phase 5 (TestFlight):** Apple official TestFlight guide covers complete beta testing workflow. App Store screenshot specifications and submission process documented in App Store Connect Help.
-
-**When to trigger phase research:**
-- During Phase 1 planning, if voice consent legal requirements unclear for all 50 US states → research multi-state compliance or consult legal counsel
-- During Phase 3 execution, if ATT opt-in rate <30% in TestFlight → research alternative pre-prompt messaging, timing strategies, or value demonstration approaches
-- During Phase 5 execution, if App Review rejects for undisclosed reason → research Apple guideline interpretation or consult App Store review consultants
+**Phases with standard patterns (no additional research):**
+- **Phase 1 (Spoonacular):** REST-to-GraphQL proxy is established pattern, well-documented in NestJS + Apollo ecosystem
+- **Phase 3 (App Store Compliance):** Apple guidelines are prescriptive, no ambiguity
+- **Phase 4 (Voice Schema):** Standard GraphQL migration with deprecation period
+- **Phase 5 (Feed Update):** Apollo client handles schema changes gracefully
+- **Phase 6 (Fastlane):** Fastlane documentation is comprehensive, mature tooling
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All recommended technologies have official documentation (Apple ATT, Google UMP SDK, @apple/app-store-server-library, Firebase Cloud Messaging). Only additions are built-in iOS frameworks (AppTrackingTransparency, AdSupport) or standard npm packages. Existing Kindred stack validated (SwiftUI + TCA, NestJS + GraphQL). Zero new architectural frameworks. |
-| Features | HIGH | Based on official Apple App Store Review Guidelines, App Store Connect requirements documentation, and verified 2026 submission checklists. Privacy Nutrition Labels requirements from Apple Privacy Labels official page. Voice cloning consent from Federal AI Voice Act text, state law summaries (Tennessee ELVIS Act, California AB 1836), and Apple Guideline 5.1.2(i) announcement (Nov 2025). TestFlight and screenshot requirements from Apple official developer documentation. |
-| Architecture | HIGH | Integration points verified with existing Kindred codebase (VoicePlaybackReducer.swift line 299 TODO, subscription.service.ts line 70-79 base64url decode, AppDelegate.swift line 192 device token storage). All changes are additive extensions following established TCA patterns (dependency injection, reducer actions, GraphQL mutations). Build order dependencies validated against codebase structure. No circular dependencies or refactoring required. |
-| Pitfalls | MEDIUM | Based on production app case studies (ATT opt-in rates from Adjust/Sourcepoint research, AdMob account suspension from support forums, JWS fraud risk from Apple security bulletins), official Apple rejection reasons (guideline 5.1.1 privacy, 5.1.2 AI disclosure, 3.1.2 subscription terms), and legal compliance research (voice cloning laws from Holon Law, Soundverse multi-state guides). Confidence MEDIUM (not HIGH) because ATT opt-in rate estimates (10-20% immediate vs 30-60% delayed) cite industry benchmarks without Kindred-specific testing, and voice consent legal liability relies on law firm summaries rather than direct statute interpretation. |
+| Stack | **HIGH** | All technologies verified with official documentation (Spoonacular API docs, Apple AVSpeechSynthesizer reference, Fastlane guides). Free tier limits confirmed via pricing pages. No experimental dependencies. |
+| Features | **MEDIUM-HIGH** | Table stakes validated against competitor apps (Yummly, Tasty, Allrecipes) and App Store guidelines. Spoonacular feature set confirmed via API docs. Attribution requirements explicit in Spoonacular ToS. AI consent requirements from Apple Guideline 5.1.2(i) enforced since Nov 2025. |
+| Architecture | **HIGH** | Integration patterns (REST-to-GraphQL proxy, strategy pattern, feature flags) are industry-standard. Existing NestJS + TCA architecture validated in v4.0. Migration paths preserve backward compatibility via deprecation. Data flow changes are additive (new queries alongside old). |
+| Pitfalls | **HIGH** | All 10 critical pitfalls sourced from official documentation (Apple Developer Forums for AVSpeech bugs, App Store Review Guidelines for consent requirements, Spoonacular ToS for quota/attribution). Production failure patterns confirmed across multiple sources (iOS 17 crashes, March 2026 review delays, quota exhaustion). |
 
-**Overall confidence:** HIGH
+**Overall confidence:** **HIGH**
 
-Research quality benefits from reliance on official Apple documentation (App Store Review Guidelines, ATT framework, TestFlight guide) and verified iOS patterns (UMP + ATT coordination, StoreKit 2 JWS verification, progressive permission requests). Stack confidence highest because zero new architectural dependencies—all additions extend existing validated infrastructure. Features confidence high due to clear Apple requirement documents (not ambiguous community interpretation). Architecture confidence high because integration points verified in existing codebase with specific line numbers. Pitfalls confidence slightly lower (MEDIUM) due to reliance on industry benchmark estimates and legal summaries requiring counsel validation.
+All core technologies are mature with official documentation. The architecture follows established patterns from existing v4.0 implementation. Pitfalls are well-documented in official sources and developer communities. The main uncertainty is AVSpeechSynthesizer iOS 17/18 behavior variability across device models, mitigated by comprehensive real-device testing plan.
 
 ### Gaps to Address
 
-**Gaps identified during research:**
+**Spoonacular free tier daily quota ambiguity:**
+- Sources conflict on exact limit (some say 50 points/day, others 150 requests/day). Official pricing page states "50 points/day then no more calls" but community sources reference 150 requests/day.
+- **Resolution:** Verify actual quota immediately upon account creation. Monitor usage dashboard closely during Phase 1 development. Implement quota monitoring with alerts at 80% of observed limit (not assumed limit).
 
-1. **Voice cloning consent multi-state legal compliance** — Research identifies Federal AI Voice Act (2026 enforcement) and prominent state laws (Tennessee ELVIS Act, California AB 1836, New York Right of Publicity) but doesn't provide comprehensive 50-state compliance matrix or model consent language approved by counsel.
-   - **Mitigation:** Budget $20-50K for legal counsel specializing in AI/media rights to draft consent screen copy, terms addendum, and privacy policy voice cloning section. Counsel provides multi-state compliance opinion and audit trail documentation requirements. Timeline: 2-4 weeks for legal review during Phase 1.
+**AVSpeechSynthesizer maximum text length:**
+- No documented limit in Apple docs. Anecdotal reports suggest >5K characters may cause synthesis delays or crashes on iOS 17.
+- **Resolution:** Test with longest recipe in production database (~2000 words) during Phase 2. Implement telemetry tracking synthesis failures by text length. Consider 500-word segment limit as safe default based on pitfall research.
 
-2. **ATT opt-in rate benchmarks for recipe/cooking apps** — Research cites general mobile app opt-in rates (10-20% immediate prompt, 30-60% delayed progressive disclosure) from Adjust and Sourcepoint studies but lacks cooking app-specific data. Kindred's actual rates may vary.
-   - **Mitigation:** Instrument Phase 3 ATT implementation with detailed analytics (acceptance rate, denial rate, timing of request, pre-prompt screen variation). A/B test pre-prompt messaging in TestFlight (Phase 5) with 50%/50% split. Target >30% acceptance; if <30%, iterate on value proposition and timing before full launch.
+**Enhanced voice download availability:**
+- Premium/enhanced iOS voices (100MB+) are user-downloadable via Settings → Accessibility → Live Speech → Voices. Unclear if all voices are available in all regions or languages.
+- **Resolution:** Test voice availability on development devices in target markets (US, Turkey based on existing app localization). Document which enhanced voices are recommended in app instructions. Graceful fallback to default voices if enhanced unavailable.
 
-3. **AdMob production unit ID setup process timeline** — Research identifies requirement to create AdMob account and generate production unit IDs but doesn't specify approval timeline or potential rejection reasons during AdMob account setup.
-   - **Mitigation:** Start AdMob account creation early in Phase 3 (don't wait until end of phase). AdMob typically approves accounts within 24-48 hours but may request additional verification for new accounts. Budget 3-5 business days for approval. If rejected, provides time to resolve verification issues before TestFlight deadline.
+**App Store review timeline volatility:**
+- March 2026 widespread delays (7-30 days actual vs. 24-48 hours quoted). Unknown if April 2026 will improve or worsen.
+- **Resolution:** Check live review times at runway.team/appreviewtimes before Phase 6 submission. Build 30-day buffer into launch timeline as conservative estimate. Use TestFlight Internal Testing first (no review delay) to validate build quality before external submission.
 
-4. **SignedDataVerifier performance impact on subscription queries** — Research recommends full x5c certificate chain validation with @apple/app-store-server-library but doesn't quantify latency impact vs current base64url decode approach. Certificate validation involves cryptographic operations and potential OCSP/CRL checks.
-   - **Mitigation:** Phase 2 backend implementation should measure SignedDataVerifier latency in staging environment. If verification >500ms, consider caching verified transactions with TTL (1 hour) and implementing async verification queue for non-blocking subscription checks. Apple documentation suggests enabling online checks (second parameter: true) but can be disabled for performance at cost of revocation detection latency.
-
-5. **TestFlight external review timeline variability** — Research states external TestFlight builds require 24-48hr Apple review but doesn't account for holiday periods, guideline updates, or rejection scenarios requiring resubmission.
-   - **Mitigation:** Phase 5 should allocate 1 week buffer for external TestFlight review (not 24-48hr minimum). Submit external build early in testing period to catch potential rejections (privacy violations, missing entitlements) with time to fix and resubmit. Internal testing (instant, no review) should catch obvious crashes before external submission.
-
-**How to handle gaps during execution:**
-- Phase 1: Engage legal counsel early for voice consent review (2-4 week timeline, critical path)
-- Phase 3: Start AdMob account creation immediately, instrument ATT with detailed analytics, prepare A/B test variations
-- Phase 2: Measure SignedDataVerifier latency in staging, implement caching if >500ms
-- Phase 5: Allocate 1-week buffer for external TestFlight review, submit early to catch rejections with resubmit time
+**Spoonacular geolocation in free tier:**
+- Docs don't mention location-based filtering in free tier. Unclear if `location` or `radius` query params work or require paid tier.
+- **Resolution:** Test during Phase 1 integration. If unavailable, accept limitation — "popular recipes" framing doesn't require location anyway. Document in release notes: "Location-based discovery coming in future update" if user demand materializes.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-
-**Official Apple Documentation:**
-- [App Store Review Guidelines](https://developer.apple.com/app-store/review/guidelines/) — Guideline 5.1.1 (privacy), 5.1.2 (AI disclosure), 3.1.2 (subscription terms)
-- [App Tracking Transparency | Apple Developer Documentation](https://developer.apple.com/documentation/apptrackingtransparency) — ATT framework reference
-- [Privacy manifest files | Apple Developer Documentation](https://developer.apple.com/documentation/bundleresources/privacy-manifest-files) — PrivacyInfo.xcprivacy structure
-- [App Privacy Details - App Store - Apple Developer](https://developer.apple.com/app-store/app-privacy-details/) — Privacy Nutrition Labels requirements
-- [TestFlight - Apple Developer](https://developer.apple.com/testflight/) — Beta testing workflow
-- [Screenshot specifications - Apple Developer](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/) — 6.9" iPhone + 13" iPad requirements
-
-**Official Google/Firebase Documentation:**
-- [Set up UMP SDK | iOS | Google for Developers](https://developers.google.com/admob/ios/privacy) — UMP SDK 3.0.0 integration guide
-- [Present IDFA message | iOS | Google for Developers](https://developers.google.com/admob/ios/privacy/idfa) — ATT + UMP coordination
-- [Get started with Firebase Cloud Messaging in Apple platform apps](https://firebase.google.com/docs/cloud-messaging/ios/get-started) — APNs device token registration
-
-**Official Libraries:**
-- [@apple/app-store-server-library](https://github.com/apple/app-store-server-library-node) — GitHub repository for JWS SignedDataVerifier (Node.js implementation)
+- [Spoonacular API Pricing](https://spoonacular.com/food-api/pricing) — Free tier limits, point system, quota details
+- [Spoonacular API Documentation](https://spoonacular.com/food-api/docs) — Endpoints, filters, response schemas, Terms of Service attribution requirements
+- [Apple AVSpeechSynthesizer Documentation](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer) — Official API reference, iOS version requirements
+- [Apple App Store Review Guidelines](https://developer.apple.com/app-store/review/guidelines/) — Guideline 5.1.2(i) third-party AI disclosure, 1.4.1 health claims, 5.2.2 third-party content
+- [Fastlane Deliver Documentation](https://docs.fastlane.tools/actions/upload_to_app_store/) — App Store upload automation, metadata management
+- [WWDC 2020: Seamless Speech Experience](https://developer.apple.com/videos/play/wwdc2020/10022/) — Audio session configuration, usesApplicationAudioSession pattern
+- [WWDC 2023: Personal and Custom Voices](https://developer.apple.com/videos/play/wwdc2023/10033/) — Personal Voice authorization flow
 
 ### Secondary (MEDIUM confidence)
+- [Apple Developer Forums: AVSpeechSynthesizer iOS 17 Bugs](https://developer.apple.com/forums/thread/738048) — Production crashes, workarounds from community
+- [TechCrunch: Third-Party AI Guidelines](https://techcrunch.com/2025/11/13/apples-new-app-review-guidelines-clamp-down-on-apps-sharing-personal-data-with-third-party-ai/) — November 2025 enforcement context
+- [Runway: Live App Store Review Times](https://www.runway.team/appreviewtimes) — March 2026 delay data (7-30 days actual)
+- [Spoonacular API Guide 2025](https://www.devzery.com/post/spoonacular-api-complete-guide-recipe-nutrition-food-integration) — Integration patterns, caching strategies
+- [NestJS Throttler Documentation](https://docs.nestjs.com/security/rate-limiting) — Rate limiting implementation for free tier constraints
+- [swift-tts GitHub](https://github.com/renaudjenny/swift-tts) — TCA integration library for AVSpeechSynthesizer
+- [Appcoda: Building TTS App with AVSpeechSynthesizer](https://www.appcoda.com/text-to-speech-ios-tutorial/) — Swift implementation examples
+- [Medium: Managing Audio Interruption in iOS](https://medium.com/@mehsamadi/managing-audio-interruption-and-route-change-in-ios-application-8202801fd72f) — Background audio best practices
 
-**Implementation Guides & Best Practices:**
-- [How to implement App Tracking Transparency in Swift? | Prograils](https://prograils.com/app-tracking-transparency-swift) — Swift implementation patterns
-- [Getting Ready for App Tracking Transparency - Swift Senpai](https://swiftsenpai.com/development/get-ready-apptrackingtransparency/) — Progressive disclosure best practices
-- [How to Validate iOS and macOS In-App Purchases Using StoreKit 2 and Server-Side Swift | Ronald Mannak | Medium](https://medium.com/@ronaldmannak/how-to-validate-ios-and-macos-in-app-purchases-using-storekit-2-and-server-side-swift-98626641d3ea) — SignedDataVerifier patterns
-- [iOS App Store Review Guidelines 2026: Requirements, Rejections & Submission Guide](https://theapplaunchpad.com/blog/app-store-review-guidelines) — 2026 submission checklist
-
-**Industry Benchmarks:**
-- [Opt-in design do's and don'ts for Apple's App Tracking Transparency | Adjust](https://www.adjust.com/blog/opt-in-design-for-apple-app-tracking-transparency-att-ios14/) — ATT opt-in rate benchmarks (10-20% immediate, 30-60% delayed)
-- [Best practices: iOS tracking message – Sourcepoint](https://docs.sourcepoint.com/hc/en-us/articles/4401990990355-Best-practices-iOS-tracking-message) — Pre-prompt screen patterns
-
-### Tertiary (LOW confidence, needs validation)
-
-**Legal Compliance (requires counsel review):**
-- [Apple's new App Review Guidelines clamp down on apps sharing personal data with 'third-party AI' | TechCrunch](https://techcrunch.com/2025/11/13/apples-new-app-review-guidelines-clamp-down-on-apps-sharing-personal-data-with-third-party-ai/) — Guideline 5.1.2(i) announcement (Nov 2025)
-- [Voice Cloning Consent Laws by Country: Understanding Global Voice Rights in 2026 | Soundverse](https://www.soundverse.ai/blog/article/voice-cloning-consent-laws-by-country-1049) — International compliance summary
-- [Synthetic Media & Voice Cloning: Right of Publicity Risks for 2026 | Holon Law](https://holonlaw.com/entertainment-law/synthetic-media-voice-cloning-and-the-new-right-of-publicity-risk-map-for-2026/) — US state law requirements (Tennessee ELVIS Act, California AB 1836)
-
-**Submission Checklists (community resources):**
-- [App Store Requirements: iOS & Android Submission Guide 2026 | Natively](https://natively.dev/articles/app-store-requirements) — 2026 submission checklist
-- [TestFlight Beta Testing: The Complete Guide for iOS Developers](https://iossubmissionguide.com/testflight-beta-testing-complete-guide/) — Beta testing workflow
+### Tertiary (LOW confidence - needs validation)
+- Daily quota variance (50 vs 150 points) — verify on Spoonacular account creation
+- AVSpeechSynthesizer max text length — test with production recipes (>2000 words)
+- Spoonacular geolocation availability in free tier — test `location`/`radius` params during Phase 1
 
 ---
-*Research completed: 2026-03-30*
+*Research completed: 2026-04-04*
 *Ready for roadmap: yes*
