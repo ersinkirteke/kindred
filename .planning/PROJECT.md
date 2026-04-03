@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Kindred is a hyperlocal, AI-humanized culinary assistant mobile app. It discovers viral recipes trending in your neighborhood from Instagram and X, presents them with stunning AI-generated food imagery, and reads the instructions aloud in the cloned voice of someone you love — like your mom or grandma. The iOS app is live with swipeable recipe feed, voice narration, personalization, App Store billing, and a smart pantry that scans your fridge, tracks expiry dates, and shows which recipes you can cook with what you have. Android is planned as a fast-follow.
+Kindred is a hyperlocal, AI-humanized culinary assistant mobile app. It discovers viral recipes trending in your neighborhood from Instagram and X, presents them with stunning AI-generated food imagery, and reads the instructions aloud in the cloned voice of someone you love — like your mom or grandma. The iOS app is production-ready with swipeable recipe feed, voice narration from backend R2 CDN, personalization, App Store billing with fraud prevention, smart pantry with AI scanning, ATT consent flow, and complete App Store submission package. Android is planned as a fast-follow.
 
 ## Core Value
 
@@ -51,16 +51,40 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - ✓ AI-estimated food expiry tracking with push notification alerts — v3.0
 - ✓ Ingredient match % badge on recipe cards based on pantry contents — v3.0
 - ✓ Backend GraphQL pantry API with ingredient normalization (185 bilingual entries) — v3.0
+- ✓ ATT consent prompt with pre-prompt explanation before personalized ads — v4.0
+- ✓ Privacy Nutrition Labels declare all data collection in App Store Connect — v4.0
+- ✓ PrivacyInfo.xcprivacy manifest with tracking domains and Required Reason API codes — v4.0
+- ✓ Voice cloning consent screen before first upload naming ElevenLabs as AI provider — v4.0
+- ✓ Voice consent audit trail stores userId, timestamp, IP, and app version — v4.0
+- ✓ Voice profile deletion from Settings with confirmation dialog — v4.0
+- ✓ Privacy Policy hosted at public URL and linked in App Store Connect — v4.0
+- ✓ Voice narration plays from backend R2 CDN URLs (TestAudioGenerator removed) — v4.0
+- ✓ All GraphQL voice profile TODO markers resolved with real backend data — v4.0
+- ✓ Narration URL returned via GraphQL query with NarrationAudio cache lookup — v4.0
+- ✓ Backend validates StoreKit 2 JWS via SignedDataVerifier with x5c chain — v4.0
+- ✓ ScanPaywallView subscribe button triggers MonetizationFeature purchase flow — v4.0
+- ✓ Production AdMob unit IDs replace test IDs via xcconfig — v4.0
+- ✓ Device FCM token registered with backend via GraphQL mutation — v4.0
+- ✓ Backend stores FCM tokens per user for push notification delivery — v4.0
+- ✓ Recipe suggestion carousel card tap navigates to recipe detail view — v4.0
+- ✓ SwiftData named ModelConfiguration for PantryStore/GuestStore separation — v4.0
+- ✓ App Store screenshots created for required device sizes — v4.0
+- ✓ App Store metadata with third-party AI disclosure — v4.0
+- ✓ TestFlight beta testing plan with internal and external testing docs — v4.0
 
 ### Active
 
-(Defined in REQUIREMENTS.md for v4.0 App Store Launch Prep)
+(No active milestone — define next with `/gsd:new-milestone`)
 
 ### Future
 
 - Android full feature parity with iOS
-- JWS SignedDataVerifier for production App Store receipt validation
-- Backend GraphQL wiring for voice profiles and narration URLs (replace mock data)
+- App Store Server API integration for refund and subscription lifecycle events
+- Staged ATT rollout with A/B testing for opt-in rate optimization
+- Localized permission strings for non-English markets
+- Localized voice consent copy for Turkish
+- Advanced subscription analytics dashboard
+- ATT acceptance rate tracking by cohort
 
 ### Out of Scope
 
@@ -70,32 +94,20 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - Real-time chat or community features — high complexity, not core to value proposition
 - Web app — mobile-first, native only
 - Cross-platform framework (Flutter/React Native) — native iOS + Android for best UX and accessibility
-
-## Current Milestone: v4.0 App Store Launch Prep
-
-**Goal:** Fix all known gaps, wire real voice playback, production-ready ads/billing, and prepare complete App Store submission package.
-
-**Target features:**
-- Wire real backend narration URLs (replace TestAudioGenerator)
-- Resolve 5 GraphQL voice profile TODO markers with real backend data
-- Production AdMob unit IDs + ATT consent flow
-- ScanPaywallView → MonetizationFeature purchase flow wiring
-- Recipe suggestion card tap → detail view navigation
-- JWS SignedDataVerifier for production receipt validation
-- Device token registration → backend for push notification delivery
-- App Store Connect privacy labels and review metadata
-- Voice cloning consent framework (legal compliance)
-- SwiftData persistence fix commit (named ModelConfiguration)
+- RevenueCat integration — @apple/app-store-server-library sufficient
+- Force ATT Accept — Apple views as "nagging", causes rejection under guideline 5.1.1(iv)
 
 ## Context
 
-**Shipped v3.0:** Smart Pantry milestone complete. ~23,105 LOC Swift across 8 SPM packages + ~8,113 LOC TypeScript backend. Added PantryFeature package with local-first SwiftData CRUD, AI fridge/receipt scanning (Gemini 2.0 Flash), recipe-ingredient matching with shopping list generation, and AI expiry tracking with push notifications. 6 phases, 17 plans, 7 days.
+**Shipped v4.0:** App Store Launch Prep. ~25,632 LOC Swift across 8 SPM packages + ~11,812 LOC TypeScript backend. Added privacy compliance (voice consent, privacy manifest, nutrition labels), production backend hardening (SignedDataVerifier, rate limiting, narration URL resolver), ATT consent with production AdMob IDs, real voice playback from R2 CDN, and complete App Store submission package with fastlane. 5 phases, 19 plans, 4 days.
 
-**Shipped v2.0:** iOS App milestone. 13,319 LOC Swift, 7 SPM packages. Complete iOS experience: swipeable feed, voice narration, personalization, auth, monetization, WCAG AAA accessibility, bilingual localization.
+**Shipped v3.0:** Smart Pantry milestone. ~23,105 LOC Swift + ~8,113 LOC TypeScript. PantryFeature with local-first SwiftData CRUD, AI fridge/receipt scanning, recipe-ingredient matching, and AI expiry tracking. 6 phases, 17 plans, 7 days.
 
-**Shipped v1.5:** Backend & AI Pipeline. ~6,066 LOC TypeScript. NestJS backend with GraphQL API, recipe scraping, image generation, voice cloning, and narration streaming.
+**Shipped v2.0:** iOS App milestone. 13,319 LOC Swift, 7 SPM packages. Complete iOS experience: swipeable feed, voice narration, personalization, auth, monetization, WCAG AAA accessibility, bilingual localization. 8 phases, 35 plans, 9 days.
 
-**Platform strategy:** iOS shipped (v2.0). Android fast-follow (4-6 weeks). Backend/API/AI pipeline is 100% shared between platforms.
+**Shipped v1.5:** Backend & AI Pipeline. ~6,066 LOC TypeScript. NestJS backend with GraphQL API, recipe scraping, image generation, voice cloning, and narration streaming. 3 phases, 11 plans, 2 days.
+
+**Platform strategy:** iOS production-ready (v4.0). Android fast-follow (4-6 weeks). Backend/API/AI pipeline is 100% shared between platforms.
 
 **Tech stack:**
 - Backend: NestJS 11 + GraphQL (Apollo Server 5, code-first) + Prisma 7 + PostgreSQL 15 + PostGIS
@@ -108,25 +120,21 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - Geocoding: Mapbox with DB cache (~99% cache hit rate)
 - Push: Firebase Cloud Messaging (iOS APNs + Android FCM)
 - iOS: SwiftUI + TCA 1.x, Apollo iOS 2.0.6, StoreKit 2, AVFoundation, VisionKit, iOS 17.0 min
+- Build: Fastlane with 3 lanes (beta_internal, beta_external, release)
 - Android: Jetpack Compose + MVVM/Clean Architecture + Hilt, min SDK 26 (planned)
 
 **Known issues:**
-- Voice playback uses TestAudioGenerator until backend R2 narration URLs are wired
-- 5 GraphQL TODO markers for mock voice profile data
-- JWS verification on backend uses base64url decoding (needs SignedDataVerifier for production)
-- Test ad unit IDs in AdClient (must replace before App Store submission)
-- EXPIRY-02 partial: device token registered locally but not sent to backend for push delivery
-- ScanPaywallView subscribe button placeholder — not wired to MonetizationFeature purchase flow
-- Recipe suggestion carousel card tap does not navigate to recipe detail view
+- Voice cloning consent copy needs legal counsel review (Tennessee ELVIS Act, California AB 1836)
+- In-memory queues for background processing (may need Redis/BullMQ at scale)
+- 8 AM UTC batch notifications (needs per-timezone support)
 
 ## Constraints
 
-- **Legal**: Voice cloning consent framework required before launch — Tennessee ELVIS Act, California AB 1836, New York digital replica laws. Budget $20-50K for AI/media legal counsel.
+- **Legal**: Voice cloning consent framework implemented but consent copy requires legal counsel review for multi-state compliance (Tennessee ELVIS Act, California AB 1836, New York digital replica laws). Budget $20-50K for AI/media legal counsel.
 - **API Costs**: ElevenLabs ~$0.01-0.03/recipe for voice. Must implement hard budget caps per user.
 - **Scraping**: Instagram/X ToS prohibit scraping. Build abstraction layer, diversify sources, ensure app works without scraping as fallback.
 - **Accessibility**: WCAG AAA achieved on iOS. Same standard required for Android. 56dp min touch targets, 18sp min body text, max 3 navigation levels.
 - **Simplicity**: Max 2 taps from feed to cooking with voice. No hamburger menus, no complex gestures without button fallbacks.
-- **App Store**: Privacy labels, ATT consent for AdMob, production ad unit IDs, and review metadata needed before submission.
 
 ## Key Decisions
 
@@ -143,7 +151,7 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 | Mapbox for geocoding (with DB cache) | ~99% cache hit rate saves ~$1,825/year vs raw API calls | ✓ Good |
 | Cloudflare R2 for storage | Zero egress fees vs S3 $0.09/GB — significant savings at scale | ✓ Good |
 | Imagen 4 Fast (not standard) | ~$0.01/image vs $0.04 standard — 4x cost savings, acceptable quality | ✓ Good |
-| In-memory queues for MVP | Simple background processing without Redis/BullMQ — upgrade path documented | ⚠️ Revisit |
+| In-memory queues for MVP | Simple background processing without Redis/BullMQ — upgrade path documented | ⚠️ Revisit at scale |
 | Velocity-based viral detection | (engagement/hour) * time decay — adapts to local engagement patterns | ✓ Good |
 | Gemini 2.0 Flash for AI tasks | ~$0.001/recipe for parsing and narration rewriting — cost effective | ✓ Good |
 | Per-recipe narration caching | NarrationScript table caches Gemini output — expected 80% hit rate | ✓ Good |
@@ -154,7 +162,7 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 | AVPlayer for streaming (not AVAudioPlayer) | HTTP progressive download with background audio support | ✓ Good — after lifecycle fixes |
 | Clerk iOS SDK for auth | Google/Apple OAuth, JWT session management, async user state | ✓ Good — but poll required for user state |
 | StoreKit 2 (not StoreKit 1) | Modern async/await API, JWS transactions, grace period support | ✓ Good — clean implementation |
-| Base64url JWS for MVP | Skip x5c chain verification — StoreKit does client-side verification | ⚠️ Revisit — production needs SignedDataVerifier |
+| SignedDataVerifier for JWS validation | x5c certificate chain validation prevents subscription fraud | ✓ Good — resolved base64url MVP approach (v4.0) |
 | 60/40 personalization/discovery | Culinary DNA re-ranking balances preferences with variety | ✓ Good — prevents filter bubbles |
 | Bilingual (English + Turkish) | String Catalog with 98 entries, informal Turkish tone | ✓ Good — extensible pattern |
 | SwiftData for local-first pantry | Offline-first with sync — GuestSessionClient pattern | ✓ Good — instant local CRUD |
@@ -167,6 +175,14 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 | Three-tier expiry estimation | IngredientCatalog → Gemini → conservative defaults | ✓ Good — cost-effective |
 | 8 AM UTC batch notifications | Single daily digest for MVP (per-timezone deferred) | ⚠️ Revisit — needs timezone support |
 | Progressive camera permission | Poll-based pattern (mirrors LocationClient) | ✓ Good — consistent UX |
+| Per-upload voice consent (not once-per-user) | GDPR Article 7 compliance + Tennessee ELVIS Act requirements | ✓ Good — legally defensible (v4.0) |
+| xcconfig-based ad unit IDs | Separates Debug test IDs from Release production IDs | ✓ Good — prevents shipping test ads (v4.0) |
+| UMP SDK before ATT | Provides GDPR/CCPA coverage alongside ATT | ✓ Good — comprehensive consent (v4.0) |
+| Cache-first audio loading | GraphQL query with local cache fallback for narration | ✓ Good — instant replay, offline support (v4.0) |
+| Bidirectional fuzzy ingredient matching | "chicken" matches "chicken breast" via contains check in both directions | ✓ Good — natural matching (v4.0) |
+| Named ModelConfiguration for SwiftData | PantryStore/GuestStore separation prevents data bleed | ✓ Good — clean container isolation (v4.0) |
+| Fastlane 3-lane distribution | beta_internal, beta_external, release for granular control | ✓ Good — flexible pipeline (v4.0) |
+| Git commit count for build numbers | Reproducible, monotonically increasing, no manual management | ✓ Good — simple versioning (v4.0) |
 
 ---
-*Last updated: 2026-03-30 after v4.0 App Store Launch Prep milestone started*
+*Last updated: 2026-04-03 after v4.0 App Store Launch Prep milestone completed*

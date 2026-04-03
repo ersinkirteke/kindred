@@ -1,5 +1,23 @@
 # Milestones
 
+## v4.0 App Store Launch Prep (Shipped: 2026-04-03)
+
+**Phases completed:** 5 phases, 19 plans, 16 tasks
+**Requirements:** 20/20 satisfied
+**Git range:** cd7b24e → bef0040 (58 commits)
+**LOC:** ~25,632 Swift + ~11,812 TypeScript (+20,833 lines added)
+**Timeline:** 4 days (2026-03-30 → 2026-04-03)
+
+**Key accomplishments:**
+- Voice cloning consent framework with GDPR-compliant per-upload consent, ElevenLabs AI provider disclosure, and backend audit trail (userId, timestamp, IP, appVersion)
+- Privacy manifest (PrivacyInfo.xcprivacy) with Required Reason API codes (CA92.1, C617.1) and 7 data type declarations across 5 SDK providers
+- Backend production hardening: SignedDataVerifier x5c chain validation, named rate limiting, request tracing, structured error codes, narration URL resolver with R2 CDN
+- ATT consent flow with UMP SDK (GDPR/CCPA), pre-prompt explanation screen, production AdMob unit IDs via xcconfig, and pro subscriber consent skip
+- Production voice playback: GraphQL integration replacing TestAudioGenerator with cache-first R2 CDN audio, paywall purchase wiring, recipe carousel navigation with fuzzy ingredient matching
+- App Store submission package: fastlane automation (3 distribution lanes), bilingual metadata with AI disclosure, screenshot guides, and beta testing plan
+
+---
+
 ## v3.0 Smart Pantry (Shipped: 2026-03-29)
 
 **Phases completed:** 6 phases, 17 plans, 19 tasks

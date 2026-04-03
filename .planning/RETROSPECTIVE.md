@@ -92,6 +92,86 @@
 
 ---
 
+## Milestone: v3.0 — Smart Pantry
+
+**Shipped:** 2026-03-29
+**Phases:** 6 | **Plans:** 17
+
+### What Was Built
+- Persistent digital pantry with local-first SwiftData CRUD, offline-first sync, grouped storage locations
+- AI fridge photo scanning via Gemini 2.0 Flash with confidence-based ingredient checklist (Pro)
+- Receipt scanning with VisionKit live OCR + Gemini parsing to auto-populate pantry (Pro)
+- Client-side recipe-ingredient matching with colored match % badges and shopping list generation
+- AI-estimated expiry tracking with color-coded indicators, push alerts, and consume/discard gestures
+- Custom AVCaptureSession camera pipeline with blur detection, R2 upload, and Pro paywall gate
+
+### What Worked
+- SwiftData local-first pattern kept pantry responsive even offline
+- Client-side ingredient matching eliminated server round-trips for match % badges
+- IngredientCatalog (185 bilingual entries) provided consistent normalization
+- Three-tier expiry estimation (catalog → Gemini → defaults) balanced cost and accuracy
+- PantryFeature as standalone SPM package maintained modular architecture
+
+### What Was Inefficient
+- Some v3.0 tech debt deferred to v4.0 (device token registration, paywall wiring, navigation)
+- Receipt scanning accuracy depends on receipt quality — edge cases not fully addressed
+- 8 manual test scenarios in Phase 13 pending human execution
+
+### Patterns Established
+- SwiftData named ModelConfiguration for container isolation
+- Progressive camera permission (poll-based, mirrors LocationClient)
+- Base64 → Apollo multipart upload for camera photos
+- Bidirectional fuzzy ingredient matching (contains check both directions)
+
+### Key Lessons
+1. Local-first with sync-later works well for single-user data (pantry, guest session)
+2. AI vision (Gemini Flash) is cost-effective enough for per-scan usage (~$0.001)
+3. Excluding common staples from match % produces meaningful percentages
+4. Tech debt from one milestone naturally becomes requirements for the next
+
+---
+
+## Milestone: v4.0 — App Store Launch Prep
+
+**Shipped:** 2026-04-03
+**Phases:** 5 | **Plans:** 19
+
+### What Was Built
+- Voice cloning consent framework with GDPR per-upload consent and backend audit trail
+- Privacy manifest (PrivacyInfo.xcprivacy) with Required Reason API codes and 7 data type declarations
+- Backend production hardening: SignedDataVerifier, rate limiting, request tracing, narration URL resolver
+- ATT consent flow with UMP SDK, pre-prompt screen, production AdMob IDs via xcconfig
+- Production voice playback: GraphQL wiring replacing TestAudioGenerator with cache-first R2 CDN audio
+- Complete App Store submission package: fastlane, metadata, screenshots, beta testing plan
+
+### What Worked
+- Systematic gap closure: v3.0 tech debt items (5 GraphQL TODOs, paywall wiring, navigation, SwiftData) cleanly resolved
+- xcconfig-based configuration separating Debug/Release environments (ad IDs, API keys)
+- SignedDataVerifier replaced base64url MVP approach — clear upgrade path from earlier ⚠️ Revisit decision
+- Verification reports with human_needed status appropriately flagged device-only checks
+- Phase 20 gap closure (20-04) caught AdClient wiring and pro subscriber skip before archival
+
+### What Was Inefficient
+- Phase 20 verification found gaps (AdClient wiring, pro subscriber skip) that needed gap closure plan
+- Phase 22 plans were documentation-heavy (fastlane, metadata, screenshot guides) — minimal code, mostly templates
+- Some ROADMAP plan checkboxes were not updated during execution (19-02, 20-01, 20-02, 20-03 show unchecked despite having summaries)
+
+### Patterns Established
+- xcconfig for environment-specific configuration (Debug test IDs vs Release production IDs)
+- fatalError for unconfigured Release builds prevents shipping test credentials
+- Per-upload consent pattern for legally defensible AI processing consent
+- Cache-first audio loading: local cache → GraphQL fallback for narration
+- Fastlane 3-lane distribution (internal, external, release)
+
+### Key Lessons
+1. Gap closure after verification is now a reliable pattern (v2.0 Phase 11, v4.0 Phases 18-04, 20-04)
+2. xcconfig is the right way to manage environment-specific iOS configuration
+3. Documentation phases (metadata, guides) execute fast but provide essential submission artifacts
+4. ROADMAP checkbox state should be auto-updated by execution workflow to prevent drift
+5. Legal compliance work (consent framework) should start early — legal review is the long pole
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -100,6 +180,8 @@
 |-----------|----------|--------|------------|
 | v1.5 | ~4 | 3 | First milestone — established patterns for verification, archival, retrospective |
 | v2.0 | ~12 | 8 | Gap closure pattern, device verification standard, retroactive verification |
+| v3.0 | ~8 | 6 | Local-first data patterns, AI vision integration, progressive permission pattern |
+| v4.0 | ~6 | 5 | Compliance-first approach, xcconfig environment separation, gap closure as standard |
 
 ### Cumulative Quality
 
@@ -107,10 +189,23 @@
 |-----------|-------|----------|-----------------|
 | v1.5 | 13 (velocity scorer) | Partial (unit tests only) | 4 (in-memory queues, stale schema, tier field TODO, Instagram placeholder) |
 | v2.0 | 0 (UI app) | N/A | 3 (JWS SignedDataVerifier, GraphQL mock data, test ad IDs) |
+| v3.0 | 0 (feature app) | N/A | 4 (device tokens, paywall wiring, navigation, manual tests pending) |
+| v4.0 | 10 (ConsentReducer TCA) | Consent state machine | 3 (legal review, in-memory queues, timezone notifications) |
+
+### Velocity Trend
+
+| Milestone | Phases | Plans | Days | Plans/Day |
+|-----------|--------|-------|------|-----------|
+| v1.5 | 3 | 11 | 2 | 5.5 |
+| v2.0 | 8 | 35 | 9 | 3.9 |
+| v3.0 | 6 | 17 | 7 | 2.4 |
+| v4.0 | 5 | 19 | 4 | 4.8 |
 
 ### Top Lessons (Verified Across Milestones)
 
-1. Run phase verification immediately after execution (confirmed in both milestones)
-2. Device verification on physical device catches bugs builds miss (v2.0)
-3. Gap closure phases are effective for catching integration issues post-audit (v2.0)
-4. ROADMAP progress tables drift — automate or update per-plan (both milestones)
+1. Run phase verification immediately after execution (confirmed in all milestones)
+2. Device verification on physical device catches bugs builds miss (v2.0, v4.0)
+3. Gap closure phases are effective for catching integration issues post-audit (v2.0, v4.0)
+4. ROADMAP progress tables drift — automate or update per-plan (all milestones)
+5. Tech debt from one milestone cleanly becomes requirements for the next (v3.0 → v4.0)
+6. xcconfig-based environment separation prevents shipping test credentials (v4.0)
