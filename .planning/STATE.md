@@ -31,9 +31,9 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Milestone: v4.0 App Store Launch Prep
 Phase: 20 of 22 (ATT Consent & Production Ads)
-Plan: 3 of 3 in current phase (Phase 20 complete)
+Plan: 4 of 4 in current phase (Phase 20 complete)
 Status: Active
-Last activity: 2026-04-03 — Completed plan 20-03 (ATT Consent Testing & Verification) - Phase 20 complete
+Last activity: 2026-04-03 — Completed plan 20-04 (Gap closure: AdClient wiring + pro subscriber checks) - Phase 20 fully complete
 
 Progress: [████████████████░░░░] 89% (73/82 plans complete across all milestones)
 
@@ -82,6 +82,8 @@ See PROJECT.md Key Decisions table for full list (28 decisions tracked).
 
 Recent decisions affecting v4.0 work:
 
+- [Phase 20]: Synchronous adClient.configurePersonalization (non-async closure, no .run effect needed)
+- [Phase 20]: Pro subscriber consent skip via `case .pro` pattern match on subscriptionStatus
 - **NSPrivacyTracking false** (Phase 18-02): No IDFA usage, no cross-app tracking in v4.0 — ATT prompt not needed
 - **Required Reason API codes** (Phase 18-02): UserDefaults CA92.1 for app config, FileTimestamp C617.1 for pantry dates
 - **7 data types declared** (Phase 18-02): AudioData (ElevenLabs), CoarseLocation (Mapbox), EmailAddress (Clerk), UserID (Clerk), ProductInteraction (Firebase), CrashData (Firebase), PurchaseHistory (StoreKit)
@@ -140,7 +142,7 @@ Recent decisions affecting v4.0 work:
 ## Session Continuity
 
 Last session: 2026-04-03
-Stopped at: Completed 20-03-PLAN.md (ATT Consent Testing & Verification) - Phase 20 complete
+Stopped at: Completed 20-04-PLAN.md (Gap closure: AdClient wiring + pro subscriber checks) - Phase 20 fully complete
 Resume file: None
 Next action: Begin Phase 21 (Voice Playback & Monetization Integration)
 
