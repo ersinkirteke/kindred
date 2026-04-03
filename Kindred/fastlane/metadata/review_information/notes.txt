@@ -1,0 +1,33 @@
+APP DESCRIPTION
+
+Kindred is a cooking app that lets users hear recipes narrated in the voices of their loved ones using AI voice cloning. The app transforms the cooking experience by combining personalized voice narration with recipe discovery, smart pantry scanning, and location-based content.
+
+AI TECHNOLOGY DISCLOSURE
+
+Voice cloning is powered by ElevenLabs AI technology. Users must explicitly consent before uploading any voice audio. The consent screen names ElevenLabs by name and explains how voice data is processed. Users can delete their voice profile at any time from the Settings tab. Voice audio data is processed securely by ElevenLabs and stored in compliance with voice privacy regulations.
+
+DEMO ACCOUNT CREDENTIALS
+
+Demo account: [DEMO_EMAIL] / [DEMO_PASSWORD]
+
+This demo account has an active sandbox subscription (Kindred Pro) and a pre-loaded voice profile named "Kindred Voice" for testing the voice narration feature. You can test voice playback on any recipe detail screen by tapping the Play button.
+
+KEY FEATURES TO TEST
+
+1. Voice Narration: Play/pause voice narration on recipe detail screens. The AI-cloned voice reads recipe steps aloud.
+2. Recipe Browsing: Scroll through location-based recipe feed with hero images and metadata.
+3. Pantry Scanning: Use camera to scan ingredients, see match percentages on recipe cards.
+4. Subscription Purchase: Purchase Kindred Pro subscription in sandbox mode to unlock ad-free experience and unlimited features.
+5. Onboarding Flow: Complete dietary preferences, location selection, and optional voice feature teaser.
+
+AGE RATING
+
+4+ (no sensitive content — cooking and recipes only)
+
+EXPORT COMPLIANCE
+
+Standard HTTPS-only encryption. No custom encryption. Export compliance exemption applies (ITSAppUsesNonExemptEncryption = NO).
+
+SUBMISSION NOTES
+
+This is the initial beta build for Kindred. First-time submission to TestFlight for internal and external testing before App Store release.
