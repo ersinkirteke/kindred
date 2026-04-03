@@ -84,7 +84,14 @@ private class GuestSessionStore {
 
     private init() {
         do {
-            modelContainer = try ModelContainer(for: GuestBookmark.self, GuestSkip.self)
+            let config = ModelConfiguration(
+                "GuestStore",
+                schema: Schema([GuestBookmark.self, GuestSkip.self])
+            )
+            modelContainer = try ModelContainer(
+                for: GuestBookmark.self, GuestSkip.self,
+                configurations: config
+            )
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
