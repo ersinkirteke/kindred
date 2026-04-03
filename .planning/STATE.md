@@ -1,37 +1,38 @@
 ---
 gsd_state_version: 1.0
-milestone: v4.0
-milestone_name: App Store Launch Prep
-status: completed
-last_updated: "2026-04-03T20:30:00.000Z"
+milestone: v5.0
+milestone_name: Lean App Store Launch
+status: defining_requirements
+last_updated: "2026-04-04T00:00:00.000Z"
 progress:
-  total_phases: 22
-  completed_phases: 22
-  total_plans: 71
-  completed_plans: 71
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State: Kindred
 
-**Last Updated:** 2026-04-03
-**Status:** All milestones complete — ready for next milestone
+**Last Updated:** 2026-04-04
+**Status:** Defining requirements for v5.0
 
 ---
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-03)
+See: .planning/PROJECT.md (updated 2026-04-04)
 
 **Core value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
-**Current focus:** All milestones shipped (v1.5, v2.0, v3.0, v4.0) — planning next milestone
+**Current focus:** v5.0 Lean App Store Launch — free-tier backend pivot + App Store submission
 
 ---
 
 ## Current Position
 
-All milestones complete. 22 phases, 71 plans shipped across 4 milestones.
-
-Progress: [████████████████████] 100% (71/71 plans complete)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-04 — Milestone v5.0 started
 
 ---
 
@@ -49,6 +50,7 @@ Progress: [████████████████████] 100% (7
 | v2.0 iOS App | 8 | 35 | 9 days |
 | v3.0 Smart Pantry | 6 | 17 | 7 days |
 | v4.0 Launch Prep | 5 | 19 | 4 days |
+| v5.0 Lean Launch | — | — | In progress |
 
 ---
 
@@ -67,17 +69,17 @@ None
 - Voice cloning consent copy requires legal counsel review ($20-50K, 2-4 weeks)
 - In-memory queues may need Redis/BullMQ at scale
 - Notification batch needs per-timezone support
+- Spoonacular free tier: 150 req/day limit — need caching strategy
 
 ---
 
 ## Session Continuity
 
-Last session: 2026-04-03
-Stopped at: Completed v4.0 milestone archival
+Last session: 2026-04-04
+Stopped at: Defining v5.0 requirements
 Resume file: None
-Next action: `/gsd:new-milestone` to plan next version
+Next action: Complete requirements → roadmap
 
 ---
 
-*State initialized: 2026-03-30 — v4.0 App Store Launch Prep milestone*
-*v4.0 archived: 2026-04-03*
+*State initialized: 2026-04-04 — v5.0 Lean App Store Launch milestone*

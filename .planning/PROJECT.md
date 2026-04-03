@@ -74,7 +74,18 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 
 ### Active
 
-(No active milestone — define next with `/gsd:new-milestone`)
+## Current Milestone: v5.0 Lean App Store Launch
+
+**Goal:** Strip expensive backend dependencies, replace with free alternatives, and ship the iOS app to the App Store with zero monthly SaaS costs.
+
+**Target features:**
+- Replace X API scraping with Spoonacular free recipe API (150 req/day)
+- Use Spoonacular-provided recipe images instead of Imagen 4 AI generation
+- Replace ElevenLabs with Apple AVSpeechSynthesizer for free-tier voice narration
+- Keep ElevenLabs voice cloning behind Pro paywall only
+- Update feed framing from "viral near you" to "popular recipes"
+- Submit iOS app to App Store via fastlane
+- All core features run on $0/month SaaS (free tiers only)
 
 ### Future
 
@@ -185,4 +196,4 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 | Git commit count for build numbers | Reproducible, monotonically increasing, no manual management | ✓ Good — simple versioning (v4.0) |
 
 ---
-*Last updated: 2026-04-03 after v4.0 App Store Launch Prep milestone completed*
+*Last updated: 2026-04-04 after v5.0 Lean App Store Launch milestone started*
