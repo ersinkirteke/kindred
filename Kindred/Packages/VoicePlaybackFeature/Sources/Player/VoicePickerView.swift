@@ -60,7 +60,15 @@ public struct VoicePickerView: View {
                             VoiceCardView(
                                 profile: profile,
                                 isSelected: profile.id == selectedVoiceId,
-                                onSelect: { onSelect(profile.id) },
+                                subscriptionStatus: subscriptionStatus,
+                                onSelect: {
+                                    // Check if voice is locked
+                                    if isVoiceLocked(profile) {
+                                        onUpgradeTapped()
+                                    } else {
+                                        onSelect(profile.id)
+                                    }
+                                },
                                 onPreview: { onPreview(profile.id) }
                             )
                         }
@@ -146,6 +154,27 @@ public struct VoicePickerView: View {
             }
         }
     }
+
+    /// Check if voice is locked for current user
+    private func isVoiceLocked(_ profile: VoiceProfile) -> Bool {
+        // Default "Kindred Voice" always unlocked
+        if profile.id == "kindred-default" {
+            return false
+        }
+
+        // Free users: only default voice unlocked, all others locked
+        if case .free = subscriptionStatus {
+            return true
+        }
+
+        // Pro users: all voices unlocked
+        if case .pro = subscriptionStatus {
+            return false
+        }
+
+        // Unknown/guest: lock non-default voices
+        return true
+    }
 }
 
 // MARK: - VoiceCardView
@@ -153,8 +182,29 @@ public struct VoicePickerView: View {
 struct VoiceCardView: View {
     let profile: VoiceProfile
     let isSelected: Bool
+    let subscriptionStatus: SubscriptionStatus
     let onSelect: () -> Void
     let onPreview: () -> Void
+
+    private var isLocked: Bool {
+        // Default "Kindred Voice" always unlocked
+        if profile.id == "kindred-default" {
+            return false
+        }
+
+        // Free users: lock all non-default voices
+        if case .free = subscriptionStatus {
+            return true
+        }
+
+        // Pro users: all unlocked
+        if case .pro = subscriptionStatus {
+            return false
+        }
+
+        // Unknown/guest: lock non-default
+        return true
+    }
 
     var body: some View {
         Button {
@@ -202,8 +252,16 @@ struct VoiceCardView: View {
 
                 Spacer()
 
+                // Lock icon for Pro voices (free users)
+                if isLocked {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(.kindredTextSecondary)
+                        .accessibilityLabel(String(localized: "Pro feature", bundle: .main))
+                }
+
                 // Preview button
-                if profile.sampleAudioURL != nil {
+                if profile.sampleAudioURL != nil && !isLocked {
                     Button {
                         onPreview()
                     } label: {
@@ -217,7 +275,7 @@ struct VoiceCardView: View {
                 }
 
                 // Checkmark for selected
-                if isSelected {
+                if isSelected && !isLocked {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 24))
                         .foregroundStyle(.kindredAccent)

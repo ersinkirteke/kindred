@@ -127,11 +127,15 @@ public struct MiniPlayerView: View {
     private func trackInfo(playback: CurrentPlayback) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             if case let .error(message) = playback.status {
-                Text(String(localized: "Error", bundle: .main))
+                Text(detectOfflineError(message)
+                    ? String(localized: "Connection lost", bundle: .main)
+                    : String(localized: "Error", bundle: .main))
                     .font(.kindredBodyBold())
                     .foregroundStyle(.red)
                     .lineLimit(1)
-                Text(message)
+                Text(detectOfflineError(message)
+                    ? String(localized: "Tap to retry", bundle: .main)
+                    : String(localized: "Tap to retry", bundle: .main))
                     .font(.kindredCaption())
                     .foregroundStyle(.red)
                     .lineLimit(2)
@@ -148,31 +152,44 @@ public struct MiniPlayerView: View {
         }
     }
 
+    private func detectOfflineError(_ message: String) -> Bool {
+        let lowercased = message.lowercased()
+        return lowercased.contains("offline") || lowercased.contains("network") || lowercased.contains("internet")
+    }
+
     @ViewBuilder
     private func playPauseButton(playback: CurrentPlayback) -> some View {
         Button {
-            if playback.status == .playing || playback.status == .buffering {
+            if case .error = playback.status {
+                store.send(.retryNarration)
+            } else if playback.status == .playing || playback.status == .buffering {
                 store.send(.pause)
             } else {
                 store.send(.play)
             }
         } label: {
             if case .error = playback.status {
-                Image(systemName: "exclamationmark.triangle.fill")
+                Image(systemName: "arrow.clockwise")
                     .font(.system(size: 20))
                     .foregroundStyle(.red)
-            } else if store.isLoadingNarration || playback.status == .loading {
+            } else if store.isLoadingNarration || playback.status == .loading || playback.status == .buffering {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
                     .frame(width: 20, height: 20)
             } else {
-                Image(systemName: (playback.status == .playing || playback.status == .buffering) ? "pause.fill" : "play.fill")
+                Image(systemName: (playback.status == .playing) ? "pause.fill" : "play.fill")
                     .font(.system(size: 20))
                     .foregroundStyle(.kindredAccent)
             }
         }
         .frame(width: 44, height: 44)
-        .accessibilityLabel(playback.status == .playing ? String(localized: "Pause", bundle: .main) : String(localized: "Play", bundle: .main))
+        .accessibilityLabel({
+            if case .error = playback.status {
+                return String(localized: "Retry", bundle: .main)
+            } else {
+                return playback.status == .playing ? String(localized: "Pause", bundle: .main) : String(localized: "Play", bundle: .main)
+            }
+        }())
         .accessibilityHint(playback.status == .playing ? String(localized: "accessibility.mini_player.pause_hint", bundle: .main) : String(localized: "accessibility.mini_player.play_hint", bundle: .main))
     }
 }

@@ -31,11 +31,11 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Milestone: v4.0 App Store Launch Prep
 Phase: 21 of 22 (Voice Playback & Monetization Integration)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: Active
-Last activity: 2026-04-03 — Completed plan 21-04 (SwiftData container separation for GuestStore)
+Last activity: 2026-04-03 — Completed plan 21-02 (Wire ScanPaywallView to real StoreKit purchase flow)
 
-Progress: [████████████████░░░░] 94% (64/68 plans complete across all milestones)
+Progress: [████████████████░░░░] 95% (65/68 plans complete across all milestones)
 
 ---
 
@@ -74,6 +74,7 @@ Progress: [████████████████░░░░] 94% (64
 | Phase 20 P02 | 170 | 2 tasks | 9 files |
 | Phase 20 P03 | 175137 | 2 tasks | 4 files |
 | Phase 21 P04 | 402 | 1 tasks | 1 files |
+| Phase 21 | P02 | 575 | 2 | 3 |
 
 ## Accumulated Context
 

@@ -199,26 +199,44 @@ public struct ExpandedPlayerView: View {
 
         // Play/pause (64dp per VOICE-02 requirement, scaled)
         Button {
-            if playback.status == .playing || playback.status == .buffering {
+            if case .error = playback.status {
+                store.send(.retryNarration)
+            } else if playback.status == .playing || playback.status == .buffering {
                 store.send(.pause)
             } else {
                 store.send(.play)
             }
             HapticFeedback.medium()
         } label: {
-            if store.isLoadingNarration || playback.status == .loading {
+            if case .error = playback.status {
+                VStack(spacing: 8) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: playButtonSize * 0.6))
+                        .foregroundStyle(.red)
+                    Text(String(localized: "Retry", bundle: .main))
+                        .font(.kindredCaption())
+                        .foregroundStyle(.red)
+                }
+                .frame(width: playButtonSize, height: playButtonSize)
+            } else if store.isLoadingNarration || playback.status == .loading || playback.status == .buffering {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .kindredAccent))
                     .scaleEffect(2.0)
                     .frame(width: playButtonSize, height: playButtonSize)
             } else {
-                Image(systemName: (playback.status == .playing || playback.status == .buffering) ? "pause.circle.fill" : "play.circle.fill")
+                Image(systemName: (playback.status == .playing) ? "pause.circle.fill" : "play.circle.fill")
                     .font(.system(size: playButtonSize))
                     .foregroundStyle(.kindredAccent)
             }
         }
         .frame(width: playButtonSize, height: playButtonSize)
-        .accessibilityLabel(playback.status == .playing ? String(localized: "Pause", bundle: .main) : String(localized: "Play", bundle: .main))
+        .accessibilityLabel({
+            if case .error = playback.status {
+                return String(localized: "Retry playback", bundle: .main)
+            } else {
+                return playback.status == .playing ? String(localized: "Pause", bundle: .main) : String(localized: "Play", bundle: .main)
+            }
+        }())
         .accessibilityHint(String(localized: "accessibility.expanded_player.playback_hint", bundle: .main))
 
         // Skip forward 30s

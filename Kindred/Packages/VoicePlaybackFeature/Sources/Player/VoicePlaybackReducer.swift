@@ -39,6 +39,7 @@ public struct VoicePlaybackReducer {
         public var voiceUpload: VoiceUploadReducer.State?
         public var subscriptionStatus: SubscriptionStatus = .unknown
         public var showPaywall: Bool = false
+        public var hasNarration: Bool = true
 
         public init(
             currentPlayback: CurrentPlayback? = nil,
@@ -56,7 +57,8 @@ public struct VoicePlaybackReducer {
             pendingArtworkURL: String? = nil,
             voiceUpload: VoiceUploadReducer.State? = nil,
             subscriptionStatus: SubscriptionStatus = .unknown,
-            showPaywall: Bool = false
+            showPaywall: Bool = false,
+            hasNarration: Bool = true
         ) {
             self.currentPlayback = currentPlayback
             self.isExpanded = isExpanded
@@ -74,6 +76,7 @@ public struct VoicePlaybackReducer {
             self.voiceUpload = voiceUpload
             self.subscriptionStatus = subscriptionStatus
             self.showPaywall = showPaywall
+            self.hasNarration = hasNarration
         }
     }
 
@@ -110,6 +113,8 @@ public struct VoicePlaybackReducer {
         case upgradeTapped
         case showPaywall
         case dismissPaywall
+        case narrationAvailabilityChecked(Bool)
+        case retryNarration
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -160,6 +165,9 @@ public struct VoicePlaybackReducer {
             case (.upgradeTapped, .upgradeTapped): return true
             case (.showPaywall, .showPaywall): return true
             case (.dismissPaywall, .dismissPaywall): return true
+            case let (.narrationAvailabilityChecked(lVal), .narrationAvailabilityChecked(rVal)):
+                return lVal == rVal
+            case (.retryNarration, .retryNarration): return true
             default:
                 return false
             }
@@ -212,11 +220,19 @@ public struct VoicePlaybackReducer {
 
             case let .startPlayback(recipeId, recipeName, artworkURL, steps):
                 state.recipeSteps = steps
-                state.isLoadingNarration = true
-                state.error = nil
                 state.pendingRecipeId = recipeId
                 state.pendingRecipeName = recipeName
                 state.pendingArtworkURL = artworkURL
+
+                // Early exit if narration not available
+                if !state.hasNarration {
+                    state.error = "Narration not available"
+                    state.isLoadingNarration = false
+                    return .none
+                }
+
+                state.isLoadingNarration = true
+                state.error = nil
 
                 // Check last used voice for this recipe
                 if let lastVoiceId = state.lastUsedVoicePerRecipe[recipeId] {
@@ -815,6 +831,18 @@ public struct VoicePlaybackReducer {
             case .dismissPaywall:
                 state.showPaywall = false
                 return .none
+
+            case let .narrationAvailabilityChecked(hasNarration):
+                state.hasNarration = hasNarration
+                return .none
+
+            case .retryNarration:
+                // Re-fetch narration with current voice and recipe
+                guard let voiceId = state.selectedVoiceId,
+                      let recipeId = state.pendingRecipeId ?? state.currentPlayback?.recipeId else {
+                    return .none
+                }
+                return .send(.selectVoice(voiceId))
             }
         }
         .onChange(of: \.currentPlayback) { oldValue, newValue in
