@@ -180,8 +180,8 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 22-01-PLAN.md — Fastlane setup + App Store metadata with AI disclosure (en-US + tr) (SUBMIT-02)
-- [ ] 22-02-PLAN.md — Screenshot directory structure, capture guide, and app icon brief (SUBMIT-01)
+- [x] 22-01-PLAN.md — Fastlane setup + App Store metadata with AI disclosure (en-US + tr) (SUBMIT-02)
+- [x] 22-02-PLAN.md — Screenshot directory structure, capture guide, and app icon brief (SUBMIT-01)
 - [ ] 22-03-PLAN.md — TestFlight beta testing docs, review notes, and pre-submission checklist (SUBMIT-03)
 
 </details>
@@ -211,7 +211,7 @@ Plans:
 | 19. Backend Hardening | 4/4 | Complete    | 2026-03-30 | - |
 | 20. ATT & Ads | 3/3 | Complete   | 2026-04-03 | - |
 | 21. Voice & Monetization | 4/4 | Complete    | 2026-04-03 | - |
-| 22. TestFlight & Submission | 1/3 | In Progress|  | - |
+| 22. TestFlight & Submission | 2/3 | In Progress|  | - |
 
 ---
 

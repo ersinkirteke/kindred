@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 status: completed
-last_updated: "2026-04-03T13:27:34.875Z"
+last_updated: "2026-04-03T13:44:34.628Z"
 progress:
   total_phases: 19
   completed_phases: 17
   total_plans: 71
-  completed_plans: 68
+  completed_plans: 69
 ---
 
 # Project State: Kindred
@@ -30,21 +30,21 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 ## Current Position
 
 Milestone: v4.0 App Store Launch Prep
-Phase: 21 of 22 (Voice Playback & Monetization Integration)
-Plan: 3 of 4 in current phase
+Phase: 22 of 22 (TestFlight Beta & Submission Prep)
+Plan: 2 of 3 in current phase
 Status: Active
-Last activity: 2026-04-03 — Completed plan 21-03 (Recipe carousel navigation + pantry ingredient badges)
+Last activity: 2026-04-03 — Completed plan 22-02 (Screenshot guide & app icon brief)
 
-Progress: [████████████████░░░░] 96% (66/68 plans complete across all milestones)
+Progress: [████████████████░░░░] 97% (69/71 plans complete across all milestones)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 66 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 13)
+- Total plans completed: 69 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 16)
 - Total execution time: 18 days + 49h 0m across 3 milestones
-- v4.0: 13 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 complete, Phase 21: 3 of 4 plans)
+- v4.0: 16 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 complete, Phase 21 complete, Phase 22: 2 of 3 plans)
 
 **By Milestone:**
 
@@ -53,9 +53,9 @@ Progress: [████████████████░░░░] 96% (66
 | v1.5 Backend & AI | 3 | 11 | 2 days |
 | v2.0 iOS App | 8 | 35 | 9 days |
 | v3.0 Smart Pantry | 6 | 17 | 7 days |
-| v4.0 Launch Prep | 5 | 10/TBD | 48h 40m |
+| v4.0 Launch Prep | 5 | 16/TBD | 48h 50m |
 
-**Recent Trend:** Phase 19 complete (4 of 4 plans), Phase 20 complete (3 of 3 plans), Phase 21 in progress (1 of 4 plans)
+**Recent Trend:** Phase 20 complete (4 of 4 plans), Phase 21 complete (4 of 4 plans), Phase 22 in progress (2 of 3 plans)
 
 ---
 
@@ -79,6 +79,7 @@ Progress: [████████████████░░░░] 96% (66
 | Phase 21 P04 | 402 | 1 tasks | 1 files |
 | Phase 21 P01 | 754 | 2 tasks | 11 files |
 | Phase 22 P01 | 190 | 2 tasks | 21 files |
+| Phase 22 P02 | 11 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -134,6 +135,10 @@ Recent decisions affecting v4.0 work:
 - [Phase 22-01]: Build number source: Git commit count (number_of_commits) for reproducible versioning
 - [Phase 22-01]: Metadata tone: Warm, personal, family-focused language with emotional hooks aligning with core value proposition
 - [Phase 22-01]: AI disclosure: Dedicated 'ABOUT AI VOICE TECHNOLOGY' section with explicit ElevenLabs naming for Apple Guideline 5.1.2(i) compliance
+- [Phase 22-02]: Screenshot creation workflow: Manual via Simulator + Figma (not automated)
+- [Phase 22-02]: Screenshot dimensions: 1320x2868px (iPhone 16 Pro Max 6.9" only)
+- [Phase 22-02]: Marketing overlay design: Gradient background + headline text + app screenshot composite
+- [Phase 22-02]: App icon style: Warm cooking theme with orange/red palette (#FF6B35, #E85D3A)
 
 ### Pending Todos
 
@@ -157,9 +162,9 @@ None - DATA-01 SwiftData persistence fix completed in Phase 21-04
 ## Session Continuity
 
 Last session: 2026-04-03
-Stopped at: Completed 21-04-PLAN.md (SwiftData container separation for GuestStore)
+Stopped at: Completed 22-02-PLAN.md (Screenshot guide & app icon brief)
 Resume file: None
-Next action: Continue Phase 21 - Execute plans 21-01, 21-02, 21-03
+Next action: Execute Phase 22 plan 22-03 (TestFlight beta testing docs)
 
 ---
 
