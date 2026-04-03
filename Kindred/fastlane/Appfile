@@ -1,0 +1,9 @@
+app_identifier "com.ersinkirteke.kindred"
+team_id "CV9G42QVG4"
+
+# App Store Connect API Key (preferred over password auth)
+# Generate at: https://appstoreconnect.apple.com/access/integrations/api
+# Set via environment variables:
+#   APP_STORE_CONNECT_API_KEY_ID
+#   APP_STORE_CONNECT_ISSUER_ID
+#   APP_STORE_CONNECT_API_KEY_FILEPATH (path to .p8 file)

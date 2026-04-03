@@ -1,0 +1,28 @@
+# App Store Connect delivery configuration
+app_identifier "com.ersinkirteke.kindred"
+team_id "CV9G42QVG4"
+
+# Metadata and screenshot paths
+metadata_path "./fastlane/metadata"
+screenshots_path "./fastlane/screenshots"
+
+# Submission configuration
+force true
+skip_binary_upload true
+
+# Pricing
+price_tier 0  # Free with IAP
+
+# App details
+platform "ios"
+primary_category "FOOD_AND_DRINK"
+
+# Release configuration
+automatic_release true
+phased_release false
+submission_information({
+  add_id_info_uses_idfa: false,
+  export_compliance_uses_encryption: true,
+  export_compliance_encryption_updated: false,
+  export_compliance_is_exempt: true
+})

@@ -1,0 +1,126 @@
+# Fastlane configuration for Kindred iOS app
+# Note: This project uses XcodeGen (project.yml), so build number increments
+# are managed via the generated .xcodeproj file, not project.yml.
+# The CURRENT_PROJECT_VERSION in project.yml is separate from fastlane's runtime build numbering.
+
+default_platform(:ios)
+
+platform :ios do
+  before_all do
+    # Verify we're in the correct directory
+    ensure_git_status_clean unless ENV["SKIP_GIT_STATUS_CHECK"]
+
+    # Change to Kindred directory where Xcode project is located
+    Dir.chdir("..") do
+      unless File.exist?("Kindred.xcodeproj")
+        UI.user_error!("Kindred.xcodeproj not found. Run from fastlane directory.")
+      end
+    end
+  end
+
+  desc "Build and distribute internal TestFlight beta"
+  lane :beta_internal do
+    # Increment build number based on git commits for reproducibility
+    Dir.chdir("..") do
+      increment_build_number(
+        xcodeproj: "Kindred.xcodeproj",
+        build_number: number_of_commits
+      )
+    end
+
+    # Build the app
+    Dir.chdir("..") do
+      build_app(
+        scheme: "Kindred",
+        configuration: "Release",
+        export_method: "app-store"
+      )
+    end
+
+    # Upload to TestFlight
+    upload_to_testflight(
+      skip_waiting_for_build_processing: false,
+      distribute_external: false,
+      groups: ["Internal Testers"]
+    )
+
+    UI.success("Internal beta build uploaded successfully!")
+  end
+
+  desc "Build and distribute external TestFlight beta"
+  lane :beta_external do
+    # Increment build number based on git commits for reproducibility
+    Dir.chdir("..") do
+      increment_build_number(
+        xcodeproj: "Kindred.xcodeproj",
+        build_number: number_of_commits
+      )
+    end
+
+    # Build the app
+    Dir.chdir("..") do
+      build_app(
+        scheme: "Kindred",
+        configuration: "Release",
+        export_method: "app-store"
+      )
+    end
+
+    # Upload to TestFlight with beta review info
+    upload_to_testflight(
+      distribute_external: true,
+      groups: ["External Testers"],
+      changelog: "Welcome to the Kindred beta! This is the initial beta release.\n\nKey features:\n• Voice narration with AI-cloned voices (powered by ElevenLabs)\n• Trending local recipes from your city\n• Smart pantry scanning\n• Dietary personalization\n\nWe'd love your feedback as we prepare for the App Store launch!",
+      beta_app_review_info: {
+        contact_email: ENV["BETA_CONTACT_EMAIL"] || "support@kindred.app",
+        contact_first_name: "Ersin",
+        contact_last_name: "Kirteke",
+        contact_phone: ENV["BETA_CONTACT_PHONE"] || "+1-555-000-0000",
+        demo_account_required: true,
+        demo_account_name: ENV["BETA_DEMO_EMAIL"] || "beta@kindred.app",
+        demo_account_password: ENV["BETA_DEMO_PASSWORD"] || "demo123",
+        notes: "IMPORTANT: This app uses ElevenLabs AI voice cloning technology.\n\n" \
+               "Voice profiles require explicit user consent before upload. " \
+               "Users can delete voice profiles from Settings at any time.\n\n" \
+               "Demo account: Login with the provided credentials above. " \
+               "Voice narration requires internet connection and ElevenLabs API access."
+      }
+    )
+
+    UI.success("External beta build uploaded successfully!")
+  end
+
+  desc "Build and submit to App Store"
+  lane :release do
+    # Increment build number based on git commits for reproducibility
+    Dir.chdir("..") do
+      increment_build_number(
+        xcodeproj: "Kindred.xcodeproj",
+        build_number: number_of_commits
+      )
+    end
+
+    # Build the app
+    Dir.chdir("..") do
+      build_app(
+        scheme: "Kindred",
+        configuration: "Release",
+        export_method: "app-store"
+      )
+    end
+
+    # Upload to App Store Connect and submit for review
+    upload_to_app_store(
+      submit_for_review: true,
+      automatic_release: true,
+      submission_information: {
+        add_id_info_uses_idfa: false,
+        export_compliance_uses_encryption: true,
+        export_compliance_encryption_updated: false,
+        export_compliance_is_exempt: true
+      }
+    )
+
+    UI.success("App submitted to App Store successfully!")
+  end
+end

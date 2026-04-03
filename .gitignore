@@ -29,3 +29,12 @@ Pods/
 
 # Claude Code
 .agents/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+*.ipa
+*.dSYM.zip
+*.p8
