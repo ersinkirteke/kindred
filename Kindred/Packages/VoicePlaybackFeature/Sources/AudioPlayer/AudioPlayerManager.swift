@@ -301,59 +301,6 @@ public actor AudioPlayerManager {
     }
 }
 
-// MARK: - TestAudioGenerator
-
-public enum TestAudioGenerator {
-    /// Creates a 10-second sine wave WAV audio file in the caches directory for testing.
-    /// Returns the file URL. Reuses existing file if already created.
-    public static func createTestFile() -> URL {
-        let cachesDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
-        let url = cachesDir.appendingPathComponent("kindred_test_narration.wav")
-
-        if FileManager.default.fileExists(atPath: url.path) {
-            logger.info("🎵 Test file already exists at \(url.path)")
-            return url
-        }
-
-        do {
-            let sampleRate: Double = 44100
-            let duration: Double = 10
-            let frequency: Double = 440
-            let frameCount = AVAudioFrameCount(sampleRate * duration)
-
-            // Use WAV/PCM format - simplest, no encoding needed
-            let settings: [String: Any] = [
-                AVFormatIDKey: Int(kAudioFormatLinearPCM),
-                AVSampleRateKey: sampleRate,
-                AVNumberOfChannelsKey: 1,
-                AVLinearPCMBitDepthKey: 16,
-                AVLinearPCMIsFloatKey: false,
-                AVLinearPCMIsBigEndianKey: false,
-            ]
-
-            let audioFile = try AVAudioFile(forWriting: url, settings: settings)
-            guard let buffer = AVAudioPCMBuffer(pcmFormat: audioFile.processingFormat, frameCapacity: frameCount) else {
-                logger.error("❌ Failed to create PCM buffer")
-                throw PlayerError.failedToLoad
-            }
-
-            buffer.frameLength = frameCount
-            if let channelData = buffer.floatChannelData?[0] {
-                let sr = Float(sampleRate)
-                for i in 0..<Int(frameCount) {
-                    channelData[i] = sin(2.0 * .pi * Float(frequency) * Float(i) / sr) * 0.3
-                }
-            }
-
-            try audioFile.write(from: buffer)
-            logger.info("🎵 Created test WAV file at \(url.path) (\(frameCount) frames)")
-            return url
-        } catch {
-            logger.error("❌ Failed to create test audio: \(error.localizedDescription)")
-            return url
-        }
-    }
-}
 
 // MARK: - PlayerError
 

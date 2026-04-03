@@ -1,6 +1,20 @@
 import Dependencies
 import Foundation
 
+// MARK: - NarrationCacheMetadata
+
+public struct NarrationCacheMetadata: Codable, Sendable {
+    public let duration: TimeInterval
+    public let stepTimestamps: [TimeInterval]
+    public let generatedAt: Date
+
+    public init(duration: TimeInterval, stepTimestamps: [TimeInterval], generatedAt: Date) {
+        self.duration = duration
+        self.stepTimestamps = stepTimestamps
+        self.generatedAt = generatedAt
+    }
+}
+
 // MARK: - VoiceCacheClient
 
 public struct VoiceCacheClient {
@@ -9,29 +23,72 @@ public struct VoiceCacheClient {
     public var isCached: @Sendable (String, String) -> Bool
     public var totalCacheSize: @Sendable () -> Int64
     public var clearCache: @Sendable () async throws -> Void
+    public var cacheMetadata: @Sendable (String, String, NarrationCacheMetadata) async throws -> Void
+    public var getCachedMetadata: @Sendable (String, String) async -> NarrationCacheMetadata?
 }
 
 // MARK: - DependencyKey
 
 extension VoiceCacheClient: DependencyKey {
     public static var liveValue: VoiceCacheClient {
-        let cache = VoiceCache.shared
+        let fileManager = FileManager.default
+        let cacheDir = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("VoiceNarrations", isDirectory: true)
+
+        // Ensure cache directory exists
+        try? fileManager.createDirectory(at: cacheDir, withIntermediateDirectories: true)
+
+        func metadataURL(voiceId: String, recipeId: String) -> URL {
+            cacheDir.appendingPathComponent("\(voiceId)_\(recipeId)_metadata.json")
+        }
+
+        func audioURL(voiceId: String, recipeId: String) -> URL {
+            cacheDir.appendingPathComponent("\(voiceId)_\(recipeId).m4a")
+        }
 
         return VoiceCacheClient(
             cacheAudio: { voiceId, recipeId, data in
-                try await cache.cacheAudio(voiceId: voiceId, recipeId: recipeId, data: data)
+                let url = audioURL(voiceId: voiceId, recipeId: recipeId)
+                try data.write(to: url)
+                return url
             },
             getCachedAudio: { voiceId, recipeId in
-                await cache.getCachedAudio(voiceId: voiceId, recipeId: recipeId)
+                let url = audioURL(voiceId: voiceId, recipeId: recipeId)
+                return fileManager.fileExists(atPath: url.path) ? url : nil
             },
             isCached: { voiceId, recipeId in
-                cache.isCached(voiceId: voiceId, recipeId: recipeId)
+                fileManager.fileExists(atPath: audioURL(voiceId: voiceId, recipeId: recipeId).path)
             },
             totalCacheSize: {
-                cache.getTotalCacheSize()
+                guard let enumerator = fileManager.enumerator(at: cacheDir, includingPropertiesForKeys: [.fileSizeKey]) else {
+                    return 0
+                }
+                var totalSize: Int64 = 0
+                for case let fileURL as URL in enumerator {
+                    guard let resourceValues = try? fileURL.resourceValues(forKeys: [.fileSizeKey]),
+                          let fileSize = resourceValues.fileSize else {
+                        continue
+                    }
+                    totalSize += Int64(fileSize)
+                }
+                return totalSize
             },
             clearCache: {
-                try await cache.clearAll()
+                try? fileManager.removeItem(at: cacheDir)
+                try? fileManager.createDirectory(at: cacheDir, withIntermediateDirectories: true)
+            },
+            cacheMetadata: { voiceId, recipeId, metadata in
+                let url = metadataURL(voiceId: voiceId, recipeId: recipeId)
+                let data = try JSONEncoder().encode(metadata)
+                try data.write(to: url)
+            },
+            getCachedMetadata: { voiceId, recipeId in
+                let url = metadataURL(voiceId: voiceId, recipeId: recipeId)
+                guard fileManager.fileExists(atPath: url.path),
+                      let data = try? Data(contentsOf: url) else {
+                    return nil
+                }
+                return try? JSONDecoder().decode(NarrationCacheMetadata.self, from: data)
             }
         )
     }
@@ -42,7 +99,9 @@ extension VoiceCacheClient: DependencyKey {
             getCachedAudio: { _, _ in nil },
             isCached: { _, _ in false },
             totalCacheSize: { 0 },
-            clearCache: { }
+            clearCache: { },
+            cacheMetadata: { _, _, _ in },
+            getCachedMetadata: { _, _ in nil }
         )
     }
 }

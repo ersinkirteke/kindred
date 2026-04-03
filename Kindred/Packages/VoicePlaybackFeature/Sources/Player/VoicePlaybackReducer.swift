@@ -4,6 +4,9 @@ import MonetizationFeature
 import SwiftUI
 import UIKit
 import OSLog
+import Apollo
+import KindredAPI
+import NetworkClient
 
 // MARK: - Logger Extension
 
@@ -169,6 +172,7 @@ public struct VoicePlaybackReducer {
     @Dependency(\.voiceCacheClient) var voiceCache
     @Dependency(\.continuousClock) var clock
     @Dependency(\.subscriptionClient) var subscriptionClient
+    @Dependency(\.apolloClient) var apolloClient
 
     // MARK: - CancelID
 
@@ -219,23 +223,28 @@ public struct VoicePlaybackReducer {
                     state.selectedVoiceId = lastVoiceId
                     state.showVoicePicker = false
                     // Auto-start with cached voice
-                    return .run { send in
-                        // Fetch voice profiles (to validate voice exists)
-                        // TODO: Replace with actual GraphQL query
-                        let mockProfiles = [
-                            VoiceProfile(
-                                id: lastVoiceId,
-                                name: "My Voice",
-                                avatarURL: nil,
-                                sampleAudioURL: nil,
-                                isOwnVoice: true,
-                                createdAt: Date()
-                            )
-                        ]
-                        await send(.voiceProfilesLoaded(.success(mockProfiles)))
-
-                        // Auto-select the last used voice
-                        await send(.selectVoice(lastVoiceId))
+                    return .run { [lastVoiceId] send in
+                        do {
+                            let result = try await apolloClient.fetch(query: KindredAPI.VoiceProfilesQuery())
+                            let profiles = (result.data?.myVoiceProfiles ?? [])
+                                .filter { $0.status == .ready }
+                                .map { dto -> VoiceProfile in
+                                    let dateFormatter = ISO8601DateFormatter()
+                                    let createdAt = dateFormatter.date(from: dto.createdAt) ?? Date()
+                                    return VoiceProfile(
+                                        id: dto.id,
+                                        name: dto.speakerName,
+                                        avatarURL: nil,
+                                        sampleAudioURL: nil,
+                                        isOwnVoice: dto.relationship == "Self",
+                                        createdAt: createdAt
+                                    )
+                                }
+                            await send(.voiceProfilesLoaded(.success(profiles)))
+                            await send(.selectVoice(lastVoiceId))
+                        } catch {
+                            await send(.voiceProfilesLoaded(.failure(error)))
+                        }
                     }
                 } else {
                     state.showVoicePicker = true
@@ -245,27 +254,39 @@ public struct VoicePlaybackReducer {
                         let status = await subscriptionClient.currentEntitlement()
                         await send(.subscriptionStatusUpdated(status))
 
-                        // TODO: Replace with actual GraphQL query to fetch voice profiles
-                        // For now, return mock profiles
-                        let mockProfiles = [
-                            VoiceProfile(
-                                id: "voice-1",
-                                name: "My Voice",
+                        // Fetch voice profiles via GraphQL
+                        do {
+                            let result = try await apolloClient.fetch(query: KindredAPI.VoiceProfilesQuery())
+                            var profiles = (result.data?.myVoiceProfiles ?? [])
+                                .filter { $0.status == .ready }
+                                .map { dto -> VoiceProfile in
+                                    let dateFormatter = ISO8601DateFormatter()
+                                    let createdAt = dateFormatter.date(from: dto.createdAt) ?? Date()
+                                    return VoiceProfile(
+                                        id: dto.id,
+                                        name: dto.speakerName,
+                                        avatarURL: nil,
+                                        sampleAudioURL: nil,
+                                        isOwnVoice: dto.relationship == "Self",
+                                        createdAt: createdAt
+                                    )
+                                }
+
+                            // Prepend default "Kindred Voice" for all users
+                            let defaultVoice = VoiceProfile(
+                                id: "kindred-default",
+                                name: "Kindred Voice",
                                 avatarURL: nil,
-                                sampleAudioURL: "https://example.com/sample.m4a",
-                                isOwnVoice: true,
-                                createdAt: Date()
-                            ),
-                            VoiceProfile(
-                                id: "voice-2",
-                                name: "Mom",
-                                avatarURL: nil,
-                                sampleAudioURL: "https://example.com/sample2.m4a",
+                                sampleAudioURL: nil,
                                 isOwnVoice: false,
                                 createdAt: Date()
                             )
-                        ]
-                        await send(.voiceProfilesLoaded(.success(mockProfiles)))
+                            profiles.insert(defaultVoice, at: 0)
+
+                            await send(.voiceProfilesLoaded(.success(profiles)))
+                        } catch {
+                            await send(.voiceProfilesLoaded(.failure(error)))
+                        }
                     }
                 }
 
@@ -296,30 +317,43 @@ public struct VoicePlaybackReducer {
                 // Check cache first
                 let recipeId = state.pendingRecipeId ?? state.currentPlayback?.recipeId ?? "unknown"
                 return .run { [voiceId, recipeId] send in
-                    // TODO: Replace cache check once real narration API is connected
+                    // Cache-first per locked decision
                     if let cachedURL = await voiceCache.getCachedAudio(voiceId, recipeId) {
+                        // Load cached metadata (step timestamps stored alongside audio)
+                        let cachedMetadata = await voiceCache.getCachedMetadata(voiceId, recipeId)
                         let metadata = NarrationMetadata(
                             recipeId: recipeId,
                             voiceId: voiceId,
                             audioURL: cachedURL.absoluteString,
-                            duration: 300,
-                            stepTimestamps: [0, 30, 60, 120, 180, 240],
-                            generatedAt: Date()
+                            duration: cachedMetadata?.duration ?? 0,
+                            stepTimestamps: cachedMetadata?.stepTimestamps ?? [],
+                            generatedAt: cachedMetadata?.generatedAt ?? Date()
                         )
                         await send(.narrationReady(metadata))
                     } else {
-                        // TODO: Replace with actual narration API call (GraphQL mutation or R2 presigned URL)
-                        // Using locally generated test audio file for development
-                        let testFileURL = TestAudioGenerator.createTestFile()
-                        let metadata = NarrationMetadata(
-                            recipeId: recipeId,
-                            voiceId: voiceId,
-                            audioURL: testFileURL.absoluteString,
-                            duration: 10,
-                            stepTimestamps: [0, 2, 4, 6, 8],
-                            generatedAt: Date()
-                        )
-                        await send(.narrationReady(metadata))
+                        // Fetch from backend via GraphQL
+                        do {
+                            let result = try await apolloClient.fetch(
+                                query: KindredAPI.NarrationUrlQuery(recipeId: recipeId, voiceProfileId: voiceId)
+                            )
+                            guard let narrationData = result.data?.narrationUrl,
+                                  let audioUrl = narrationData.url else {
+                                await send(.narrationFailed("Narration not available"))
+                                return
+                            }
+
+                            let metadata = NarrationMetadata(
+                                recipeId: recipeId,
+                                voiceId: voiceId,
+                                audioURL: audioUrl,
+                                duration: TimeInterval(narrationData.durationMs ?? 0) / 1000.0,
+                                stepTimestamps: [],
+                                generatedAt: Date()
+                            )
+                            await send(.narrationReady(metadata))
+                        } catch {
+                            await send(.narrationFailed(error.localizedDescription))
+                        }
                     }
                 }
 
@@ -658,6 +692,18 @@ public struct VoicePlaybackReducer {
                                 metadata.recipeId,
                                 data
                             )
+
+                            // Cache metadata alongside audio
+                            try await voiceCache.cacheMetadata(
+                                metadata.voiceId,
+                                metadata.recipeId,
+                                NarrationCacheMetadata(
+                                    duration: metadata.duration,
+                                    stepTimestamps: metadata.stepTimestamps,
+                                    generatedAt: metadata.generatedAt
+                                )
+                            )
+
                             await send(.cachingCompleted(cachedURL))
                         } catch {
                             await send(.cachingFailed(error.localizedDescription))
@@ -676,22 +722,46 @@ public struct VoicePlaybackReducer {
                 state.selectedVoiceId = newVoiceId
                 state.lastUsedVoicePerRecipe[currentPlayback.recipeId] = newVoiceId
 
-                return .run { send in
+                return .run { [recipeId = currentPlayback.recipeId] send in
                     // Pause current playback
                     await audioPlayer.pause()
 
-                    // Fetch new voice narration
-                    // TODO: Replace with actual narration API call
-                    let newMetadata = NarrationMetadata(
-                        recipeId: currentPlayback.recipeId,
-                        voiceId: newVoiceId,
-                        audioURL: "https://example.com/narration/\(currentPlayback.recipeId)_\(newVoiceId).m4a",
-                        duration: 300,
-                        stepTimestamps: [0, 30, 60, 120, 180, 240],
-                        generatedAt: Date()
-                    )
+                    // Fetch new voice narration (cache-first, then GraphQL)
+                    if let cachedURL = await voiceCache.getCachedAudio(newVoiceId, recipeId) {
+                        let cachedMetadata = await voiceCache.getCachedMetadata(newVoiceId, recipeId)
+                        let metadata = NarrationMetadata(
+                            recipeId: recipeId,
+                            voiceId: newVoiceId,
+                            audioURL: cachedURL.absoluteString,
+                            duration: cachedMetadata?.duration ?? 0,
+                            stepTimestamps: cachedMetadata?.stepTimestamps ?? [],
+                            generatedAt: cachedMetadata?.generatedAt ?? Date()
+                        )
+                        await send(.narrationReady(metadata))
+                    } else {
+                        do {
+                            let result = try await apolloClient.fetch(
+                                query: KindredAPI.NarrationUrlQuery(recipeId: recipeId, voiceProfileId: newVoiceId)
+                            )
+                            guard let narrationData = result.data?.narrationUrl,
+                                  let audioUrl = narrationData.url else {
+                                await send(.narrationFailed("Narration not available"))
+                                return
+                            }
 
-                    await send(.narrationReady(newMetadata))
+                            let metadata = NarrationMetadata(
+                                recipeId: recipeId,
+                                voiceId: newVoiceId,
+                                audioURL: audioUrl,
+                                duration: TimeInterval(narrationData.durationMs ?? 0) / 1000.0,
+                                stepTimestamps: [],
+                                generatedAt: Date()
+                            )
+                            await send(.narrationReady(metadata))
+                        } catch {
+                            await send(.narrationFailed(error.localizedDescription))
+                        }
+                    }
 
                     // Seek to saved position
                     await send(.seekTo(savedTime))
