@@ -96,6 +96,7 @@ struct AppReducer {
     @Dependency(\.continuousClock) var clock
     @Dependency(\.networkMonitorClient) var networkMonitor
     @Dependency(\.consentClient) var consentClient
+    @Dependency(\.adClient) var adClient
 
     var body: some ReducerOf<Self> {
         Scope(state: \.feedState, action: \.feed) {
@@ -177,7 +178,6 @@ struct AppReducer {
                 if case .authenticated = authState, state.hasCompletedOnboarding {
                     return .merge(
                         .send(.feed(.authStateUpdated(authState))),
-                        .send(.feed(.recipeDetail(.presented(.authStateUpdated(authState))))),
                         .send(.pantry(.authStateUpdated(pantryUserId))),
                         .send(.profile(.authStateUpdated(profileAuthState))),
                         .send(.checkPendingMigration),
@@ -189,7 +189,6 @@ struct AppReducer {
                 if case .authenticated = authState, !state.hasCompletedOnboarding {
                     return .concatenate(
                         .send(.feed(.authStateUpdated(authState))),
-                        .send(.feed(.recipeDetail(.presented(.authStateUpdated(authState))))),
                         .send(.pantry(.authStateUpdated(pantryUserId))),
                         .send(.profile(.authStateUpdated(profileAuthState))),
                         .run { send in
@@ -202,7 +201,6 @@ struct AppReducer {
                 // Forward auth state to child reducers
                 return .merge(
                     .send(.feed(.authStateUpdated(authState))),
-                    .send(.feed(.recipeDetail(.presented(.authStateUpdated(authState))))),
                     .send(.pantry(.authStateUpdated(pantryUserId))),
                     .send(.profile(.authStateUpdated(profileAuthState)))
                 )
@@ -359,12 +357,15 @@ struct AppReducer {
                 guard state.hasCompletedOnboarding else { return .none }
                 guard case .authenticated = state.currentAuthState else { return .none }
 
+                // Skip consent for pro subscribers (no ads = no consent needed)
+                if case .pro = state.profileState.subscriptionStatus {
+                    return .none
+                }
+
                 // Check ATT status
                 let attStatus = consentClient.checkATTStatus()
                 guard attStatus == .notDetermined else { return .none }
 
-                // TODO: Check subscription status - skip for pro subscribers
-                // For now, trigger consent flow for all users with .notDetermined ATT status
                 state.needsConsentFlow = true
                 return .send(.consent(.checkConsentOnLaunch))
 
@@ -372,20 +373,25 @@ struct AppReducer {
                 // Trigger consent flow after onboarding for new users
                 guard case .authenticated = state.currentAuthState else { return .none }
 
+                // Skip consent for pro subscribers
+                if case .pro = state.profileState.subscriptionStatus {
+                    return .none
+                }
+
                 // Check ATT status
                 let attStatus = consentClient.checkATTStatus()
                 guard attStatus == .notDetermined else { return .none }
 
-                // TODO: Check subscription status - skip for pro subscribers
                 state.needsConsentFlow = true
                 return .send(.consent(.checkConsentOnLaunch))
 
             case .consent(.consentFlowCompleted(let status)):
                 state.needsConsentFlow = false
-                // TODO: Forward consent status to FeedReducer for ad visibility
-                // For now, just log completion
                 Logger(subsystem: "com.ersinkirteke.kindred", category: "consent")
                     .info("Consent flow completed with status: \(String(describing: status))")
+
+                // Configure ad personalization based on consent status
+                adClient.configurePersonalization(status)
                 return .none
 
             case .consent:
@@ -569,6 +575,12 @@ struct AppReducer {
                 // Present auth gate from pantry tab
                 state.authGate = SignInGateReducer.State()
                 return .none
+
+            case let .pantry(.delegate(.openRecipe(id: recipeId))):
+                // Switch to Feed tab per locked decision
+                state.selectedTab = .feed
+                // Push recipe detail onto Feed navigation stack
+                return .send(.feed(.openRecipeDetail(recipeId)))
 
             case .profile(.signOutTapped):
                 return .run { send in
