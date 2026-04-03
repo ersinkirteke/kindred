@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 status: Active
-last_updated: "2026-04-01T06:09:45.072Z"
+last_updated: "2026-04-03T06:51:43.036Z"
 progress:
   total_phases: 17
-  completed_phases: 15
+  completed_phases: 16
   total_plans: 63
-  completed_plans: 61
+  completed_plans: 62
 ---
 
 # Project State: Kindred
@@ -31,20 +31,20 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Milestone: v4.0 App Store Launch Prep
 Phase: 20 of 22 (ATT Consent & Production Ads)
-Plan: 2 of 3 in current phase (Phase 20 in progress)
+Plan: 3 of 3 in current phase (Phase 20 complete)
 Status: Active
-Last activity: 2026-04-01 — Completed plan 20-02 (xcconfig Ad Configuration & Consent Integration)
+Last activity: 2026-04-03 — Completed plan 20-03 (ATT Consent Testing & Verification) - Phase 20 complete
 
-Progress: [████████████████░░░░] 87% (72/82 plans complete across all milestones)
+Progress: [████████████████░░░░] 89% (73/82 plans complete across all milestones)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 72 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 9)
-- Total execution time: 18 days + 35m 13s across 3 milestones
-- v4.0: 9 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 in progress: ATT consent + xcconfig ads)
+- Total plans completed: 73 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 10)
+- Total execution time: 18 days + 48h 40m across 3 milestones
+- v4.0: 10 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 complete: ATT consent + tests + device verification)
 
 **By Milestone:**
 
@@ -53,9 +53,9 @@ Progress: [████████████████░░░░] 87% (72
 | v1.5 Backend & AI | 3 | 11 | 2 days |
 | v2.0 iOS App | 8 | 35 | 9 days |
 | v3.0 Smart Pantry | 6 | 17 | 7 days |
-| v4.0 Launch Prep | 5 | 9/TBD | 32m 50s |
+| v4.0 Launch Prep | 5 | 10/TBD | 48h 40m |
 
-**Recent Trend:** Phase 18 complete (4 of 4 plans), Phase 19 complete (4 of 4 plans)
+**Recent Trend:** Phase 18 complete (4 of 4 plans), Phase 19 complete (4 of 4 plans), Phase 20 complete (3 of 3 plans)
 
 ---
 
@@ -72,6 +72,7 @@ Progress: [████████████████░░░░] 87% (72
 | Phase 20 | P01 | 203 | 2 | 9 |
 | Phase 20 | P02 | 170 | 2 | 9 |
 | Phase 20 P02 | 170 | 2 tasks | 9 files |
+| Phase 20 P03 | 175137 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,8 @@ Recent decisions affecting v4.0 work:
 - [Phase 20]: xcconfig-based ad unit ID configuration separates Debug test IDs from Release production IDs
 - [Phase 20]: fatalError for unconfigured Release builds prevents shipping test ads to production
 - [Phase 20]: ConsentStatus drives ad personalization (fullyGranted = personalized, denied = non-personalized)
+- [Phase 20]: Debug menu accessible via long-press on version label (debug-only)
+- [Phase 20]: 10 comprehensive TCA test scenarios for consent state machine coverage
 
 ### Pending Todos
 
@@ -136,10 +139,10 @@ Recent decisions affecting v4.0 work:
 
 ## Session Continuity
 
-Last session: 2026-04-01
-Stopped at: Completed 20-02-PLAN.md (xcconfig Ad Configuration & Consent Integration) - Phase 20 in progress
+Last session: 2026-04-03
+Stopped at: Completed 20-03-PLAN.md (ATT Consent Testing & Verification) - Phase 20 complete
 Resume file: None
-Next action: Continue Phase 20 (ATT Consent & Production Ads) - Plan 03 remaining
+Next action: Begin Phase 21 (Voice Playback & Monetization Integration)
 
 ---
 
