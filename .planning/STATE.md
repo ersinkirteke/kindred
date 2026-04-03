@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 status: completed
-last_updated: "2026-04-03T08:42:00.161Z"
+last_updated: "2026-04-03T13:27:34.875Z"
 progress:
-  total_phases: 18
+  total_phases: 19
   completed_phases: 17
-  total_plans: 68
-  completed_plans: 67
+  total_plans: 71
+  completed_plans: 68
 ---
 
 # Project State: Kindred
@@ -78,6 +78,7 @@ Progress: [████████████████░░░░] 96% (66
 | Phase 21 P03 | 703 | 2 tasks | 3 files |
 | Phase 21 P04 | 402 | 1 tasks | 1 files |
 | Phase 21 P01 | 754 | 2 tasks | 11 files |
+| Phase 22 P01 | 190 | 2 tasks | 21 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,10 @@ Recent decisions affecting v4.0 work:
 - [Phase 21]: Named ModelConfiguration for GuestStore and PantryStore ensures clean SwiftData container separation
 - [Phase 21-01]: Removed TestAudioGenerator entirely for production-only R2 CDN audio
 - [Phase 21-01]: Default 'Kindred Voice' prepended client-side for free-tier users
+- [Phase 22-01]: Fastlane lane structure: Three lanes (beta_internal, beta_external, release) for granular distribution control
+- [Phase 22-01]: Build number source: Git commit count (number_of_commits) for reproducible versioning
+- [Phase 22-01]: Metadata tone: Warm, personal, family-focused language with emotional hooks aligning with core value proposition
+- [Phase 22-01]: AI disclosure: Dedicated 'ABOUT AI VOICE TECHNOLOGY' section with explicit ElevenLabs naming for Apple Guideline 5.1.2(i) compliance
 
 ### Pending Todos
 

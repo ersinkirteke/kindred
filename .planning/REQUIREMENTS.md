@@ -45,7 +45,7 @@ Requirements for App Store submission readiness. Each maps to roadmap phases.
 ### App Store Submission
 
 - [ ] **SUBMIT-01**: App Store screenshots created for required device sizes
-- [ ] **SUBMIT-02**: App Store metadata written with third-party AI disclosure
+- [x] **SUBMIT-02**: App Store metadata written with third-party AI disclosure
 - [ ] **SUBMIT-03**: TestFlight beta testing completed with internal and external testers
 
 ## Future Requirements
@@ -105,7 +105,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NAV-01 | Phase 21 | Complete |
 | DATA-01 | Phase 21 | Complete |
 | SUBMIT-01 | Phase 22 | Pending |
-| SUBMIT-02 | Phase 22 | Pending |
+| SUBMIT-02 | Phase 22 | Complete |
 | SUBMIT-03 | Phase 22 | Pending |
 
 **Coverage:**
