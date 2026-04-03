@@ -135,6 +135,7 @@ Plans:
 - [ ] 20-01-PLAN.md — Consent infrastructure: ConsentClient, ConsentReducer, PrePromptView, AppReducer wiring (PRIV-01)
 - [ ] 20-02-PLAN.md — Production ad config: xcconfig files, AdModels refactor, AdClient consent integration (BILL-03)
 - [ ] 20-03-PLAN.md — Testing & verification: ConsentReducer tests, debug menu, physical device checkpoint (PRIV-01, BILL-03)
+- [x] 20-04-PLAN.md — Gap closure: AdClient personalization wiring + pro subscriber consent skip (PRIV-01)
 
 ---
 
@@ -152,7 +153,13 @@ Plans:
 4. User tapping recipe suggestion carousel card navigates to recipe detail view
 5. SwiftData uses named ModelConfiguration committed with PantryStore/GuestStore separation
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 21-01-PLAN.md — Voice GraphQL integration: replace TODO markers, remove TestAudioGenerator, wire R2 CDN URLs (VOICE-01, VOICE-02)
+- [ ] 21-02-PLAN.md — ScanPaywallView monetization: subscribe/restore wired to SubscriptionClient, real StoreKit pricing (BILL-02)
+- [ ] 21-03-PLAN.md — Recipe carousel navigation + pantry ingredient badges with fuzzy matching (NAV-01)
+- [ ] 21-04-PLAN.md — SwiftData named ModelConfiguration for GuestStore data separation (DATA-01)
 
 ---
 
@@ -198,7 +205,7 @@ Plans:
 | 18. Privacy Compliance | 4/4 | Complete    | 2026-03-30 | - |
 | 19. Backend Hardening | 4/4 | Complete    | 2026-03-30 | - |
 | 20. ATT & Ads | 3/3 | Complete   | 2026-04-03 | - |
-| 21. Voice & Monetization | v4.0 | 0/TBD | Not started | - |
+| 21. Voice & Monetization | v4.0 | 0/4 | Planned | - |
 | 22. TestFlight & Submission | v4.0 | 0/TBD | Not started | - |
 
 ---
