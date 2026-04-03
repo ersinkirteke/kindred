@@ -60,8 +60,8 @@ private struct IngredientRow: View {
     var body: some View {
         Button(action: onToggle) {
             HStack(alignment: .center, spacing: KindredSpacing.md) {
-                // Match status indicator (before checkbox)
-                if let status = matchStatus, status != .staple {
+                // Pantry badge (always shown if match status exists)
+                if let status = matchStatus {
                     matchStatusIcon(for: status)
                         .font(.system(size: 16))
                 }
@@ -91,13 +91,18 @@ private struct IngredientRow: View {
     private func matchStatusIcon(for status: IngredientMatchStatus) -> some View {
         switch status {
         case .available:
-            Image(systemName: "leaf.circle.fill")
-                .foregroundStyle(.kindredSuccess)
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(Color(red: 0.2, green: 0.7, blue: 0.3))  // Green tint per plan spec
+                .accessibilityLabel("In your pantry")
         case .missing:
-            Image(systemName: "cart.circle")
-                .foregroundStyle(.kindredAccent)
+            Image(systemName: "circle")
+                .foregroundStyle(.tertiary)
+                .accessibilityLabel("Not in pantry")
         case .staple:
-            EmptyView()
+            Image(systemName: "circle.dashed")
+                .foregroundStyle(.quaternary)
+                .font(.caption)
+                .accessibilityLabel("Common staple")
         }
     }
 

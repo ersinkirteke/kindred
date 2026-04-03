@@ -280,8 +280,8 @@ public struct RecipeDetailReducer {
                 let ingredients = recipe.ingredients
                 return .run { send in
                     let pantryItems = await pantryClient.fetchAllItems(user.id)
-                    let validPantry = pantryItems.filter { !$0.isDeleted && ($0.expiryDate == nil || $0.expiryDate! > Date()) }
-                    let pantryNormalized = Set(validPantry.map { IngredientMatcher.normalize($0.normalizedName ?? $0.name) })
+                    let validPantry = pantryItems.filter { !$0.isDeleted }
+                    let pantryNormalized = validPantry.map { IngredientMatcher.normalize($0.normalizedName ?? $0.name) }
 
                     var statuses: [String: IngredientMatchStatus] = [:]
                     var matched = 0
@@ -293,8 +293,14 @@ public struct RecipeDetailReducer {
                             continue
                         }
                         eligible += 1
-                        let normalized = IngredientMatcher.normalize(ingredient.name)
-                        if pantryNormalized.contains(normalized) {
+                        let normalizedIngredient = IngredientMatcher.normalize(ingredient.name)
+
+                        // Fuzzy matching: bidirectional contains check per locked decision
+                        let isMatch = pantryNormalized.contains { pantryName in
+                            pantryName.contains(normalizedIngredient) || normalizedIngredient.contains(pantryName)
+                        }
+
+                        if isMatch {
                             statuses[ingredient.id] = .available
                             matched += 1
                         } else {
