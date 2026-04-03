@@ -205,7 +205,7 @@ Plans:
 | 18. Privacy Compliance | 4/4 | Complete    | 2026-03-30 | - |
 | 19. Backend Hardening | 4/4 | Complete    | 2026-03-30 | - |
 | 20. ATT & Ads | 3/3 | Complete   | 2026-04-03 | - |
-| 21. Voice & Monetization | v4.0 | 0/4 | Planned | - |
+| 21. Voice & Monetization | 1/4 | In Progress|  | - |
 | 22. TestFlight & Submission | v4.0 | 0/TBD | Not started | - |
 
 ---

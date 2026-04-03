@@ -71,6 +71,7 @@ public struct PantryView: View {
                 }
         }
         .overlay(alignment: .bottomTrailing) { fabOverlay }
+        .overlay(alignment: .bottom) { recipeSuggestionsOverlay }
         .contentShape(Rectangle())
         .onTapGesture { handleBackgroundTap() }
         .onAppear { store.send(.onAppear) }
@@ -82,6 +83,25 @@ public struct PantryView: View {
             set: { if !$0 { store.send(.cameraDismissed) } }
         )) {
             cameraWrapperView
+        }
+        .sheet(isPresented: Binding(
+            get: { store.showPaywall },
+            set: { if !$0 { store.send(.paywallDismissed) } }
+        )) {
+            ScanPaywallView(
+                subscribeButtonTitle: store.subscribeButtonTitle,
+                isLoadingPrice: store.isLoadingPrice,
+                isPurchasing: store.isPurchasing,
+                isRestoring: store.isRestoring,
+                purchaseError: store.purchaseError,
+                restoreMessage: store.restoreMessage,
+                onSubscribe: { store.send(.subscribeTapped) },
+                onRestore: { store.send(.restoreTapped) },
+                onDismiss: { store.send(.paywallDismissed) },
+                onDismissError: { store.send(.dismissPurchaseError) },
+                onDismissRestoreMessage: { store.send(.dismissRestoreMessage) }
+            )
+            .onAppear { store.send(.paywallPresented) }
         }
         .alert(cameraPermissionAlertTitle, isPresented: Binding(
             get: { store.showSettingsRedirect },
@@ -159,6 +179,21 @@ public struct PantryView: View {
             )
             .padding(.trailing, 20)
             .padding(.bottom, 20)
+        }
+    }
+
+    @ViewBuilder
+    private var recipeSuggestionsOverlay: some View {
+        if store.showRecipeSuggestions {
+            RecipeSuggestionCarousel(
+                recipes: store.recipeSuggestions,
+                scannedItemNames: store.scannedItemNames,
+                onDismiss: { store.send(.dismissRecipeSuggestions) },
+                onRecipeTapped: { recipeId in
+                    store.send(.recipeSuggestionTapped(recipeId))
+                }
+            )
+            .transition(.move(edge: .bottom))
         }
     }
 

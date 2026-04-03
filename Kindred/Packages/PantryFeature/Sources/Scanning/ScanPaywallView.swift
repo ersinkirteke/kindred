@@ -3,21 +3,45 @@ import SwiftUI
 
 /// Scan-specific Pro paywall with animated mockup
 public struct ScanPaywallView: View {
+    let subscribeButtonTitle: String
+    let isLoadingPrice: Bool
+    let isPurchasing: Bool
+    let isRestoring: Bool
+    let purchaseError: String?
+    let restoreMessage: String?
     let onSubscribe: () -> Void
     let onRestore: () -> Void
     let onDismiss: () -> Void
+    let onDismissError: () -> Void
+    let onDismissRestoreMessage: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var animationStep: AnimationStep = .photo
 
     public init(
+        subscribeButtonTitle: String,
+        isLoadingPrice: Bool,
+        isPurchasing: Bool,
+        isRestoring: Bool,
+        purchaseError: String?,
+        restoreMessage: String?,
         onSubscribe: @escaping () -> Void,
         onRestore: @escaping () -> Void,
-        onDismiss: @escaping () -> Void
+        onDismiss: @escaping () -> Void,
+        onDismissError: @escaping () -> Void,
+        onDismissRestoreMessage: @escaping () -> Void
     ) {
+        self.subscribeButtonTitle = subscribeButtonTitle
+        self.isLoadingPrice = isLoadingPrice
+        self.isPurchasing = isPurchasing
+        self.isRestoring = isRestoring
+        self.purchaseError = purchaseError
+        self.restoreMessage = restoreMessage
         self.onSubscribe = onSubscribe
         self.onRestore = onRestore
         self.onDismiss = onDismiss
+        self.onDismissError = onDismissError
+        self.onDismissRestoreMessage = onDismissRestoreMessage
     }
 
     public var body: some View {
@@ -80,6 +104,25 @@ public struct ScanPaywallView: View {
                             .foregroundStyle(.secondary)
                     }
                     .accessibilityLabel(String(localized: "common.close", defaultValue: "Close", bundle: .main))
+                }
+            }
+            .overlay {
+                if isRestoring {
+                    ZStack {
+                        Color.black.opacity(0.4)
+                            .ignoresSafeArea()
+                        VStack(spacing: 16) {
+                            ProgressView()
+                                .progressViewStyle(.circular)
+                                .tint(.white)
+                                .scaleEffect(1.5)
+                            Text("Restoring purchases...")
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                        }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Restoring purchases")
+                    }
                 }
             }
         }
@@ -209,18 +252,50 @@ public struct ScanPaywallView: View {
     @ViewBuilder
     private var bottomButtons: some View {
         VStack(spacing: 16) {
+            // Error and restore message banners
+            if let error = purchaseError {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                    .accessibilityAddTraits(.isStaticText)
+            }
+            if let restoreMsg = restoreMessage {
+                Text(restoreMsg)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                    .accessibilityAddTraits(.isStaticText)
+            }
+
             Button {
                 onSubscribe()
             } label: {
-                Text(String(localized: "scan.paywall.subscribe", bundle: .main))
-                    .font(.body)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.accentColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                Group {
+                    if isPurchasing {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .tint(.white)
+                    } else if isLoadingPrice {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .tint(.white)
+                    } else {
+                        Text(subscribeButtonTitle)
+                            .font(.body)
+                            .fontWeight(.semibold)
+                    }
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(canSubscribe ? Color.accentColor : Color.gray)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .disabled(!canSubscribe)
+            .accessibilityLabel(isLoadingPrice ? "Loading subscription price" : subscribeButtonTitle)
 
             Button {
                 onRestore()
@@ -232,6 +307,10 @@ public struct ScanPaywallView: View {
         }
         .padding()
         .background(Color(.systemBackground))
+    }
+
+    private var canSubscribe: Bool {
+        !isLoadingPrice && !isPurchasing && subscribeButtonTitle != "Unable to load pricing"
     }
 
     private func startAnimation() {

@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 status: Active
-last_updated: "2026-04-03T06:51:43.036Z"
+last_updated: "2026-04-03T08:18:26.565Z"
 progress:
-  total_phases: 17
+  total_phases: 18
   completed_phases: 16
-  total_plans: 63
-  completed_plans: 62
+  total_plans: 68
+  completed_plans: 64
 ---
 
 # Project State: Kindred
 
-**Last Updated:** 2026-04-01
+**Last Updated:** 2026-04-03
 **Status:** Active
 
 ---
@@ -23,28 +23,28 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-30)
 
 **Core value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
-**Current focus:** Phase 20 - ATT Consent & Production Ads
+**Current focus:** Phase 21 - Voice Playback & Monetization Integration
 
 ---
 
 ## Current Position
 
 Milestone: v4.0 App Store Launch Prep
-Phase: 20 of 22 (ATT Consent & Production Ads)
-Plan: 4 of 4 in current phase (Phase 20 complete)
+Phase: 21 of 22 (Voice Playback & Monetization Integration)
+Plan: 1 of 4 in current phase
 Status: Active
-Last activity: 2026-04-03 — Completed plan 20-04 (Gap closure: AdClient wiring + pro subscriber checks) - Phase 20 fully complete
+Last activity: 2026-04-03 — Completed plan 21-04 (SwiftData container separation for GuestStore)
 
-Progress: [████████████████░░░░] 89% (73/82 plans complete across all milestones)
+Progress: [████████████████░░░░] 94% (64/68 plans complete across all milestones)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 73 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 10)
-- Total execution time: 18 days + 48h 40m across 3 milestones
-- v4.0: 10 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 complete: ATT consent + tests + device verification)
+- Total plans completed: 64 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 11)
+- Total execution time: 18 days + 48h 47m across 3 milestones
+- v4.0: 11 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 complete, Phase 21: 1 of 4 plans)
 
 **By Milestone:**
 
@@ -55,7 +55,7 @@ Progress: [████████████████░░░░] 89% (73
 | v3.0 Smart Pantry | 6 | 17 | 7 days |
 | v4.0 Launch Prep | 5 | 10/TBD | 48h 40m |
 
-**Recent Trend:** Phase 18 complete (4 of 4 plans), Phase 19 complete (4 of 4 plans), Phase 20 complete (3 of 3 plans)
+**Recent Trend:** Phase 19 complete (4 of 4 plans), Phase 20 complete (3 of 3 plans), Phase 21 in progress (1 of 4 plans)
 
 ---
 
@@ -73,6 +73,7 @@ Progress: [████████████████░░░░] 89% (73
 | Phase 20 | P02 | 170 | 2 | 9 |
 | Phase 20 P02 | 170 | 2 tasks | 9 files |
 | Phase 20 P03 | 175137 | 2 tasks | 4 files |
+| Phase 21 P04 | 402 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -87,7 +88,7 @@ Recent decisions affecting v4.0 work:
 - **NSPrivacyTracking false** (Phase 18-02): No IDFA usage, no cross-app tracking in v4.0 — ATT prompt not needed
 - **Required Reason API codes** (Phase 18-02): UserDefaults CA92.1 for app config, FileTimestamp C617.1 for pantry dates
 - **7 data types declared** (Phase 18-02): AudioData (ElevenLabs), CoarseLocation (Mapbox), EmailAddress (Clerk), UserID (Clerk), ProductInteraction (Firebase), CrashData (Firebase), PurchaseHistory (StoreKit)
-- **SwiftData persistence pattern** (v3.0): Named ModelConfiguration with PantryStore/GuestStore separation — needs commit (DATA-01 in Phase 21)
+- **SwiftData persistence pattern** (v3.0): Named ModelConfiguration with PantryStore/GuestStore separation — completed in Phase 21-04 (DATA-01 complete)
 - **Test AdMob IDs** (v2.0): Used test unit IDs throughout development — must replace with production IDs (BILL-03 in Phase 20)
 - **Base64url JWS verification RESOLVED** (Phase 19-02): Replaced with SignedDataVerifier x5c certificate chain validation (BILL-01 complete)
 - **Device token storage** (v3.0 partial): Tokens registered locally but not sent to backend — blocks push delivery (PUSH-01, PUSH-02 in Phase 19)
@@ -119,10 +120,11 @@ Recent decisions affecting v4.0 work:
 - [Phase 20]: ConsentStatus drives ad personalization (fullyGranted = personalized, denied = non-personalized)
 - [Phase 20]: Debug menu accessible via long-press on version label (debug-only)
 - [Phase 20]: 10 comprehensive TCA test scenarios for consent state machine coverage
+- [Phase 21]: Named ModelConfiguration for GuestStore and PantryStore ensures clean SwiftData container separation
 
 ### Pending Todos
 
-- Commit SwiftData persistence fix (named ModelConfiguration for PantryStore and GuestStore) — Phase 21
+None - DATA-01 SwiftData persistence fix completed in Phase 21-04
 
 ### Blockers/Concerns
 
@@ -142,9 +144,9 @@ Recent decisions affecting v4.0 work:
 ## Session Continuity
 
 Last session: 2026-04-03
-Stopped at: Completed 20-04-PLAN.md (Gap closure: AdClient wiring + pro subscriber checks) - Phase 20 fully complete
+Stopped at: Completed 21-04-PLAN.md (SwiftData container separation for GuestStore)
 Resume file: None
-Next action: Begin Phase 21 (Voice Playback & Monetization Integration)
+Next action: Continue Phase 21 - Execute plans 21-01, 21-02, 21-03
 
 ---
 
