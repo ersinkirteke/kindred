@@ -19,8 +19,8 @@ Requirements for App Store submission readiness. Each maps to roadmap phases.
 
 ### Voice Playback
 
-- [ ] **VOICE-01**: Voice narration plays from backend R2 CDN URLs replacing TestAudioGenerator
-- [ ] **VOICE-02**: All GraphQL voice profile TODO markers resolved with real backend data
+- [x] **VOICE-01**: Voice narration plays from backend R2 CDN URLs replacing TestAudioGenerator
+- [x] **VOICE-02**: All GraphQL voice profile TODO markers resolved with real backend data
 - [x] **VOICE-03**: Narration URL returned via GraphQL query with NarrationAudio cache lookup
 
 ### Billing & Monetization
@@ -94,8 +94,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PRIV-05 | Phase 18 | Complete |
 | PRIV-06 | Phase 18 | Complete |
 | PRIV-07 | Phase 18 | Complete |
-| VOICE-01 | Phase 21 | Pending |
-| VOICE-02 | Phase 21 | Pending |
+| VOICE-01 | Phase 21 | Complete |
+| VOICE-02 | Phase 21 | Complete |
 | VOICE-03 | Phase 19 | Complete |
 | BILL-01 | Phase 19 | Complete |
 | BILL-02 | Phase 21 | Complete |

@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 status: Active
-last_updated: "2026-04-03T08:18:26.565Z"
+last_updated: "2026-04-03T08:24:42.706Z"
 progress:
   total_phases: 18
-  completed_phases: 16
+  completed_phases: 17
   total_plans: 68
-  completed_plans: 64
+  completed_plans: 67
 ---
 
 # Project State: Kindred
@@ -31,20 +31,20 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Milestone: v4.0 App Store Launch Prep
 Phase: 21 of 22 (Voice Playback & Monetization Integration)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: Active
-Last activity: 2026-04-03 — Completed plan 21-02 (Wire ScanPaywallView to real StoreKit purchase flow)
+Last activity: 2026-04-03 — Completed plan 21-03 (Recipe carousel navigation + pantry ingredient badges)
 
-Progress: [████████████████░░░░] 95% (65/68 plans complete across all milestones)
+Progress: [████████████████░░░░] 96% (66/68 plans complete across all milestones)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 64 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 11)
-- Total execution time: 18 days + 48h 47m across 3 milestones
-- v4.0: 11 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 complete, Phase 21: 1 of 4 plans)
+- Total plans completed: 66 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 13)
+- Total execution time: 18 days + 49h 0m across 3 milestones
+- v4.0: 13 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 complete, Phase 21: 3 of 4 plans)
 
 **By Milestone:**
 
@@ -73,8 +73,11 @@ Progress: [████████████████░░░░] 95% (65
 | Phase 20 | P02 | 170 | 2 | 9 |
 | Phase 20 P02 | 170 | 2 tasks | 9 files |
 | Phase 20 P03 | 175137 | 2 tasks | 4 files |
+| Phase 21 P01 | 420 | 2 tasks | 5 files |
+| Phase 21 P02 | 575 | 2 tasks | 3 files |
+| Phase 21 P03 | 703 | 2 tasks | 3 files |
 | Phase 21 P04 | 402 | 1 tasks | 1 files |
-| Phase 21 | P02 | 575 | 2 | 3 |
+| Phase 21 P01 | 754 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -84,6 +87,8 @@ See PROJECT.md Key Decisions table for full list (28 decisions tracked).
 
 Recent decisions affecting v4.0 work:
 
+- [Phase 21-03]: Bidirectional fuzzy ingredient matching (chicken matches chicken breast) using contains check in both directions
+- [Phase 21-03]: All pantry items included in matching regardless of expiry date (no expiry filter)
 - [Phase 20]: Synchronous adClient.configurePersonalization (non-async closure, no .run effect needed)
 - [Phase 20]: Pro subscriber consent skip via `case .pro` pattern match on subscriptionStatus
 - **NSPrivacyTracking false** (Phase 18-02): No IDFA usage, no cross-app tracking in v4.0 — ATT prompt not needed
@@ -122,6 +127,8 @@ Recent decisions affecting v4.0 work:
 - [Phase 20]: Debug menu accessible via long-press on version label (debug-only)
 - [Phase 20]: 10 comprehensive TCA test scenarios for consent state machine coverage
 - [Phase 21]: Named ModelConfiguration for GuestStore and PantryStore ensures clean SwiftData container separation
+- [Phase 21-01]: Removed TestAudioGenerator entirely for production-only R2 CDN audio
+- [Phase 21-01]: Default 'Kindred Voice' prepended client-side for free-tier users
 
 ### Pending Todos
 
