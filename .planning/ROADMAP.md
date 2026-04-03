@@ -171,13 +171,18 @@ Plans:
 **Requirements**: SUBMIT-01, SUBMIT-02, SUBMIT-03
 
 **Success Criteria** (what must be TRUE):
-1. App Store screenshots created for required device sizes (6.9" iPhone 1320x2868px, 13" iPad 2064x2752px)
+1. App Store screenshots created for required device sizes (6.9" iPhone 1320x2868px)
 2. App Store metadata completed with third-party AI disclosure and privacy labels validated
 3. TestFlight internal testing completed with 5-10 testers (1 week minimum)
 4. TestFlight external testing completed with 50-100 beta testers (1-2 weeks minimum)
 5. All critical bugs from beta feedback are resolved with no known crashers or blockers
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 22-01-PLAN.md — Fastlane setup + App Store metadata with AI disclosure (en-US + tr) (SUBMIT-02)
+- [ ] 22-02-PLAN.md — Screenshot directory structure, capture guide, and app icon brief (SUBMIT-01)
+- [ ] 22-03-PLAN.md — TestFlight beta testing docs, review notes, and pre-submission checklist (SUBMIT-03)
 
 </details>
 
