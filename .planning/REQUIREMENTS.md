@@ -36,7 +36,7 @@ Requirements for App Store submission readiness. Each maps to roadmap phases.
 
 ### Navigation
 
-- [ ] **NAV-01**: Recipe suggestion carousel card tap navigates to recipe detail view
+- [x] **NAV-01**: Recipe suggestion carousel card tap navigates to recipe detail view
 
 ### Data Persistence
 
@@ -102,7 +102,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BILL-03 | Phase 20 | Complete |
 | PUSH-01 | Phase 19 | Complete |
 | PUSH-02 | Phase 19 | Complete |
-| NAV-01 | Phase 21 | Pending |
+| NAV-01 | Phase 21 | Complete |
 | DATA-01 | Phase 21 | Complete |
 | SUBMIT-01 | Phase 22 | Pending |
 | SUBMIT-02 | Phase 22 | Pending |
