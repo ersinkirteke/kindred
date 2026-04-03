@@ -60,7 +60,7 @@
 - [x] **Phase 19: Backend Production Hardening** - JWS verification, device token API, narration URL resolver (completed 2026-03-30)
 - [x] **Phase 20: ATT Consent & Production Ads** - ATT flow, production AdMob unit IDs, pre-prompt screen (completed 2026-04-03)
 - [x] **Phase 21: Voice Playback & Monetization Integration** - R2 URLs wiring, paywall triggering, navigation, SwiftData fix (completed 2026-04-03)
-- [ ] **Phase 22: TestFlight Beta & Submission Prep** - Screenshots, metadata, beta testing, final validation
+- [x] **Phase 22: TestFlight Beta & Submission Prep** - Screenshots, metadata, beta testing, final validation (completed 2026-04-03)
 
 </details>
 
@@ -211,7 +211,7 @@ Plans:
 | 19. Backend Hardening | 4/4 | Complete    | 2026-03-30 | - |
 | 20. ATT & Ads | 3/3 | Complete   | 2026-04-03 | - |
 | 21. Voice & Monetization | 4/4 | Complete    | 2026-04-03 | - |
-| 22. TestFlight & Submission | 2/3 | In Progress|  | - |
+| 22. TestFlight & Submission | 3/3 | Complete   | 2026-04-03 | - |
 
 ---
 

@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: milestone
 status: completed
-last_updated: "2026-04-03T13:44:34.628Z"
+last_updated: "2026-04-03T14:47:08.000Z"
 progress:
   total_phases: 19
-  completed_phases: 17
+  completed_phases: 19
   total_plans: 71
-  completed_plans: 69
+  completed_plans: 71
 ---
 
 # Project State: Kindred
@@ -23,7 +23,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-30)
 
 **Core value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
-**Current focus:** Phase 21 - Voice Playback & Monetization Integration
+**Current focus:** Phase 22 - TestFlight Beta & Submission Prep (COMPLETE)
 
 ---
 
@@ -31,20 +31,20 @@ See: .planning/PROJECT.md (updated 2026-03-30)
 
 Milestone: v4.0 App Store Launch Prep
 Phase: 22 of 22 (TestFlight Beta & Submission Prep)
-Plan: 2 of 3 in current phase
-Status: Active
-Last activity: 2026-04-03 — Completed plan 22-02 (Screenshot guide & app icon brief)
+Plan: 3 of 3 in current phase (COMPLETE)
+Status: Phase Complete
+Last activity: 2026-04-03 — Completed plan 22-03 (TestFlight beta testing docs)
 
-Progress: [████████████████░░░░] 97% (69/71 plans complete across all milestones)
+Progress: [████████████████████] 100% (71/71 plans complete across all milestones)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 69 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 16)
-- Total execution time: 18 days + 49h 0m across 3 milestones
-- v4.0: 16 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 complete, Phase 21 complete, Phase 22: 2 of 3 plans)
+- Total plans completed: 71 (v1.5: 11, v2.0: 35, v3.0: 17, v4.0: 18)
+- Total execution time: 18 days + 49h 1m across 3 milestones
+- v4.0: 18 plans completed (Phase 18 complete, Phase 19 complete, Phase 20 complete, Phase 21 complete, Phase 22 complete)
 
 **By Milestone:**
 
@@ -53,9 +53,9 @@ Progress: [████████████████░░░░] 97% (69
 | v1.5 Backend & AI | 3 | 11 | 2 days |
 | v2.0 iOS App | 8 | 35 | 9 days |
 | v3.0 Smart Pantry | 6 | 17 | 7 days |
-| v4.0 Launch Prep | 5 | 16/TBD | 48h 50m |
+| v4.0 Launch Prep | 5 | 18 | 48h 51m |
 
-**Recent Trend:** Phase 20 complete (4 of 4 plans), Phase 21 complete (4 of 4 plans), Phase 22 in progress (2 of 3 plans)
+**Recent Trend:** Phase 20 complete (4 of 4 plans), Phase 21 complete (4 of 4 plans), Phase 22 complete (3 of 3 plans)
 
 ---
 
@@ -80,6 +80,7 @@ Progress: [████████████████░░░░] 97% (69
 | Phase 21 P01 | 754 | 2 tasks | 11 files |
 | Phase 22 P01 | 190 | 2 tasks | 21 files |
 | Phase 22 P02 | 11 | 2 tasks | 4 files |
+| Phase 22 P03 | 11 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -139,6 +140,9 @@ Recent decisions affecting v4.0 work:
 - [Phase 22-02]: Screenshot dimensions: 1320x2868px (iPhone 16 Pro Max 6.9" only)
 - [Phase 22-02]: Marketing overlay design: Gradient background + headline text + app screenshot composite
 - [Phase 22-02]: App icon style: Warm cooking theme with orange/red palette (#FF6B35, #E85D3A)
+- [Phase 22]: Manual external service configuration (AdMob, ASC API, Clerk) required before TestFlight upload
+- [Phase 22]: Fastlane version pinned to ~> 2.225 for reproducible builds
+- [Phase 22]: Go/no-go criteria: Zero crashers + no critical flow-blocking bugs
 
 ### Pending Todos
 
@@ -162,9 +166,9 @@ None - DATA-01 SwiftData persistence fix completed in Phase 21-04
 ## Session Continuity
 
 Last session: 2026-04-03
-Stopped at: Completed 22-02-PLAN.md (Screenshot guide & app icon brief)
+Stopped at: Completed 22-03-PLAN.md (TestFlight beta testing docs) — Phase 22 complete, all v4.0 plans complete
 Resume file: None
-Next action: Execute Phase 22 plan 22-03 (TestFlight beta testing docs)
+Next action: Begin TestFlight upload sequence after completing human action items (ASC setup, production credentials)
 
 ---
 
