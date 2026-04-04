@@ -94,11 +94,13 @@
   6. App displays graceful "daily limit reached" message when quota exhausted (not crash or blank feed)
   7. Backend tracks daily quota usage and logs warning at 80% threshold
   8. Daily batch job pre-warms cache with 100 popular recipes at 2 AM UTC
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 23-01: TBD
-- [ ] 23-02: TBD
+- [ ] 23-01-PLAN.md -- Prisma schema evolution, SpoonacularService API client, recipe mapper, quota tracking
+- [ ] 23-02-PLAN.md -- Cache service with 6h TTL, searchRecipes and popularRecipes GraphQL queries
+- [ ] 23-03-PLAN.md -- Batch pre-warm scheduler (2 AM UTC), health endpoint with quota metrics
+- [ ] 23-04-PLAN.md -- Old service cleanup (scraping/image-gen deletion), end-to-end verification
 
 ### Phase 24: AVSpeechSynthesizer Free-Tier Voice
 **Goal**: Free and guest users hear recipe narration via Apple's built-in text-to-speech with background audio support
@@ -212,7 +214,7 @@ Phases execute in numeric order: 23 → 24 → 25 → 26 → 27 → 28
 | 20. ATT & Ads | v4.0 | 4/4 | Complete | 2026-04-03 |
 | 21. Voice & Monetization | v4.0 | 4/4 | Complete | 2026-04-03 |
 | 22. TestFlight & Submission | v4.0 | 3/3 | Complete | 2026-04-03 |
-| 23. Spoonacular Backend Integration | v5.0 | 0/TBD | Not started | - |
+| 23. Spoonacular Backend Integration | v5.0 | 0/4 | Planned | - |
 | 24. AVSpeechSynthesizer Free-Tier Voice | v5.0 | 0/TBD | Not started | - |
 | 25. Voice Tier Routing | v5.0 | 0/TBD | Not started | - |
 | 26. Feed UI Migration | v5.0 | 0/TBD | Not started | - |
