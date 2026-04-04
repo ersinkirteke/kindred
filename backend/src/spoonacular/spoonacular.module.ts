@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { SpoonacularService } from './spoonacular.service';
+import { SpoonacularCacheService } from './spoonacular-cache.service';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
@@ -12,7 +13,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     }),
     PrismaModule,
   ],
-  providers: [SpoonacularService],
-  exports: [SpoonacularService],
+  providers: [SpoonacularService, SpoonacularCacheService, Logger],
+  exports: [SpoonacularService, SpoonacularCacheService],
 })
 export class SpoonacularModule {}
