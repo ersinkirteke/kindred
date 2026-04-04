@@ -1,0 +1,245 @@
+{
+  "complexSearchResponse": {
+    "results": [
+      {
+        "id": 716429,
+        "title": "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs",
+        "image": "https://spoonacular.com/recipeImages/716429-312x231.jpg",
+        "imageType": "jpg"
+      },
+      {
+        "id": 715538,
+        "title": "What to make for dinner tonight?? Bruschetta Style Pork & Pasta",
+        "image": "https://spoonacular.com/recipeImages/715538-312x231.jpg",
+        "imageType": "jpg"
+      }
+    ],
+    "offset": 0,
+    "number": 2,
+    "totalResults": 50
+  },
+  "bulkRecipeResponse": [
+    {
+      "id": 716429,
+      "title": "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs",
+      "image": "https://spoonacular.com/recipeImages/716429-556x370.jpg",
+      "imageType": "jpg",
+      "servings": 2,
+      "readyInMinutes": 45,
+      "sourceUrl": "https://foodista.com/recipe/ABCD1234",
+      "sourceName": "Foodista",
+      "summary": "<b>Pasta with Garlic</b>, Scallions, Cauliflower & Breadcrumbs might be a good recipe to expand your main course repertoire.",
+      "cuisines": ["Mediterranean", "Italian"],
+      "dishTypes": ["lunch", "main course", "dinner"],
+      "diets": ["lacto ovo vegetarian"],
+      "aggregateLikes": 209,
+      "analyzedInstructions": [
+        {
+          "name": "",
+          "steps": [
+            {
+              "number": 1,
+              "step": "Bring a large pot of salted water to a boil.",
+              "ingredients": [{"id": 14412, "name": "water"}],
+              "equipment": [{"id": 404752, "name": "pot"}]
+            },
+            {
+              "number": 2,
+              "step": "Add cauliflower florets and cook until tender, about 5 minutes.",
+              "ingredients": [{"id": 10011135, "name": "cauliflower florets"}],
+              "equipment": []
+            },
+            {
+              "number": 3,
+              "step": "Drain and set aside.",
+              "ingredients": [],
+              "equipment": []
+            }
+          ]
+        }
+      ],
+      "extendedIngredients": [
+        {
+          "id": 11135,
+          "name": "cauliflower",
+          "amount": 2,
+          "unit": "cups",
+          "original": "2 cups cauliflower florets"
+        },
+        {
+          "id": 20420,
+          "name": "pasta",
+          "amount": 8,
+          "unit": "oz",
+          "original": "8 oz pasta"
+        },
+        {
+          "id": 11215,
+          "name": "garlic",
+          "amount": 4,
+          "unit": "cloves",
+          "original": "4 cloves garlic, minced"
+        }
+      ],
+      "nutrition": {
+        "nutrients": [
+          {
+            "name": "Calories",
+            "amount": 450.5,
+            "unit": "kcal"
+          },
+          {
+            "name": "Fat",
+            "amount": 12.3,
+            "unit": "g"
+          },
+          {
+            "name": "Carbohydrates",
+            "amount": 68.4,
+            "unit": "g"
+          },
+          {
+            "name": "Protein",
+            "amount": 15.2,
+            "unit": "g"
+          }
+        ]
+      }
+    }
+  ],
+  "recipeWithoutInstructions": {
+    "id": 999999,
+    "title": "Recipe Without Instructions",
+    "image": "https://spoonacular.com/recipeImages/999999-556x370.jpg",
+    "servings": 4,
+    "readyInMinutes": 30,
+    "sourceUrl": "https://example.com/recipe",
+    "sourceName": "Example",
+    "summary": "This recipe has no instructions.",
+    "cuisines": ["American"],
+    "dishTypes": ["dinner"],
+    "diets": [],
+    "aggregateLikes": 5,
+    "analyzedInstructions": [],
+    "extendedIngredients": [
+      {
+        "id": 1001,
+        "name": "butter",
+        "amount": 2,
+        "unit": "tbsp",
+        "original": "2 tbsp butter"
+      }
+    ],
+    "nutrition": {
+      "nutrients": []
+    }
+  },
+  "recipeWithoutImage": {
+    "id": 888888,
+    "title": "Recipe Without Image",
+    "image": null,
+    "servings": 2,
+    "readyInMinutes": 20,
+    "sourceUrl": "https://example.com/recipe2",
+    "sourceName": "Example",
+    "summary": "This recipe has no image.",
+    "cuisines": ["Chinese"],
+    "dishTypes": ["appetizer"],
+    "diets": ["vegan"],
+    "aggregateLikes": 10,
+    "analyzedInstructions": [
+      {
+        "name": "",
+        "steps": [
+          {
+            "number": 1,
+            "step": "Mix ingredients.",
+            "ingredients": [],
+            "equipment": []
+          }
+        ]
+      }
+    ],
+    "extendedIngredients": [
+      {
+        "id": 2001,
+        "name": "soy sauce",
+        "amount": 1,
+        "unit": "tbsp",
+        "original": "1 tbsp soy sauce"
+      }
+    ],
+    "nutrition": {
+      "nutrients": [
+        {
+          "name": "Calories",
+          "amount": 150,
+          "unit": "kcal"
+        }
+      ]
+    }
+  },
+  "htmlSummaryRecipe": {
+    "id": 777777,
+    "title": "Recipe with HTML Summary",
+    "image": "https://spoonacular.com/recipeImages/777777-556x370.jpg",
+    "servings": 4,
+    "readyInMinutes": 60,
+    "sourceUrl": "https://example.com/recipe3",
+    "sourceName": "Example Food Blog",
+    "summary": "<b>Delicious</b> recipe with <a href='https://example.com'>amazing flavors</a> and <i>great textures</i>.",
+    "cuisines": ["Italian"],
+    "dishTypes": ["main course"],
+    "diets": [],
+    "aggregateLikes": 150,
+    "analyzedInstructions": [
+      {
+        "name": "",
+        "steps": [
+          {
+            "number": 1,
+            "step": "Preheat oven to 350F.",
+            "ingredients": [],
+            "equipment": [{"id": 404784, "name": "oven"}]
+          },
+          {
+            "number": 2,
+            "step": "Bake for 30 minutes.",
+            "ingredients": [],
+            "equipment": [{"id": 404784, "name": "oven"}]
+          }
+        ]
+      }
+    ],
+    "extendedIngredients": [
+      {
+        "id": 3001,
+        "name": "flour",
+        "amount": 2,
+        "unit": "cups",
+        "original": "2 cups all-purpose flour"
+      },
+      {
+        "id": 3002,
+        "name": "sugar",
+        "amount": 1,
+        "unit": "cup",
+        "original": "1 cup sugar"
+      }
+    ],
+    "nutrition": {
+      "nutrients": [
+        {
+          "name": "Calories",
+          "amount": 320,
+          "unit": "kcal"
+        },
+        {
+          "name": "Protein",
+          "amount": 8,
+          "unit": "g"
+        }
+      ]
+    }
+  }
+}

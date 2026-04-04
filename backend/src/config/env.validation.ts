@@ -52,6 +52,16 @@ export class EnvironmentVariables {
   @IsString()
   @IsOptional()
   FIREBASE_SERVICE_ACCOUNT_PATH?: string;
+
+  // Spoonacular API (optional for local dev, validated at service level)
+  @IsString()
+  @IsOptional()
+  SPOONACULAR_API_KEY?: string;
+
+  @Transform(({ value }) => (value ? parseInt(value, 10) : 50))
+  @IsInt()
+  @IsOptional()
+  SPOONACULAR_DAILY_QUOTA?: number;
 }
 
 export function validate(config: Record<string, unknown>) {

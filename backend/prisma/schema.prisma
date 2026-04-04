@@ -101,7 +101,7 @@ model User {
   @@index([email])
 }
 
-// Recipe model - scraped from X/Instagram
+// Recipe model - scraped from X/Instagram or Spoonacular
 model Recipe {
   id          String          @id @default(cuid())
   name        String
@@ -131,16 +131,23 @@ model Recipe {
   imageStatus ImageStatus     @default(PENDING)
 
   // Scraping metadata
-  scrapedFrom String          // 'x' | 'instagram' | 'curated'
+  scrapedFrom String          // 'x' | 'instagram' | 'curated' | 'spoonacular'
   sourceId    String?         @unique // for deduplication
   scrapedAt   DateTime        @default(now())
-  location    String          // city-level granularity
+  location    String?         // city-level granularity (nullable for Spoonacular recipes)
 
   // Geospatial data (geocoded from location field)
   latitude    Float?
   longitude   Float?
 
-  // Engagement metrics
+  // Spoonacular-specific fields
+  spoonacularId   Int?    @unique // Spoonacular recipe ID
+  popularityScore Int?    @default(0) // Maps to aggregateLikes
+  sourceUrl       String? // Original recipe source URL
+  sourceName      String? // Source website name
+  plainText       String? // Concatenated ingredients+steps for Phase 24 AVSpeech
+
+  // Engagement metrics (backward compat until Phase 26)
   engagementLoves     Int     @default(0)
   engagementBookmarks Int     @default(0)
   engagementViews     Int     @default(0)
@@ -162,6 +169,8 @@ model Recipe {
   @@index([cuisineType])
   @@index([mealType])
   @@index([velocityScore])
+  @@index([spoonacularId])
+  @@index([popularityScore])
 }
 
 // Ingredient model - normalized structure
@@ -404,4 +413,25 @@ model NotificationLog {
   sentAt DateTime @default(now())
 
   @@index([userId, type, sentAt])
+}
+
+// SearchCache model - cache search results to reduce Spoonacular API calls
+model SearchCache {
+  id            String   @id @default(cuid())
+  normalizedKey String   @unique // normalized query params hash
+  recipeIds     String[] // array of recipe IDs from search
+  cachedAt      DateTime @default(now())
+
+  @@index([cachedAt])
+}
+
+// ApiQuotaUsage model - track daily Spoonacular API quota consumption
+model ApiQuotaUsage {
+  id         String   @id @default(cuid())
+  date       String   @unique // YYYY-MM-DD
+  pointsUsed Float    @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([date])
 }

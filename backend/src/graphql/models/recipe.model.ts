@@ -136,14 +136,29 @@ export class Recipe {
   @Field()
   scrapedAt: Date;
 
-  @Field()
-  location: string;
+  @Field(() => String, { nullable: true })
+  location?: string | null;
 
   @Field(() => Float, { nullable: true })
   latitude?: number | null;
 
   @Field(() => Float, { nullable: true })
   longitude?: number | null;
+
+  @Field(() => Int, { nullable: true })
+  spoonacularId?: number | null;
+
+  @Field(() => Int, { nullable: true })
+  popularityScore?: number | null;
+
+  @Field(() => String, { nullable: true })
+  sourceUrl?: string | null;
+
+  @Field(() => String, { nullable: true })
+  sourceName?: string | null;
+
+  @Field(() => String, { nullable: true })
+  plainText?: string | null;
 
   @Field(() => Int)
   engagementLoves: number;
