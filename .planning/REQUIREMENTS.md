@@ -9,18 +9,18 @@ Requirements for Lean App Store Launch. Replace expensive backend services with 
 
 ### Recipe — Spoonacular Integration
 
-- [ ] **RECIPE-01**: User can search recipes by keyword via Spoonacular API
-- [ ] **RECIPE-02**: User can filter recipes by cuisine, diet type, and intolerances
-- [ ] **RECIPE-03**: Recipe cards display images from Spoonacular CDN
+- [x] **RECIPE-01**: User can search recipes by keyword via Spoonacular API
+- [x] **RECIPE-02**: User can filter recipes by cuisine, diet type, and intolerances
+- [x] **RECIPE-03**: Recipe cards display images from Spoonacular CDN
 - [ ] **RECIPE-04**: Recipe cards show popularity score instead of viral badge
 - [ ] **RECIPE-05**: Feed displays "Popular Recipes" heading (replaces "Viral near you")
-- [ ] **RECIPE-06**: Recipe detail shows Spoonacular source attribution with link
+- [x] **RECIPE-06**: Recipe detail shows Spoonacular source attribution with link
 - [ ] **RECIPE-07**: User sees ingredient match % on recipe cards based on pantry via Spoonacular findByIngredients
 
 ### Cache — Backend Caching & Quota
 
 - [ ] **CACHE-01**: Backend caches Spoonacular responses in PostgreSQL with 6-hour TTL
-- [ ] **CACHE-02**: Backend tracks daily Spoonacular API quota usage (150 req/day)
+- [x] **CACHE-02**: Backend tracks daily Spoonacular API quota usage (150 req/day)
 - [ ] **CACHE-03**: App shows graceful "daily limit reached" state when quota exhausted
 - [ ] **CACHE-04**: Backend pre-warms 100 popular recipes via scheduled batch job
 
@@ -79,12 +79,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RECIPE-01 | Phase 23 | Pending |
-| RECIPE-02 | Phase 23 | Pending |
-| RECIPE-03 | Phase 23 | Pending |
-| RECIPE-06 | Phase 23 | Pending |
+| RECIPE-01 | Phase 23 | Complete |
+| RECIPE-02 | Phase 23 | Complete |
+| RECIPE-03 | Phase 23 | Complete |
+| RECIPE-06 | Phase 23 | Complete |
 | CACHE-01 | Phase 23 | Pending |
-| CACHE-02 | Phase 23 | Pending |
+| CACHE-02 | Phase 23 | Complete |
 | CACHE-03 | Phase 23 | Pending |
 | CACHE-04 | Phase 23 | Pending |
 | VOICE-01 | Phase 24 | Pending |
