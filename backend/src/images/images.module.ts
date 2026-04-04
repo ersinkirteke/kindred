@@ -1,23 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from '../prisma/prisma.module';
-import { ImagesService } from './images.service';
 import { R2StorageService } from './r2-storage.service';
-import { ImageGenerationProcessor } from './image-generation.processor';
 
 /**
  * Images Module
  *
- * Provides AI-powered hero image generation using Imagen 4 Fast
- * and Cloudflare R2 storage for CDN delivery.
+ * Provides Cloudflare R2 storage for CDN delivery.
+ * Used by VoiceModule for voice file uploads.
  *
  * Exported services:
- * - ImagesService: Used by scraping module to queue image generation
- * - ImageGenerationProcessor: Background queue processor
+ * - R2StorageService: Upload/download files to Cloudflare R2
  */
 @Module({
-  imports: [ConfigModule, PrismaModule],
-  providers: [ImagesService, R2StorageService, ImageGenerationProcessor],
-  exports: [ImagesService, ImageGenerationProcessor, R2StorageService],
+  imports: [ConfigModule],
+  providers: [R2StorageService],
+  exports: [R2StorageService],
 })
 export class ImagesModule {}
