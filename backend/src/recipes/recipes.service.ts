@@ -24,12 +24,12 @@ export class RecipesService {
     const { query = '', cuisines = [], diets = [], intolerances = [], first = 20, after } = input;
 
     // Build normalized cache key
-    const filters = {
+    const cacheFilters = {
       ...(cuisines.length > 0 && { cuisines: cuisines.join(',') }),
       ...(diets.length > 0 && { diets: diets.join(',') }),
       ...(intolerances.length > 0 && { intolerances: intolerances.join(',') }),
     };
-    const normalizedKey = this.cacheService.normalizeCacheKey(query, filters);
+    const normalizedKey = this.cacheService.normalizeCacheKey(query, cacheFilters);
 
     // Check cache first
     const cached = await this.cacheService.getCachedSearch(normalizedKey);
@@ -40,7 +40,7 @@ export class RecipesService {
       // If stale, trigger background refresh but return stale data immediately
       if (isStale) {
         this.logger.log(`Serving stale cache for ${normalizedKey}, triggering background refresh`);
-        this.refreshCacheInBackground(normalizedKey, query, filters, first, 0).catch((err) => {
+        this.refreshCacheInBackground(normalizedKey, query, { cuisines, diets, intolerances }, first, 0).catch((err) => {
           this.logger.error(`Background refresh failed: ${err.message}`);
         });
       }
@@ -61,11 +61,7 @@ export class RecipesService {
       const offset = after ? this.decodeCursor(after) : 0;
       const spoonacularRecipes = await this.spoonacularService.search(
         query,
-        {
-          cuisines,
-          diets,
-          intolerances,
-        },
+        { cuisines, diets, intolerances },
         first,
         offset,
       );
@@ -167,7 +163,7 @@ export class RecipesService {
   private async refreshCacheInBackground(
     normalizedKey: string,
     query: string,
-    filters: Record<string, string>,
+    filters: { cuisines?: string[]; diets?: string[]; intolerances?: string[] },
     first: number,
     offset: number,
   ): Promise<void> {
@@ -204,12 +200,15 @@ export class RecipesService {
   ): RecipeConnection {
     const offset = after ? this.decodeCursor(after) : 0;
 
-    const edges = recipes.map((recipe, index) => ({
+    // Apply pagination - skip offset recipes and take first
+    const paginatedRecipes = recipes.slice(offset, offset + first);
+
+    const edges = paginatedRecipes.map((recipe, index) => ({
       node: recipe as any,
       cursor: this.encodeCursor(offset + index),
     }));
 
-    const hasNextPage = offset + recipes.length < totalCount;
+    const hasNextPage = offset + paginatedRecipes.length < totalCount;
     const hasPreviousPage = offset > 0;
 
     return {

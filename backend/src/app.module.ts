@@ -23,6 +23,7 @@ import { VoiceModule } from './voice/voice.module';
 import { PantryModule } from './pantry/pantry.module';
 import { ScanModule } from './scan/scan.module';
 import { PrivacyModule } from './privacy/privacy.module';
+import { SpoonacularModule } from './spoonacular/spoonacular.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { PrivacyModule } from './privacy/privacy.module';
 
     // Feature modules
     RecipesModule,
+    SpoonacularModule,
     UsersModule,
     HealthModule,
     ScrapingModule,
