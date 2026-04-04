@@ -153,7 +153,7 @@ describe('Recipe Mapper', () => {
       const recipe = fixtures.bulkRecipeResponse[0];
       const result = mapSpoonacularToRecipe(recipe);
 
-      expect(result.calories).toBe(450); // Rounded from 450.5
+      expect(result.calories).toBe(451); // Rounded from 450.5
       expect(result.protein).toBe(15.2);
       expect(result.carbs).toBe(68.4);
       expect(result.fat).toBe(12.3);
