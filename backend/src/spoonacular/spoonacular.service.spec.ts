@@ -207,11 +207,14 @@ describe('SpoonacularService', () => {
       // complexSearch with 2 results and addRecipeInformation costs: 1 + 0.01*2 + 0.025*2 = 1.07 points
       expect(prismaService.apiQuotaUsage.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.any(Object),
-          update: expect.objectContaining({
-            pointsUsed: expect.any(Number),
-          }),
+          where: { date: expect.any(String) },
+          update: {
+            pointsUsed: {
+              increment: expect.any(Number),
+            },
+          },
           create: expect.objectContaining({
+            date: expect.any(String),
             pointsUsed: expect.any(Number),
           }),
         }),
