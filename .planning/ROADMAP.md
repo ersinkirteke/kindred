@@ -214,7 +214,7 @@ Phases execute in numeric order: 23 → 24 → 25 → 26 → 27 → 28
 | 20. ATT & Ads | v4.0 | 4/4 | Complete | 2026-04-03 |
 | 21. Voice & Monetization | v4.0 | 4/4 | Complete | 2026-04-03 |
 | 22. TestFlight & Submission | v4.0 | 3/3 | Complete | 2026-04-03 |
-| 23. Spoonacular Backend Integration | 1/4 | In Progress|  | - |
+| 23. Spoonacular Backend Integration | 1/4 | Complete    | 2026-04-04 | - |
 | 24. AVSpeechSynthesizer Free-Tier Voice | v5.0 | 0/TBD | Not started | - |
 | 25. Voice Tier Routing | v5.0 | 0/TBD | Not started | - |
 | 26. Feed UI Migration | v5.0 | 0/TBD | Not started | - |
