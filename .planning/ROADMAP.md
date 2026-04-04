@@ -72,7 +72,7 @@
 
 **Milestone Goal:** Replace expensive backend dependencies with free alternatives and ship to App Store at $0/month SaaS costs.
 
-- [ ] **Phase 23: Spoonacular Backend Integration** - REST-to-GraphQL proxy with aggressive caching
+- [x] **Phase 23: Spoonacular Backend Integration** - REST-to-GraphQL proxy with aggressive caching
 - [ ] **Phase 24: AVSpeechSynthesizer Free-Tier Voice** - On-device TTS for free users
 - [ ] **Phase 25: Voice Tier Routing** - Strategy pattern selecting AVSpeech vs ElevenLabs
 - [ ] **Phase 26: Feed UI Migration** - Update from "viral near you" to "popular recipes"
@@ -99,8 +99,8 @@
 Plans:
 - [x] 23-01-PLAN.md -- Prisma schema evolution, SpoonacularService API client, recipe mapper, quota tracking
 - [x] 23-02-PLAN.md -- Cache service with 6h TTL, searchRecipes and popularRecipes GraphQL queries
-- [ ] 23-03-PLAN.md -- Batch pre-warm scheduler (2 AM UTC), health endpoint with quota metrics
-- [ ] 23-04-PLAN.md -- Old service cleanup (scraping/image-gen deletion), end-to-end verification
+- [x] 23-03-PLAN.md -- Batch pre-warm scheduler (2 AM UTC), health endpoint with quota metrics
+- [x] 23-04-PLAN.md -- Old service cleanup (scraping/image-gen deletion), end-to-end verification
 
 ### Phase 24: AVSpeechSynthesizer Free-Tier Voice
 **Goal**: Free and guest users hear recipe narration via Apple's built-in text-to-speech with background audio support
