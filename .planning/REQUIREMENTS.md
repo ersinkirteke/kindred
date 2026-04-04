@@ -79,32 +79,40 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RECIPE-01 | — | Pending |
-| RECIPE-02 | — | Pending |
-| RECIPE-03 | — | Pending |
-| RECIPE-04 | — | Pending |
-| RECIPE-05 | — | Pending |
-| RECIPE-06 | — | Pending |
-| RECIPE-07 | — | Pending |
-| CACHE-01 | — | Pending |
-| CACHE-02 | — | Pending |
-| CACHE-03 | — | Pending |
-| CACHE-04 | — | Pending |
-| VOICE-01 | — | Pending |
-| VOICE-02 | — | Pending |
-| VOICE-03 | — | Pending |
-| VOICE-04 | — | Pending |
-| VOICE-05 | — | Pending |
-| STORE-01 | — | Pending |
-| STORE-02 | — | Pending |
-| STORE-03 | — | Pending |
-| STORE-04 | — | Pending |
+| RECIPE-01 | Phase 23 | Pending |
+| RECIPE-02 | Phase 23 | Pending |
+| RECIPE-03 | Phase 23 | Pending |
+| RECIPE-06 | Phase 23 | Pending |
+| CACHE-01 | Phase 23 | Pending |
+| CACHE-02 | Phase 23 | Pending |
+| CACHE-03 | Phase 23 | Pending |
+| CACHE-04 | Phase 23 | Pending |
+| VOICE-01 | Phase 24 | Pending |
+| VOICE-02 | Phase 24 | Pending |
+| VOICE-04 | Phase 24 | Pending |
+| VOICE-05 | Phase 24 | Pending |
+| VOICE-03 | Phase 25 | Pending |
+| RECIPE-04 | Phase 26 | Pending |
+| RECIPE-05 | Phase 26 | Pending |
+| RECIPE-07 | Phase 26 | Pending |
+| STORE-02 | Phase 27 | Pending |
+| STORE-03 | Phase 27 | Pending |
+| STORE-01 | Phase 28 | Pending |
+| STORE-04 | Phase 28 | Pending |
 
 **Coverage:**
 - v5.0 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18
+- Mapped to phases: 18
+- Unmapped: 0 ✓
+
+**Coverage by Phase:**
+- Phase 23: 8 requirements (RECIPE-01,02,03,06 + CACHE-01,02,03,04)
+- Phase 24: 4 requirements (VOICE-01,02,04,05)
+- Phase 25: 1 requirement (VOICE-03)
+- Phase 26: 3 requirements (RECIPE-04,05,07)
+- Phase 27: 2 requirements (STORE-02,03)
+- Phase 28: 2 requirements (STORE-01,04)
 
 ---
 *Requirements defined: 2026-04-04*
-*Last updated: 2026-04-04 after initial definition*
+*Last updated: 2026-04-04 after roadmap creation — 100% coverage achieved*
