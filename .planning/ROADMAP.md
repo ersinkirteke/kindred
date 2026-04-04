@@ -98,8 +98,8 @@
 
 Plans:
 - [x] 23-01-PLAN.md -- Prisma schema evolution, SpoonacularService API client, recipe mapper, quota tracking
-- [ ] 23-02-PLAN.md -- Cache service with 6h TTL, searchRecipes and popularRecipes GraphQL queries
-- [x] 23-03-PLAN.md -- Batch pre-warm scheduler (2 AM UTC), health endpoint with quota metrics
+- [x] 23-02-PLAN.md -- Cache service with 6h TTL, searchRecipes and popularRecipes GraphQL queries
+- [ ] 23-03-PLAN.md -- Batch pre-warm scheduler (2 AM UTC), health endpoint with quota metrics
 - [ ] 23-04-PLAN.md -- Old service cleanup (scraping/image-gen deletion), end-to-end verification
 
 ### Phase 24: AVSpeechSynthesizer Free-Tier Voice

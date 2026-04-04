@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Lean App Store Launch
 status: planning
-last_updated: "2026-04-04T21:21:54.871Z"
+last_updated: "2026-04-04T21:31:00.000Z"
 progress:
   total_phases: 15
   completed_phases: 13
   total_plans: 56
-  completed_plans: 52
+  completed_plans: 53
 ---
 
 # Project State: Kindred
@@ -30,21 +30,22 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 23 of 28 (v5.0 Lean App Store Launch)
-Plan: 3 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: Executing
-Last activity: 2026-04-04 — Completed plan 23-03 (Batch pre-warming scheduler)
+Last activity: 2026-04-04 — Completed plan 23-02 (Search cache & GraphQL queries)
 
-Progress: [████████████████████░░░░░░░░] 79% (22/28 phases complete, 3/4 plans in phase 23)
+Progress: [████████████████████░░░░░░░░] 79% (22/28 phases complete, 2/4 plans in phase 23)
 
 ---
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 83 (across v1.5-v5.0)
-- Average duration: ~44 min per plan
-- Total execution time: ~61.2 hours (across 5 milestones)
+- Total plans completed: 84 (across v1.5-v5.0)
+- Average duration: ~40 min per plan
+- Total execution time: ~61.3 hours (across 5 milestones)
 - Phase 23 plan 01: 8 minutes
+- Phase 23 plan 02: 8 minutes
 
 **By Milestone:**
 
@@ -76,11 +77,12 @@ Recent decisions affecting v5.0 work:
 - **Replace Imagen 4 with Spoonacular CDN images**: Zero AI generation cost, CDN images included with recipe data
 - **Update feed framing from "viral near you" to "popular recipes"**: No geolocation in Spoonacular free tier, popularity scores replace viral detection
 - **Fastlane release lane for App Store submission**: Automate binary upload + metadata sync to reduce manual error risk
-- [Phase 23]: Use atomic increment for quota tracking (better for concurrent requests)
-- [Phase 23]: Store Spoonacular CDN images as COMPLETED status (no generation needed)
-- [Phase 23-03]: Batch pre-warm runs at 2/3/4 AM UTC to ensure recipes available when quota exhausted
-- [Phase 23-03]: Pre-warm 100 recipes across 10 diverse cuisines for geographic diversity
-- [Phase 23-03]: Health endpoint queries Prisma directly (no SpoonacularService dependency for simplicity)
+- [Phase 23-01]: Use atomic increment for quota tracking (better for concurrent requests)
+- [Phase 23-01]: Store Spoonacular CDN images as COMPLETED status (no generation needed)
+- [Phase 23-02]: 6-hour cache TTL balances quota conservation with freshness
+- [Phase 23-02]: Stale-while-revalidate serves stale cache immediately with background refresh
+- [Phase 23-02]: Quota exhaustion falls back to popular pre-warmed recipes
+- [Phase 23-02]: Cursor pagination uses base64-encoded offsets (Relay-compatible)
 
 ### Pending Todos
 
@@ -111,11 +113,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-04 21:30
-Stopped at: Completed 23-03-PLAN.md
+Last session: 2026-04-04 21:31
+Stopped at: Completed 23-02-PLAN.md
 Resume file: None
 
-**Next action:** Execute plan 23-04 (final plan in Phase 23) or move to Phase 24
+**Next action:** Execute plan 23-03 (Batch pre-warming scheduler) or apply Prisma migration if database available
 
 ---
 
@@ -124,6 +126,7 @@ Resume file: None
 | Plan | Duration | Tasks | Files | Status |
 |------|----------|-------|-------|--------|
 | 23-01 | 8 min | 2 | 11 | ✅ Complete |
+| 23-02 | 8 min | 2 | 9 | ✅ Complete |
 
 ---
 
