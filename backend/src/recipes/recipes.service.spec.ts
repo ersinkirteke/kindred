@@ -183,14 +183,19 @@ describe('RecipesService', () => {
       };
 
       mockCacheService.normalizeCacheKey.mockReturnValue('test-key');
-      mockCacheService.getCachedSearch.mockResolvedValue(null);
+      mockCacheService.getCachedSearch
+        .mockResolvedValueOnce(null) // cache miss
+        .mockResolvedValueOnce({ recipes: [sampleRecipe], isStale: false }); // after caching
       mockSpoonacularService.hasQuotaRemaining.mockResolvedValue(true);
-      mockSpoonacularService.search.mockResolvedValue([spoonacularRecipe]);
+      mockSpoonacularService.search.mockResolvedValue([{ id: 123 }]);
+      mockSpoonacularService.getRecipeInformationBulk.mockResolvedValue([spoonacularRecipe]);
 
-      await service.searchRecipes({ query: 'pasta', first: 20 });
+      const result = await service.searchRecipes({ query: 'pasta', first: 20 });
 
       expect(mockSpoonacularService.search).toHaveBeenCalled();
+      expect(mockSpoonacularService.getRecipeInformationBulk).toHaveBeenCalledWith([123]);
       expect(mockCacheService.cacheSearchResults).toHaveBeenCalled();
+      expect(result.edges.length).toBe(1);
     });
 
     it('should return cached immediately and trigger background refresh when stale', async () => {
