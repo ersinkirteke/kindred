@@ -22,7 +22,7 @@ Requirements for Lean App Store Launch. Replace expensive backend services with 
 - [ ] **CACHE-01**: Backend caches Spoonacular responses in PostgreSQL with 6-hour TTL
 - [x] **CACHE-02**: Backend tracks daily Spoonacular API quota usage (150 req/day)
 - [ ] **CACHE-03**: App shows graceful "daily limit reached" state when quota exhausted
-- [ ] **CACHE-04**: Backend pre-warms 100 popular recipes via scheduled batch job
+- [x] **CACHE-04**: Backend pre-warms 100 popular recipes via scheduled batch job
 
 ### Voice — Free-Tier Narration
 
@@ -86,7 +86,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CACHE-01 | Phase 23 | Pending |
 | CACHE-02 | Phase 23 | Complete |
 | CACHE-03 | Phase 23 | Pending |
-| CACHE-04 | Phase 23 | Pending |
+| CACHE-04 | Phase 23 | Complete |
 | VOICE-01 | Phase 24 | Pending |
 | VOICE-02 | Phase 24 | Pending |
 | VOICE-04 | Phase 24 | Pending |
