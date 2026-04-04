@@ -1,15 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { SpoonacularService } from './spoonacular.service';
+import { SpoonacularCacheService } from './spoonacular-cache.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { mapSpoonacularToRecipe, validateRecipe } from './dto/recipe-mapper';
-
-// Inline cache service interface (Plan 02 may provide full implementation)
-interface SpoonacularCacheService {
-  upsertRecipes(recipes: any[]): Promise<string[]>;
-  cacheSearchResults(normalizedKey: string, recipes: any[]): Promise<void>;
-  normalizeCacheKey(query: string, filters: any): string;
-}
 
 @Injectable()
 export class SpoonacularBatchScheduler {

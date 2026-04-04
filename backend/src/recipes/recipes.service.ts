@@ -59,15 +59,24 @@ export class RecipesService {
     // Fetch from Spoonacular API
     try {
       const offset = after ? this.decodeCursor(after) : 0;
-      const spoonacularRecipes = await this.spoonacularService.search(
+      const searchResults = await this.spoonacularService.search(
         query,
         { cuisines, diets, intolerances },
         first,
         offset,
       );
 
+      if (searchResults.length === 0) {
+        return this.buildRecipeConnection([], 0, first, after);
+      }
+
+      // complexSearch doesn't return full details (analyzedInstructions, extendedIngredients)
+      // Fetch full recipe information in bulk
+      const recipeIds = searchResults.map((r) => r.id);
+      const fullRecipes = await this.spoonacularService.getRecipeInformationBulk(recipeIds);
+
       // Validate and map recipes
-      const validRecipes = spoonacularRecipes.filter(validateRecipe);
+      const validRecipes = fullRecipes.filter(validateRecipe);
       const mappedRecipes = validRecipes.map(mapSpoonacularToRecipe);
 
       // Cache results
@@ -173,14 +182,20 @@ export class RecipesService {
       return;
     }
 
-    const spoonacularRecipes = await this.spoonacularService.search(
+    const searchResults = await this.spoonacularService.search(
       query,
       filters,
       first,
       offset,
     );
 
-    const validRecipes = spoonacularRecipes.filter(validateRecipe);
+    if (searchResults.length === 0) return;
+
+    // Fetch full recipe details (search only returns summaries)
+    const recipeIds = searchResults.map((r) => r.id);
+    const fullRecipes = await this.spoonacularService.getRecipeInformationBulk(recipeIds);
+
+    const validRecipes = fullRecipes.filter(validateRecipe);
     const mappedRecipes = validRecipes.map(mapSpoonacularToRecipe);
 
     if (mappedRecipes.length > 0) {

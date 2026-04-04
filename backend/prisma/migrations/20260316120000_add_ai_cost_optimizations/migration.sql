@@ -1,8 +1,31 @@
--- AlterTable: Add contentHash to ScanJob for scan deduplication
-ALTER TABLE "ScanJob" ADD COLUMN "contentHash" TEXT;
+-- CreateTable: ScanJob model for AI scan result persistence
+CREATE TABLE "ScanJob" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "scanType" TEXT NOT NULL,
+    "photoUrl" TEXT,
+    "ocrText" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'PROCESSING',
+    "results" JSONB,
+    "error" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "contentHash" TEXT,
+
+    CONSTRAINT "ScanJob_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex: User lookup
+CREATE INDEX "ScanJob_userId_idx" ON "ScanJob"("userId");
+
+-- CreateIndex: User + scanType lookup
+CREATE INDEX "ScanJob_userId_scanType_idx" ON "ScanJob"("userId", "scanType");
 
 -- CreateIndex: Composite index for dedup lookups
 CREATE INDEX "ScanJob_userId_contentHash_idx" ON "ScanJob"("userId", "contentHash");
+
+-- AddForeignKey
+ALTER TABLE "ScanJob" ADD CONSTRAINT "ScanJob_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- CreateTable: NarrationAudio cache for TTS audio in R2
 CREATE TABLE "NarrationAudio" (
