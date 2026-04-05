@@ -28,8 +28,8 @@ public struct FeedReducer {
         public var isOffline = false
         public var hasNewRecipes = false
         public var error: String?
-        public var currentPage: Int = 0
-        public var hasMorePages = true
+        public var endCursor: String? = nil
+        public var hasNextPage = true
         public var bookmarkCount = 0
         public var showLocationPicker = false
         public var activeDietaryFilters: Set<String> = []
@@ -64,7 +64,8 @@ public struct FeedReducer {
         case swipeCard(String, SwipeDirection)
         case undoLastSwipe
         case loadMoreRecipes
-        case moreRecipesLoaded(Result<[RecipeCard], Error>)
+        case moreRecipesLoaded(Result<[RecipeCard], Error>, newCursor: String?, hasMore: Bool)
+        case updatePaginationCursor(endCursor: String?, hasNextPage: Bool)
         case refreshFeed
         case refreshCompleted(Result<[RecipeCard], Error>)
         case changeLocation(String)
@@ -140,8 +141,10 @@ public struct FeedReducer {
                 return id1 == id2
             case let (.recipesLoaded(r1), .recipesLoaded(r2)):
                 return areResultsEqual(r1, r2)
-            case let (.moreRecipesLoaded(r1), .moreRecipesLoaded(r2)):
-                return areResultsEqual(r1, r2)
+            case let (.moreRecipesLoaded(r1, c1, h1), .moreRecipesLoaded(r2, c2, h2)):
+                return areResultsEqual(r1, r2) && c1 == c2 && h1 == h2
+            case let (.updatePaginationCursor(c1, h1), .updatePaginationCursor(c2, h2)):
+                return c1 == c2 && h1 == h2
             case let (.refreshCompleted(r1), .refreshCompleted(r2)):
                 return areResultsEqual(r1, r2)
             case let (.silentRefreshCompleted(r1), .silentRefreshCompleted(r2)):
@@ -235,18 +238,22 @@ public struct FeedReducer {
                             }
                         }
 
-                        // Task 2: Load recipes (always use ViralRecipesQuery, filter client-side)
+                        // Task 2: Load recipes (using PopularRecipesQuery with cursor pagination)
                         group.addTask {
                             do {
-                                let query = KindredAPI.ViralRecipesQuery(location: location)
+                                let query = KindredAPI.PopularRecipesQuery(first: 20, after: nil)
                                 let result = try await apolloClient.fetch(
                                     query: query,
                                     cachePolicy: .cacheFirst
                                 )
 
-                                if let recipes = result.data?.viralRecipes {
-                                    let cards = recipes.map { RecipeCard.from(graphQL: $0) }
+                                if let connection = result.data?.popularRecipes {
+                                    let cards = connection.edges.map { RecipeCard.from(popularRecipe: $0.node) }
                                     await send(.recipesLoaded(.success(cards)))
+                                    await send(.updatePaginationCursor(
+                                        endCursor: connection.pageInfo.endCursor,
+                                        hasNextPage: connection.pageInfo.hasNextPage
+                                    ))
                                 } else if let errors = result.errors, !errors.isEmpty {
                                     await send(.recipesLoaded(.failure(FeedError.graphQL(errors.first!.localizedDescription))))
                                 } else {
@@ -289,8 +296,6 @@ public struct FeedReducer {
                 }
                 // Apply client-side dietary filtering
                 state.cardStack = applyDietaryFilter(recipes: cards, filters: state.activeDietaryFilters)
-                state.hasMorePages = cards.count >= 10
-                state.currentPage = 1
                 state.error = nil
 
                 // Load hasSeenDNAActivation from UserDefaults
@@ -345,13 +350,13 @@ public struct FeedReducer {
                 }
 
                 // Trigger pagination if running low
-                let shouldPaginate = state.cardStack.count <= 3 && state.hasMorePages
+                let shouldPaginate = state.cardStack.count <= 3 && state.hasNextPage
 
                 // Increment interaction count and check if we should recompute DNA
                 let newInteractionCount = state.interactionCount + 1
                 let shouldRecomputeDNA = newInteractionCount % 10 == 0
 
-                return .run { [location = state.location, page = state.currentPage, cuisineType = card.cuisineType] send in
+                return .run { [cuisineType = card.cuisineType] send in
                     // Haptic feedback
                     HapticFeedback.medium()
 
@@ -409,64 +414,75 @@ public struct FeedReducer {
                 }
 
             case .loadMoreRecipes:
-                guard state.hasMorePages && !state.isLoading else {
+                guard state.hasNextPage && !state.isLoading else {
                     return .none
                 }
+                state.isLoading = true
 
-                return .run { [location = state.location, page = state.currentPage] send in
+                return .run { [endCursor = state.endCursor] send in
                     do {
-                        let query = KindredAPI.RecipesQuery(
-                            location: .some(location),
-                            limit: .some(10),
-                            offset: .some(Int32(page * 10))
+                        let query = KindredAPI.PopularRecipesQuery(
+                            first: 20,
+                            after: endCursor
                         )
                         let result = try await apolloClient.fetch(
                             query: query,
                             cachePolicy: .cacheFirst
                         )
 
-                        if let recipes = result.data?.recipes {
-                            let cards = recipes.map { RecipeCard.from(recipesQuery: $0) }
-                            await send(.moreRecipesLoaded(.success(cards)))
+                        if let connection = result.data?.popularRecipes {
+                            let cards = connection.edges.map { RecipeCard.from(popularRecipe: $0.node) }
+                            await send(.moreRecipesLoaded(
+                                .success(cards),
+                                newCursor: connection.pageInfo.endCursor,
+                                hasMore: connection.pageInfo.hasNextPage
+                            ))
                         } else {
-                            await send(.moreRecipesLoaded(.success([])))
+                            await send(.moreRecipesLoaded(.success([]), newCursor: nil, hasMore: false))
                         }
                     } catch {
-                        await send(.moreRecipesLoaded(.failure(error)))
+                        await send(.moreRecipesLoaded(.failure(error), newCursor: nil, hasMore: false))
                     }
                 }
 
-            case let .moreRecipesLoaded(.success(cards)):
+            case let .moreRecipesLoaded(.success(cards), newCursor, hasMore):
+                state.endCursor = newCursor
+                state.hasNextPage = hasMore
+                state.isLoading = false
                 let existingIDs = Set(state.allRecipes.map(\.id)).union(state.swipedRecipeIDs)
                 let newCards = cards.filter { !existingIDs.contains($0.id) }
                 state.allRecipes.append(contentsOf: newCards)
                 let filtered = applyDietaryFilter(recipes: newCards, filters: state.activeDietaryFilters)
                 state.cardStack.append(contentsOf: filtered)
-                state.hasMorePages = cards.count >= 10
-                state.currentPage += 1
                 return .send(.computeMatchPercentages)
 
-            case .moreRecipesLoaded(.failure):
+            case .moreRecipesLoaded(.failure, _, _):
                 // Silently fail pagination - don't break UX
-                state.hasMorePages = false
+                state.hasNextPage = false
+                state.isLoading = false
                 return .none
 
             case .refreshFeed:
                 state.isRefreshing = true
                 state.error = nil
                 state.hasNewRecipes = false
+                state.endCursor = nil
 
-                return .run { [location = state.location] send in
+                return .run { send in
                     do {
-                        let query = KindredAPI.ViralRecipesQuery(location: location)
+                        let query = KindredAPI.PopularRecipesQuery(first: 20, after: nil)
                         let result = try await apolloClient.fetch(
                             query: query,
                             cachePolicy: .networkOnly
                         )
 
-                        if let recipes = result.data?.viralRecipes {
-                            let cards = recipes.map { RecipeCard.from(graphQL: $0) }
+                        if let connection = result.data?.popularRecipes {
+                            let cards = connection.edges.map { RecipeCard.from(popularRecipe: $0.node) }
                             await send(.refreshCompleted(.success(cards)))
+                            await send(.updatePaginationCursor(
+                                endCursor: connection.pageInfo.endCursor,
+                                hasNextPage: connection.pageInfo.hasNextPage
+                            ))
                         } else {
                             await send(.refreshCompleted(.success([])))
                         }
@@ -480,8 +496,6 @@ public struct FeedReducer {
                 state.swipedRecipeIDs = []
                 state.allRecipes = cards
                 state.cardStack = applyDietaryFilter(recipes: cards, filters: state.activeDietaryFilters)
-                state.hasMorePages = cards.count >= 10
-                state.currentPage = 1
                 state.error = nil
 
                 // Prefetch top card and compute DNA
@@ -510,20 +524,24 @@ public struct FeedReducer {
                 state.swipeHistory = []
                 state.isLoading = true
                 state.error = nil
-                state.currentPage = 0
-                state.hasMorePages = true
+                state.endCursor = nil
+                state.hasNextPage = true
 
                 return .run { send in
                     do {
-                        let query = KindredAPI.ViralRecipesQuery(location: newLocation)
+                        let query = KindredAPI.PopularRecipesQuery(first: 20, after: nil)
                         let result = try await apolloClient.fetch(
                             query: query,
                             cachePolicy: .networkOnly
                         )
 
-                        if let recipes = result.data?.viralRecipes {
-                            let cards = recipes.map { RecipeCard.from(graphQL: $0) }
+                        if let connection = result.data?.popularRecipes {
+                            let cards = connection.edges.map { RecipeCard.from(popularRecipe: $0.node) }
                             await send(.recipesLoaded(.success(cards)))
+                            await send(.updatePaginationCursor(
+                                endCursor: connection.pageInfo.endCursor,
+                                hasNextPage: connection.pageInfo.hasNextPage
+                            ))
                         } else {
                             await send(.recipesLoaded(.success([])))
                         }
@@ -538,16 +556,16 @@ public struct FeedReducer {
 
                 // If we just came back online, do a silent refresh
                 if wasOffline && isConnected {
-                    return .run { [location = state.location] send in
+                    return .run { send in
                         do {
-                            let query = KindredAPI.ViralRecipesQuery(location: location)
+                            let query = KindredAPI.PopularRecipesQuery(first: 20, after: nil)
                             let result = try await apolloClient.fetch(
                                 query: query,
                                 cachePolicy: .networkOnly
                             )
 
-                            if let recipes = result.data?.viralRecipes {
-                                let cards = recipes.map { RecipeCard.from(graphQL: $0) }
+                            if let connection = result.data?.popularRecipes {
+                                let cards = connection.edges.map { RecipeCard.from(popularRecipe: $0.node) }
                                 await send(.silentRefreshCompleted(.success(cards)))
                             }
                         } catch {
@@ -656,8 +674,6 @@ public struct FeedReducer {
             case let .filteredRecipesLoaded(.success(cards)):
                 state.isLoading = false
                 state.cardStack = cards
-                state.hasMorePages = cards.count >= 10
-                state.currentPage = 1
                 state.error = nil
 
                 // Prefetch detail for top card
@@ -720,6 +736,9 @@ public struct FeedReducer {
 
             case let .authStateUpdated(authState):
                 state.currentAuthState = authState
+                if state.recipeDetail != nil {
+                    return .send(.recipeDetail(.presented(.authStateUpdated(authState))))
+                }
                 return .none
 
             case let .subscriptionStatusUpdated(status):
@@ -790,6 +809,11 @@ public struct FeedReducer {
                 }
                 return .none
 
+            case let .updatePaginationCursor(endCursor, hasNextPage):
+                state.endCursor = endCursor
+                state.hasNextPage = hasNextPage
+                return .none
+
             case .delegate:
                 // Delegate actions handled by parent reducer
                 return .none
@@ -857,11 +881,12 @@ extension RecipeCard {
             cookTime: recipe.cookTime,
             calories: recipe.calories,
             imageUrl: recipe.imageUrl,
-            isViral: recipe.isViral ?? false,
+            popularityScore: nil, // RecipesQuery doesn't have popularityScore
             engagementLoves: recipe.engagementLoves ?? 0,
             dietaryTags: recipe.dietaryTags ?? [],
             difficulty: recipe.difficulty.rawValue,
-            cuisineType: recipe.cuisineType.rawValue
+            cuisineType: recipe.cuisineType.rawValue,
+            ingredientNames: []
         )
     }
 
@@ -874,12 +899,12 @@ extension RecipeCard {
             cookTime: nil,
             calories: node.calories,
             imageUrl: node.imageUrl,
-            isViral: node.isViral ?? false,
+            popularityScore: nil, // FeedFilteredQuery doesn't have popularityScore
             engagementLoves: node.engagementLoves ?? 0,
             dietaryTags: [],  // Not available on RecipeCard type
             difficulty: nil,  // Not available on RecipeCard type
             cuisineType: node.cuisineType.rawValue,
-            velocityScore: node.velocityScore ?? 0.0
+            ingredientNames: []
         )
     }
 }
