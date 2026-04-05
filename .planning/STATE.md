@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Lean App Store Launch
 status: completed
-last_updated: "2026-04-04T22:35:33.853Z"
+last_updated: "2026-04-05T20:55:21.116Z"
 progress:
-  total_phases: 15
+  total_phases: 20
   completed_phases: 14
-  total_plans: 56
-  completed_plans: 55
+  total_plans: 59
+  completed_plans: 56
 ---
 
 # Project State: Kindred
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 23 of 28 (v5.0 Lean App Store Launch)
-Plan: 4 of 4 in current phase
+Phase: 26 of 28 (v5.0 Lean App Store Launch)
+Plan: 2 of 3 in current phase
 Status: Executing
-Last activity: 2026-04-05 — Completed plan 23-04 (Delete scraping & image generation services)
+Last activity: 2026-04-05 — Completed plan 26-01 (Extend RecipeCard schema and build data layer)
 
-Progress: [████████████████████░░░░░░░░] 82% (22/28 phases complete, 4/4 plans in phase 23)
+Progress: [████████████████████░░░░░░░░] 83% (23/28 phases complete, 1/3 plans in phase 26)
 
 ---
 
@@ -68,6 +68,7 @@ Progress: [████████████████████░░░
 | Phase 23 P02 | 8 | 2 tasks | 9 files |
 | Phase 23 P03 | 6 | 2 tasks | 7 files |
 | Phase 23 P04 | 33 | 2 tasks | 16 files |
+| Phase 26 P01 | 8 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,7 @@ Recent decisions affecting v5.0 work:
 - [Phase 23-02]: Cursor pagination uses base64-encoded offsets (Relay-compatible)
 - [Phase 23-04]: Preserved R2StorageService in reduced ImagesModule (needed by VoiceModule for voice uploads)
 - [Phase 23-04]: Removed @google-cloud/aiplatform dependency (only used by deleted Imagen 4 service)
+- [Phase 26-01]: Use popularityScore (0-100 integer) instead of isViral boolean for cleaner semantics
 
 ### Pending Todos
 

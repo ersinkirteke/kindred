@@ -12,10 +12,10 @@ Requirements for Lean App Store Launch. Replace expensive backend services with 
 - [x] **RECIPE-01**: User can search recipes by keyword via Spoonacular API
 - [x] **RECIPE-02**: User can filter recipes by cuisine, diet type, and intolerances
 - [x] **RECIPE-03**: Recipe cards display images from Spoonacular CDN
-- [ ] **RECIPE-04**: Recipe cards show popularity score instead of viral badge
+- [x] **RECIPE-04**: Recipe cards show popularity score instead of viral badge
 - [ ] **RECIPE-05**: Feed displays "Popular Recipes" heading (replaces "Viral near you")
 - [x] **RECIPE-06**: Recipe detail shows Spoonacular source attribution with link
-- [ ] **RECIPE-07**: User sees ingredient match % on recipe cards based on pantry using local IngredientMatcher
+- [x] **RECIPE-07**: User sees ingredient match % on recipe cards based on pantry using local IngredientMatcher
 
 ### Cache — Backend Caching & Quota
 
@@ -92,9 +92,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VOICE-04 | Phase 24 | Pending |
 | VOICE-05 | Phase 24 | Pending |
 | VOICE-03 | Phase 25 | Pending |
-| RECIPE-04 | Phase 26 | Pending |
+| RECIPE-04 | Phase 26 | Complete |
 | RECIPE-05 | Phase 26 | Pending |
-| RECIPE-07 | Phase 26 | Pending |
+| RECIPE-07 | Phase 26 | Complete |
 | STORE-02 | Phase 27 | Pending |
 | STORE-03 | Phase 27 | Pending |
 | STORE-01 | Phase 28 | Pending |
