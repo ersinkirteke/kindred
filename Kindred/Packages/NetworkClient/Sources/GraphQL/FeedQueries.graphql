@@ -1,3 +1,37 @@
+query PopularRecipes($first: Int, $after: String) {
+  popularRecipes(first: $first, after: $after) {
+    edges {
+      node {
+        id
+        name
+        description
+        prepTime
+        cookTime
+        calories
+        imageUrl
+        imageStatus
+        popularityScore
+        engagementLoves
+        dietaryTags
+        difficulty
+        cuisineType
+        ingredients {
+          name
+          quantity
+          unit
+          orderIndex
+        }
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    totalCount
+  }
+}
+
 query ViralRecipes($location: String!) {
   viralRecipes(location: $location) {
     id

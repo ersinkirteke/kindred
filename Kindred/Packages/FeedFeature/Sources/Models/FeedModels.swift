@@ -14,12 +14,11 @@ public struct RecipeCard: Equatable, Identifiable {
     public let cookTime: Int?
     public let calories: Int?
     public let imageUrl: String?
-    public let isViral: Bool
+    public let popularityScore: Int?
     public let engagementLoves: Int
     public let dietaryTags: [String]
     public let difficulty: String?
     public let cuisineType: String?
-    public let velocityScore: Double
     public let ingredientNames: [String]
     public var matchPercentage: Int?
 
@@ -31,12 +30,11 @@ public struct RecipeCard: Equatable, Identifiable {
         cookTime: Int? = nil,
         calories: Int? = nil,
         imageUrl: String? = nil,
-        isViral: Bool,
+        popularityScore: Int? = nil,
         engagementLoves: Int,
         dietaryTags: [String] = [],
         difficulty: String? = nil,
         cuisineType: String? = nil,
-        velocityScore: Double = 0.0,
         ingredientNames: [String] = [],
         matchPercentage: Int? = nil
     ) {
@@ -47,12 +45,11 @@ public struct RecipeCard: Equatable, Identifiable {
         self.cookTime = cookTime
         self.calories = calories
         self.imageUrl = imageUrl
-        self.isViral = isViral
+        self.popularityScore = popularityScore
         self.engagementLoves = engagementLoves
         self.dietaryTags = dietaryTags
         self.difficulty = difficulty
         self.cuisineType = cuisineType
-        self.velocityScore = velocityScore
         self.ingredientNames = ingredientNames
         self.matchPercentage = matchPercentage
     }
@@ -75,7 +72,26 @@ public struct RecipeCard: Equatable, Identifiable {
         return "\(engagementLoves)"
     }
 
-    // Map from GraphQL ViralRecipesQuery result
+    // Map from GraphQL PopularRecipesQuery result
+    public static func from(popularRecipe node: KindredAPI.PopularRecipesQuery.Data.PopularRecipes.Edge.Node) -> RecipeCard {
+        return RecipeCard(
+            id: node.id,
+            name: node.name,
+            description: node.description,
+            prepTime: node.prepTime,
+            cookTime: node.cookTime,
+            calories: node.calories,
+            imageUrl: node.imageUrl,
+            popularityScore: node.popularityScore,
+            engagementLoves: node.engagementLoves ?? 0,
+            dietaryTags: node.dietaryTags ?? [],
+            difficulty: node.difficulty?.rawValue,
+            cuisineType: node.cuisineType?.rawValue,
+            ingredientNames: (node.ingredients ?? []).map { $0.name }
+        )
+    }
+
+    // DEPRECATED: Map from GraphQL ViralRecipesQuery result (will be removed in Plan 26-03)
     public static func from(graphQL recipe: KindredAPI.ViralRecipesQuery.Data.ViralRecipe) -> RecipeCard {
         return RecipeCard(
             id: recipe.id,
@@ -85,7 +101,7 @@ public struct RecipeCard: Equatable, Identifiable {
             cookTime: recipe.cookTime,
             calories: recipe.calories,
             imageUrl: recipe.imageUrl,
-            isViral: recipe.isViral ?? false,
+            popularityScore: nil, // ViralRecipes doesn't have popularityScore
             engagementLoves: recipe.engagementLoves ?? 0,
             dietaryTags: recipe.dietaryTags ?? [],
             difficulty: recipe.difficulty.rawValue,
@@ -104,12 +120,11 @@ public struct RecipeCard: Equatable, Identifiable {
             cookTime: self.cookTime,
             calories: self.calories,
             imageUrl: self.imageUrl,
-            isViral: self.isViral,
+            popularityScore: self.popularityScore,
             engagementLoves: self.engagementLoves,
             dietaryTags: self.dietaryTags,
             difficulty: self.difficulty,
             cuisineType: self.cuisineType,
-            velocityScore: self.velocityScore,
             ingredientNames: self.ingredientNames,
             matchPercentage: pct
         )
