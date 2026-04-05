@@ -15,7 +15,7 @@ Requirements for Lean App Store Launch. Replace expensive backend services with 
 - [ ] **RECIPE-04**: Recipe cards show popularity score instead of viral badge
 - [ ] **RECIPE-05**: Feed displays "Popular Recipes" heading (replaces "Viral near you")
 - [x] **RECIPE-06**: Recipe detail shows Spoonacular source attribution with link
-- [ ] **RECIPE-07**: User sees ingredient match % on recipe cards based on pantry via Spoonacular findByIngredients
+- [ ] **RECIPE-07**: User sees ingredient match % on recipe cards based on pantry using local IngredientMatcher
 
 ### Cache — Backend Caching & Quota
 

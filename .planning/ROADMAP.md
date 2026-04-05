@@ -147,15 +147,16 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Feed heading shows "Popular Recipes" (not "Viral near you")
   2. Recipe cards show popularity score badge (not viral badge)
-  3. Recipe cards show ingredient match % based on pantry via Spoonacular findByIngredients
+  3. Recipe cards show ingredient match % based on pantry using local IngredientMatcher
   4. Feed loads recipes from popularRecipes GraphQL query (not viralRecipes)
   5. Deprecated viralRecipes query removed from backend after iOS 100% rollout confirmed
   6. Old scraping services (ScrapingService, XApiService, ImageGenerationProcessor) deleted from backend
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
-- [ ] 26-01-PLAN.md -- PopularRecipesQuery, RecipeCard model migration, PopularityBadge, FeedReducer atomic query swap, FeedView heading
-- [ ] 26-02-PLAN.md -- Human verification on device, backend viralRecipes cleanup, ViralRecipesQuery deletion
+- [ ] 26-01-PLAN.md -- Backend RecipeCard type update, PopularRecipesQuery, RecipeCard model migration, PopularityBadge
+- [ ] 26-02-PLAN.md -- FeedReducer atomic query swap, RecipeCardView badge swap, FeedView heading, ViralBadge deletion
+- [ ] 26-03-PLAN.md -- Human verification on device, backend viralRecipes cleanup, ViralRecipesQuery deletion
 
 ### Phase 27: App Store Compliance Updates
 **Goal**: Privacy Labels, PrivacyInfo.xcprivacy, nutrition disclaimers, and screenshots updated for Spoonacular integration
