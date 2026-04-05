@@ -73,11 +73,15 @@
 **Milestone Goal:** Replace expensive backend dependencies with free alternatives and ship to App Store at $0/month SaaS costs.
 
 - [x] **Phase 23: Spoonacular Backend Integration** - REST-to-GraphQL proxy with aggressive caching
-- [ ] **Phase 24: AVSpeechSynthesizer Free-Tier Voice** - On-device TTS for free users
-- [ ] **Phase 25: Voice Tier Routing** - Strategy pattern selecting AVSpeech vs ElevenLabs
-- [ ] **Phase 26: Feed UI Migration** - Update from "viral near you" to "popular recipes"
+
+**Track A — Feed (CRITICAL, execute first):**
+- [ ] **Phase 26: Feed UI Migration** - Fix broken feed: switch from viralRecipes to searchRecipes/popularRecipes
 - [ ] **Phase 27: App Store Compliance Updates** - Privacy Labels for Spoonacular + screenshots
 - [ ] **Phase 28: Fastlane Release Automation** - Automate App Store submission
+
+**Track B — Voice (parallel with Track A):**
+- [ ] **Phase 24: AVSpeechSynthesizer Free-Tier Voice** - On-device TTS for free users
+- [ ] **Phase 25: Voice Tier Routing** - Strategy pattern selecting AVSpeech vs ElevenLabs
 
 ## Phase Details
 
@@ -137,7 +141,8 @@ Plans:
 
 ### Phase 26: Feed UI Migration
 **Goal**: iOS feed displays "Popular Recipes" with popularity scores instead of "Viral near you" with viral badges
-**Depends on**: Phase 25 (voice tiers must work before changing feed framing)
+**Depends on**: Phase 23 (backend searchRecipes/popularRecipes queries must exist)
+**Integration Gap**: FeedReducer.swift calls deprecated viralRecipes query — FEED IS BROKEN until this phase executes
 **Requirements**: RECIPE-04, RECIPE-05, RECIPE-07
 **Success Criteria** (what must be TRUE):
   1. Feed heading shows "Popular Recipes" (not "Viral near you")
@@ -187,8 +192,10 @@ Plans:
 
 ## Progress
 
-**Execution Order:**
-Phases execute in numeric order: 23 → 24 → 25 → 26 → 27 → 28
+**Execution Order (revised after v5.0 audit 2026-04-05):**
+Track A (Feed — CRITICAL): 26 → 27 → 28
+Track B (Voice — parallel): 24 → 25
+Feed is broken after Phase 23 scraping cleanup — Phase 26 executes first.
 
 | Phase | Milestone | Plans | Status | Completed |
 |-------|-----------|-------|--------|-----------|
