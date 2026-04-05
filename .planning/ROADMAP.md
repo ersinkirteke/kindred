@@ -225,7 +225,7 @@ Feed is broken after Phase 23 scraping cleanup — Phase 26 executes first.
 | 23. Spoonacular Backend Integration | 1/4 | Complete    | 2026-04-04 | - |
 | 24. AVSpeechSynthesizer Free-Tier Voice | v5.0 | 0/TBD | Not started | - |
 | 25. Voice Tier Routing | v5.0 | 0/TBD | Not started | - |
-| 26. Feed UI Migration | 1/3 | In Progress|  | - |
+| 26. Feed UI Migration | 2/3 | In Progress|  | - |
 | 27. App Store Compliance Updates | v5.0 | 0/TBD | Not started | - |
 | 28. Fastlane Release Automation | v5.0 | 0/TBD | Not started | - |
 
