@@ -83,9 +83,9 @@ export class FeedService {
     // ST_MakePoint(longitude, latitude) - LONGITUDE FIRST!
     const query = Prisma.sql`
       SELECT
-        id, name, "imageUrl", "imageStatus", "prepTime", calories,
-        "engagementLoves", "isViral", "cuisineType", "mealType", "velocityScore",
-        "scrapedAt",
+        id, name, description, "imageUrl", "imageStatus", "prepTime", "cookTime",
+        calories, "engagementLoves", "isViral", "popularityScore", "dietaryTags",
+        difficulty, "cuisineType", "mealType", "velocityScore", "scrapedAt",
         ST_Distance(
           ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)::geography,
           ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography
@@ -182,17 +182,23 @@ export class FeedService {
       const card: RecipeCard = {
         id: recipe.id,
         name: recipe.name,
+        description: recipe.description,
         imageUrl: recipe.imageUrl,
         imageStatus: recipe.imageStatus as any,
         prepTime: recipe.prepTime,
+        cookTime: recipe.cookTime,
         calories: recipe.calories,
         engagementLoves: recipe.engagementLoves,
         engagementHumanized,
         isViral: recipe.isViral,
+        popularityScore: recipe.popularityScore,
+        dietaryTags: recipe.dietaryTags as any,
+        difficulty: recipe.difficulty as any,
         cuisineType: recipe.cuisineType as any,
         mealType: recipe.mealType as any,
         velocityScore: recipe.velocityScore,
         distanceMiles: recipe.distanceMiles,
+        ingredients: undefined, // PostGIS query doesn't include ingredients relation
         scrapedAt: recipe.scrapedAt,
       };
 
@@ -259,6 +265,11 @@ export class FeedService {
         },
         orderBy: [{ velocityScore: 'desc' }, { id: 'asc' }],
         take: params.first || 20,
+        include: {
+          ingredients: {
+            orderBy: { orderIndex: 'asc' },
+          },
+        },
       });
 
       const recipeEdges: RecipeCardEdge[] = recipes.map((recipe) => {
@@ -268,17 +279,23 @@ export class FeedService {
         const card: RecipeCard = {
           id: recipe.id,
           name: recipe.name,
+          description: recipe.description,
           imageUrl: recipe.imageUrl,
           imageStatus: recipe.imageStatus as any,
           prepTime: recipe.prepTime,
+          cookTime: recipe.cookTime,
           calories: recipe.calories,
           engagementLoves: recipe.engagementLoves,
           engagementHumanized,
           isViral: recipe.isViral,
+          popularityScore: recipe.popularityScore,
+          dietaryTags: recipe.dietaryTags as any,
+          difficulty: recipe.difficulty as any,
           cuisineType: recipe.cuisineType as any,
           mealType: recipe.mealType as any,
           velocityScore: recipe.velocityScore,
           distanceMiles: null, // No distance for global results
+          ingredients: recipe.ingredients as any,
           scrapedAt: recipe.scrapedAt,
         };
 

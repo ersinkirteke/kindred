@@ -1,12 +1,13 @@
 import { ObjectType, Field, ID, Int, Float } from '@nestjs/graphql';
-import { CuisineType, MealType, ImageStatus } from '../../graphql/models/recipe.model';
+import { CuisineType, MealType, ImageStatus, DifficultyLevel } from '../../graphql/models/recipe.model';
+import { Ingredient } from '../../graphql/models/ingredient.model';
 
 /**
- * RecipeCard - Summary-level recipe for feed cards
+ * RecipeCard - Recipe summary for feed cards
  *
- * Contains only card-level fields displayed in feed view.
- * Detail fields (dietaryTags, cookTime, difficulty) are excluded
- * per user decision - those only appear in detail view.
+ * Extended to include iOS-required fields (popularityScore, description, cookTime,
+ * dietaryTags, difficulty, ingredients) for Phase 26 feed UI migration.
+ * These fields are now exposed in GraphQL for PopularRecipesQuery.
  */
 @ObjectType()
 export class RecipeCard {
@@ -17,6 +18,9 @@ export class RecipeCard {
   name: string;
 
   @Field(() => String, { nullable: true })
+  description?: string | null;
+
+  @Field(() => String, { nullable: true })
   imageUrl?: string | null;
 
   @Field(() => ImageStatus)
@@ -24,6 +28,9 @@ export class RecipeCard {
 
   @Field(() => Int)
   prepTime: number;
+
+  @Field(() => Int, { nullable: true })
+  cookTime?: number | null;
 
   @Field(() => Int, { nullable: true })
   calories?: number | null;
@@ -37,6 +44,15 @@ export class RecipeCard {
   @Field()
   isViral: boolean;
 
+  @Field(() => Int, { nullable: true })
+  popularityScore?: number | null;
+
+  @Field(() => [String], { nullable: true })
+  dietaryTags?: string[];
+
+  @Field(() => DifficultyLevel, { nullable: true })
+  difficulty?: DifficultyLevel;
+
   @Field(() => CuisineType)
   cuisineType: CuisineType;
 
@@ -48,6 +64,9 @@ export class RecipeCard {
 
   @Field(() => Float, { nullable: true })
   distanceMiles?: number | null;
+
+  @Field(() => [Ingredient], { nullable: true })
+  ingredients?: Ingredient[];
 
   // Internal field for humanization calculation (not exposed in GraphQL)
   scrapedAt?: Date;
