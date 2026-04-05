@@ -38,7 +38,7 @@ public struct RecipeDetailView: View {
                         ParallaxHeader(
                             imageUrl: recipe.imageUrl,
                             recipeName: recipe.name,
-                            isViral: recipe.isViral
+                            popularityScore: recipe.popularityScore
                         )
                     }
 

@@ -8,7 +8,7 @@ struct ParallaxHeader: View {
 
     let imageUrl: String?
     let recipeName: String
-    let isViral: Bool
+    let popularityScore: Int?
     let height: CGFloat = 300
 
     var body: some View {
@@ -56,9 +56,9 @@ struct ParallaxHeader: View {
                     .frame(height: 120)
                 }
 
-                // Viral badge overlay
-                if isViral {
-                    ViralBadge()
+                // Popularity badge overlay
+                if let score = popularityScore, score >= 50 {
+                    PopularityBadge(percentage: score)
                         .padding(KindredSpacing.md)
                 }
             }

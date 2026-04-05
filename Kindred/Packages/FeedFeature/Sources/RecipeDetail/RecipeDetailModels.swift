@@ -21,7 +21,7 @@ public struct RecipeDetail: Equatable, Identifiable {
     public let servings: Int?
     public let calories: Int?
     public let imageUrl: String?
-    public let isViral: Bool
+    public let popularityScore: Int?
     public let engagementLoves: Int
     public let dietaryTags: [String]
     public let difficulty: String?
@@ -37,7 +37,7 @@ public struct RecipeDetail: Equatable, Identifiable {
         servings: Int? = nil,
         calories: Int? = nil,
         imageUrl: String? = nil,
-        isViral: Bool,
+        popularityScore: Int? = nil,
         engagementLoves: Int,
         dietaryTags: [String] = [],
         difficulty: String? = nil,
@@ -52,7 +52,7 @@ public struct RecipeDetail: Equatable, Identifiable {
         self.servings = servings
         self.calories = calories
         self.imageUrl = imageUrl
-        self.isViral = isViral
+        self.popularityScore = popularityScore
         self.engagementLoves = engagementLoves
         self.dietaryTags = dietaryTags
         self.difficulty = difficulty
@@ -89,7 +89,7 @@ public struct RecipeDetail: Equatable, Identifiable {
             servings: recipe.servings,
             calories: recipe.calories,
             imageUrl: recipe.imageUrl,
-            isViral: recipe.isViral ?? false,
+            popularityScore: nil, // RecipeDetailQuery doesn't have popularityScore yet
             engagementLoves: recipe.engagementLoves ?? 0,
             dietaryTags: recipe.dietaryTags ?? [],
             difficulty: recipe.difficulty.rawValue,

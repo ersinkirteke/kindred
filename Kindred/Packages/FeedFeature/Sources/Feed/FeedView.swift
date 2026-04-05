@@ -138,6 +138,12 @@ public struct FeedView: View {
             .zIndex(1)
             .padding(.bottom, KindredSpacing.sm)
 
+            // Popular Recipes heading
+            Text("Popular Recipes")
+                .font(.kindredHeading1)
+                .foregroundStyle(.kindredTextPrimary)
+                .padding(.horizontal, KindredSpacing.lg)
+
             // Card stack
             SwipeCardStack(
                 cards: store.cardStack,

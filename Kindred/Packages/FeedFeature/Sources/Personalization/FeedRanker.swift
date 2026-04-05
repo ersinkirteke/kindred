@@ -9,7 +9,7 @@ public struct FeedRanker {
     /// Personalized ratio: 60% weight on cuisine affinity
     private let personalizedRatio: Double = 0.6
 
-    /// Discovery ratio: 40% weight on velocity/virality
+    /// Discovery ratio: 40% weight on popularity/variety
     private let discoveryRatio: Double = 0.4
 
     // MARK: - Public API
@@ -30,15 +30,15 @@ public struct FeedRanker {
         // Build affinity lookup map
         let affinityMap = Dictionary(uniqueKeysWithValues: affinities.map { ($0.cuisineType, $0.score) })
 
-        // Find max velocity for normalization
-        let maxVelocity = recipes.map(\.velocityScore).max() ?? 1.0
-        let velocityNormalizer = maxVelocity > 0 ? maxVelocity : 1.0
+        // Find max popularity for normalization
+        let maxPopularity = recipes.compactMap(\.popularityScore).max() ?? 100
+        let popularityNormalizer = maxPopularity > 0 ? Double(maxPopularity) : 100.0
 
         // Compute combined scores and sort
         let rankedRecipes = recipes.map { recipe -> (recipe: RecipeCard, score: Double) in
             let affinityScore = recipe.cuisineType.flatMap { affinityMap[$0] } ?? 0.0
-            let normalizedVelocity = recipe.velocityScore / velocityNormalizer
-            let combinedScore = (personalizedRatio * affinityScore) + (discoveryRatio * normalizedVelocity)
+            let normalizedPopularity = Double(recipe.popularityScore ?? 0) / popularityNormalizer
+            let combinedScore = (personalizedRatio * affinityScore) + (discoveryRatio * normalizedPopularity)
             return (recipe, combinedScore)
         }
         .sorted { $0.score > $1.score }

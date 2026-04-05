@@ -109,8 +109,8 @@ struct RecipeCardView: View {
                 }
                 .clipped()
                 .overlay(alignment: .topTrailing) {
-                    if recipe.isViral {
-                        ViralBadge()
+                    if let popularityScore = recipe.popularityScore, popularityScore >= 50 {
+                        PopularityBadge(percentage: popularityScore)
                             .padding(KindredSpacing.md)
                     }
                 }
@@ -223,8 +223,8 @@ struct RecipeCardView: View {
             label += String(localized: ", \(calories) calories", bundle: .main)
         }
 
-        if recipe.isViral {
-            label += String(localized: ", Viral recipe", bundle: .main)
+        if let popScore = recipe.popularityScore, popScore >= 50 {
+            label += ", \(popScore) percent popular"
         }
 
         if isPersonalized {
