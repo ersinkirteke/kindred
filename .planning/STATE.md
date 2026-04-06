@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Lean App Store Launch
 status: planning
-last_updated: "2026-04-06T17:42:21.335Z"
+last_updated: "2026-04-06T17:46:26.969Z"
 progress:
   total_phases: 20
   completed_phases: 15
   total_plans: 63
-  completed_plans: 60
+  completed_plans: 61
 ---
 
 # Project State: Kindred
@@ -73,6 +73,7 @@ Progress: [█████████████████████░░
 | Phase 26 P03 | 4 | 2 tasks | 6 modified, 4 deleted |
 | Phase 27 P01 | 69 | 2 tasks | 1 files |
 | Phase 27 P03 | 1 | 2 tasks | 2 files |
+| Phase 27 P02 | 6 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,8 @@ Recent decisions affecting v5.0 work:
 - [Phase 27]: Do NOT add api.spoonacular.com to tracking domains (data processor, not tracker)
 - [Phase 27]: Version 2.0 privacy policy includes Spoonacular, ElevenLabs, and Search History disclosures
 - [Phase 27]: Backend proxy chain documented to prevent reviewer confusion with iOS 17+ Privacy Report
+- [Phase 27]: Use SwiftUI Link instead of openURL for Spoonacular attribution (simpler, localization-friendly)
+- [Phase 27]: Use full English sentence as localization key (Kindred's existing convention)
 
 ### Pending Todos
 
