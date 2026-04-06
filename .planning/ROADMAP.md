@@ -169,10 +169,13 @@ Plans:
   4. Recipe detail view shows nutrition disclaimer "Estimates from Spoonacular. Not for medical use." in 12pt text
   5. App Store screenshots refreshed showing "Popular Recipes" feed (not "Viral near you")
   6. Screenshots include Spoonacular attribution badge visible on recipe detail view
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 27-01: TBD
+- [ ] 27-01-PLAN.md -- PrivacyInfo.xcprivacy Search History + Product Interaction flip + App Store Connect manual checklist
+- [ ] 27-02-PLAN.md -- RecipeDetailView compliance footer (disclaimer + Spoonacular attribution link) + localized strings (en + tr)
+- [ ] 27-03-PLAN.md -- POLICY-UPDATE.md privacy policy draft (Spoonacular + ElevenLabs disclosures) + fastlane review notes addendum
+- [ ] 27-04-PLAN.md -- Screenshot refresh (02-recipe-feed + 05-recipe-detail, en-US + tr) — human capture checkpoint
 
 ### Phase 28: Fastlane Release Automation
 **Goal**: Fastlane release lane automates binary upload, metadata sync, and App Store submission with TestFlight validation
@@ -226,7 +229,7 @@ Feed is broken after Phase 23 scraping cleanup — Phase 26 executes first.
 | 24. AVSpeechSynthesizer Free-Tier Voice | v5.0 | 0/TBD | Not started | - |
 | 25. Voice Tier Routing | v5.0 | 0/TBD | Not started | - |
 | 26. Feed UI Migration | v5.0 | Complete    | 2026-04-06 | 2026-04-06 |
-| 27. App Store Compliance Updates | v5.0 | 0/TBD | Not started | - |
+| 27. App Store Compliance Updates | v5.0 | 0/4 | Planned | - |
 | 28. Fastlane Release Automation | v5.0 | 0/TBD | Not started | - |
 
 ---
