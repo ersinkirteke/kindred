@@ -1,0 +1,4 @@
+Phase 27 plan 04 staging begun: 2026-04-06T17:48:48Z
+Baseline dimensions: 1408 x 3040
+Target files: 02-recipe-feed.png, 05-recipe-detail.png
+Feature branch must include Plan 27-02 footer for 05-recipe-detail.png to show compliance footer.
