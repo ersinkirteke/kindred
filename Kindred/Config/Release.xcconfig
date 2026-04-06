@@ -7,3 +7,6 @@ ADMOB_DETAIL_BANNER_ID = ca-app-pub-6436761926194974/9295595220
 // Clerk authentication
 // NOTE: Using test key for beta. Replace with pk_live_ key before App Store submission.
 CLERK_PUBLISHABLE_KEY = pk_test_ZHJpdmluZy1wb3NzdW0tNjUuY2xlcmsuYWNjb3VudHMuZGV2JA
+
+// Backend API (production)
+API_BASE_URL = https:/$()/api.kindredcook.app

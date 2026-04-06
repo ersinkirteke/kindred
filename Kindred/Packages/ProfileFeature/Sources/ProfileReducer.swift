@@ -287,7 +287,8 @@ public struct ProfileReducer {
                         }
                         """
 
-                        var request = URLRequest(url: URL(string: "https://api.kindredcook.app/v1/graphql")!)
+                        let baseURL = (Bundle.main.object(forInfoDictionaryKey: "KindredAPIBaseURL") as? String) ?? "https://api.kindredcook.app"
+                        var request = URLRequest(url: URL(string: "\(baseURL)/v1/graphql")!)
                         request.httpMethod = "POST"
                         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
@@ -368,7 +369,8 @@ public struct ProfileReducer {
                         }
                         """
 
-                        var request = URLRequest(url: URL(string: "https://api.kindredcook.app/v1/graphql")!)
+                        let baseURL = (Bundle.main.object(forInfoDictionaryKey: "KindredAPIBaseURL") as? String) ?? "https://api.kindredcook.app"
+                        var request = URLRequest(url: URL(string: "\(baseURL)/v1/graphql")!)
                         request.httpMethod = "POST"
                         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 

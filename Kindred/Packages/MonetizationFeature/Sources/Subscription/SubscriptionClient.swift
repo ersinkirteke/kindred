@@ -127,7 +127,8 @@ extension SubscriptionClient: DependencyKey {
             },
             syncSubscriptionToBackend: { jws in
                 // Backend URL matches Apollo client configuration
-                let urlString = "https://api.kindredcook.app/graphql"
+                let baseURL = (Bundle.main.object(forInfoDictionaryKey: "KindredAPIBaseURL") as? String) ?? "https://api.kindredcook.app"
+                let urlString = "\(baseURL)/v1/graphql"
                 guard let url = URL(string: urlString) else {
                     throw SubscriptionError.networkError("Invalid backend URL")
                 }

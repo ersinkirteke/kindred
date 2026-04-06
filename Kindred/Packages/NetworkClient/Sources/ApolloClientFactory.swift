@@ -25,12 +25,11 @@ public final class ApolloClientFactory: Sendable {
         )
 
         // 3. Network transport with GraphQL endpoint
-        let url = URL(string: "https://api.kindredcook.app/v1/graphql")!
         let transport = RequestChainNetworkTransport(
             urlSession: URLSession.shared,
             interceptorProvider: interceptorProvider,
             store: store,
-            endpointURL: url
+            endpointURL: APIEnvironment.graphQLURL
         )
 
         return ApolloClient(networkTransport: transport, store: store)

@@ -2,6 +2,7 @@ import AVFoundation
 import ComposableArchitecture
 import Dependencies
 import Foundation
+import NetworkClient
 
 // MARK: - VoiceUploadReducer
 
@@ -172,8 +173,7 @@ public struct VoiceUploadReducer {
                         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
 
                         // Create request
-                        // TODO: Replace with actual backend URL from environment
-                        guard let url = URL(string: "https://api.kindredcook.app/api/voice-profiles/upload") else {
+                        guard let url = URL(string: "\(APIEnvironment.baseURL)/api/voice-profiles/upload") else {
                             await send(.uploadFailed("Invalid API URL"))
                             return
                         }
