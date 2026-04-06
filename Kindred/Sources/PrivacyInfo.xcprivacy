@@ -78,8 +78,9 @@
 		<dict>
 			<key>NSPrivacyCollectedDataType</key>
 			<string>NSPrivacyCollectedDataTypeProductInteraction</string>
+			<!-- Linked=true: Firebase Analytics receives Clerk user id via user properties. Decision stands per Phase 27 CONTEXT.md even though the wiring is not yet confirmed in code — manual ASC re-verification required (see plan's done criteria). -->
 			<key>NSPrivacyCollectedDataTypeLinked</key>
-			<false/>
+			<true/>
 			<key>NSPrivacyCollectedDataTypeTracking</key>
 			<false/>
 			<key>NSPrivacyCollectedDataTypePurposes</key>
@@ -108,6 +109,21 @@
 			<string>NSPrivacyCollectedDataTypePurchaseHistory</string>
 			<key>NSPrivacyCollectedDataTypeLinked</key>
 			<true/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+			</array>
+		</dict>
+
+		<!-- 8. Search History (Spoonacular recipe queries + filter parameters) -->
+		<!-- Spoonacular is a DATA PROCESSOR, not a tracker. Queries are proxied through api.kindredcook.app and are not linked to the user's identifier. Filter parameters (cuisine, diet, intolerances) fold into Search History per Apple's definition. Do NOT add api.spoonacular.com to NSPrivacyTrackingDomains. -->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeSearchHistory</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
 			<key>NSPrivacyCollectedDataTypeTracking</key>
 			<false/>
 			<key>NSPrivacyCollectedDataTypePurposes</key>
