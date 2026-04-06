@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Lean App Store Launch
 status: planning
-last_updated: "2026-04-06T13:03:17.673Z"
+last_updated: "2026-04-06T17:41:40.953Z"
 progress:
   total_phases: 20
   completed_phases: 15
-  total_plans: 59
-  completed_plans: 58
+  total_plans: 63
+  completed_plans: 59
 ---
 
 # Project State: Kindred
@@ -30,11 +30,11 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 27 of 28 (v5.0 Lean App Store Launch)
-Plan: 0 of 0 in current phase (not yet planned)
-Status: Phase 26 complete — ready to plan Phase 27
-Last activity: 2026-04-06 — Completed plan 26-03 (deprecated viralRecipes/Recipes query removal — Phase 26 milestone complete)
+Plan: 1 of 4 in current phase (executing Phase 27)
+Status: Phase 27 in progress — 1/4 plans complete
+Last activity: 2026-04-06 — Completed plan 27-01 (privacy manifest update for Spoonacular + Firebase linking)
 
-Progress: [█████████████████████░░░░░░░] 86% (24/28 phases complete, 3/3 plans in phase 26)
+Progress: [█████████████████████░░░░░░░] 86% (24/28 phases complete, 1/4 plans in phase 27)
 
 ---
 
@@ -71,6 +71,7 @@ Progress: [█████████████████████░░
 | Phase 26 P01 | 8 | 2 tasks | 6 files |
 | Phase 26 P02 | 9 | 2 tasks | 7 files |
 | Phase 26 P03 | 4 | 2 tasks | 6 modified, 4 deleted |
+| Phase 27 P01 | 69 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,9 @@ Recent decisions affecting v5.0 work:
 - [Phase 26-03]: Remove deprecated `Recipes` (offset-based) query alongside `ViralRecipes` — both confirmed dead via grep, full cleanup achieved
 - [Phase 26-03]: Delete duplicate generated Apollo files in `NetworkClient/Sources/Schema/Sources/Operations/Queries/` (stale from prior codegen run, not produced by active `apollo-codegen-config.json`)
 - [Phase 26-03]: Verify-then-cleanup checkpoint pattern (human-verify gate before destructive deprecation removals)
+- [Phase 27]: Flip Product Interaction to Linked=true per Phase 27 CONTEXT.md (Firebase receives Clerk user id)
+- [Phase 27]: Add Search History data type for Spoonacular queries (Linked=false, not a tracker)
+- [Phase 27]: Do NOT add api.spoonacular.com to tracking domains (data processor, not tracker)
 
 ### Pending Todos
 

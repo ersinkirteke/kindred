@@ -35,7 +35,7 @@ Requirements for Lean App Store Launch. Replace expensive backend services with 
 ### Store — App Store Submission
 
 - [ ] **STORE-01**: Fastlane release lane automates binary upload, metadata sync, and submission
-- [ ] **STORE-02**: Privacy Labels and privacy policy updated with Spoonacular as third-party data processor
+- [x] **STORE-02**: Privacy Labels and privacy policy updated with Spoonacular as third-party data processor
 - [ ] **STORE-03**: App Store screenshots refreshed to reflect "popular recipes" feed
 - [ ] **STORE-04**: TestFlight internal beta test completed before App Store submission
 
@@ -95,7 +95,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RECIPE-04 | Phase 26 | Complete |
 | RECIPE-05 | Phase 26 | Complete |
 | RECIPE-07 | Phase 26 | Complete |
-| STORE-02 | Phase 27 | Pending |
+| STORE-02 | Phase 27 | Complete |
 | STORE-03 | Phase 27 | Pending |
 | STORE-01 | Phase 28 | Pending |
 | STORE-04 | Phase 28 | Pending |
