@@ -5478,6 +5478,57 @@
           }
         }
       }
+    },
+    "Nutrition estimates from Spoonacular. Not for medical use.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nutrition estimates from Spoonacular. Not for medical use."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Besin değerleri Spoonacular tarafından sağlanır. Tıbbi tavsiye için kullanılmaz."
+          }
+        }
+      }
+    },
+    "Powered by Spoonacular": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Powered by Spoonacular"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoonacular tarafından desteklenmektedir"
+          }
+        }
+      }
+    },
+    "Opens Spoonacular website in browser": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens Spoonacular website in browser"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoonacular web sitesini tarayıcıda açar"
+          }
+        }
+      }
     }
   },
   "version": "1.1"
