@@ -188,6 +188,28 @@ public struct RecipeDetailView: View {
             sectionHeader(String(localized: "Instructions", bundle: .main))
 
             StepTimelineView(steps: recipe.steps)
+
+            // Compliance footer: nutrition disclaimer + Spoonacular attribution (Phase 27 STORE-03)
+            // Uses kindredTextSecondary because kindredTextTertiary does not exist in DesignSystem.
+            VStack(alignment: .leading, spacing: KindredSpacing.xs) {
+                Text(String(localized: "Nutrition estimates from Spoonacular. Not for medical use.", bundle: .main))
+                    .font(.kindredCaptionScaled(size: captionSize))
+                    .foregroundStyle(.kindredTextSecondary)
+
+                Link(destination: URL(string: "https://spoonacular.com/food-api")!) {
+                    HStack(spacing: 4) {
+                        Text(String(localized: "Powered by Spoonacular", bundle: .main))
+                        Image(systemName: "arrow.up.right")
+                    }
+                    .font(.kindredCaptionScaled(size: captionSize))
+                    .foregroundStyle(.kindredTextSecondary)
+                }
+                .accessibilityLabel(String(localized: "Opens Spoonacular website in browser", bundle: .main))
+                .accessibilityAddTraits(.isLink)
+            }
+            .padding(.top, KindredSpacing.lg)
+            .padding(.bottom, KindredSpacing.md)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
