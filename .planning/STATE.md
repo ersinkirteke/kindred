@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Lean App Store Launch
-status: completed
-last_updated: "2026-04-05T21:08:09.827Z"
+status: in-progress
+last_updated: "2026-04-06T12:54:36Z"
 progress:
   total_phases: 20
-  completed_phases: 14
+  completed_phases: 15
   total_plans: 59
-  completed_plans: 57
+  completed_plans: 58
 ---
 
 # Project State: Kindred
 
-**Last Updated:** 2026-04-05
-**Status:** Milestone complete
+**Last Updated:** 2026-04-06
+**Status:** Phase 26 complete — ready for Phase 27
 
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 26 of 28 (v5.0 Lean App Store Launch)
-Plan: 3 of 3 in current phase
-Status: Executing
-Last activity: 2026-04-06 — Completed plan 26-02 (Feed UI migration with cursor pagination)
+Phase: 27 of 28 (v5.0 Lean App Store Launch)
+Plan: 0 of 0 in current phase (not yet planned)
+Status: Phase 26 complete — ready to plan Phase 27
+Last activity: 2026-04-06 — Completed plan 26-03 (deprecated viralRecipes/Recipes query removal — Phase 26 milestone complete)
 
-Progress: [████████████████████░░░░░░░░] 83% (23/28 phases complete, 2/3 plans in phase 26)
+Progress: [█████████████████████░░░░░░░] 86% (24/28 phases complete, 3/3 plans in phase 26)
 
 ---
 
@@ -70,7 +70,7 @@ Progress: [████████████████████░░░
 | Phase 23 P04 | 33 | 2 tasks | 16 files |
 | Phase 26 P01 | 8 | 2 tasks | 6 files |
 | Phase 26 P02 | 9 | 2 tasks | 7 files |
-| Phase 26 P02 | 9 | 2 tasks | 7 files |
+| Phase 26 P03 | 4 | 2 tasks | 6 modified, 4 deleted |
 
 ## Accumulated Context
 
@@ -95,6 +95,9 @@ Recent decisions affecting v5.0 work:
 - [Phase 26-01]: Use popularityScore (0-100 integer) instead of isViral boolean for cleaner semantics
 - [Phase 26]: Use endCursor/hasNextPage instead of offset-based pagination for cursor-based GraphQL queries
 - [Phase 26]: Show PopularityBadge when popularityScore >= 50 (consistent with MatchBadge threshold)
+- [Phase 26-03]: Remove deprecated `Recipes` (offset-based) query alongside `ViralRecipes` — both confirmed dead via grep, full cleanup achieved
+- [Phase 26-03]: Delete duplicate generated Apollo files in `NetworkClient/Sources/Schema/Sources/Operations/Queries/` (stale from prior codegen run, not produced by active `apollo-codegen-config.json`)
+- [Phase 26-03]: Verify-then-cleanup checkpoint pattern (human-verify gate before destructive deprecation removals)
 
 ### Pending Todos
 
@@ -125,11 +128,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-05 01:15
-Stopped at: Completed 23-04-PLAN.md (Phase 23 complete)
+Last session: 2026-04-06 12:54
+Stopped at: Completed 26-03-PLAN.md (Phase 26 Feed UI Migration complete: 3/3 plans)
 Resume file: None
 
-**Next action:** Plan Phase 24 (AVSpeechSynthesizer integration for free tier)
+**Next action:** Plan Phase 27 (App Store Compliance — Privacy Policy, Privacy Labels, AI consent, nutrition disclaimers)
 
 ---
 
@@ -144,4 +147,4 @@ Resume file: None
 
 ---
 
-*State updated: 2026-04-05 01:15 — Phase 23 complete (4/4 plans)*
+*State updated: 2026-04-06 12:54 — Phase 26 complete (3/3 plans), ready for Phase 27*

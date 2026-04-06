@@ -75,7 +75,7 @@
 - [x] **Phase 23: Spoonacular Backend Integration** - REST-to-GraphQL proxy with aggressive caching
 
 **Track A — Feed (CRITICAL, execute first):**
-- [ ] **Phase 26: Feed UI Migration** - Fix broken feed: switch from viralRecipes to searchRecipes/popularRecipes
+- [x] **Phase 26: Feed UI Migration** - Fix broken feed: switch from viralRecipes to searchRecipes/popularRecipes (3/3 plans complete 2026-04-06)
 - [ ] **Phase 27: App Store Compliance Updates** - Privacy Labels for Spoonacular + screenshots
 - [ ] **Phase 28: Fastlane Release Automation** - Automate App Store submission
 
@@ -154,9 +154,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 26-01-PLAN.md -- Backend RecipeCard type update, PopularRecipesQuery, RecipeCard model migration, PopularityBadge
-- [ ] 26-02-PLAN.md -- FeedReducer atomic query swap, RecipeCardView badge swap, FeedView heading, ViralBadge deletion
-- [ ] 26-03-PLAN.md -- Human verification on device, backend viralRecipes cleanup, ViralRecipesQuery deletion
+- [x] 26-01-PLAN.md -- Backend RecipeCard type update, PopularRecipesQuery, RecipeCard model migration, PopularityBadge (completed 2026-04-05)
+- [x] 26-02-PLAN.md -- FeedReducer atomic query swap, RecipeCardView badge swap, FeedView heading, ViralBadge deletion (completed 2026-04-06)
+- [x] 26-03-PLAN.md -- Human verification on device, backend viralRecipes cleanup, ViralRecipesQuery + RecipesQuery deletion (completed 2026-04-06)
 
 ### Phase 27: App Store Compliance Updates
 **Goal**: Privacy Labels, PrivacyInfo.xcprivacy, nutrition disclaimers, and screenshots updated for Spoonacular integration
@@ -225,7 +225,7 @@ Feed is broken after Phase 23 scraping cleanup — Phase 26 executes first.
 | 23. Spoonacular Backend Integration | 1/4 | Complete    | 2026-04-04 | - |
 | 24. AVSpeechSynthesizer Free-Tier Voice | v5.0 | 0/TBD | Not started | - |
 | 25. Voice Tier Routing | v5.0 | 0/TBD | Not started | - |
-| 26. Feed UI Migration | 2/3 | In Progress|  | - |
+| 26. Feed UI Migration | v5.0 | 3/3 | Complete | 2026-04-06 |
 | 27. App Store Compliance Updates | v5.0 | 0/TBD | Not started | - |
 | 28. Fastlane Release Automation | v5.0 | 0/TBD | Not started | - |
 
