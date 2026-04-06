@@ -241,7 +241,7 @@ public struct FeedReducer {
                         // Task 2: Load recipes (using PopularRecipesQuery with cursor pagination)
                         group.addTask {
                             do {
-                                let query = KindredAPI.PopularRecipesQuery(first: 20, after: nil)
+                                let query = KindredAPI.PopularRecipesQuery(first: .some(20), after: .null)
                                 let result = try await apolloClient.fetch(
                                     query: query,
                                     cachePolicy: .cacheFirst
@@ -422,8 +422,8 @@ public struct FeedReducer {
                 return .run { [endCursor = state.endCursor] send in
                     do {
                         let query = KindredAPI.PopularRecipesQuery(
-                            first: 20,
-                            after: endCursor
+                            first: .some(20),
+                            after: endCursor.map { .some($0) } ?? .null
                         )
                         let result = try await apolloClient.fetch(
                             query: query,
@@ -470,7 +470,7 @@ public struct FeedReducer {
 
                 return .run { send in
                     do {
-                        let query = KindredAPI.PopularRecipesQuery(first: 20, after: nil)
+                        let query = KindredAPI.PopularRecipesQuery(first: .some(20), after: .null)
                         let result = try await apolloClient.fetch(
                             query: query,
                             cachePolicy: .networkOnly
@@ -529,7 +529,7 @@ public struct FeedReducer {
 
                 return .run { send in
                     do {
-                        let query = KindredAPI.PopularRecipesQuery(first: 20, after: nil)
+                        let query = KindredAPI.PopularRecipesQuery(first: .some(20), after: .null)
                         let result = try await apolloClient.fetch(
                             query: query,
                             cachePolicy: .networkOnly
@@ -558,7 +558,7 @@ public struct FeedReducer {
                 if wasOffline && isConnected {
                     return .run { send in
                         do {
-                            let query = KindredAPI.PopularRecipesQuery(first: 20, after: nil)
+                            let query = KindredAPI.PopularRecipesQuery(first: .some(20), after: .null)
                             let result = try await apolloClient.fetch(
                                 query: query,
                                 cachePolicy: .networkOnly
@@ -869,27 +869,9 @@ private enum FeedError: LocalizedError {
     }
 }
 
-// MARK: - RecipeCard Extension for Recipes Query
+// MARK: - RecipeCard Extension for Feed Query
 
 extension RecipeCard {
-    static func from(recipesQuery recipe: KindredAPI.RecipesQuery.Data.Recipe) -> RecipeCard {
-        return RecipeCard(
-            id: recipe.id,
-            name: recipe.name,
-            description: recipe.description,
-            prepTime: recipe.prepTime,
-            cookTime: recipe.cookTime,
-            calories: recipe.calories,
-            imageUrl: recipe.imageUrl,
-            popularityScore: nil, // RecipesQuery doesn't have popularityScore
-            engagementLoves: recipe.engagementLoves ?? 0,
-            dietaryTags: recipe.dietaryTags ?? [],
-            difficulty: recipe.difficulty.rawValue,
-            cuisineType: recipe.cuisineType.rawValue,
-            ingredientNames: []
-        )
-    }
-
     static func from(feedNode node: KindredAPI.FeedFilteredQuery.Data.Feed.Edge.Node) -> RecipeCard {
         return RecipeCard(
             id: node.id,

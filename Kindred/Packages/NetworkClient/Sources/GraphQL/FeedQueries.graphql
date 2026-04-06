@@ -32,52 +32,6 @@ query PopularRecipes($first: Int, $after: String) {
   }
 }
 
-query ViralRecipes($location: String!) {
-  viralRecipes(location: $location) {
-    id
-    name
-    description
-    prepTime
-    cookTime
-    calories
-    imageUrl
-    imageStatus
-    location
-    isViral
-    engagementLoves
-    engagementBookmarks
-    dietaryTags
-    difficulty
-    cuisineType
-    ingredients {
-      name
-      quantity
-      unit
-      orderIndex
-    }
-  }
-}
-
-query Recipes($location: String, $limit: Int, $offset: Int) {
-  recipes(location: $location, limit: $limit, offset: $offset) {
-    id
-    name
-    description
-    prepTime
-    cookTime
-    calories
-    imageUrl
-    imageStatus
-    location
-    isViral
-    engagementLoves
-    engagementBookmarks
-    dietaryTags
-    difficulty
-    cuisineType
-  }
-}
-
 query FeedFiltered($latitude: Float!, $longitude: Float!, $first: Int, $after: String, $filters: FeedFiltersInput, $lastFetchedAt: String) {
   feed(latitude: $latitude, longitude: $longitude, first: $first, after: $after, filters: $filters, lastFetchedAt: $lastFetchedAt) {
     edges {

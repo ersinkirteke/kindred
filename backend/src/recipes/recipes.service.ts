@@ -302,32 +302,6 @@ export class RecipesService {
   }
 
   /**
-   * Find viral recipes for a specific location.
-   * Returns up to 10 viral recipes ordered by engagement.
-   */
-  async findViral(location: string) {
-    return this.prisma.recipe.findMany({
-      where: {
-        location,
-        isViral: true,
-      },
-      include: {
-        ingredients: {
-          orderBy: { orderIndex: 'asc' },
-        },
-        steps: {
-          orderBy: { orderIndex: 'asc' },
-        },
-      },
-      orderBy: [
-        { engagementLoves: 'desc' },
-        { engagementViews: 'desc' },
-      ],
-      take: 10,
-    });
-  }
-
-  /**
    * Count cached recipes for a location
    * Used by fallback logic to determine if cached data exists
    */

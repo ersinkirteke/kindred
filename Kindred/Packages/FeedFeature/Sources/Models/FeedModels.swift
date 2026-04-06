@@ -86,27 +86,8 @@ public struct RecipeCard: Equatable, Identifiable {
             engagementLoves: node.engagementLoves ?? 0,
             dietaryTags: node.dietaryTags ?? [],
             difficulty: node.difficulty?.rawValue,
-            cuisineType: node.cuisineType?.rawValue,
+            cuisineType: node.cuisineType.rawValue,
             ingredientNames: (node.ingredients ?? []).map { $0.name }
-        )
-    }
-
-    // DEPRECATED: Map from GraphQL ViralRecipesQuery result (will be removed in Plan 26-03)
-    public static func from(graphQL recipe: KindredAPI.ViralRecipesQuery.Data.ViralRecipe) -> RecipeCard {
-        return RecipeCard(
-            id: recipe.id,
-            name: recipe.name,
-            description: recipe.description,
-            prepTime: recipe.prepTime,
-            cookTime: recipe.cookTime,
-            calories: recipe.calories,
-            imageUrl: recipe.imageUrl,
-            popularityScore: nil, // ViralRecipes doesn't have popularityScore
-            engagementLoves: recipe.engagementLoves ?? 0,
-            dietaryTags: recipe.dietaryTags ?? [],
-            difficulty: recipe.difficulty.rawValue,
-            cuisineType: recipe.cuisineType.rawValue,
-            ingredientNames: recipe.ingredients.map { $0.name }
         )
     }
 

@@ -273,11 +273,6 @@ describe('RecipesService', () => {
       expect(page2.edges.length).toBeLessThanOrEqual(2);
     });
 
-    it('should mark deprecated viralRecipes query as returning empty array', async () => {
-      const result = await service.findViral('test-location');
-      // Legacy method should still work but will eventually be deprecated
-      expect(Array.isArray(result)).toBe(true);
-    });
   });
 
   describe('getPopularRecipes', () => {

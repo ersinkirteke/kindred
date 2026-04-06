@@ -50,14 +50,4 @@ export class RecipesResolver {
   ): Promise<Recipe | null> {
     return this.recipesService.findById(id) as any;
   }
-
-  @Query(() => [Recipe], {
-    description: 'Get viral recipes for a specific location',
-    deprecationReason: 'Use popularRecipes query instead. Viral detection replaced by popularity scoring in v5.0.',
-  })
-  async viralRecipes(
-    @Args('location') location: string,
-  ): Promise<Recipe[]> {
-    return this.recipesService.findViral(location) as any;
-  }
 }
