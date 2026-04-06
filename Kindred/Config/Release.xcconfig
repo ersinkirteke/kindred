@@ -1,11 +1,9 @@
 // Release build settings for Kindred
-// TODO: Replace placeholder IDs with production AdMob unit IDs from https://apps.admob.com/
-// Production IDs will be added before App Store submission
 
-ADMOB_APP_ID = REPLACE_WITH_PRODUCTION_APP_ID
-ADMOB_FEED_NATIVE_ID = REPLACE_WITH_PRODUCTION_FEED_NATIVE_ID
-ADMOB_DETAIL_BANNER_ID = REPLACE_WITH_PRODUCTION_DETAIL_BANNER_ID
+ADMOB_APP_ID = ca-app-pub-6436761926194974~3132474147
+ADMOB_FEED_NATIVE_ID = ca-app-pub-6436761926194974/3076633827
+ADMOB_DETAIL_BANNER_ID = ca-app-pub-6436761926194974/9295595220
 
 // Clerk authentication
-// TODO: Replace with production publishable key before App Store submission
-CLERK_PUBLISHABLE_KEY = REPLACE_WITH_PRODUCTION_CLERK_KEY
+// NOTE: Using test key for beta. Replace with pk_live_ key before App Store submission.
+CLERK_PUBLISHABLE_KEY = pk_test_ZHJpdmluZy1wb3NzdW0tNjUuY2xlcmsuYWNjb3VudHMuZGV2JA
