@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Lean App Store Launch
 status: planning
-last_updated: "2026-04-06T17:41:40.953Z"
+last_updated: "2026-04-06T17:42:21.335Z"
 progress:
   total_phases: 20
   completed_phases: 15
   total_plans: 63
-  completed_plans: 59
+  completed_plans: 60
 ---
 
 # Project State: Kindred
@@ -30,11 +30,11 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 27 of 28 (v5.0 Lean App Store Launch)
-Plan: 1 of 4 in current phase (executing Phase 27)
-Status: Phase 27 in progress — 1/4 plans complete
-Last activity: 2026-04-06 — Completed plan 27-01 (privacy manifest update for Spoonacular + Firebase linking)
+Plan: 3 of 4 in current phase (executing Phase 27)
+Status: Phase 27 in progress — 3/4 plans complete
+Last activity: 2026-04-06 — Completed plan 27-03 (external privacy documents: policy draft + review notes)
 
-Progress: [█████████████████████░░░░░░░] 86% (24/28 phases complete, 1/4 plans in phase 27)
+Progress: [█████████████████████░░░░░░░] 87% (24/28 phases complete, 3/4 plans in phase 27)
 
 ---
 
@@ -72,6 +72,7 @@ Progress: [█████████████████████░░
 | Phase 26 P02 | 9 | 2 tasks | 7 files |
 | Phase 26 P03 | 4 | 2 tasks | 6 modified, 4 deleted |
 | Phase 27 P01 | 69 | 2 tasks | 1 files |
+| Phase 27 P03 | 1 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,8 @@ Recent decisions affecting v5.0 work:
 - [Phase 27]: Flip Product Interaction to Linked=true per Phase 27 CONTEXT.md (Firebase receives Clerk user id)
 - [Phase 27]: Add Search History data type for Spoonacular queries (Linked=false, not a tracker)
 - [Phase 27]: Do NOT add api.spoonacular.com to tracking domains (data processor, not tracker)
+- [Phase 27]: Version 2.0 privacy policy includes Spoonacular, ElevenLabs, and Search History disclosures
+- [Phase 27]: Backend proxy chain documented to prevent reviewer confusion with iOS 17+ Privacy Report
 
 ### Pending Todos
 
@@ -132,11 +135,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06 12:54
-Stopped at: Completed 26-03-PLAN.md (Phase 26 Feed UI Migration complete: 3/3 plans)
+Last session: 2026-04-06 17:42
+Stopped at: Completed 27-03-PLAN.md (Phase 27: 3/4 plans complete — privacy policy draft + review notes)
 Resume file: None
 
-**Next action:** Plan Phase 27 (App Store Compliance — Privacy Policy, Privacy Labels, AI consent, nutrition disclaimers)
+**Next action:** Execute 27-04-PLAN.md (final Phase 27 compliance plan)
 
 ---
 
