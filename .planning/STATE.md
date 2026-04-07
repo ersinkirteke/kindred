@@ -112,6 +112,10 @@ Recent decisions affecting v5.0 work:
 - [Phase 27-04]: Localize "Popular Recipes" feed heading (user-approved deviation for Turkish screenshot quality)
 - [Phase 27-04]: Use iPhone 17 Pro Max for 6.9" screenshots (iPhone 16 Pro Max deprecated in Xcode 26)
 
+### Roadmap Evolution
+
+- Phase 27.1 inserted after Phase 27: Reconcile Phase 27 docs with AdMob tracker reality (URGENT)
+
 ### Pending Todos
 
 None yet.
@@ -141,11 +145,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-07 17:26
-Stopped at: Completed 27-04-PLAN.md (Phase 27: 4/4 plans complete — App Store screenshot refresh)
+Last session: 2026-04-07 (resumed)
+Stopped at: Phase 27 complete (4/4). Phase 27.1 inserted as URGENT (empty — needs planning). Phase 28 also pending plans.
 Resume file: None
 
-**Next action:** Execute Phase 28 (App Store submission automation)
+**Next action:** Plan Phase 27.1 (urgent reconciliation) before Phase 28 — both directories are empty
 
 ---
 
