@@ -183,7 +183,7 @@ Plans:
 **Goal:** Close the App Store compliance gap where Phase 27 disclosed Spoonacular as a data processor but never disclosed Google AdMob as an active tracker. Add 4 AdMob data type entries to PrivacyInfo.xcprivacy (Device ID, Advertising Data, second Coarse Location, Other Diagnostic Data), update POLICY-UPDATE.md to v2.1 with a Google AdMob section, correct the ASC checklist in 27-01-SUMMARY.md (steps 6 + 9-11 + banner), append an AdMob addendum to fastlane reviewer notes, and write a 27.1-VERIFICATION.md that cross-references and corrects Phase 27's verification report without modifying it. Phase 27 stays closed; all corrections live in Phase 27.1.
 **Requirements**: None (gap-closure documentation phase; success criteria drive goal-backward verification)
 **Depends on:** Phase 27
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 - [x] 27.1-01-PLAN.md -- Add AdMob entries to PrivacyInfo.xcprivacy, update POLICY-UPDATE.md/27-01-SUMMARY.md/notes.txt, write 27.1-VERIFICATION.md (Complete 2026-04-07)
@@ -241,7 +241,7 @@ Feed is broken after Phase 23 scraping cleanup — Phase 26 executes first.
 | 25. Voice Tier Routing | v5.0 | 0/TBD | Not started | - |
 | 26. Feed UI Migration | v5.0 | Complete    | 2026-04-06 | 2026-04-06 |
 | 27. App Store Compliance Updates | 3/4 | Complete    | 2026-04-07 | - |
-| 27.1. Reconcile Phase 27 AdMob docs | v5.0 | 1/1 | ✅ Complete | 2026-04-07 |
+| 27.1. Reconcile Phase 27 AdMob docs | v5.0 | Complete    | 2026-04-07 | 2026-04-07 |
 | 28. Fastlane Release Automation | v5.0 | 0/TBD | Not started | - |
 
 ---
