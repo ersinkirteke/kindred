@@ -77,6 +77,7 @@
 **Track A — Feed (CRITICAL, execute first):**
 - [x] **Phase 26: Feed UI Migration** - Fix broken feed: switch from viralRecipes to searchRecipes/popularRecipes (3/3 plans complete 2026-04-06)
 - [x] **Phase 27: App Store Compliance Updates** - Privacy Labels for Spoonacular + screenshots (4/4 plans complete 2026-04-07)
+- [ ] **Phase 27.1: Reconcile Phase 27 docs with AdMob tracker reality** - Gap closure: add AdMob privacy manifest entries + policy disclosure (1 plan)
 - [ ] **Phase 28: Fastlane Release Automation** - Automate App Store submission
 
 **Track B — Voice (parallel with Track A):**
@@ -177,6 +178,16 @@ Plans:
 - [x] 27-03-PLAN.md -- POLICY-UPDATE.md privacy policy draft (Spoonacular + ElevenLabs disclosures) + fastlane review notes addendum (completed 2026-04-06)
 - [x] 27-04-PLAN.md -- Screenshot refresh (02-recipe-feed + 05-recipe-detail, en-US + tr) — human capture checkpoint (completed 2026-04-07)
 
+### Phase 27.1: Reconcile Phase 27 docs with AdMob tracker reality (INSERTED)
+
+**Goal:** Close the App Store compliance gap where Phase 27 disclosed Spoonacular as a data processor but never disclosed Google AdMob as an active tracker. Add 4 AdMob data type entries to PrivacyInfo.xcprivacy (Device ID, Advertising Data, second Coarse Location, Other Diagnostic Data), update POLICY-UPDATE.md to v2.1 with a Google AdMob section, correct the ASC checklist in 27-01-SUMMARY.md (steps 6 + 9-11 + banner), append an AdMob addendum to fastlane reviewer notes, and write a 27.1-VERIFICATION.md that cross-references and corrects Phase 27's verification report without modifying it. Phase 27 stays closed; all corrections live in Phase 27.1.
+**Requirements**: None (gap-closure documentation phase; success criteria drive goal-backward verification)
+**Depends on:** Phase 27
+**Plans:** 1 plan
+
+Plans:
+- [ ] 27.1-01-PLAN.md -- Add AdMob entries to PrivacyInfo.xcprivacy, update POLICY-UPDATE.md/27-01-SUMMARY.md/notes.txt, write 27.1-VERIFICATION.md
+
 ### Phase 28: Fastlane Release Automation
 **Goal**: Fastlane release lane automates binary upload, metadata sync, and App Store submission with TestFlight validation
 **Depends on**: Phase 27 (all compliance artifacts must exist before submission)
@@ -197,7 +208,7 @@ Plans:
 ## Progress
 
 **Execution Order (revised after v5.0 audit 2026-04-05):**
-Track A (Feed — CRITICAL): 26 → 27 → 28
+Track A (Feed — CRITICAL): 26 → 27 → 27.1 → 28
 Track B (Voice — parallel): 24 → 25
 Feed is broken after Phase 23 scraping cleanup — Phase 26 executes first.
 
@@ -230,6 +241,7 @@ Feed is broken after Phase 23 scraping cleanup — Phase 26 executes first.
 | 25. Voice Tier Routing | v5.0 | 0/TBD | Not started | - |
 | 26. Feed UI Migration | v5.0 | Complete    | 2026-04-06 | 2026-04-06 |
 | 27. App Store Compliance Updates | 3/4 | Complete    | 2026-04-07 | - |
+| 27.1. Reconcile Phase 27 AdMob docs | v5.0 | 0/1 | Planned | - |
 | 28. Fastlane Release Automation | v5.0 | 0/TBD | Not started | - |
 
 ---
