@@ -13,8 +13,8 @@ progress:
 
 # Project State: Kindred
 
-**Last Updated:** 2026-04-06
-**Status:** Ready to plan
+**Last Updated:** 2026-04-07
+**Status:** Ready to execute
 
 ---
 
@@ -30,11 +30,11 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 27 of 28 (v5.0 Lean App Store Launch)
-Plan: 3 of 4 in current phase (executing Phase 27)
-Status: Phase 27 in progress — 3/4 plans complete
-Last activity: 2026-04-06 — Completed plan 27-03 (external privacy documents: policy draft + review notes)
+Plan: 4 of 4 in current phase (Phase 27 complete)
+Status: Phase 27 complete — 4/4 plans complete
+Last activity: 2026-04-07 — Completed plan 27-04 (App Store screenshot refresh for compliance footer)
 
-Progress: [█████████████████████░░░░░░░] 87% (24/28 phases complete, 3/4 plans in phase 27)
+Progress: [████████████████████████░░░░] 96% (27/28 phases complete, Phase 27 fully complete)
 
 ---
 
@@ -74,6 +74,7 @@ Progress: [█████████████████████░░
 | Phase 27 P01 | 69 | 2 tasks | 1 files |
 | Phase 27 P03 | 1 | 2 tasks | 2 files |
 | Phase 27 P02 | 6 | 2 tasks | 2 files |
+| Phase 27 P04 | 15 | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,8 @@ Recent decisions affecting v5.0 work:
 - [Phase 27]: Backend proxy chain documented to prevent reviewer confusion with iOS 17+ Privacy Report
 - [Phase 27]: Use SwiftUI Link instead of openURL for Spoonacular attribution (simpler, localization-friendly)
 - [Phase 27]: Use full English sentence as localization key (Kindred's existing convention)
+- [Phase 27-04]: Localize "Popular Recipes" feed heading (user-approved deviation for Turkish screenshot quality)
+- [Phase 27-04]: Use iPhone 17 Pro Max for 6.9" screenshots (iPhone 16 Pro Max deprecated in Xcode 26)
 
 ### Pending Todos
 
@@ -138,11 +141,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06 17:42
-Stopped at: Completed 27-03-PLAN.md (Phase 27: 3/4 plans complete — privacy policy draft + review notes)
+Last session: 2026-04-07 17:26
+Stopped at: Completed 27-04-PLAN.md (Phase 27: 4/4 plans complete — App Store screenshot refresh)
 Resume file: None
 
-**Next action:** Execute 27-04-PLAN.md (final Phase 27 compliance plan)
+**Next action:** Execute Phase 28 (App Store submission automation)
 
 ---
 
@@ -157,4 +160,4 @@ Resume file: None
 
 ---
 
-*State updated: 2026-04-06 12:54 — Phase 26 complete (3/3 plans), ready for Phase 27*
+*State updated: 2026-04-07 17:26 — Phase 27 complete (4/4 plans), ready for Phase 28*

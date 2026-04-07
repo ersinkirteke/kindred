@@ -76,7 +76,7 @@
 
 **Track A — Feed (CRITICAL, execute first):**
 - [x] **Phase 26: Feed UI Migration** - Fix broken feed: switch from viralRecipes to searchRecipes/popularRecipes (3/3 plans complete 2026-04-06)
-- [ ] **Phase 27: App Store Compliance Updates** - Privacy Labels for Spoonacular + screenshots
+- [x] **Phase 27: App Store Compliance Updates** - Privacy Labels for Spoonacular + screenshots (4/4 plans complete 2026-04-07)
 - [ ] **Phase 28: Fastlane Release Automation** - Automate App Store submission
 
 **Track B — Voice (parallel with Track A):**
@@ -172,10 +172,10 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 27-01-PLAN.md -- PrivacyInfo.xcprivacy Search History + Product Interaction flip + App Store Connect manual checklist
-- [ ] 27-02-PLAN.md -- RecipeDetailView compliance footer (disclaimer + Spoonacular attribution link) + localized strings (en + tr)
-- [ ] 27-03-PLAN.md -- POLICY-UPDATE.md privacy policy draft (Spoonacular + ElevenLabs disclosures) + fastlane review notes addendum
-- [ ] 27-04-PLAN.md -- Screenshot refresh (02-recipe-feed + 05-recipe-detail, en-US + tr) — human capture checkpoint
+- [x] 27-01-PLAN.md -- PrivacyInfo.xcprivacy Search History + Product Interaction flip + App Store Connect manual checklist (completed 2026-04-06)
+- [x] 27-02-PLAN.md -- RecipeDetailView compliance footer (disclaimer + Spoonacular attribution link) + localized strings (en + tr) (completed 2026-04-06)
+- [x] 27-03-PLAN.md -- POLICY-UPDATE.md privacy policy draft (Spoonacular + ElevenLabs disclosures) + fastlane review notes addendum (completed 2026-04-06)
+- [x] 27-04-PLAN.md -- Screenshot refresh (02-recipe-feed + 05-recipe-detail, en-US + tr) — human capture checkpoint (completed 2026-04-07)
 
 ### Phase 28: Fastlane Release Automation
 **Goal**: Fastlane release lane automates binary upload, metadata sync, and App Store submission with TestFlight validation
