@@ -5496,6 +5496,23 @@
         }
       }
     },
+    "Popular Recipes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Popular Recipes"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Popüler Tarifler"
+          }
+        }
+      }
+    },
     "Powered by Spoonacular": {
       "extractionState": "manual",
       "localizations": {

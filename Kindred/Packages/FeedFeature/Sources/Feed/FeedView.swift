@@ -139,8 +139,8 @@ public struct FeedView: View {
             .padding(.bottom, KindredSpacing.sm)
 
             // Popular Recipes heading
-            Text("Popular Recipes")
-                .font(.kindredHeading1)
+            Text(String(localized: "Popular Recipes", bundle: .main))
+                .font(.kindredHeading1())
                 .foregroundStyle(.kindredTextPrimary)
                 .padding(.horizontal, KindredSpacing.lg)
 
