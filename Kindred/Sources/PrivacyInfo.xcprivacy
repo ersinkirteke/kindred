@@ -131,6 +131,65 @@
 				<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
 			</array>
 		</dict>
+
+		<!-- 9-12. Google AdMob Tracking Data (Free-Tier Banner Ads) -->
+		<!-- AdMob SDK (Google Mobile Ads 11.2.0+) displays banner ads to free-tier users. Pro subscribers see no ads (AdClient.shouldShowAds checks subscription state). Personalized ads require ATT authorization (AppTrackingTransparency); denying ATT sets publisherPrivacyPersonalizationState=.disabled. EU users consent via UMP SDK (Google User Messaging Platform). These declarations cover AdMob's POTENTIAL data collection regardless of user consent state — Apple's static manifest model requires declaring what the SDK CAN collect under any user choice, not what is collected per session. -->
+
+		<!-- 9. Device ID (IDFA via ATT for AdMob ad targeting) -->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeDeviceID</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising</string>
+			</array>
+		</dict>
+
+		<!-- 10. Advertising Data (Ad impressions, clicks, performance reported back to Google) -->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeAdvertisingData</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising</string>
+			</array>
+		</dict>
+
+		<!-- 11. Coarse Location (SECOND entry — AdMob ad targeting; separate from Mapbox entry #2 which stays App Functionality) -->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeCoarseLocation</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<true/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising</string>
+			</array>
+		</dict>
+
+		<!-- 12. Other Diagnostic Data (AdMob SDK telemetry / performance metrics) -->
+		<dict>
+			<key>NSPrivacyCollectedDataType</key>
+			<string>NSPrivacyCollectedDataTypeOtherDiagnosticData</string>
+			<key>NSPrivacyCollectedDataTypeLinked</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypeTracking</key>
+			<false/>
+			<key>NSPrivacyCollectedDataTypePurposes</key>
+			<array>
+				<string>NSPrivacyCollectedDataTypePurposeAnalytics</string>
+			</array>
+		</dict>
 	</array>
 
 	<!-- Required Reason APIs -->
