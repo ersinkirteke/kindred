@@ -7,8 +7,8 @@ last_updated: "2026-04-07T18:12:21.637Z"
 progress:
   total_phases: 20
   completed_phases: 16
-  total_plans: 63
-  completed_plans: 62
+  total_plans: 64
+  completed_plans: 63
 ---
 
 # Project State: Kindred
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 27 of 28 (v5.0 Lean App Store Launch)
-Plan: 4 of 4 in current phase (Phase 27 complete)
-Status: Phase 27 complete — 4/4 plans complete
-Last activity: 2026-04-07 — Completed plan 27-04 (App Store screenshot refresh for compliance footer)
+Phase: 27.1 of 28 (v5.0 Lean App Store Launch)
+Plan: 1 of 1 in current phase (Phase 27.1 complete)
+Status: Phase 27.1 complete — 1/1 plans complete
+Last activity: 2026-04-07 — Completed plan 27.1-01 (Reconcile Phase 27 docs with AdMob tracker reality)
 
-Progress: [████████████████████████░░░░] 96% (27/28 phases complete, Phase 27 fully complete)
+Progress: [████████████████████████░░░░] 96% (27.1/28 phases complete, Phase 27.1 fully complete)
 
 ---
 
@@ -75,6 +75,7 @@ Progress: [███████████████████████
 | Phase 27 P03 | 1 | 2 tasks | 2 files |
 | Phase 27 P02 | 6 | 2 tasks | 2 files |
 | Phase 27 P04 | 15 | 3 tasks | 6 files |
+| Phase 27.1 P01 | 5 min (293 sec) | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -111,10 +112,14 @@ Recent decisions affecting v5.0 work:
 - [Phase 27]: Use full English sentence as localization key (Kindred's existing convention)
 - [Phase 27-04]: Localize "Popular Recipes" feed heading (user-approved deviation for Turkish screenshot quality)
 - [Phase 27-04]: Use iPhone 17 Pro Max for 6.9" screenshots (iPhone 16 Pro Max deprecated in Xcode 26)
+- [Phase 27.1-01]: Add 4 AdMob data type entries to PrivacyInfo.xcprivacy (Device ID, Advertising Data, second Coarse Location, Other Diagnostic Data)
+- [Phase 27.1-01]: Use NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising constant (not the older Advertising constant)
+- [Phase 27.1-01]: Keep NSPrivacyTrackingDomains at 5 Google domains (conservative audit, no additions)
+- [Phase 27.1-01]: Preserve Phase 27 verification report unchanged (corrections live in 27.1-VERIFICATION.md only)
 
 ### Roadmap Evolution
 
-- Phase 27.1 inserted after Phase 27: Reconcile Phase 27 docs with AdMob tracker reality (URGENT)
+- Phase 27.1 inserted after Phase 27: Reconcile Phase 27 docs with AdMob tracker reality (URGENT) — COMPLETED 2026-04-07
 
 ### Pending Todos
 
@@ -146,10 +151,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-07 (resumed)
-Stopped at: Phase 27 complete (4/4). Phase 27.1 inserted as URGENT (empty — needs planning). Phase 28 also pending plans.
+Stopped at: Phase 27.1 complete (1/1). Phase 28 directory empty (needs context first).
 Resume file: None
 
-**Next action:** Plan Phase 27.1 (urgent reconciliation) before Phase 28 — both directories are empty
+**Next action:** Create Phase 28 CONTEXT.md for App Store submission preparation
 
 ---
 
@@ -164,4 +169,4 @@ Resume file: None
 
 ---
 
-*State updated: 2026-04-07 17:26 — Phase 27 complete (4/4 plans), ready for Phase 28*
+*State updated: 2026-04-07 20:33 — Phase 27.1 complete (1/1 plans), AdMob compliance gap closed, ready for Phase 28*
