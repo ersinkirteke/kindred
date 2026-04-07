@@ -3,7 +3,7 @@
 **Draft date:** 2026-04-06
 **Intended hosting URL:** https://kindred.app/privacy
 **Effective date:** [USER SETS THIS when copying to hosted site — recommended: Phase 28 submission date]
-**Version:** 2.0 (adds Spoonacular disclosure, elevates ElevenLabs disclosure from app description to policy)
+**Version:** 2.1 (adds Google AdMob disclosure for free-tier banner ads — IDFA via ATT, UMP for EU)
 
 ---
 
@@ -14,6 +14,7 @@
 3. Added **Search History** as a collected data type (previously undeclared).
 4. Described the backend proxy chain (`api.kindredcook.app`) between the app and Spoonacular.
 5. No changes to retention periods, account deletion, or user rights.
+6. Added **Google AdMob** disclosure (advertising network, IDFA via ATT, UMP for EU). Phase 27 omitted this because Phase 27 was scoped to Spoonacular only; Phase 27.1 reconciles the gap.
 
 ---
 
@@ -49,6 +50,23 @@ This architecture lets us cache popular recipes and stay under our daily API quo
 
 **Free-tier users.** If you do not have a Pro subscription, recipe narration uses Apple's built-in text-to-speech (AVSpeechSynthesizer) running on your device. No audio or text is sent to ElevenLabs for free users.
 
+### Google AdMob (Advertising Network)
+
+**Purpose.** We display banner advertisements on the free tier of Kindred using Google AdMob (the Google Mobile Ads SDK). Kindred Pro subscribers do not see any ads — the ad system is fully suppressed for Pro users.
+
+**Data sent.** When you use the free tier, Google AdMob may collect:
+- **Device ID (IDFA)** if you authorize App Tracking Transparency (ATT). If you deny ATT, personalized ads are disabled and AdMob operates in limited-data mode.
+- **Advertising Data** (which ads you've seen, ad interactions) to measure ad performance and prevent fraud.
+- **Coarse Location** (city-level) to show regionally relevant ads. This is separate from the location data Kindred uses to find local recipes (that data stays under "App Functionality" and is processed independently of AdMob).
+- **Diagnostic Data** (SDK performance metrics, crash reports) used solely to maintain the AdMob SDK.
+
+**User control / consent.** Before collecting your IDFA, Kindred displays the App Tracking Transparency prompt required by Apple. You can deny this request, and personalized ads will be disabled. EU users will also see a separate Google User Messaging Platform (UMP) consent form to comply with GDPR. You can change your ATT choice at any time in iOS Settings → Privacy & Security → Tracking.
+
+**Data retention.** Google's retention policies apply to advertising data. See Google's privacy policy for details.
+
+**AdMob Privacy Policy:** https://policies.google.com/technologies/ads
+**AdMob Privacy FAQ:** https://support.google.com/admob/answer/6128543
+
 ---
 
 ## Data We Collect
@@ -78,6 +96,10 @@ The following data types continue to be collected as described in the current Ap
 - **Product Interaction** (Firebase Analytics) — Linked, not tracked, Analytics.
 - **Crash Data** (Firebase Crashlytics) — Not linked, not tracked, App Functionality.
 - **Purchase History** (StoreKit) — Linked, not tracked, App Functionality.
+- **Device ID (IDFA)** (Google AdMob, free tier only) — Not linked, **tracked**, Third-Party Advertising.
+- **Advertising Data** (Google AdMob, free tier only) — Not linked, **tracked**, Third-Party Advertising.
+- **Coarse Location (AdMob entry)** (Google AdMob, free tier only) — Not linked, **tracked**, Third-Party Advertising. Separate from the App Functionality Coarse Location entry above.
+- **Other Diagnostic Data** (Google AdMob SDK telemetry) — Not linked, not tracked, Analytics.
 
 ---
 

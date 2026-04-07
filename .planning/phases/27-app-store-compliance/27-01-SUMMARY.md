@@ -143,6 +143,9 @@ SPM dependencies (Firebase, TCA, Apollo, Clerk, Kingfisher) ship their own priva
 **Rationale for not adding entries:**
 Adding fictional reason codes risks rejection for inaccurate declarations. If App Store Connect upload returns ITMS-91053 for specific API types after Phase 28 upload, add reason codes reactively with the exact codes Apple reports.
 
+
+> **UPDATED 2026-04-07 (Phase 27.1):** Steps 9-11 added to disclose Google AdMob tracking. The original Phase 27 checklist omitted AdMob disclosures. Step 6 wording corrected to clarify that the "Data Used to Track You" section MUST contain AdMob entries. See `.planning/phases/27.1-reconcile-phase-27-docs-with-admob-tracker-reality/27.1-VERIFICATION.md` for the full reconciliation audit.
+
 ## MANUAL CHECKLIST — App Store Connect (user must perform before Phase 28)
 
 The privacy manifest changes made in this plan MUST be reflected in the App Store Connect App Privacy form before Phase 28 submission. Follow these steps exactly:
@@ -156,11 +159,30 @@ The privacy manifest changes made in this plan MUST be reflected in the App Stor
    - Purposes: Analytics ONLY (do not broaden)
    - Used for Tracking: No
 5. Confirm "Coarse Location" stays under "Data Not Linked to You" (unchanged).
-6. Confirm the "Data Used to Track You" section is EMPTY for Spoonacular — do NOT add api.spoonacular.com to any tracking list.
+6. Confirm Spoonacular is NOT in "Data Used to Track You" (Spoonacular is a data processor, not a tracker). The section MUST contain AdMob-related entries — see steps 9-11 below.
 7. Click "Save" and verify the preview matches PrivacyInfo.xcprivacy (8 data types, 1 tracking section unchanged).
 8. Confirmation: reply "ASC privacy form updated on YYYY-MM-DD" in the Phase 27 verification report before running Phase 28.
 
-**CRITICAL:** Steps 3-4 are the new work. Do NOT skip step 6 — adding Spoonacular to tracking triggers review warnings.
+9. Under "Data Used to Track You," ADD "Device ID" with these settings:
+   - Purpose: Third-Party Advertising
+   - Linked to User: No
+   - Used for Tracking: Yes
+   - Collected by third-party SDKs: Yes (Google AdMob)
+
+10. Under "Data Used to Track You," ADD "Advertising Data" with these settings:
+    - Purpose: Third-Party Advertising
+    - Linked to User: No
+    - Used for Tracking: Yes
+    - Collected by third-party SDKs: Yes (Google AdMob)
+
+11. Under "Data Used to Track You," ADD "Coarse Location" (SECOND entry) with these settings:
+    - Purpose: Third-Party Advertising
+    - Linked to User: No
+    - Used for Tracking: Yes
+    - Collected by third-party SDKs: Yes (Google AdMob)
+    - Note: This is separate from the existing "Coarse Location" entry under "Data Not Linked to You" (Mapbox, App Functionality). You will have TWO Coarse Location rows in total.
+
+**CRITICAL:** Steps 3-4 (Phase 27) and Steps 9-11 (Phase 27.1) are the new work. Step 6 still warns against adding Spoonacular to tracking — that has not changed. Steps 9-11 require ADDING AdMob entries to the tracking section; do NOT skip them or Apple review will flag the missing AdMob disclosures.
 
 ## Known Gap: Firebase User-ID Wiring
 

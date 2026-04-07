@@ -35,3 +35,7 @@ This is the initial beta build for Kindred. First-time submission to TestFlight 
 BACKEND PROXY DISCLOSURE
 
 Network requests route through api.kindredcook.app which proxies Spoonacular; this is documented in the privacy policy at kindred.app/privacy.
+
+ADMOB DISCLOSURE
+
+Free-tier users see Google AdMob banner ads. Personalized ads require ATT authorization (App Tracking Transparency) and EU user consent via Google's UMP SDK. Kindred Pro subscribers see no ads. Test ads may appear in review builds; production ads use the AdMob unit IDs in Release.xcconfig. Privacy disclosures for AdMob are documented in PrivacyInfo.xcprivacy (Device ID, Advertising Data, Coarse Location entries with Tracking=true) and in the privacy policy at kindred.app/privacy.
