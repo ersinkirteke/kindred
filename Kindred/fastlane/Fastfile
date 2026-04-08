@@ -18,6 +18,66 @@ platform :ios do
     end
   end
 
+  desc "Pre-flight checks before any upload (fail fast on config errors)"
+  lane :precheck do
+    # Check 1: Release.xcconfig placeholders
+    xcconfig_path = File.join("..", "Config", "Release.xcconfig")
+    xcconfig_content = File.read(xcconfig_path)
+    if xcconfig_content.include?("REPLACE_WITH_")
+      UI.user_error!("❌ Release.xcconfig contains REPLACE_WITH_ placeholder values — fix before release")
+    end
+    UI.success("✅ Release.xcconfig: no REPLACE_WITH_ placeholders")
+
+    # Check 2: .env file completeness
+    env_path = File.join(Dir.pwd, ".env")
+    unless File.exist?(env_path)
+      UI.user_error!("❌ fastlane/.env file not found — copy from .env.default and populate values")
+    end
+
+    env_content = File.read(env_path)
+    required_keys = ["APP_STORE_CONNECT_API_KEY_ID", "APP_STORE_CONNECT_ISSUER_ID", "APP_STORE_CONNECT_API_KEY_FILEPATH"]
+    required_keys.each do |key|
+      unless env_content.include?("#{key}=") && env_content[/#{key}=(.+)/, 1].to_s.strip.length > 0
+        UI.user_error!("❌ fastlane/.env missing required key: #{key}")
+      end
+    end
+    UI.success("✅ .env: all required App Store Connect API keys present")
+
+    # Check 3: .p8 API key file readable
+    p8_path = ENV["APP_STORE_CONNECT_API_KEY_FILEPATH"]
+    unless p8_path && File.exist?(p8_path) && File.readable?(p8_path)
+      UI.user_error!("❌ .p8 API key file not readable at #{p8_path} — regenerate from App Store Connect → Users & Access → Integrations → API Keys")
+    end
+    UI.success("✅ .p8 API key: readable at #{p8_path}")
+
+    # Check 4: Metadata files exist and non-empty in both locales
+    locales = %w[en-US tr]
+    metadata_files = %w[name.txt subtitle.txt description.txt keywords.txt promotional_text.txt release_notes.txt support_url.txt privacy_url.txt marketing_url.txt]
+
+    locales.each do |locale|
+      metadata_files.each do |file|
+        file_path = File.join(Dir.pwd, "metadata", locale, file)
+        unless File.exist?(file_path) && File.size(file_path) > 0
+          UI.user_error!("❌ Missing or empty metadata file: metadata/#{locale}/#{file}")
+        end
+      end
+    end
+    UI.success("✅ Metadata: all 9 required files present and non-empty in en-US and tr")
+
+    # Check 5: Screenshots (exactly 5 per locale)
+    locales.each do |locale|
+      screenshots = Dir.glob(File.join(Dir.pwd, "screenshots", locale, "*.png"))
+      count = screenshots.length
+      unless count == 5
+        UI.user_error!("❌ Expected 5 screenshots in screenshots/#{locale}/, found #{count}")
+      end
+    end
+    UI.success("✅ Screenshots: 5 PNGs present in en-US and tr")
+
+    # Check 6: Sanity recap
+    UI.success("🎉 All pre-flight checks passed — safe to proceed with build")
+  end
+
   desc "Build and distribute internal TestFlight beta"
   lane :beta_internal do
     # Increment build number based on git commits for reproducibility
