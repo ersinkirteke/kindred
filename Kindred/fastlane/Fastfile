@@ -98,7 +98,8 @@ platform :ios do
       project: File.join(project_dir, "Kindred.xcodeproj"),
       scheme: "Kindred",
       configuration: "Release",
-      export_method: "app-store"
+      export_method: "app-store",
+      xcpretty_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
     # Upload to TestFlight
@@ -124,7 +125,8 @@ platform :ios do
       project: File.join(project_dir, "Kindred.xcodeproj"),
       scheme: "Kindred",
       configuration: "Release",
-      export_method: "app-store"
+      export_method: "app-store",
+      xcpretty_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
     # Upload to TestFlight with beta review info
@@ -166,7 +168,8 @@ platform :ios do
       project: File.join(project_dir, "Kindred.xcodeproj"),
       scheme: "Kindred",
       configuration: "Release",
-      export_method: "app-store"
+      export_method: "app-store",
+      xcpretty_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
     # Upload to App Store Connect and submit for review
