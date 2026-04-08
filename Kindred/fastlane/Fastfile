@@ -90,10 +90,7 @@ platform :ios do
     # Increment build number based on git commits for reproducibility
     build_num = number_of_commits.to_i
     Dir.chdir("..") do
-      increment_build_number(
-        xcodeproj: "Kindred.xcodeproj",
-        build_number: build_num
-      )
+      increment_build_number(build_number: build_num)
     end
 
     # Build the app
@@ -120,10 +117,7 @@ platform :ios do
     # Increment build number based on git commits for reproducibility
     build_num = number_of_commits.to_i
     Dir.chdir("..") do
-      increment_build_number(
-        xcodeproj: "Kindred.xcodeproj",
-        build_number: build_num
-      )
+      increment_build_number(build_number: build_num)
     end
 
     # Build the app
@@ -166,10 +160,7 @@ platform :ios do
     # Increment build number based on git commits for reproducibility
     build_num = number_of_commits.to_i
     Dir.chdir("..") do
-      increment_build_number(
-        xcodeproj: "Kindred.xcodeproj",
-        build_number: build_num
-      )
+      increment_build_number(build_number: build_num)
     end
 
     # Build the app
