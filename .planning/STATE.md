@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Lean App Store Launch
 status: planning
-last_updated: "2026-04-07T20:41:29.883Z"
+last_updated: "2026-04-08T06:18:40.805Z"
 progress:
   total_phases: 21
   completed_phases: 17
-  total_plans: 64
-  completed_plans: 63
+  total_plans: 69
+  completed_plans: 64
 ---
 
 # Project State: Kindred
@@ -76,6 +76,7 @@ Progress: [███████████████████████
 | Phase 27 P02 | 6 | 2 tasks | 2 files |
 | Phase 27 P04 | 15 | 3 tasks | 6 files |
 | Phase 27.1 P01 | 5 min (293 sec) | 3 tasks | 5 files |
+| Phase 28 P02 | 103 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,8 @@ Recent decisions affecting v5.0 work:
 - [Phase 27.1-01]: Use NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising constant (not the older Advertising constant)
 - [Phase 27.1-01]: Keep NSPrivacyTrackingDomains at 5 Google domains (conservative audit, no additions)
 - [Phase 27.1-01]: Preserve Phase 27 verification report unchanged (corrections live in 27.1-VERIFICATION.md only)
+- [Phase 28]: en-US metadata requires no changes (already compliant with all audit criteria)
+- [Phase 28]: tr metadata requires only URL file creation (description already has adequate ad disclosure)
 
 ### Roadmap Evolution
 
