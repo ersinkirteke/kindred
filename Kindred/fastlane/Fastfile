@@ -6,6 +6,22 @@
 default_platform(:ios)
 
 platform :ios do
+  # Shared App Store export options used by all release/beta lanes.
+  # Manual signing with an explicit profile → bundle-id map is required because
+  # (a) the xcodeproj is set to automatic signing which picks a Development
+  # profile during archive, and (b) we need xcodebuild to re-sign at export
+  # time with the Apple Distribution cert + the "com.ersinkirteke.kindred AppStore"
+  # profile (which carries the Sign In with Apple entitlement). This profile was
+  # created via `fastlane sigh` and lives in ~/Library/Developer/Xcode/UserData/.
+  APP_STORE_EXPORT_OPTIONS = {
+    method: "app-store",
+    signingStyle: "manual",
+    teamID: "CV9G42QVG4",
+    provisioningProfiles: {
+      "com.ersinkirteke.kindred" => "com.ersinkirteke.kindred AppStore"
+    }
+  }.freeze
+
   before_all do
     # Verify we're in the correct directory
     ensure_git_status_clean unless ENV["SKIP_GIT_STATUS_CHECK"]
@@ -99,11 +115,7 @@ platform :ios do
       scheme: "Kindred",
       configuration: "Release",
       export_method: "app-store",
-      export_options: {
-        provisioningProfiles: {}, # Use automatic signing
-        signingStyle: "automatic",
-        teamID: "CV9G42QVG4"
-      },
+      export_options: APP_STORE_EXPORT_OPTIONS,
       xcodebuild_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
@@ -131,11 +143,7 @@ platform :ios do
       scheme: "Kindred",
       configuration: "Release",
       export_method: "app-store",
-      export_options: {
-        provisioningProfiles: {}, # Use automatic signing
-        signingStyle: "automatic",
-        teamID: "CV9G42QVG4"
-      },
+      export_options: APP_STORE_EXPORT_OPTIONS,
       xcodebuild_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
@@ -179,11 +187,7 @@ platform :ios do
       scheme: "Kindred",
       configuration: "Release",
       export_method: "app-store",
-      export_options: {
-        provisioningProfiles: {}, # Use automatic signing
-        signingStyle: "automatic",
-        teamID: "CV9G42QVG4"
-      },
+      export_options: APP_STORE_EXPORT_OPTIONS,
       xcodebuild_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
