@@ -41,7 +41,7 @@ platform :ios do
   end
 
   desc "Pre-flight checks before any upload (fail fast on config errors)"
-  lane :precheck do
+  lane :preflight do
     # Check 1: Release.xcconfig placeholders
     xcconfig_path = File.join("..", "Config", "Release.xcconfig")
     xcconfig_content = File.read(xcconfig_path)
@@ -113,7 +113,7 @@ platform :ios do
       key_filepath: ENV["APP_STORE_CONNECT_API_KEY_FILEPATH"],
       in_house: false
     )
-    precheck
+    preflight
 
     # Increment build number based on git commits for reproducibility
     build_num = number_of_commits.to_i
@@ -191,7 +191,7 @@ platform :ios do
       key_filepath: ENV["APP_STORE_CONNECT_API_KEY_FILEPATH"],
       in_house: false
     )
-    precheck
+    preflight
 
     # Increment build number based on git commits for reproducibility
     build_num = number_of_commits.to_i
