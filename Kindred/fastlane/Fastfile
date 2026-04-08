@@ -53,16 +53,21 @@ platform :ios do
     # Check 4: Metadata files exist and non-empty in both locales
     locales = %w[en-US tr]
     metadata_files = %w[name.txt subtitle.txt description.txt keywords.txt promotional_text.txt release_notes.txt support_url.txt privacy_url.txt marketing_url.txt]
+    optional_empty_files = %w[marketing_url.txt]  # Files that can be empty (marketing site not yet launched)
 
     locales.each do |locale|
       metadata_files.each do |file|
         file_path = File.join(Dir.pwd, "metadata", locale, file)
-        unless File.exist?(file_path) && File.size(file_path) > 0
-          UI.user_error!("❌ Missing or empty metadata file: metadata/#{locale}/#{file}")
+        unless File.exist?(file_path)
+          UI.user_error!("❌ Missing metadata file: metadata/#{locale}/#{file}")
+        end
+        # Allow optional files to be empty
+        if File.size(file_path) == 0 && !optional_empty_files.include?(file)
+          UI.user_error!("❌ Empty metadata file: metadata/#{locale}/#{file}")
         end
       end
     end
-    UI.success("✅ Metadata: all 9 required files present and non-empty in en-US and tr")
+    UI.success("✅ Metadata: all 9 required files present (marketing_url.txt may be empty) in en-US and tr")
 
     # Check 5: Screenshots (exactly 5 per locale)
     locales.each do |locale|
