@@ -99,6 +99,11 @@ platform :ios do
       scheme: "Kindred",
       configuration: "Release",
       export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {}, # Use automatic signing
+        signingStyle: "automatic",
+        teamID: "CV9G42QVG4"
+      },
       xcodebuild_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
@@ -126,6 +131,11 @@ platform :ios do
       scheme: "Kindred",
       configuration: "Release",
       export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {}, # Use automatic signing
+        signingStyle: "automatic",
+        teamID: "CV9G42QVG4"
+      },
       xcodebuild_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
@@ -169,6 +179,11 @@ platform :ios do
       scheme: "Kindred",
       configuration: "Release",
       export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {}, # Use automatic signing
+        signingStyle: "automatic",
+        teamID: "CV9G42QVG4"
+      },
       xcodebuild_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
