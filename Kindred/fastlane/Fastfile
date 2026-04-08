@@ -80,6 +80,8 @@ platform :ios do
 
   desc "Build and distribute internal TestFlight beta"
   lane :beta_internal do
+    precheck
+
     # Increment build number based on git commits for reproducibility
     Dir.chdir("..") do
       increment_build_number(
@@ -152,6 +154,8 @@ platform :ios do
 
   desc "Build and submit to App Store"
   lane :release do
+    precheck
+
     # Increment build number based on git commits for reproducibility
     Dir.chdir("..") do
       increment_build_number(
