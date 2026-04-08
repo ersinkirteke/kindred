@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Lean App Store Launch
 status: planning
-last_updated: "2026-04-08T06:23:54.328Z"
+last_updated: "2026-04-08T06:32:38.262Z"
 progress:
   total_phases: 21
   completed_phases: 17
   total_plans: 69
-  completed_plans: 65
+  completed_plans: 66
 ---
 
 # Project State: Kindred
 
-**Last Updated:** 2026-04-07
+**Last Updated:** 2026-04-08
 **Status:** Ready to plan
 
 ---
@@ -30,11 +30,11 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 28 of 28 (v5.0 Lean App Store Launch)
-Plan: 1 of 5 in current phase
-Status: Phase 28 in progress — 1/5 plans complete
-Last activity: 2026-04-08 — Completed plan 28-01 (Fastlane pre-flight validation)
+Plan: 3 of 5 in current phase
+Status: Phase 28 in progress — 3/5 plans complete
+Last activity: 2026-04-08 — Completed plan 28-03 (SDK version & deprecation cleanup)
 
-Progress: [████████████████████████░░░░] 97% (28/28 phases started, Phase 28: 1/5 plans complete)
+Progress: [████████████████████████░░░░] 97% (28/28 phases started, Phase 28: 3/5 plans complete)
 
 ---
 
@@ -78,6 +78,7 @@ Progress: [███████████████████████
 | Phase 27.1 P01 | 5 min (293 sec) | 3 tasks | 5 files |
 | Phase 28 P01 | 7 min | 2 tasks | 1 file |
 | Phase 28 P01 | 7 | 2 tasks | 1 files |
+| Phase 28 P03 | 16 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -123,6 +124,9 @@ Recent decisions affecting v5.0 work:
 - [Phase 28-01]: Lane name 'precheck' conflicts with fastlane built-in tool but still functional
 - [Phase 28]: en-US metadata requires no changes (already compliant with all audit criteria)
 - [Phase 28]: tr metadata requires only URL file creation (description already has adequate ad disclosure)
+- [Phase 28-03]: Defer Apollo generated code warnings (backend schema deprecations, not iOS SDK issues)
+- [Phase 28-03]: Use maxPhotoDimensions with max resolution selection instead of isHighResolutionCaptureEnabled
+- [Phase 28-03]: Remove WithPerceptionTracking wrappers (not needed on iOS 17+ deployment target)
 
 ### Roadmap Evolution
 
@@ -158,10 +162,10 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-04-08
-Stopped at: Phase 28 plan 01 complete. Ready for plan 28-02 (Populate metadata URL files).
+Stopped at: Phase 28 plan 03 complete. Ready for plan 28-04 (Beta upload).
 Resume file: None
 
-**Next action:** Execute plan 28-02 (Populate metadata URL files for both locales)
+**Next action:** Execute plan 28-04 (Upload beta build to TestFlight)
 
 ---
 

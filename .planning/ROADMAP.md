@@ -245,7 +245,7 @@ Feed is broken after Phase 23 scraping cleanup — Phase 26 executes first.
 | 26. Feed UI Migration | v5.0 | Complete    | 2026-04-06 | 2026-04-06 |
 | 27. App Store Compliance Updates | 3/4 | Complete    | 2026-04-07 | - |
 | 27.1. Reconcile Phase 27 AdMob docs | v5.0 | Complete    | 2026-04-07 | 2026-04-07 |
-| 28. Fastlane Release Automation | 2/5 | In Progress|  | - |
+| 28. Fastlane Release Automation | 3/5 | In Progress|  | - |
 
 ---
 
