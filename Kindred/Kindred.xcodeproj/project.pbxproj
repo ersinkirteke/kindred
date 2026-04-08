@@ -22,6 +22,7 @@
 		B3C6F95655D8C25FEFD8D6B3 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 2CCFE3A0A6F704E23D34BF87 /* FirebaseAnalytics */; };
 		D376666C5C0300F25A9F0D23 /* AuthClient in Frameworks */ = {isa = PBXBuildFile; productRef = 3AF62527EDE9E5CC238BE4E0 /* AuthClient */; };
 		DA690AB73D958CDF5A961596 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 68A6AAFF7E009F608BA17F6C /* GoogleMobileAds */; };
+		DB4C399602A58786EBD998F9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1B9C5D176DC2FAFAB0B07D98 /* Assets.xcassets */; };
 		E768C89793541F869615D2CE /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BEE4F0AD67E9ECB04B2AB48 /* RootView.swift */; };
 		F165A0B9D84C4F1E0AD3DF1D /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 8DD84777DCF4F7A390FED365 /* ComposableArchitecture */; };
 		F867E09E0F6329B6E1D0E437 /* MonetizationFeature in Frameworks */ = {isa = PBXBuildFile; productRef = E6E7A5DAB0E4917619A3938F /* MonetizationFeature */; };
@@ -31,6 +32,7 @@
 
 /* Begin PBXFileReference section */
 		037416CD7B126DDDA615EA95 /* ProfileFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ProfileFeature; path = Packages/ProfileFeature; sourceTree = SOURCE_ROOT; };
+		1B9C5D176DC2FAFAB0B07D98 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		21EA7E4E85B8B213AD9B7718 /* DesignSystem */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DesignSystem; path = Packages/DesignSystem; sourceTree = SOURCE_ROOT; };
 		289D9F05375F81D3894469AB /* WelcomeCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCardView.swift; sourceTree = "<group>"; };
 		29CF750516AEF33A147F6DDA /* AuthFeature */ = {isa = PBXFileReference; lastKnownFileType = folder; name = AuthFeature; path = Packages/AuthFeature; sourceTree = SOURCE_ROOT; };
@@ -126,6 +128,7 @@
 		84DA41B7C8377500FC5CB25C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				1B9C5D176DC2FAFAB0B07D98 /* Assets.xcassets */,
 				7B4A0EBF9F3DBA5EE5E3691A /* Localizable.xcstrings */,
 			);
 			path = Resources;
@@ -252,6 +255,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DB4C399602A58786EBD998F9 /* Assets.xcassets in Resources */,
 				30925BD06E2949F53536F0C5 /* Localizable.xcstrings in Resources */,
 				9B6F39EA3692FCB7A6A395CA /* PrivacyInfo.xcprivacy in Resources */,
 			);
@@ -292,7 +296,7 @@
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ersinkirteke.kindred;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -312,7 +316,7 @@
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ersinkirteke.kindred;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

@@ -5,23 +5,29 @@
 
 default_platform(:ios)
 
-platform :ios do
-  # Shared App Store export options used by all release/beta lanes.
-  # Manual signing with an explicit profile → bundle-id map is required because
-  # (a) the xcodeproj is set to automatic signing which picks a Development
-  # profile during archive, and (b) we need xcodebuild to re-sign at export
-  # time with the Apple Distribution cert + the "com.ersinkirteke.kindred AppStore"
-  # profile (which carries the Sign In with Apple entitlement). This profile was
-  # created via `fastlane sigh` and lives in ~/Library/Developer/Xcode/UserData/.
-  APP_STORE_EXPORT_OPTIONS = {
+# Shared App Store export options used by all release/beta lanes.
+# Manual signing with an explicit profile → bundle-id map is required because
+# (a) the xcodeproj is set to automatic signing which picks a Development
+# profile during archive, and (b) we need xcodebuild to re-sign at export
+# time with the Apple Distribution cert + the "com.ersinkirteke.kindred AppStore"
+# profile (which carries the Sign In with Apple entitlement). This profile was
+# created via `fastlane sigh` and lives in ~/Library/Developer/Xcode/UserData/.
+#
+# Returned by a method (not a frozen constant) because gym mutates the hash
+# internally to inject defaults — a frozen hash crashes at export time with
+# FrozenError in package_command_generator_xcode7.rb.
+def app_store_export_options
+  {
     method: "app-store",
     signingStyle: "manual",
     teamID: "CV9G42QVG4",
     provisioningProfiles: {
       "com.ersinkirteke.kindred" => "com.ersinkirteke.kindred AppStore"
     }
-  }.freeze
+  }
+end
 
+platform :ios do
   before_all do
     # Verify we're in the correct directory
     ensure_git_status_clean unless ENV["SKIP_GIT_STATUS_CHECK"]
@@ -101,6 +107,12 @@ platform :ios do
 
   desc "Build and distribute internal TestFlight beta"
   lane :beta_internal do
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_filepath: ENV["APP_STORE_CONNECT_API_KEY_FILEPATH"],
+      in_house: false
+    )
     precheck
 
     # Increment build number based on git commits for reproducibility
@@ -115,7 +127,7 @@ platform :ios do
       scheme: "Kindred",
       configuration: "Release",
       export_method: "app-store",
-      export_options: APP_STORE_EXPORT_OPTIONS,
+      export_options: app_store_export_options,
       xcodebuild_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
@@ -143,7 +155,7 @@ platform :ios do
       scheme: "Kindred",
       configuration: "Release",
       export_method: "app-store",
-      export_options: APP_STORE_EXPORT_OPTIONS,
+      export_options: app_store_export_options,
       xcodebuild_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
@@ -173,6 +185,12 @@ platform :ios do
 
   desc "Build and submit to App Store"
   lane :release do
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_filepath: ENV["APP_STORE_CONNECT_API_KEY_FILEPATH"],
+      in_house: false
+    )
     precheck
 
     # Increment build number based on git commits for reproducibility
@@ -187,7 +205,7 @@ platform :ios do
       scheme: "Kindred",
       configuration: "Release",
       export_method: "app-store",
-      export_options: APP_STORE_EXPORT_OPTIONS,
+      export_options: app_store_export_options,
       xcodebuild_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
