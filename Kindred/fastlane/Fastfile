@@ -93,13 +93,13 @@ platform :ios do
     sh("cd '#{project_dir}' && agvtool new-version -all #{build_num}")
 
     # Build the app
-    Dir.chdir("..") do
-      build_app(
-        scheme: "Kindred",
-        configuration: "Release",
-        export_method: "app-store"
-      )
-    end
+    project_dir = File.expand_path("..", Dir.pwd)
+    build_app(
+      project: File.join(project_dir, "Kindred.xcodeproj"),
+      scheme: "Kindred",
+      configuration: "Release",
+      export_method: "app-store"
+    )
 
     # Upload to TestFlight
     upload_to_testflight(
@@ -119,13 +119,13 @@ platform :ios do
     sh("cd '#{project_dir}' && agvtool new-version -all #{build_num}")
 
     # Build the app
-    Dir.chdir("..") do
-      build_app(
-        scheme: "Kindred",
-        configuration: "Release",
-        export_method: "app-store"
-      )
-    end
+    project_dir = File.expand_path("..", Dir.pwd)
+    build_app(
+      project: File.join(project_dir, "Kindred.xcodeproj"),
+      scheme: "Kindred",
+      configuration: "Release",
+      export_method: "app-store"
+    )
 
     # Upload to TestFlight with beta review info
     upload_to_testflight(
@@ -161,13 +161,13 @@ platform :ios do
     sh("cd '#{project_dir}' && agvtool new-version -all #{build_num}")
 
     # Build the app
-    Dir.chdir("..") do
-      build_app(
-        scheme: "Kindred",
-        configuration: "Release",
-        export_method: "app-store"
-      )
-    end
+    project_dir = File.expand_path("..", Dir.pwd)
+    build_app(
+      project: File.join(project_dir, "Kindred.xcodeproj"),
+      scheme: "Kindred",
+      configuration: "Release",
+      export_method: "app-store"
+    )
 
     # Upload to App Store Connect and submit for review
     upload_to_app_store(
