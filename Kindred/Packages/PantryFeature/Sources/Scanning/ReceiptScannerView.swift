@@ -10,69 +10,67 @@ public struct ReceiptScannerView: View {
     }
 
     public var body: some View {
-        WithPerceptionTracking {
-            ZStack(alignment: .bottom) {
-                // VisionKit DataScanner
-                DataScannerViewControllerRepresentable(store: store)
-                    .ignoresSafeArea()
+        ZStack(alignment: .bottom) {
+            // VisionKit DataScanner
+            DataScannerViewControllerRepresentable(store: store)
+                .ignoresSafeArea()
 
-                // Overlay controls
-                VStack(spacing: 0) {
-                    Spacer()
+            // Overlay controls
+            VStack(spacing: 0) {
+                Spacer()
 
-                    // Text detected indicator
-                    if !store.recognizedText.isEmpty {
-                        HStack(spacing: 8) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
+                // Text detected indicator
+                if !store.recognizedText.isEmpty {
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
 
-                            Text(String(localized: "scan.receipt.text_detected", bundle: .main))
-                                .font(.subheadline.bold())
-                                .foregroundStyle(.green)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(.regularMaterial)
-                        .clipShape(Capsule())
-                        .padding(.bottom, 12)
+                        Text(String(localized: "scan.receipt.text_detected", bundle: .main))
+                            .font(.subheadline.bold())
+                            .foregroundStyle(.green)
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(.regularMaterial)
+                    .clipShape(Capsule())
+                    .padding(.bottom, 12)
+                }
 
-                    // Bottom bar with buttons
-                    HStack(spacing: 16) {
-                        Button {
-                            store.send(.cancelTapped)
-                        } label: {
-                            Text(String(localized: "scan.receipt.cancel", bundle: .main))
-                                .font(.body.bold())
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 56)
-                                .background(.regularMaterial)
-                                .foregroundStyle(.primary)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-
-                        Button {
-                            store.send(.captureReceiptTapped)
-                        } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "doc.text.fill")
-
-                                Text(String(localized: "scan.receipt.capture", bundle: .main))
-                                    .font(.body.bold())
-                            }
+                // Bottom bar with buttons
+                HStack(spacing: 16) {
+                    Button {
+                        store.send(.cancelTapped)
+                    } label: {
+                        Text(String(localized: "scan.receipt.cancel", bundle: .main))
+                            .font(.body.bold())
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(Color.accentColor)
-                            .foregroundStyle(.white)
+                            .background(.regularMaterial)
+                            .foregroundStyle(.primary)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                        .disabled(store.recognizedText.isEmpty)
-                        .accessibilityLabel(String(localized: "scan.receipt.capture", bundle: .main))
-                        .accessibilityHint(store.recognizedText.isEmpty ? String(localized: "scan.receipt.position_receipt", bundle: .main) : "")
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
+
+                    Button {
+                        store.send(.captureReceiptTapped)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "doc.text.fill")
+
+                            Text(String(localized: "scan.receipt.capture", bundle: .main))
+                                .font(.body.bold())
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Color.accentColor)
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .disabled(store.recognizedText.isEmpty)
+                    .accessibilityLabel(String(localized: "scan.receipt.capture", bundle: .main))
+                    .accessibilityHint(store.recognizedText.isEmpty ? String(localized: "scan.receipt.position_receipt", bundle: .main) : "")
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
             }
         }
     }

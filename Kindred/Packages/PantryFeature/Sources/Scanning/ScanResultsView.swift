@@ -11,8 +11,7 @@ public struct ScanResultsView: View {
     }
 
     public var body: some View {
-        WithPerceptionTracking {
-            ZStack(alignment: .bottom) {
+        ZStack(alignment: .bottom) {
                 // Background photo (dimmed) if available
                 if let photoUrl = store.photoUrl, let url = URL(string: photoUrl) {
                     AsyncImage(url: url) { image in
@@ -99,7 +98,6 @@ public struct ScanResultsView: View {
                 .shadow(radius: 10)
                 .padding(.horizontal, 8)
                 .padding(.bottom, 8)
-            }
         }
     }
 

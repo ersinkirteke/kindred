@@ -53,8 +53,10 @@ final class CameraManager: NSObject, ObservableObject {
                 // Add photo output
                 if self.session.canAddOutput(self.output) {
                     self.session.addOutput(self.output)
-                    // Enable high-resolution photo capture
-                    self.output.isHighResolutionCaptureEnabled = true
+                    // Enable high-resolution photo capture via maxPhotoDimensions
+                    if let maxDimensions = device.activeFormat.supportedMaxPhotoDimensions.max(by: { $0.width * $0.height < $1.width * $1.height }) {
+                        self.output.maxPhotoDimensions = maxDimensions
+                    }
                 } else {
                     continuation.resume(throwing: CameraError.captureSessionFailed)
                     return
