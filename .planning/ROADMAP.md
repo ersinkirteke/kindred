@@ -199,11 +199,14 @@ Plans:
   4. App Store Connect shows "Waiting for Review" status after successful submission
   5. Build uses Xcode 16 + iOS 26 SDK (verified via TestFlight upload)
   6. Release checklist documented in PROJECT.md (tag version, update MILESTONES.md, monitor review status)
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 28-01: TBD
-- [ ] 28-02: TBD
+- [ ] 28-01-PLAN.md -- Precheck lane with 6 fail-fast config validations + wire into beta_internal and release
+- [ ] 28-02-PLAN.md -- Metadata audit (en-US platform/AdMob scan) + create missing tr URL files for locale parity
+- [ ] 28-03-PLAN.md -- Xcode/iOS SDK version detection + Release build + deprecation warning triage and fixes
+- [ ] 28-04-PLAN.md -- fastlane beta_internal fresh upload + 48-72hr bake + GO/NO-GO human checkpoint (STORE-04)
+- [ ] 28-05-PLAN.md -- Manual Privacy Labels in ASC + fastlane release submission + PROJECT.md Release Process section
 
 ## Progress
 
@@ -242,7 +245,7 @@ Feed is broken after Phase 23 scraping cleanup — Phase 26 executes first.
 | 26. Feed UI Migration | v5.0 | Complete    | 2026-04-06 | 2026-04-06 |
 | 27. App Store Compliance Updates | 3/4 | Complete    | 2026-04-07 | - |
 | 27.1. Reconcile Phase 27 AdMob docs | v5.0 | Complete    | 2026-04-07 | 2026-04-07 |
-| 28. Fastlane Release Automation | v5.0 | 0/TBD | Not started | - |
+| 28. Fastlane Release Automation | v5.0 | 0/5 | Planned | - |
 
 ---
 
