@@ -2,16 +2,9 @@
 app_identifier "com.ersinkirteke.kindred"
 team_id "CV9G42QVG4"
 
-# Metadata and screenshot paths
-metadata_path "./fastlane/metadata"
-screenshots_path "./fastlane/screenshots"
-
 # Submission configuration
 force true
-skip_binary_upload true
-
-# Pricing
-price_tier 0  # Free with IAP
+skip_binary_upload false
 
 # App details
 platform "ios"
