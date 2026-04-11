@@ -13,8 +13,6 @@ public struct VoiceProfilesQuery: GraphQLQuery {
 
   public init() {}
 
-  @_spi(Unsafe) public var __variables: Variables? { nil }
-
   public struct Data: KindredAPI.SelectionSet {
     @_spi(Unsafe) public let __data: DataDict
     @_spi(Unsafe) public init(_dataDict: DataDict) { __data = _dataDict }
@@ -27,7 +25,6 @@ public struct VoiceProfilesQuery: GraphQLQuery {
       VoiceProfilesQuery.Data.self
     ] }
 
-    /// Get all voice profiles for the current user
     public var myVoiceProfiles: [MyVoiceProfile] { __data["myVoiceProfiles"] }
 
     /// MyVoiceProfile
@@ -41,22 +38,22 @@ public struct VoiceProfilesQuery: GraphQLQuery {
       @_spi(Execution) public static var __selections: [ApolloAPI.Selection] { [
         .field("__typename", String.self),
         .field("id", KindredAPI.ID.self),
-        .field("status", KindredAPI.Enums.VoiceStatus.self),
+        .field("status", GraphQLEnum<KindredAPI.VoiceStatus>.self),
         .field("speakerName", String.self),
         .field("relationship", String.self),
-        .field("createdAt", String.self),
-        .field("updatedAt", String.self),
+        .field("createdAt", KindredAPI.DateTime.self),
+        .field("updatedAt", KindredAPI.DateTime.self),
       ] }
       @_spi(Execution) public static var __fulfilledFragments: [any ApolloAPI.SelectionSet.Type] { [
         VoiceProfilesQuery.Data.MyVoiceProfile.self
       ] }
 
       public var id: KindredAPI.ID { __data["id"] }
-      public var status: KindredAPI.Enums.VoiceStatus { __data["status"] }
+      public var status: GraphQLEnum<KindredAPI.VoiceStatus> { __data["status"] }
       public var speakerName: String { __data["speakerName"] }
       public var relationship: String { __data["relationship"] }
-      public var createdAt: String { __data["createdAt"] }
-      public var updatedAt: String { __data["updatedAt"] }
+      public var createdAt: KindredAPI.DateTime { __data["createdAt"] }
+      public var updatedAt: KindredAPI.DateTime { __data["updatedAt"] }
     }
   }
 }

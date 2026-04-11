@@ -166,7 +166,7 @@ private struct RecipeCardView: View {
 }
 
 // Placeholder recipe card model (will be replaced with actual RecipeCard from API)
-public struct RecipeCard: Identifiable {
+public struct RecipeCard: Equatable, Identifiable {
     public let id: String
     public let name: String
     public let imageUrl: String?
@@ -202,7 +202,7 @@ public struct RecipeCard: Identifiable {
     }
 }
 
-public struct RecipeIngredient {
+public struct RecipeIngredient: Equatable {
     public let name: String
     public let normalizedName: String?
 

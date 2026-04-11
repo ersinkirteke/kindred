@@ -3,9 +3,10 @@
 
 @_spi(Internal) import ApolloAPI
 
+/// Current status of scan job processing
 public enum ScanJobStatus: String, EnumType {
-  case uploading = "UPLOADING"
-  case processing = "PROCESSING"
   case completed = "COMPLETED"
   case failed = "FAILED"
+  case processing = "PROCESSING"
+  case uploading = "UPLOADING"
 }

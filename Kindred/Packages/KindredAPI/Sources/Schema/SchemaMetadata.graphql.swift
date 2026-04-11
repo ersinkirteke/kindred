@@ -20,9 +20,11 @@ public enum SchemaMetadata: ApolloAPI.SchemaMetadata {
 
   @_spi(Execution) public static func objectType(forTypename typename: String) -> ApolloAPI.Object? {
     switch typename {
+    case "DetectedItemDto": return KindredAPI.Objects.DetectedItemDto
     case "Ingredient": return KindredAPI.Objects.Ingredient
     case "IngredientCatalogEntry": return KindredAPI.Objects.IngredientCatalogEntry
     case "Mutation": return KindredAPI.Objects.Mutation
+    case "NarrationUrlDto": return KindredAPI.Objects.NarrationUrlDto
     case "PageInfo": return KindredAPI.Objects.PageInfo
     case "PantryItemModel": return KindredAPI.Objects.PantryItemModel
     case "Query": return KindredAPI.Objects.Query
@@ -31,6 +33,9 @@ public enum SchemaMetadata: ApolloAPI.SchemaMetadata {
     case "RecipeCardEdge": return KindredAPI.Objects.RecipeCardEdge
     case "RecipeConnection": return KindredAPI.Objects.RecipeConnection
     case "RecipeStep": return KindredAPI.Objects.RecipeStep
+    case "ScanJobResponse": return KindredAPI.Objects.ScanJobResponse
+    case "ScanResultResponse": return KindredAPI.Objects.ScanResultResponse
+    case "VoiceProfile": return KindredAPI.Objects.VoiceProfile
     default: return nil
     }
   }

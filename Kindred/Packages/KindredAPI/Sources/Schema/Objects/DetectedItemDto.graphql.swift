@@ -6,6 +6,7 @@ import ApolloAPI
 public extension Objects {
   static let DetectedItemDto = ApolloAPI.Object(
     typename: "DetectedItemDto",
-    implementedInterfaces: []
+    implementedInterfaces: [],
+    keyFields: nil
   )
 }

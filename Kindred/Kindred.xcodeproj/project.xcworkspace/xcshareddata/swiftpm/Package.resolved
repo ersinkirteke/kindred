@@ -1,5 +1,5 @@
 {
-  "originHash" : "aa20e9bf3d4ff20807741e6658244df4c22202e1aef326f87188e7f4fc238de5",
+  "originHash" : "83e6667447fc08a70564fd41923056774e8bab3f223b975c3e128dddb88a97c7",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -177,8 +177,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-case-paths",
       "state" : {
-        "revision" : "6989976265be3f8d2b5802c722f9ba168e227c71",
-        "version" : "1.7.2"
+        "revision" : "206cbce3882b4de9aee19ce62ac5b7306cadd45b",
+        "version" : "1.7.3"
       }
     },
     {

@@ -6,6 +6,7 @@ import ApolloAPI
 public extension Objects {
   static let ScanJobResponse = ApolloAPI.Object(
     typename: "ScanJobResponse",
-    implementedInterfaces: []
+    implementedInterfaces: [],
+    keyFields: nil
   )
 }

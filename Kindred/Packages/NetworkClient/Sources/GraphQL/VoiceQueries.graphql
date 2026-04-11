@@ -1,0 +1,20 @@
+query VoiceProfiles {
+  myVoiceProfiles {
+    id
+    status
+    speakerName
+    relationship
+    createdAt
+    updatedAt
+  }
+}
+
+query NarrationUrl($recipeId: String!, $voiceProfileId: String) {
+  narrationUrl(recipeId: $recipeId, voiceProfileId: $voiceProfileId) {
+    url
+    speakerName
+    relationship
+    recipeName
+    durationMs
+  }
+}

@@ -6,6 +6,7 @@ import ApolloAPI
 public extension Objects {
   static let ScanResultResponse = ApolloAPI.Object(
     typename: "ScanResultResponse",
-    implementedInterfaces: []
+    implementedInterfaces: [],
+    keyFields: nil
   )
 }

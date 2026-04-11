@@ -32,6 +32,7 @@ public struct PantryItemsQuery: GraphQLQuery {
     @_spi(Unsafe) public init(_dataDict: DataDict) { __data = _dataDict }
 
     @_spi(Execution) public static var __parentType: any ApolloAPI.ParentType { KindredAPI.Objects.Query }
+    #warning("Argument 'userId' of field 'pantryItems' is deprecated. Reason: 'Derived from auth token'")
     @_spi(Execution) public static var __selections: [ApolloAPI.Selection] { [
       .field("pantryItems", [PantryItem].self, arguments: [
         "userId": .variable("userId"),
@@ -42,7 +43,7 @@ public struct PantryItemsQuery: GraphQLQuery {
       PantryItemsQuery.Data.self
     ] }
 
-    /// Get all pantry items for user
+    /// Get all pantry items for authenticated user
     public var pantryItems: [PantryItem] { __data["pantryItems"] }
 
     /// PantryItem

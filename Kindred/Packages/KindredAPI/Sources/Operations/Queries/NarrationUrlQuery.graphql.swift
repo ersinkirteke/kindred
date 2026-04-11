@@ -8,24 +8,24 @@ public struct NarrationUrlQuery: GraphQLQuery {
   public static let operationName: String = "NarrationUrl"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query NarrationUrl($recipeId: ID!, $voiceProfileId: String) { narrationUrl(recipeId: $recipeId, voiceProfileId: $voiceProfileId) { __typename url speakerName relationship recipeName durationMs } }"#
+      #"query NarrationUrl($recipeId: String!, $voiceProfileId: String) { narrationUrl(recipeId: $recipeId, voiceProfileId: $voiceProfileId) { __typename url speakerName relationship recipeName durationMs } }"#
     ))
 
-  public var recipeId: ID
-  public var voiceProfileId: String?
+  public var recipeId: String
+  public var voiceProfileId: GraphQLNullable<String>
 
-  public init(recipeId: ID, voiceProfileId: String? = nil) {
+  public init(
+    recipeId: String,
+    voiceProfileId: GraphQLNullable<String>
+  ) {
     self.recipeId = recipeId
     self.voiceProfileId = voiceProfileId
   }
 
-  @_spi(Unsafe) public var __variables: Variables? {
-    var vars = ["recipeId": recipeId]
-    if let voiceProfileId = voiceProfileId {
-      vars["voiceProfileId"] = voiceProfileId
-    }
-    return vars
-  }
+  @_spi(Unsafe) public var __variables: Variables? { [
+    "recipeId": recipeId,
+    "voiceProfileId": voiceProfileId
+  ] }
 
   public struct Data: KindredAPI.SelectionSet {
     @_spi(Unsafe) public let __data: DataDict
@@ -42,7 +42,6 @@ public struct NarrationUrlQuery: GraphQLQuery {
       NarrationUrlQuery.Data.self
     ] }
 
-    /// Get cached narration URL with metadata
     public var narrationUrl: NarrationUrl { __data["narrationUrl"] }
 
     /// NarrationUrl
@@ -65,10 +64,15 @@ public struct NarrationUrlQuery: GraphQLQuery {
         NarrationUrlQuery.Data.NarrationUrl.self
       ] }
 
+      /// R2 CDN URL for cached narration audio, null if not yet generated
       public var url: String? { __data["url"] }
+      /// Speaker's name (e.g., 'Mom', 'Nonna Maria')
       public var speakerName: String { __data["speakerName"] }
+      /// Relationship to user (e.g., 'Mother', 'Grandmother')
       public var relationship: String { __data["relationship"] }
+      /// Recipe name
       public var recipeName: String { __data["recipeName"] }
+      /// Audio duration in milliseconds, null if not yet cached
       public var durationMs: Int? { __data["durationMs"] }
     }
   }

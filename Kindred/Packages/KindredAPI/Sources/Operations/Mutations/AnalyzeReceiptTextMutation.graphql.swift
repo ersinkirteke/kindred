@@ -22,15 +22,17 @@ public struct AnalyzeReceiptTextMutation: GraphQLMutation {
     self.text = text
   }
 
-  @_spi(Unsafe) public var __variables: Variables? {
-    ["userId": userId, "text": text]
-  }
+  @_spi(Unsafe) public var __variables: Variables? { [
+    "userId": userId,
+    "text": text
+  ] }
 
   public struct Data: KindredAPI.SelectionSet {
     @_spi(Unsafe) public let __data: DataDict
     @_spi(Unsafe) public init(_dataDict: DataDict) { __data = _dataDict }
 
     @_spi(Execution) public static var __parentType: any ApolloAPI.ParentType { KindredAPI.Objects.Mutation }
+    #warning("Argument 'userId' of field 'analyzeReceiptText' is deprecated. Reason: 'Derived from auth token'")
     @_spi(Execution) public static var __selections: [ApolloAPI.Selection] { [
       .field("analyzeReceiptText", AnalyzeReceiptText.self, arguments: [
         "userId": .variable("userId"),
@@ -54,16 +56,18 @@ public struct AnalyzeReceiptTextMutation: GraphQLMutation {
       @_spi(Execution) public static var __selections: [ApolloAPI.Selection] { [
         .field("__typename", String.self),
         .field("jobId", String.self),
-        .field("scanType", String.self),
+        .field("scanType", GraphQLEnum<KindredAPI.ScanType>.self),
         .field("items", [Item].self),
       ] }
       @_spi(Execution) public static var __fulfilledFragments: [any ApolloAPI.SelectionSet.Type] { [
         AnalyzeReceiptTextMutation.Data.AnalyzeReceiptText.self
       ] }
 
-      public var __typename: String { __data["__typename"] }
+      /// Scan job ID
       public var jobId: String { __data["jobId"] }
-      public var scanType: String { __data["scanType"] }
+      /// Type of scan performed
+      public var scanType: GraphQLEnum<KindredAPI.ScanType> { __data["scanType"] }
+      /// Detected items from scan
       public var items: [Item] { __data["items"] }
 
       /// AnalyzeReceiptText.Item
@@ -87,12 +91,17 @@ public struct AnalyzeReceiptTextMutation: GraphQLMutation {
           AnalyzeReceiptTextMutation.Data.AnalyzeReceiptText.Item.self
         ] }
 
-        public var __typename: String { __data["__typename"] }
+        /// Ingredient name, normalized to English
         public var name: String { __data["name"] }
+        /// Estimated quantity (e.g., "~6", "500g")
         public var quantity: String { __data["quantity"] }
+        /// Food category (dairy, produce, etc.)
         public var category: String { __data["category"] }
+        /// Storage location: fridge, freezer, or pantry
         public var storageLocation: String { __data["storageLocation"] }
+        /// Conservative days from today until expiry
         public var estimatedExpiryDays: Int { __data["estimatedExpiryDays"] }
+        /// Confidence score 0-100
         public var confidence: Int { __data["confidence"] }
       }
     }

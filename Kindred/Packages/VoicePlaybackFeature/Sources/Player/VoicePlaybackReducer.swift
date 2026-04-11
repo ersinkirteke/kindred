@@ -350,7 +350,7 @@ public struct VoicePlaybackReducer {
                         // Fetch from backend via GraphQL
                         do {
                             let result = try await apolloClient.fetch(
-                                query: KindredAPI.NarrationUrlQuery(recipeId: recipeId, voiceProfileId: voiceId)
+                                query: KindredAPI.NarrationUrlQuery(recipeId: recipeId, voiceProfileId: .some(voiceId))
                             )
                             guard let narrationData = result.data?.narrationUrl,
                                   let audioUrl = narrationData.url else {
@@ -757,7 +757,7 @@ public struct VoicePlaybackReducer {
                     } else {
                         do {
                             let result = try await apolloClient.fetch(
-                                query: KindredAPI.NarrationUrlQuery(recipeId: recipeId, voiceProfileId: newVoiceId)
+                                query: KindredAPI.NarrationUrlQuery(recipeId: recipeId, voiceProfileId: .some(newVoiceId))
                             )
                             guard let narrationData = result.data?.narrationUrl,
                                   let audioUrl = narrationData.url else {

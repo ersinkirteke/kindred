@@ -25,15 +25,18 @@ public struct UploadScanPhotoMutation: GraphQLMutation {
     self.photoData = photoData
   }
 
-  @_spi(Unsafe) public var __variables: Variables? {
-    ["userId": userId, "scanType": scanType, "photoData": photoData]
-  }
+  @_spi(Unsafe) public var __variables: Variables? { [
+    "userId": userId,
+    "scanType": scanType,
+    "photoData": photoData
+  ] }
 
   public struct Data: KindredAPI.SelectionSet {
     @_spi(Unsafe) public let __data: DataDict
     @_spi(Unsafe) public init(_dataDict: DataDict) { __data = _dataDict }
 
     @_spi(Execution) public static var __parentType: any ApolloAPI.ParentType { KindredAPI.Objects.Mutation }
+    #warning("Argument 'userId' of field 'uploadScanPhoto' is deprecated. Reason: 'Derived from auth token'")
     @_spi(Execution) public static var __selections: [ApolloAPI.Selection] { [
       .field("uploadScanPhoto", UploadScanPhoto.self, arguments: [
         "userId": .variable("userId"),
@@ -45,7 +48,6 @@ public struct UploadScanPhotoMutation: GraphQLMutation {
       UploadScanPhotoMutation.Data.self
     ] }
 
-    /// Upload a scan photo for AI processing
     public var uploadScanPhoto: UploadScanPhoto { __data["uploadScanPhoto"] }
 
     /// UploadScanPhoto
@@ -62,18 +64,17 @@ public struct UploadScanPhotoMutation: GraphQLMutation {
         .field("status", GraphQLEnum<KindredAPI.ScanJobStatus>.self),
         .field("photoUrl", String.self),
         .field("scanType", GraphQLEnum<KindredAPI.ScanType>.self),
-        .field("createdAt", String.self),
+        .field("createdAt", KindredAPI.DateTime.self),
       ] }
       @_spi(Execution) public static var __fulfilledFragments: [any ApolloAPI.SelectionSet.Type] { [
         UploadScanPhotoMutation.Data.UploadScanPhoto.self
       ] }
 
-      public var __typename: String { __data["__typename"] }
       public var id: String { __data["id"] }
       public var status: GraphQLEnum<KindredAPI.ScanJobStatus> { __data["status"] }
       public var photoUrl: String { __data["photoUrl"] }
       public var scanType: GraphQLEnum<KindredAPI.ScanType> { __data["scanType"] }
-      public var createdAt: String { __data["createdAt"] }
+      public var createdAt: KindredAPI.DateTime { __data["createdAt"] }
     }
   }
 }

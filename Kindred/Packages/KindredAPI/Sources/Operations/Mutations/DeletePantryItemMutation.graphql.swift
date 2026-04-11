@@ -32,6 +32,7 @@ public struct DeletePantryItemMutation: GraphQLMutation {
     @_spi(Unsafe) public init(_dataDict: DataDict) { __data = _dataDict }
 
     @_spi(Execution) public static var __parentType: any ApolloAPI.ParentType { KindredAPI.Objects.Mutation }
+    #warning("Argument 'userId' of field 'deletePantryItem' is deprecated. Reason: 'Derived from auth token'")
     @_spi(Execution) public static var __selections: [ApolloAPI.Selection] { [
       .field("deletePantryItem", DeletePantryItem.self, arguments: [
         "id": .variable("id"),

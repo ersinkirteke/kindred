@@ -5,8 +5,9 @@
 
 /// Voice profile cloning status
 public enum VoiceStatus: String, EnumType {
-  case ready = "READY"
-  case processing = "PROCESSING"
-  case failed = "FAILED"
   case deleted = "DELETED"
+  case failed = "FAILED"
+  case pending = "PENDING"
+  case processing = "PROCESSING"
+  case ready = "READY"
 }

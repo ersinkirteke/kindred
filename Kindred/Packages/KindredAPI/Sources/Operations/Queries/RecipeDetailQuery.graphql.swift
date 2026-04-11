@@ -56,7 +56,7 @@ public struct RecipeDetailQuery: GraphQLQuery {
         .field("fat", Double?.self),
         .field("imageUrl", String?.self),
         .field("imageStatus", GraphQLEnum<KindredAPI.ImageStatus>.self),
-        .field("location", String.self),
+        .field("location", String?.self),
         .field("isViral", Bool.self),
         .field("engagementLoves", Int.self),
         .field("engagementBookmarks", Int.self),
@@ -82,7 +82,7 @@ public struct RecipeDetailQuery: GraphQLQuery {
       public var fat: Double? { __data["fat"] }
       public var imageUrl: String? { __data["imageUrl"] }
       public var imageStatus: GraphQLEnum<KindredAPI.ImageStatus> { __data["imageStatus"] }
-      public var location: String { __data["location"] }
+      public var location: String? { __data["location"] }
       public var isViral: Bool { __data["isViral"] }
       public var engagementLoves: Int { __data["engagementLoves"] }
       public var engagementBookmarks: Int { __data["engagementBookmarks"] }
