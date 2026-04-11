@@ -30,11 +30,11 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 28 of 28 (v5.0 Lean App Store Launch)
-Plan: 3 of 5 in current phase
-Status: Phase 28 in progress — 3/5 plans complete
-Last activity: 2026-04-08 — Completed plan 28-03 (SDK version & deprecation cleanup)
+Plan: 4 of 5 in current phase
+Status: Phase 28 in progress — 4/5 plans complete
+Last activity: 2026-04-11 — Completed plan 28-04 (Beta bake + GO decision for App Store submission)
 
-Progress: [████████████████████████░░░░] 97% (28/28 phases started, Phase 28: 3/5 plans complete)
+Progress: [█████████████████████████░░░] 98% (28/28 phases started, Phase 28: 4/5 plans complete)
 
 ---
 
@@ -127,6 +127,10 @@ Recent decisions affecting v5.0 work:
 - [Phase 28-03]: Defer Apollo generated code warnings (backend schema deprecations, not iOS SDK issues)
 - [Phase 28-03]: Use maxPhotoDimensions with max resolution selection instead of isHighResolutionCaptureEnabled
 - [Phase 28-03]: Remove WithPerceptionTracking wrappers (not needed on iOS 17+ deployment target)
+- [Phase 28-04]: Distribute build 509 manually via ASC web UI (fastlane pilot bug #28630 — internal distribution triggers beta-review submission)
+- [Phase 28-04]: Populate Beta App Description in ASC TestFlight Test Information app-wide (one-time fix for pilot bug)
+- [Phase 28-04]: Rename precheck lane to preflight (collision with fastlane built-in precheck tool)
+- [Phase 28-04]: GO decision after 72h bake — zero crashes, all 6 core flows pass, all checklist items PASS
 
 ### Roadmap Evolution
 
@@ -161,11 +165,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-08
-Stopped at: Phase 28 plan 03 complete. Ready for plan 28-04 (Beta upload).
+Last session: 2026-04-11
+Stopped at: Phase 28 plan 04 complete. GO decision recorded. Ready for plan 28-05 (App Store submission).
 Resume file: None
 
-**Next action:** Execute plan 28-04 (Upload beta build to TestFlight)
+**Next action:** Execute plan 28-05 (App Store submission via `fastlane release`)
 
 ---
 
