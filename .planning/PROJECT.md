@@ -147,6 +147,55 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - **Accessibility**: WCAG AAA achieved on iOS. Same standard required for Android. 56dp min touch targets, 18sp min body text, max 3 navigation levels.
 - **Simplicity**: Max 2 taps from feed to cooking with voice. No hamburger menus, no complex gestures without button fallbacks.
 
+## Release Process
+
+This section documents the end-to-end release procedure for Kindred App Store submissions. It is referenced by criterion #6 of Phase 28 and must be kept current as the release flow evolves.
+
+### Pre-submission (executed by Phase 28)
+
+1. **Preflight:** `cd Kindred/fastlane && bundle exec fastlane preflight` must pass (validates Release.xcconfig, .env, .p8, metadata, screenshots)
+2. **Metadata audit:** verify en-US and tr metadata contain no competing platform references and reflect current PrivacyInfo.xcprivacy disclosures
+3. **Fresh Release build:** `xcodebuild clean build -configuration Release -scheme Kindred` must exit 0; deprecation warnings triaged per Phase 28 Plan 03
+4. **TestFlight bake:** `fastlane beta_internal` uploads a fresh build; 48-72hr bake with internal testers; pre-submission-checklist.md must pass (zero crashers + all 6 core flows work)
+5. **Privacy Nutrition Labels:** set manually in App Store Connect > App Privacy to match PrivacyInfo.xcprivacy (fastlane does NOT automate this surface)
+6. **Release submission:** `cd Kindred/fastlane && /opt/homebrew/opt/ruby/bin/bundle exec fastlane release` uploads binary + metadata + submits for review
+7. **Confirm:** App Store Connect shows "Waiting for Review"
+
+### Post-approval (executed manually when Apple approves)
+
+Apple review typically completes in 24-48 hours (can extend to 72). When the app moves from "In Review" to "Pending Developer Release" or "Ready for Sale":
+
+1. **Tag the release in git:**
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+   Use semantic version matching MARKETING_VERSION from `Kindred/project.yml`.
+
+2. **Update .planning/MILESTONES.md:**
+   Append an entry under the current milestone (e.g., v5.0 Lean App Store Launch) with:
+   - Release date
+   - Build number (from `git log --oneline | wc -l` at tag time)
+   - App Store status (Approved / Live / Pending)
+   - Any review feedback or conditions
+
+3. **Monitor App Store Connect daily** until status transitions through:
+   - `Waiting for Review` > `In Review` > `Processing for App Store` > `Ready for Sale`
+   - OR `Metadata Rejected` / `Binary Rejected` (fix and resubmit via Phase 28 loopback)
+
+4. **Smoke-test the live app:**
+   - Install from App Store on a clean device (not TestFlight)
+   - Verify the 6 core flows from `Kindred/docs/what-to-test.md`
+   - Confirm Privacy Nutrition Labels render correctly on the listing page
+
+### If Apple rejects the submission
+
+1. Read the rejection reason in Resolution Center
+2. Determine which Phase 28 plan is responsible for the fix (metadata > 28-02, privacy > 28-01 preflight or PrivacyInfo > Phase 27.1, build > 28-03)
+3. Create a gap-closure plan via `/gsd:plan-phase 28 --gaps` OR fix in place if scope is small
+4. Re-run beta bake if binary changes (Plan 28-04), or Reply to Submission if only metadata changes
+5. Resubmit via `fastlane release`
+
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
