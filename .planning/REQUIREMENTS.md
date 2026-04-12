@@ -57,23 +57,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| VOICE-01 | — | Pending |
-| VOICE-02 | — | Pending |
-| VOICE-03 | — | Pending |
-| VOICE-04 | — | Pending |
-| VOICE-05 | — | Pending |
-| SEARCH-01 | — | Pending |
-| SEARCH-02 | — | Pending |
-| SEARCH-03 | — | Pending |
-| FILTER-01 | — | Pending |
-| FILTER-02 | — | Pending |
-| ATTR-01 | — | Pending |
+| ATTR-01 | Phase 29 | Pending |
+| VOICE-01 | Phase 30 | Pending |
+| VOICE-02 | Phase 30 | Pending |
+| VOICE-03 | Phase 30 | Pending |
+| VOICE-04 | Phase 30 | Pending |
+| VOICE-05 | Phase 30 | Pending |
+| SEARCH-01 | Phase 31 | Pending |
+| SEARCH-02 | Phase 31 | Pending |
+| SEARCH-03 | Phase 31 | Pending |
+| FILTER-01 | Phase 31 | Pending |
+| FILTER-02 | Phase 31 | Pending |
 
 **Coverage:**
 - v5.1 requirements: 11 total
-- Mapped to phases: 0
-- Unmapped: 11 ⚠️
+- Mapped to phases: 11
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-12*
-*Last updated: 2026-04-12 after initial definition*
+*Last updated: 2026-04-12 — traceability mapped after roadmap creation (phases 29-32)*

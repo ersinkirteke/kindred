@@ -7,6 +7,7 @@
 - ✅ **v3.0 Smart Pantry** — Phases 12-17 (shipped 2026-03-29)
 - ✅ **v4.0 App Store Launch Prep** — Phases 18-22 (shipped 2026-04-03)
 - ✅ **v5.0 Lean App Store Launch** — Phases 23-28 (shipped 2026-04-12)
+- 🚧 **v5.1 Gap Closure** — Phases 29-32 (in progress)
 
 ## Phases
 
@@ -85,6 +86,65 @@
 
 </details>
 
+### 🚧 v5.1 Gap Closure (In Progress)
+
+**Milestone Goal:** Close all five deferred v5.0 gaps — free-tier voice narration, voice tier routing, source attribution, search UI, and dietary filter pass-through. No backend work required; all backend endpoints are deployed and operational.
+
+## Phase Summary
+
+- [ ] **Phase 29: Source Attribution Wiring** — Wire sourceUrl + sourceName from GraphQL into RecipeDetailView as a tappable link
+- [ ] **Phase 30: AVSpeechClient + Voice Tier Routing** — Build AVSpeechSynthesizer TCA client, enable free-tier narration, route tiers automatically
+- [ ] **Phase 31: Search UI + Dietary Filter Pass-Through** — Wire search bar to backend searchRecipes, fix dietary filter to pass Spoonacular params
+- [ ] **Phase 32: End-to-End Hardware Verification** — Validate all five gaps closed on real iOS 17 + iOS 18 devices
+
+## Phase Details
+
+### Phase 29: Source Attribution Wiring
+**Goal**: Recipe detail view shows a tappable link to the original recipe source, satisfying Spoonacular ToS attribution requirement
+**Depends on**: Nothing (independent of all other v5.1 phases)
+**Requirements**: ATTR-01
+**Success Criteria** (what must be TRUE):
+  1. Recipe detail view displays a tappable "View original recipe" link that opens the source URL in Safari
+  2. Source name (e.g. "AllRecipes", "Serious Eats") appears alongside the link
+  3. When sourceUrl is null, a static "Powered by Spoonacular" fallback renders instead of a broken link
+  4. Apollo codegen runs cleanly after adding sourceUrl + sourceName to RecipeDetailQuery selection set
+**Plans**: TBD
+
+### Phase 30: AVSpeechClient + Voice Tier Routing
+**Goal**: Free-tier users hear recipe steps narrated by on-device AVSpeechSynthesizer; Pro users continue to receive ElevenLabs cloned voice narration; tier routing is automatic and correct
+**Depends on**: Phase 29
+**Requirements**: VOICE-01, VOICE-02, VOICE-03, VOICE-04, VOICE-05
+**Success Criteria** (what must be TRUE):
+  1. A free-tier user taps the play button on any recipe and hears step-by-step narration via system TTS with the current step visually highlighted
+  2. A Pro user with a cloned voice taps play and hears ElevenLabs narration — not system TTS
+  3. After AVSpeech narration completes, a Pro user can immediately play a different recipe via AVPlayer without audio corruption or session reinit
+  4. On iOS 17.0 real device, if AVSpeech silently fails (TTSErrorDomain -4010), an error state surfaces within 5 seconds rather than hanging indefinitely
+  5. Switching from a free voice to a Pro cloned voice mid-session cancels all stream observers before the new backend activates
+**Plans**: TBD
+
+### Phase 31: Search UI + Dietary Filter Pass-Through
+**Goal**: Users can search recipes by keyword and dietary filters correctly pass Spoonacular API parameters instead of filtering against a 20-card local cache
+**Depends on**: Phase 30
+**Requirements**: SEARCH-01, SEARCH-02, SEARCH-03, FILTER-01, FILTER-02
+**Success Criteria** (what must be TRUE):
+  1. User types a keyword in the search bar and sees backend-powered recipe results with the same card layout as the popular feed
+  2. Search fires no network requests until at least 3 characters are entered and 300ms have elapsed since the last keystroke
+  3. Selecting "Vegan" dietary chip and searching returns genuinely vegan results (not just client-side filtered popular cards)
+  4. "Gluten-Free" and other intolerance-type tags correctly map to the Spoonacular intolerances param, not the diet param
+  5. Returning from search mode to browse mode restores the popular feed with existing dietary chips and already-swiped cards intact
+**Plans**: TBD
+
+### Phase 32: End-to-End Hardware Verification
+**Goal**: All five v5.1 gaps are confirmed closed on real iOS 17.0 and iOS 18.x hardware; build is ready for App Store submission
+**Depends on**: Phase 31
+**Requirements**: (cross-phase validation — no new requirements)
+**Success Criteria** (what must be TRUE):
+  1. All six core flows from `Kindred/docs/what-to-test.md` pass on a real device running iOS 17.0 and on iOS 18.x
+  2. A 10-query search session produces a single-digit number of Spoonacular API calls (backend logs confirm debounce + cache active)
+  3. Free-tier narration, voice tier routing, source attribution, search, and dietary filter pass-through each demonstrate correct behavior end-to-end without Simulator
+  4. AVSpeech enhanced voice is present on a fresh TestFlight install; if absent, compact fallback renders without error
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans | Status | Completed |
@@ -118,6 +178,10 @@
 | 27. App Store Compliance | v5.0 | 4/4 | Complete | 2026-04-07 |
 | 27.1. AdMob Docs Reconcile | v5.0 | 1/1 | Complete | 2026-04-07 |
 | 28. Fastlane Release | v5.0 | 5/5 | Complete | 2026-04-12 |
+| 29. Source Attribution Wiring | v5.1 | 0/TBD | Not started | - |
+| 30. AVSpeechClient + Voice Tier Routing | v5.1 | 0/TBD | Not started | - |
+| 31. Search UI + Dietary Filter Pass-Through | v5.1 | 0/TBD | Not started | - |
+| 32. End-to-End Hardware Verification | v5.1 | 0/TBD | Not started | - |
 
 ---
 
@@ -127,3 +191,4 @@
 *v3.0 shipped: 2026-03-29*
 *v4.0 shipped: 2026-04-03*
 *v5.0 shipped: 2026-04-12*
+*v5.1 roadmap created: 2026-04-12*

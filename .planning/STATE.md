@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v5.1
 milestone_name: Gap Closure
-status: defining_requirements
-last_updated: "2026-04-12T23:00:00Z"
+status: roadmap_created
+last_updated: "2026-04-12T23:30:00Z"
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -14,7 +14,7 @@ progress:
 # Project State: Kindred
 
 **Last Updated:** 2026-04-12
-**Status:** v5.1 Gap Closure — defining requirements
+**Status:** v5.1 Gap Closure — roadmap created, ready to plan Phase 29
 
 ---
 
@@ -23,16 +23,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-12)
 
 **Core value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
-**Current focus:** v5.1 Gap Closure — close all deferred v5.0 gaps
+**Current focus:** v5.1 Gap Closure — 4 phases, 11 requirements, no backend work required
 
 ---
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-12 — Milestone v5.1 started
+Phase: 29 of 32 (Source Attribution Wiring) — ready to plan
+Plan: — (not started)
+Status: Ready to plan
+Last activity: 2026-04-12 — v5.1 roadmap created (4 phases, 11 requirements mapped)
 
 Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0%
 
@@ -65,10 +65,15 @@ Progress: [░░░░░░░░░░░░░░░░░░░░░░░
 
 Decisions are logged in PROJECT.md Key Decisions table.
 
+Recent decisions affecting v5.1:
+- AVSpeech for free tier: Zero cost, offline-capable, no new packages (vs ElevenLabs $0.01-0.03/recipe)
+- sourceUrl first: Independent change, clears Spoonacular ToS compliance risk before any other work
+- Search + filter in same phase: Share one SearchRecipesQuery operation + FeedMode enum; splitting doubles codegen overhead
+
 ### Roadmap Evolution
 
 All milestones (v1.5-v5.0) shipped and archived. Phase numbering: 1-28 (including 27.1 decimal insertion).
-v5.1 continues from phase 29.
+v5.1 uses phases 29-32.
 
 ### Pending Todos
 
@@ -76,20 +81,20 @@ None.
 
 ### Blockers/Concerns
 
-**Carried from v5.0:**
-- AVSpeechSynthesizer iOS 17/18 bugs (deferred Phases 24-25 — now primary v5.1 scope)
-- App Store review outcome pending (submitted 2026-04-12)
+**Active:**
+- iOS 17.0-17.4 AVSpeechSynthesizer silent failure bug (TTSErrorDomain -4010) — must test on real iOS 17 hardware in Phase 30 and Phase 32; Simulator does not reproduce
+- App Store review outcome for v1.0.0 (build 527) still pending as of 2026-04-12
 
 ---
 
 ## Session Continuity
 
 Last session: 2026-04-12
-Stopped at: v5.1 milestone started, defining requirements
+Stopped at: v5.1 roadmap created — 4 phases (29-32), 11 requirements mapped
 Resume file: None
 
-**Next action:** Complete requirements definition and roadmap creation
+**Next action:** `/gsd:plan-phase 29`
 
 ---
 
-*State updated: 2026-04-12 — v5.1 Gap Closure milestone started*
+*State updated: 2026-04-12 — v5.1 roadmap created*
