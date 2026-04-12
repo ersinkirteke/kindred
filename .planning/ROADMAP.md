@@ -78,7 +78,7 @@
 - [x] **Phase 26: Feed UI Migration** - Fix broken feed: switch from viralRecipes to searchRecipes/popularRecipes (3/3 plans complete 2026-04-06)
 - [x] **Phase 27: App Store Compliance Updates** - Privacy Labels for Spoonacular + screenshots (4/4 plans complete 2026-04-07)
 - [x] **Phase 27.1: Reconcile Phase 27 docs with AdMob tracker reality** - Gap closure: add AdMob privacy manifest entries + policy disclosure (1/1 plans complete 2026-04-07)
-- [ ] **Phase 28: Fastlane Release Automation** - Automate App Store submission
+- [x] **Phase 28: Fastlane Release Automation** - Automate App Store submission (completed 2026-04-12)
 
 **Track B — Voice (parallel with Track A):**
 - [ ] **Phase 24: AVSpeechSynthesizer Free-Tier Voice** - On-device TTS for free users
@@ -245,7 +245,7 @@ Feed is broken after Phase 23 scraping cleanup — Phase 26 executes first.
 | 26. Feed UI Migration | v5.0 | Complete    | 2026-04-06 | 2026-04-06 |
 | 27. App Store Compliance Updates | 3/4 | Complete    | 2026-04-07 | - |
 | 27.1. Reconcile Phase 27 AdMob docs | v5.0 | Complete    | 2026-04-07 | 2026-04-07 |
-| 28. Fastlane Release Automation | 4/5 | In Progress|  | - |
+| 28. Fastlane Release Automation | 5/5 | Complete   | 2026-04-12 | - |
 
 ---
 

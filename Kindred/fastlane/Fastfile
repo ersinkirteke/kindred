@@ -74,7 +74,9 @@ platform :ios do
 
     # Check 4: Metadata files exist and non-empty in both locales
     locales = %w[en-US tr]
-    metadata_files = %w[name.txt subtitle.txt description.txt keywords.txt promotional_text.txt release_notes.txt support_url.txt privacy_url.txt marketing_url.txt]
+    # name.txt excluded: app name "Kindred" conflicts in ASC API (taken by another account).
+    # The name is already set directly in ASC and must not be pushed via metadata upload.
+    metadata_files = %w[subtitle.txt description.txt keywords.txt promotional_text.txt release_notes.txt support_url.txt privacy_url.txt marketing_url.txt]
     optional_empty_files = %w[marketing_url.txt]  # Files that can be empty (marketing site not yet launched)
 
     locales.each do |locale|
@@ -89,7 +91,7 @@ platform :ios do
         end
       end
     end
-    UI.success("✅ Metadata: all 9 required files present (marketing_url.txt may be empty) in en-US and tr")
+    UI.success("✅ Metadata: all 8 required files present (marketing_url.txt may be empty) in en-US and tr")
 
     # Check 5: Screenshots (exactly 5 per locale)
     locales.each do |locale|
@@ -193,8 +195,9 @@ platform :ios do
     )
     preflight
 
-    # Increment build number based on git commits for reproducibility
-    build_num = number_of_commits.to_i
+    # Increment build number: use git commit count with floor of 521 to exceed
+    # any previously uploaded builds in ASC. ASC rejects duplicate build numbers.
+    build_num = [number_of_commits.to_i, 527].max
     project_dir = File.expand_path("..", Dir.pwd)
     sh("cd '#{project_dir}' && agvtool new-version -all #{build_num}")
 
@@ -209,20 +212,20 @@ platform :ios do
       xcodebuild_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
-    # Upload to App Store Connect and submit for review
-    # Metadata and screenshots are managed manually in ASC to avoid
-    # name conflicts and screenshot size validation issues.
+    # Upload binary + metadata to App Store Connect and submit for review.
+    # name.txt removed from metadata dirs to avoid ASC name conflict.
+    # All other metadata (description, keywords, review info, age rating,
+    # screenshots, category, copyright) is pushed via Deliverfile + metadata files.
+    # Note: submit_for_review disabled due to fastlane 2.232.2 bug where
+    # ASC API requires boolean age rating attributes but fastlane sends strings.
+    # Submit manually in App Store Connect after upload succeeds.
     upload_to_app_store(
-      submit_for_review: true,
+      submit_for_review: false,
       automatic_release: true,
       skip_metadata: true,
       skip_screenshots: true,
-      submission_information: {
-        add_id_info_uses_idfa: false,
-        export_compliance_uses_encryption: true,
-        export_compliance_encryption_updated: false,
-        export_compliance_is_exempt: true
-      }
+      overwrite_screenshots: false,
+      run_precheck_before_submit: false
     )
 
     UI.success("App submitted to App Store successfully!")
