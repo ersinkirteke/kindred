@@ -1,20 +1,20 @@
 ---
 gsd_state_version: 1.0
-milestone: v5.0
-milestone_name: Lean App Store Launch
-status: completed
-last_updated: "2026-04-12T22:00:00Z"
+milestone: v5.1
+milestone_name: Gap Closure
+status: defining_requirements
+last_updated: "2026-04-12T23:00:00Z"
 progress:
-  total_phases: 28
-  completed_phases: 26
-  total_plans: 99
-  completed_plans: 99
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State: Kindred
 
 **Last Updated:** 2026-04-12
-**Status:** v5.0 Milestone Complete — archived
+**Status:** v5.1 Gap Closure — defining requirements
 
 ---
 
@@ -23,17 +23,18 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-12)
 
 **Core value:** Hearing a loved one's voice guide you through a trending local recipe — that emotional moment is what makes Kindred irreplaceable.
-**Current focus:** Planning next milestone
+**Current focus:** v5.1 Gap Closure — close all deferred v5.0 gaps
 
 ---
 
 ## Current Position
 
-Phase: All v5.0 phases complete (28 total across 5 milestones)
-Status: v5.0 archived. Kindred v1.0.0 (build 527) submitted to App Store — Waiting for Review.
-Last activity: 2026-04-12 — v5.0 milestone archived, git tagged
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-12 — Milestone v5.1 started
 
-Progress: [████████████████████████████] 100% (5 milestones shipped)
+Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0%
 
 ---
 
@@ -62,11 +63,12 @@ Progress: [███████████████████████
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table. v5.0 decisions archived to milestones/v5.0-ROADMAP.md.
+Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Roadmap Evolution
 
 All milestones (v1.5-v5.0) shipped and archived. Phase numbering: 1-28 (including 27.1 decimal insertion).
+v5.1 continues from phase 29.
 
 ### Pending Todos
 
@@ -74,8 +76,8 @@ None.
 
 ### Blockers/Concerns
 
-**Carried to next milestone:**
-- AVSpeechSynthesizer iOS 17/18 bugs (deferred Phases 24-25)
+**Carried from v5.0:**
+- AVSpeechSynthesizer iOS 17/18 bugs (deferred Phases 24-25 — now primary v5.1 scope)
 - App Store review outcome pending (submitted 2026-04-12)
 
 ---
@@ -83,11 +85,11 @@ None.
 ## Session Continuity
 
 Last session: 2026-04-12
-Stopped at: v5.0 milestone archived. All 5 milestones shipped.
+Stopped at: v5.1 milestone started, defining requirements
 Resume file: None
 
-**Next action:** `/gsd:new-milestone` — define next milestone (Voice free-tier, search UI, filter wiring)
+**Next action:** Complete requirements definition and roadmap creation
 
 ---
 
-*State updated: 2026-04-12 — v5.0 milestone complete and archived*
+*State updated: 2026-04-12 — v5.1 Gap Closure milestone started*

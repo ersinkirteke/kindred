@@ -88,11 +88,16 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 
 ### Active
 
-- [ ] AVSpeechSynthesizer free-tier voice narration (carried from v5.0 Phases 24-25)
-- [ ] Voice tier routing — free users get AVSpeech, Pro users get ElevenLabs
-- [ ] Per-recipe sourceUrl wiring in iOS RecipeDetailQuery
-- [ ] Search UI wiring to backend searchRecipes endpoint
-- [ ] Dietary filter parameter pass-through to Spoonacular queries
+## Current Milestone: v5.1 Gap Closure
+
+**Goal:** Close all deferred v5.0 gaps — free-tier voice narration, search, filters, and source attribution.
+
+**Target features:**
+- AVSpeechSynthesizer free-tier voice narration
+- Voice tier routing — free users get AVSpeech, Pro users get ElevenLabs
+- Per-recipe sourceUrl wiring in iOS RecipeDetailQuery
+- Search UI wiring to backend searchRecipes endpoint
+- Dietary filter parameter pass-through to Spoonacular queries
 
 ### Future
 
@@ -254,4 +259,4 @@ Apple review typically completes in 24-48 hours (can extend to 72). When the app
 | Git commit count for build numbers | Reproducible, monotonically increasing, no manual management | ✓ Good — simple versioning (v4.0) |
 
 ---
-*Last updated: 2026-04-12 after v5.0 Lean App Store Launch milestone completed*
+*Last updated: 2026-04-12 after v5.1 Gap Closure milestone started*
