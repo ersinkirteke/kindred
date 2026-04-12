@@ -1,317 +1,259 @@
 # Pitfalls Research
 
-**Domain:** iOS Recipe App - Lean App Store Launch (Spoonacular API, AVSpeechSynthesizer, First Submission)
-**Researched:** 2026-04-04
+**Domain:** iOS Recipe App - v5.1 Gap Closure (AVSpeechSynthesizer free-tier narration, voice tier routing, search wiring, dietary filter pass-through)
+**Researched:** 2026-04-12
 **Confidence:** HIGH
+
+---
 
 ## Critical Pitfalls
 
-### Pitfall 1: Spoonacular Free Tier Quota Exhaustion Within Days
+### Pitfall 1: AVSpeechSynthesizer Deactivates the Shared Audio Session, Breaking Subsequent AVPlayer Playback
 
 **What goes wrong:**
-150 requests/day free tier gets exhausted within 2-3 days of launch. Each API call costs "points" - usually 1 point per request plus 0.01 points per result. With minimal user traffic (10 active users viewing 15 recipes/day), you exceed quota before implementing proper caching. App becomes non-functional until next day's quota reset.
+Free user triggers AVSpeechSynthesizer narration (free tier). It plays. User later upgrades or switches to a Pro ElevenLabs voice. AVPlayer fails to play — buffering spinner hangs forever or audio session throws "Session is not active" error. The shared `AVAudioSession` is left in a deactivated or inconsistent state because `AVSpeechSynthesizer` activates the session on its own but does NOT deactivate it after finishing. Depending on iOS version (17.x is worst), the session is also silently "ducked" — other audio remains at reduced volume permanently after AVSpeech completes.
 
 **Why it happens:**
-Developers test against Spoonacular without caching layer, assuming 150 requests/day is sufficient. They forget that each recipe detail fetch, nutrition lookup, and image URL retrieval counts separately. Nested loops making repetitive calls or unbatched requests exhaust quota exponentially faster than expected.
+`AVSpeechSynthesizer` and `AVPlayer` both rely on `AVAudioSession.sharedInstance()`. The synthesizer calls `setActive(true)` internally. On iOS 13+ it also attempts to deactivate the session a few seconds after the synthesizer instance is created (not after speech finishes — after creation). This races with `AVPlayer` setup. Apple explicitly documented `usesApplicationAudioSession` to address this, but the default behavior (`true`) causes interference. Apple stated in TSIs that there is "no workaround" for the iOS 17 deactivation timing bug — it is a platform bug under investigation.
 
 **How to avoid:**
-1. Implement 1-hour cache maximum (Spoonacular ToS requirement) using Redis or in-memory cache
-2. Store recipe details, nutrition data, and image URLs in PostgreSQL after first fetch
-3. Use cache-aside pattern: check cache → check database → fetch from API only if both miss
-4. Pre-populate database with 50-100 popular recipes during development to reduce day-1 API calls
-5. Add quota monitoring dashboard tracking daily usage with alerts at 80% threshold
-6. Implement request batching where Spoonacular API supports it
+1. Never let AVSpeechSynthesizer and AVPlayer use the audio session simultaneously. In `VoicePlaybackReducer`, call `audioPlayer.cleanup()` (which pauses and nils the AVPlayer) before constructing the synthesizer, and vice versa.
+2. After AVSpeech narration ends (via `didFinish` delegate), manually re-activate the session: `try? AVAudioSession.sharedInstance().setActive(true)` before calling `AVPlayer.play()`.
+3. Set `synthesizer.usesApplicationAudioSession = true` (the default) AND manually call `setActive(true)` before each AVPlayer use — do not assume it persists active across synthesizer lifecycle.
+4. Design `SpeechClient` as a separate TCA `@DependencyClient` with its own lifecycle, completely decoupled from `AudioPlayerClient`. The reducer dispatches to one or the other based on tier — never both at once.
+5. Test the exact sequence on a real iOS 17 device: AVSpeech narrates → user switches to Pro voice → AVPlayer must play without re-launching the app.
 
 **Warning signs:**
-- API calls fail with 402 Payment Required or quota exceeded errors
-- Usage statistics show >100 points consumed in first 24 hours
-- Multiple users report "No recipes available" messages
-- Cache hit rate <70% in first week of production
+- AVPlayer hangs in `.buffering` status after a free-tier narration session.
+- `AVAudioSession` logs: "Session deactivated while another client was using it."
+- Background music from other apps remains at reduced volume after narration ends.
+- Works in Simulator but fails on iOS 17.x physical device.
 
 **Phase to address:**
-Phase 1: Spoonacular Integration (implement caching layer as core requirement, not optimization)
+Phase 1: AVSpeechSynthesizer Integration (must test audio session handoff as an explicit acceptance criterion before moving to search work)
 
 ---
 
-### Pitfall 2: AVSpeechSynthesizer iOS 17/18 Production Bugs Cause Silent Failures
+### Pitfall 2: AVSpeechSynthesizer iOS 17 Audio Unit Failures Cause Silent Non-Playback
 
 **What goes wrong:**
-AVSpeechSynthesizer crashes on iOS 17.0-17.2 with "Could not find audio unit" errors (TTSErrorDomain Code -4010). Speech playback stops mid-utterance after 300 words on 1200-word recipes. Memory leaks cause app crashes after 5-10 recipe narrations. Some iOS voices produce no sound without error messages. Background audio stops when app backgrounds despite audio session configuration.
+On iOS 17.0–17.4, `AVSpeechSynthesizer.speak()` returns immediately (always does) but no audio is produced. The console shows "Couldn't find audio unit for request" or "Could not instantiate audio unit" (TTSErrorDomain Code -4010). The `AVSpeechSynthesizerDelegate.speechSynthesizer(_:didFinish:)` may still fire, making the failure completely invisible in the TCA reducer — the playback appears to complete successfully from the reducer's perspective while the user heard nothing.
 
 **Why it happens:**
-AVSpeechSynthesizer has unresolved bugs across iOS 16-18. Apple's audio unit loading fails intermittently on real devices (works fine in Simulator). The API has undefined behavior on iOS 17 where it abruptly stops at random points. Audio session management is broken - synthesizer activates audio session but never deactivates it, leaving other audio "ducked" permanently.
+The iOS 17 TTS system has a documented bug where the audio unit chain for speech synthesis fails to initialize on certain device/voice combinations. This is a platform-level failure that cannot be caught via the `AVSpeechSynthesizer` API because neither `speak()` nor the delegate exposes failure at this level. Apple acknowledged the bug in TSIs with no workaround.
 
 **How to avoid:**
-1. Implement comprehensive error handling with user-visible fallback ("Voice unavailable, showing text instead")
-2. Add utterance boundary detection - if `didFinish` fires before expected duration, log error and show warning
-3. Manually deactivate audio session after synthesis completes: `try? AVAudioSession.sharedInstance().setActive(false)`
-4. Test on iOS 17.0-17.6 and iOS 18.0+ real devices (not Simulator) across iPhone 14/15/16 models
-5. Implement audio session state monitoring to detect ducking issues
-6. Add telemetry tracking synthesis failures by iOS version/device model
-7. Limit utterance length to 500 words max, split longer recipes into segments
-8. Keep AVPlayer + ElevenLabs as fallback path for critical failures
+1. Set an expected duration window. For recipe steps, narration should take at minimum `(word_count / 2.5)` seconds. Start a timer in `didStart`. If `didFinish` fires more than 40% earlier than the minimum expected duration, treat it as a failure and show an error state.
+2. Add a completion timeout: if `didStart` is never called within 3 seconds of `speak()`, fire `narrationFailed`.
+3. Instrument with OSLog: log iOS version + voice identifier + result (started/finished/timeout) to every narration attempt.
+4. On first narration failure, try a fallback compact voice (e.g., `AVSpeechSynthesisVoice(language: "en-US")`) before surfacing an error.
+5. Document in acceptance criteria: test on a minimum of iOS 17.0 + iOS 17.6 + iOS 18.x real devices. The v5.0 PITFALLS.md already flagged this; treat it as a hard blocker for this phase.
 
 **Warning signs:**
-- User reports: "Voice stops halfway through recipe"
-- Analytics show <60% narration completion rate
-- Crash reports with `AVAudioUnit` in stack trace
-- Background music apps remain quiet after narration ends
-- TestFlight beta testers on iOS 17.x report higher failure rates than iOS 18.x users
+- Narration "completes" in under 1 second for a 200-word recipe.
+- `didStart` never fires; `didFinish` fires immediately.
+- No audio heard, but no error surfaced in the reducer.
+- Only reproducible on real iOS 17 device, works in Simulator.
 
 **Phase to address:**
-Phase 2: AVSpeechSynthesizer Integration (include iOS 17/18 real-device testing as acceptance criteria)
+Phase 1: AVSpeechSynthesizer Integration (build failure detection as a first-class concern, not an afterthought)
 
 ---
 
-### Pitfall 3: App Store Rejection for Missing Third-Party AI Consent (Guideline 5.1.2i)
+### Pitfall 3: VoicePlaybackReducer Tier Routing Leaves Orphaned Stream Observers
 
 **What goes wrong:**
-App rejected during review because ElevenLabs integration lacks explicit user consent modal. Reviewer flags that voice cloning uploads personal data (voice recordings) to third-party AI (ElevenLabs) without dedicated consent screen. Existing voice consent screen bundled with recording flow doesn't meet guideline 5.1.2(i) requirements added November 2025.
+VoicePlaybackReducer currently starts three long-running stream effects (`timeObserver`, `statusObserver`, `durationObserver`) backed by an `AVPlayer` via `AudioPlayerClient`. When introducing AVSpeechSynthesizer for free users, a second set of streams is needed. If the routing logic dispatches `selectVoice` to the wrong path, or if a voice switch happens mid-playback, the old streams continue running and compete with new ones. Specifically: a free→Pro switch mid-recipe starts AVPlayer streams while AVSpeech streams are still active. Both call `.timeUpdated`, producing duplicate time events. The `currentPlayback.currentTime` stutters and jumps. The `.statusChanged(.stopped)` from AVSpeech fires after AVPlayer starts, triggering the 2-second auto-dismiss even though Pro audio is playing.
 
 **Why it happens:**
-Apple updated guidelines in November 2025 requiring apps to "clearly disclose where personal data will be shared with third parties, including with third-party AI, and obtain explicit permission before doing so." Consent must appear BEFORE first data transmission, must be unbundled from other permissions, and must specify the AI provider name. Many apps built pre-November 2025 violate this unknowingly.
+The reducer uses named `CancelID` (`timeObserver`, `statusObserver`, `durationObserver`) but the cancellation logic only fires on explicit actions (`dismiss`, `showVoiceSwitcher`). There is no cancellation on `selectVoice` when switching backends. Adding a second audio backend without refactoring the stream lifecycle will create race conditions that are very hard to reproduce in tests.
 
 **How to avoid:**
-1. Show dedicated consent modal BEFORE voice upload screen with exact text:
-   - "Kindred Pro uses ElevenLabs AI to clone voices. Your voice recording will be sent to ElevenLabs (third-party AI provider) for processing."
-   - Two buttons: "Allow" / "Don't Allow" (not "Continue" / "Cancel")
-2. Store consent timestamp, IP, userId, app version in `voice_consent_audit` table
-3. Block voice upload if user taps "Don't Allow"
-4. Update Privacy Policy to list ElevenLabs as third-party data processor
-5. Update App Privacy labels in App Store Connect: Data Types → Audio → Linked to User → Shared with ElevenLabs
-6. Add PrivacyInfo.xcprivacy disclosure for ElevenLabs API domain
-7. Test: Reviewer must see consent modal on first Pro upgrade attempt
-
-**Warning signs:**
-- App Store rejection with "Guideline 5.1.2(i) - Privacy - Data Use and Sharing" citation
-- Reviewer notes: "App does not obtain permission before sharing data with third-party AI"
-- Privacy labels don't list ElevenLabs in "Third-Party Partners" section
-- Consent modal appears AFTER voice recording instead of BEFORE
-
-**Phase to address:**
-Phase 3: App Store Compliance (implement before TestFlight external beta submission)
-
----
-
-### Pitfall 4: Spoonacular Data Model Mismatch Breaks Existing Recipe Flow
-
-**What goes wrong:**
-Existing app expects `Recipe` schema with fields like `viralScore`, `sourceUrl` (Instagram/X link), `scrapedAt`, `locationId`. Spoonacular returns completely different schema: `spoonacularScore`, `sourceUrl` (recipe blog), `analyzedInstructions`, `extendedIngredients`. Migration breaks feed rendering, bookmarks, pantry matching, and voice narration script generation. Database migration requires rewriting 8+ queries across 4 GraphQL resolvers.
-
-**Why it happens:**
-Custom scraping pipeline creates domain-specific schema optimized for viral social content. Spoonacular is recipe-first (not social-first), with different data structures. Developers assume "recipe API" means compatible schema, attempt drop-in replacement without adapter layer. Nutrition data format differs (Spoonacular uses `nutrition.nutrients[]` array, custom API uses flat `calories`/`protein` fields).
-
-**How to avoid:**
-1. Create `SpoonacularAdapter` service translating Spoonacular schema to internal `Recipe` model
-2. Map fields explicitly:
-   - `spoonacularScore` → `viralScore` (with normalization algorithm)
-   - `sourceUrl` → store as-is but add `source: 'spoonacular'` tag
-   - `analyzedInstructions[0].steps` → flatten to `instructions: string`
-   - `extendedIngredients` → `ingredients: {name, amount, unit}[]`
-   - `nutrition.nutrients` → extract calories, protein, carbs, fat to flat fields
-3. Update GraphQL schema to support both sources during migration:
-   ```graphql
-   type Recipe {
-     viralScore: Float # computed differently per source
-     source: RecipeSource! # 'scraping' | 'spoonacular'
-     sourceUrl: String
-   }
-   ```
-4. Run dual-write migration: write to both schemas for 2 weeks, compare outputs
-5. Update pantry ingredient matching to handle Spoonacular's ingredient format
-6. Test voice narration script generation with Spoonacular `analyzedInstructions` structure
-
-**Warning signs:**
-- TypeScript compilation errors after integrating Spoonacular types
-- Feed shows `undefined` for recipe metadata fields
-- Ingredient matching accuracy drops below 60%
-- Voice narration scripts are malformed or missing steps
-- GraphQL queries return null for previously working fields
-
-**Phase to address:**
-Phase 1: Spoonacular Integration (build adapter layer first, direct integration second)
-
----
-
-### Pitfall 5: Mixed TTS Quality (AVSpeechSynthesizer Free vs ElevenLabs Pro) Creates Negative User Perception
-
-**What goes wrong:**
-Free-tier users experience robotic, monotone AVSpeechSynthesizer narration. They see paywalled "Pro" tier promising "natural voice cloning." Users downgrade perception of entire app because free tier feels cheap/broken compared to Pro marketing. 1-star reviews: "App is unusable without paying." Conversion rate to Pro is <2% because free experience creates negative anchor instead of desire to upgrade.
-
-**Why it happens:**
-When TTS is "close to human" (ElevenLabs), users raise standards - small unnatural moments break the illusion. When TTS is "clearly synthetic" (AVSpeechSynthesizer), users forgive it BUT if you show them the better version exists behind paywall, free version feels punitive instead of functional. Premium TTS creates expectation that free tier can't meet. User perceives value destruction, not value add.
-
-**How to avoid:**
-1. NEVER show ElevenLabs demos/previews to free-tier users - don't create unfavorable comparison
-2. Frame AVSpeechSynthesizer as "built-in narration" not "free tier voice"
-3. Add voice customization for AVSpeechSynthesizer (pitch, rate, volume) to increase perceived value
-4. Use iOS 16+ "enhanced" or "premium" voices (100MB+ downloads) instead of default quality voices
-5. Prompt users to download enhanced voices in Settings: "Improve voice quality - download enhanced English voice (120MB)"
-6. Position Pro as "personalized cloning" not "better quality" - differentiate on emotion, not fidelity
-7. A/B test: Group A sees "Basic Voice" (free) vs "Cloned Voice" (Pro). Group B sees just AVSpeech with no Pro upsell.
-8. Monitor conversion rate and 1-star reviews mentioning "robotic" or "unusable without paying"
-
-**Warning signs:**
-- App Store reviews mention "free tier is unusable"
-- Conversion to Pro <3% despite high feature engagement
-- Users immediately hit paywall, bounce without trying narration
-- Support tickets: "Why does free version sound so bad?"
-- Retention drops >40% after first narration playback
-
-**Phase to address:**
-Phase 2: AVSpeechSynthesizer Integration (include enhanced voice quality and messaging strategy)
-
----
-
-### Pitfall 6: Spoonacular Recipe Images Violate Attribution Requirements, Risk Removal
-
-**What goes wrong:**
-App displays Spoonacular-provided recipe images without required attribution. Spoonacular ToS mandates displaying their logo and link back to spoonacular.com. App Store reviewer or Spoonacular notices violation during traffic spike, sends cease & desist. App removed from store for ToS violation until attribution added. Legal fees $5-15K to resolve.
-
-**Why it happens:**
-Developers assume API-provided images are freely usable in commercial apps. Spoonacular documentation mentions attribution but doesn't enforce it technically (images load without attribution). Most recipe APIs require attribution "somewhere in your app" - usually interpreted as small footer link. Commercial use requires following their attribution rules.
-
-**How to avoid:**
-1. Read Spoonacular ToS attribution requirements at spoonacular.com/food-api/docs
-2. Add "Powered by Spoonacular" badge on recipe detail view (near image or footer)
-3. Make badge tappable, opens spoonacular.com in Safari
-4. Update App Store description: "Recipe data provided by Spoonacular"
-5. Email Spoonacular compliance team with app details BEFORE launch for pre-approval
-6. Monitor for attribution requirement changes in API docs (set calendar reminder quarterly)
-7. Consider: Display attribution less prominently for Pro users? (Check ToS)
-
-**Warning signs:**
-- Spoonacular sends email about missing attribution
-- App Store reviewer questions image licensing
-- Competitor recipe app has visible "Powered by" badge, yours doesn't
-- Legal/compliance section of Spoonacular docs unclear about mobile app requirements
-
-**Phase to address:**
-Phase 1: Spoonacular Integration (implement attribution UI component alongside image loading)
-
----
-
-### Pitfall 7: App Store Rejection for Unverified Nutrition Data / Health Claims
-
-**What goes wrong:**
-App displays Spoonacular nutrition data (calories, macros, allergen info) as definitive facts. Reviewer flags guideline 1.4.1: "Apps that claim to take x-rays, measure blood pressure... or provide other diagnoses must show proof of proper regulatory approval." Nutrition apps must "clearly disclose data and methodology to support accuracy claims." Spoonacular ToS states users are "responsible for ensuring FDA compliance independently."
-
-**Why it happens:**
-Spoonacular sources data from USDA FoodData Central + public recipe sites + user submissions. Core ingredient nutrition is reliable, but recipe nutrition varies. FDA menu labeling requires specific rounding rules, disclaimer text. Apps presenting nutrition as medical-grade data without disclaimers violate App Store guideline 1.4.1. Reviewer interprets "accurate calorie tracking" marketing copy as medical device claim.
-
-**How to avoid:**
-1. Add disclaimer on recipe detail nutrition section: "Nutrition estimates provided by Spoonacular. Not for medical use. Consult healthcare provider for dietary advice."
-2. Avoid marketing copy: "accurate," "medical-grade," "clinically validated," "FDA-approved"
-3. Use softer language: "estimated nutrition," "approximate calories," "based on USDA data"
-4. Update App Store metadata: Remove "health" claims from app description
-5. App Store Connect > App Information > App Category: DO NOT select "Medical" - use "Food & Drink"
-6. Add HealthKit disclaimer if integrating nutrition export: "This app is not a medical device."
-7. Cross-check 10 sample recipes against USDA FoodData Central - document methodology in reviewer notes
-
-**Warning signs:**
-- App Store rejection citing guideline 1.4.1 or 5.1.1(ix) (health apps)
-- Reviewer asks: "How do you validate nutrition accuracy?"
-- Marketing materials use "accurate," "clinically proven," "FDA-compliant"
-- App category selected as "Health & Fitness" instead of "Food & Drink"
-- Nutrition data displayed without "estimate" qualifier
-
-**Phase to address:**
-Phase 3: App Store Compliance (add disclaimers before TestFlight submission)
-
----
-
-### Pitfall 8: First App Store Submission Binary Rejected for iOS 26 SDK Requirement
-
-**What goes wrong:**
-Binary upload succeeds but App Store Connect shows error: "This bundle is invalid. The bundle was built with an SDK older than the minimum required version." Starting April 28, 2026, all apps must use iOS 26 SDK (Xcode 16+). Project still builds with Xcode 15 / iOS 25 SDK. Must rebuild with Xcode 16, which introduces breaking changes in StoreKit 2 and AVFoundation APIs.
-
-**Why it happens:**
-Apple's April 2026 deadline catches developers mid-development. Xcode 16 requires macOS Sequoia 15.0+. Upgrading macOS + Xcode introduces Swift 6 strict concurrency warnings, deprecated API warnings. Developers delay upgrade until forced by App Store, then scramble to fix build errors 1-2 days before deadline.
-
-**How to avoid:**
-1. Upgrade to Xcode 16.0+ and macOS Sequoia 15.0+ IMMEDIATELY (before starting Phase 1)
-2. Build with iOS 26 SDK: Set Deployment Target iOS 17.0, Base SDK iOS 26.0
-3. Run full test suite after upgrade - check for runtime behavior changes
-4. Fix Swift 6 concurrency warnings preemptively (enable SWIFT_STRICT_CONCURRENCY = complete)
-5. Update deprecated APIs flagged by Xcode 16:
-   - AVPlayer deprecated methods
-   - StoreKit 2 transaction verification changes
-   - GraphQL client Apollo 2.x compatibility
-6. Test on iOS 17.0, 17.6, 18.0, 18.2 real devices after rebuild
-7. Archive and upload test build to TestFlight before starting Phase 3 (App Store prep)
-
-**Warning signs:**
-- App Store Connect error: "Invalid Bundle - SDK version too old"
-- Xcode 15 still installed on development machine
-- macOS version <15.0 (Sequoia)
-- Build settings show "iOS 25 SDK" or earlier
-- No recent test upload to TestFlight (last upload >30 days ago)
-
-**Phase to address:**
-Phase 0: Environment Setup (prerequisite before all other phases)
-
----
-
-### Pitfall 9: App Store Review Stuck in "Waiting for Review" for 7-30 Days (March 2026 Delays)
-
-**What goes wrong:**
-App submitted for review enters "Waiting for Review" status. Apple's website promises 24-48 hours. After 7 days, still waiting. After 14 days, support says "we're experiencing higher than normal volume." Launch delayed by 3-4 weeks. Marketing campaign scheduled for April 15 misses window, wastes $5K ad spend.
-
-**Why it happens:**
-March 2026 widespread review delays affecting 80%+ of submissions. Apple quotes 24-48 hours but actual timelines are 7-30 days for new apps, updates, and TestFlight external builds. Root cause unknown (speculation: AI guideline enforcement requires manual review, iOS 26 SDK migration causes backlog).
-
-**How to avoid:**
-1. Submit for review 30 days BEFORE target launch date (not 7 days)
-2. Use TestFlight Internal Testing first (no review delay, 100 internal testers max)
-3. Request Expedited Review ONLY for critical bugs, not launch deadlines (abusing expedite gets account flagged)
-4. Check live review times at runway.team/appreviewtimes before submitting
-5. Schedule marketing campaign AFTER "Ready for Sale" status, not after submission
-6. Build in 4-week buffer for v1.0 submission (App Store review + post-rejection fixes)
-7. Use Phased Release (7-day rollout) to catch post-approval issues before 100% traffic
-
-**Warning signs:**
-- Submission >7 days in "Waiting for Review" with no update
-- runway.team/appreviewtimes shows >5 day average for your region
-- Marketing materials already printed/scheduled before "Ready for Sale" confirmation
-- No TestFlight Internal Testing completed before external submission
-- Timeline assumes 48-hour review (not 30-day worst case)
-
-**Phase to address:**
-Phase 4: TestFlight Internal Beta (submit early, identify delays before hard launch deadline)
-
----
-
-### Pitfall 10: AVSpeechSynthesizer Background Audio Stops When App Backgrounds
-
-**What goes wrong:**
-User plays recipe narration via AVSpeechSynthesizer. Locks phone or switches to Messages app. Audio immediately stops despite `UIBackgroundModes` audio entitlement and active audio session. User reports: "Voice narration doesn't work with screen locked."
-
-**Why it happens:**
-AVSpeechSynthesizer background audio is unreliable on iOS 16-18. Even with proper audio session configuration (category: `.playback`, mode: `.spokenAudio`, options: `.mixWithOthers`), speech sometimes plays immediately when triggered from background, sometimes doesn't play until app brought to foreground. OS queues audio inconsistently. This is documented AVSpeechSynthesizer bug, not configuration issue.
-
-**How to avoid:**
-1. Set audio session BEFORE creating AVSpeechSynthesizer:
+1. In `selectVoice`, before dispatching to either backend path, cancel all three stream IDs unconditionally:
    ```swift
-   try AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
-   try AVAudioSession.sharedInstance().setActive(true)
+   return .concatenate(
+       .cancel(id: CancelID.timeObserver),
+       .cancel(id: CancelID.statusObserver),
+       .cancel(id: CancelID.durationObserver),
+       .run { /* route to AVSpeech or AVPlayer */ }
+   )
    ```
-2. Test background audio on iOS 17.0-17.6 AND iOS 18.0+ real devices (behavior differs)
-3. Implement fallback: If app backgrounds during AVSpeech narration, show notification:
-   "Return to Kindred to continue narration"
-4. Consider: For Pro users, use AVPlayer + ElevenLabs audio files (reliable background playback)
-5. Add telemetry: Track `UIApplication.didEnterBackgroundNotification` during narration, log if audio stops
-6. Document limitation in app description: "Free narration requires app open. Pro narration supports background playback."
-7. Alternative: Keep screen awake during AVSpeech narration using `UIApplication.shared.isIdleTimerDisabled = true`
+2. Introduce a `CancelID.speechObserver` to track AVSpeech-specific observation. Cancel it when switching to AVPlayer path and vice versa.
+3. Add a `currentAudioBackend: AudioBackend` field to `State` (`.avSpeech` / `.avPlayer` / `.none`). State transitions through this field enforce that only one backend is active at a time.
+4. Write a test: `send(.selectVoice("kindred-default"))` then immediately `send(.selectVoice("elevenlabs-id"))`. Assert that `currentAudioBackend` is `.avPlayer` and no orphaned `.timeUpdated` actions arrive after the switch.
 
 **Warning signs:**
-- User reviews: "Audio stops when I lock my phone"
-- AVAudioSession configured but background audio still fails
-- Works in iOS Simulator but fails on real devices
-- Pro users (ElevenLabs/AVPlayer) don't report issue, only free users (AVSpeech)
-- Background audio works for music apps but not for your TTS
+- `currentPlayback.currentTime` jumps backward or forward erratically after a voice switch.
+- Auto-dismiss fires while Pro voice is actively playing.
+- Two simultaneous "Now Playing" lock screen entries appear.
+- `CancelID.timeObserver` cancelled in logs but time events still arrive.
 
 **Phase to address:**
-Phase 2: AVSpeechSynthesizer Integration (test background playback as acceptance criteria)
+Phase 1: AVSpeechSynthesizer Integration (design backend enum into State before writing any AVSpeech code)
+
+---
+
+### Pitfall 4: AVSpeechSynthesizer Blocks Background Playback for Free Users, Creating Asymmetric UX
+
+**What goes wrong:**
+`AVSpeechSynthesizer` background audio is unreliable on iOS 16–18 even with `UIBackgroundModes: audio` and `.playback` audio session category. Speech stops when the app backgrounds. `AVPlayer`-backed Pro narration continues correctly in the background. Free users discover this difference organically — they lock their phone and audio stops — and write 1-star reviews. The asymmetry is more damaging than a consistent limitation because it makes free tier feel broken rather than limited.
+
+**Why it happens:**
+This is the same platform bug documented in the v5.0 PITFALLS.md (Pitfall 10). The root cause is an Apple bug, not a configuration issue. AVPlayer has a robust background audio path; AVSpeechSynthesizer does not.
+
+**How to avoid:**
+1. Before shipping, communicate the limitation proactively: after the first free narration completes, show a tooltip: "Keep Kindred open while listening. Upgrade to Pro for background playback."
+2. Implement `UIApplication.shared.isIdleTimerDisabled = true` while AVSpeech narration is active — keeps screen on and prevents backgrounding if user doesn't explicitly switch apps. Restore on `didFinish`.
+3. Listen for `UIApplication.didEnterBackgroundNotification` during AVSpeech playback. If fired, stop the synthesizer and show a local notification: "Return to Kindred to continue."
+4. Do NOT attempt `UIBackgroundModes` hacks — Apple rejects apps that misuse background modes. Document this as expected behavior, not a bug to fix.
+
+**Warning signs:**
+- TestFlight tester: "Audio stops when I switch apps."
+- Pro users don't report this; only free users do.
+- `UIApplication.didEnterBackgroundNotification` fires without synthesizer stopping gracefully.
+- App Store review time increases if reviewer tests background audio during review.
+
+**Phase to address:**
+Phase 1: AVSpeechSynthesizer Integration (add proactive communication + screen-awake fallback as acceptance criteria)
+
+---
+
+### Pitfall 5: Apollo Codegen Not Re-Run After Adding SearchRecipesQuery, Causing Build Failures
+
+**What goes wrong:**
+`SearchRecipesInput` and `searchRecipes` query exist in the backend GraphQL schema and `RecipesResolver`. The iOS `KindredAPI` package has no `SearchRecipesQuery.graphql.swift` generated file. Developer writes a `.graphql` operation file and references `KindredAPI.SearchRecipesQuery` in `FeedReducer`, but the generated Swift types don't exist because codegen was not re-run. Build fails with `cannot find type 'SearchRecipesQuery' in scope`. Apollo codegen is NOT automatic — it must be run as an explicit step when operations are added or modified.
+
+**Why it happens:**
+Apollo iOS 2.x deliberately removed the build-phase codegen run (it was removed from recommendations to avoid slowing down every build). The generated Swift files in `KindredAPI/Sources/Operations/Queries/` are checked in to source control and must be manually regenerated via the Codegen CLI when `.graphql` operation definitions change. Developers who are new to the project or unfamiliar with this step skip it and get cryptic build errors.
+
+**How to avoid:**
+1. After writing a new `.graphql` operation file, always run Apollo codegen before touching any Swift files that reference the new types:
+   ```bash
+   cd Kindred/Packages/KindredAPI
+   npx apollo-ios-cli generate
+   ```
+2. Check the `apollo-codegen-configuration.json` for the correct schema URL and output paths before running — the schema must be reachable (backend must be running).
+3. The generated file must appear in `KindredAPI/Sources/Operations/Queries/` and be added to the Package.swift sources target. Verify after generation.
+4. If the backend schema changed (new fields on `Recipe` like `sourceUrl`), download an updated schema file first: `npx apollo-ios-cli fetch-schema`.
+
+**Warning signs:**
+- Build error: `cannot find type 'SearchRecipesQuery' in scope`.
+- Build error: `value of type 'KindredAPI.RecipeDetailQuery.Data.Recipe' has no member 'sourceUrl'`.
+- `KindredAPI/Sources/Operations/Queries/` missing the new operation file.
+- Schema introspection diff shows new fields but generated Swift types still have old fields.
+
+**Phase to address:**
+Phase 2: Search UI Wiring (codegen is step 0 before any Swift that references new operations)
+
+---
+
+### Pitfall 6: RecipeDetail `sourceUrl` Field Missing from GraphQL Schema and Generated Types
+
+**What goes wrong:**
+The iOS `RecipeDetailQuery.graphql.swift` selects: `id name description prepTime cookTime ... steps`. The `sourceUrl` field is not in the selection set. Even though the backend `Recipe` model has a `sourceUrl` field (Spoonacular populates it), the iOS app gets `nil` for every recipe because it's never requested. Developer adds `sourceUrl` to `RecipeDetailModels.swift` and `RecipeDetail.from(graphQL:)` but gets a compile error because `KindredAPI.RecipeDetailQuery.Data.Recipe` has no `sourceUrl` property — it was never in the generated code.
+
+**Why it happens:**
+Apollo iOS strictly generates only the fields present in the `.graphql` operation document. Adding a field to `RecipeDetailModels.swift` without updating the `.graphql` document and regenerating code is a two-step process developers routinely forget. The backend `recipe` query resolver already returns `sourceUrl` — the field exists in the schema. The only work needed is adding it to the iOS operation selection set and regenerating.
+
+**How to avoid:**
+1. Edit the operation document first (the `.graphql` source file, not the generated `.graphql.swift`). The pattern: find the original `.graphql` operation, add `sourceUrl` to the selection set, then run codegen.
+2. Note: The existing `RecipeDetailQuery.graphql.swift` is fully generated — there is no separate `.graphql` source file checked in for this project. The operation string is embedded as `operationDocument`. This means the codegen config must be reviewed to understand where the operation source lives, or the `.graphql.swift` file must be regenerated with the new selection set.
+3. After adding `sourceUrl` to `RecipeDetail` model, add it to the `RecipeDetail.from(graphQL:)` factory method in `RecipeDetailModels.swift`.
+4. Verify the backend `Recipe` GraphQL type actually exposes `sourceUrl` via `@Field(() => String, { nullable: true })`. Confirm this in `backend/src/graphql/models/recipe.model.ts` before writing iOS code.
+
+**Warning signs:**
+- `recipe.sourceUrl` always nil in RecipeDetailView even for recipes with known Spoonacular source URLs.
+- Compile error: `value of type '...Recipe' has no member 'sourceUrl'` in RecipeDetailModels.swift.
+- Backend GraphQL playground shows `sourceUrl` populated; iOS shows nil.
+
+**Phase to address:**
+Phase 2: Source URL Wiring (verify backend schema first, update operation doc + regenerate, then add to model)
+
+---
+
+### Pitfall 7: Spoonacular `diet` Parameter Accepts Only One Value — Multiple Filters Silently Drop to First
+
+**What goes wrong:**
+The `SearchRecipesInput` DTO accepts `diets: [String]` (an array). iOS UI sends multiple dietary filters: `["vegan", "gluten-free"]`. `SpoonacularService.search()` contains this code:
+```typescript
+if (filters.diets && filters.diets.length > 0) {
+  params.diet = filters.diets[0]; // Spoonacular only accepts one diet
+}
+```
+The comment is correct — Spoonacular's `/complexSearch` endpoint accepts only a single `diet` value. But the second filter (`gluten-free`) is silently dropped. Users who selected both vegan AND gluten-free receive results that match only `vegan`, and some of those results contain gluten. This produces incorrect filtering with no error — the most dangerous kind of bug.
+
+**Why it happens:**
+The Spoonacular API design: `diet` accepts one diet name (e.g., `vegetarian`, `vegan`, `ketogenic`). Intolerances (e.g., `gluten`, `dairy`) are a separate parameter `intolerances` and DO accept comma-separated multiple values. Developers conflate dietary tags (which users may apply as a combined set) with the API's diet/intolerances split.
+
+**How to avoid:**
+1. On the backend, classify each iOS dietary filter tag into either `diet` (at most one) or `intolerances` (comma-separated list). Example mapping:
+   - `"vegan"`, `"vegetarian"`, `"keto"`, `"paleo"` → `diet` (use the most restrictive one)
+   - `"gluten-free"`, `"dairy-free"`, `"nut-free"`, `"halal"` → `intolerances`
+2. If multiple `diet` values are passed, select the most restrictive (vegan > vegetarian > other). Log a warning when more than one diet is sent.
+3. Update `SearchRecipesInput` or add a comment documenting this constraint so future developers don't assume multi-diet works.
+4. On the iOS side, enforce single-diet selection in the UI. If the dietary chip bar allows multi-select, add logic: selecting a second diet deselects the first.
+5. Verify behavior: fetch 10 recipes with `vegan + gluten-free` selected. Manually inspect the result set for gluten-containing ingredients.
+
+**Warning signs:**
+- User selects "Vegan" + "Gluten-Free"; results contain non-gluten-free items.
+- Backend logs show only one diet param in the Spoonacular request despite two being sent from iOS.
+- No error surfaced — results just look wrong.
+- `SearchRecipesInput.diets` has more than one element at the backend breakpoint.
+
+**Phase to address:**
+Phase 3: Dietary Filter Pass-Through (design the iOS→backend→Spoonacular tag classification before implementing)
+
+---
+
+### Pitfall 8: Search Query Triggers Spoonacular API Call Per Keystroke, Exhausting 150 req/day Quota Within Minutes
+
+**What goes wrong:**
+Search UI is wired to `searchRecipes` GraphQL endpoint. Developer naively sends a query on every `onChange` of the search text field. User types "chicken tikka masala" — 18 keystrokes = 18 Spoonacular API calls, each costing 1 + 0.01×20 = 1.2 points. 18 keystrokes × 1.2 = 21.6 points. Five users typing one search each exhausts the 150-point daily budget before lunch. The quota exhaustion fallback serves only popular pre-warmed recipes, making search return irrelevant results.
+
+**Why it happens:**
+`RecipeDetailQuery`, `PopularRecipesQuery`, and all existing queries are one-shot fetches triggered by navigation. Search is the first user-input-driven continuous query in the app. Developers accustomed to instant-search patterns (common in web apps) apply the same pattern without accounting for the shared Spoonacular quota.
+
+**How to avoid:**
+1. Debounce search input with a minimum 500ms delay before sending the GraphQL query. In TCA, use `Effect.run` with `Task.sleep(nanoseconds: 500_000_000)` wrapped in `.cancellable(id: CancelID.searchDebounce, cancelInFlight: true)`.
+2. Enforce a minimum query length of 3 characters before firing a Spoonacular request.
+3. Add a backend cache layer for search queries: `SpoonacularCacheService.normalizeCacheKey(query, filters)` already exists — verify it's called in `searchRecipes`. Check that identical query+filter combinations hit the cache and not Spoonacular.
+4. Show results from the existing `popularRecipes` PostgreSQL cache while the debounced search is pending. Transition to search results when they arrive.
+5. Add quota consumption logging per search request. Track daily search query volume in the backend dashboard.
+
+**Warning signs:**
+- Backend logs show a Spoonacular API call for every character typed.
+- Daily quota exhausted before expected (check `SpoonacularQuotaUsage` table).
+- Search results return "popular recipes fallback" even for specific queries.
+- `normalizeCacheKey` not called in `searchRecipes` code path.
+
+**Phase to address:**
+Phase 3: Search UI Wiring (implement debounce and cache verification before connecting iOS to backend)
+
+---
+
+### Pitfall 9: FeedReducer `dietaryFilterChanged` Currently Does Client-Side Filtering — Backend Pass-Through Changes Semantics
+
+**What goes wrong:**
+`FeedReducer` already has `dietaryFilterChanged(Set<String>)` and `filteredRecipesLoaded(Result<[RecipeCard], Error>)` actions. There is an `allRecipes` array for "unfiltered full list for client-side filtering." The current filtering almost certainly performs client-side tag matching against `RecipeCard.dietaryTags`. Adding backend dietary filter pass-through to `searchRecipes` changes the source of truth: filtered results now come from Spoonacular via backend, not from the local `allRecipes` array. If this distinction is not handled carefully, the reducer ends up with two competing filtered lists: the client-filtered `allRecipes` subset AND the backend-search results. Cards disappear and reappear unexpectedly when filters are toggled.
+
+**Why it happens:**
+The existing client-side filtering was sufficient when all recipes were in `allRecipes`. Backend-driven search returns a new, different set of recipes. Mixing both in `cardStack` produces inconsistent ordering, duplicate recipe IDs (a recipe in both `allRecipes` and search results), and confusing swipe-and-reset behavior.
+
+**How to avoid:**
+1. Define a clear mode: `FeedMode.browse` (popular recipes, no query, client-side diet filtering) vs. `FeedMode.search(query: String, filters: Set<String>)` (backend search results, backend filtering). Add this to `FeedReducer.State`.
+2. In `browse` mode, continue using `allRecipes` + client-side filtering. Only dispatch to `searchRecipes` endpoint when the user is actively typing a search query.
+3. When entering `search` mode, clear `cardStack` and populate from backend search results. When exiting `search` mode, restore `allRecipes` + apply current client-side filters.
+4. Dietary filter changes in `browse` mode update the existing client-side filter. In `search` mode, they re-trigger the debounced `searchRecipes` call with updated filter params.
+5. Ensure `swipedRecipeIDs` is consulted when populating from search results to prevent showing already-swiped recipes.
+
+**Warning signs:**
+- Dietary filter toggle in the feed causes all cards to disappear and reload from scratch.
+- Same recipe card appears twice in the stack.
+- Undo last swipe restores a card from the popular feed while search results are visible.
+- `allRecipes` count differs from `cardStack` count for no clear reason.
+
+**Phase to address:**
+Phase 3: Search UI Wiring (define FeedMode enum in State before touching any filter logic)
 
 ---
 
@@ -321,16 +263,14 @@ Shortcuts that seem reasonable but create long-term problems.
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Skip Spoonacular caching layer | Faster integration (2 hours saved) | Quota exhaustion within days, emergency Redis migration under downtime | Never - caching is table stakes |
-| Bundle AI consent with voice upload screen | Simpler UX flow | App Store rejection per guideline 5.1.2(i), 2-week resubmission delay | Never - Apple enforces strictly |
-| Use Spoonacular schema directly without adapter | No mapping code (4 hours saved) | Breaking changes when Spoonacular updates API, tightly coupled to external schema | Never - adapter pattern is critical |
-| Ship AVSpeechSynthesizer without iOS 17 real-device testing | Skip device lab setup | Production bugs discovered by users, 1-star reviews, emergency hotfix | Never - Simulator hides critical bugs |
-| Delay Xcode 16 upgrade until App Store forces it | Avoid breaking changes now | Scramble to fix build errors at deadline, miss launch window | Never - upgrade immediately |
-| Use default AVSpeechSynthesizer voices instead of enhanced | Smaller app size, no user prompt | Robotic quality reinforces "cheap free tier" perception, lower conversion | MVP only - prompt for enhanced download in v1.1 |
-| Skip Spoonacular attribution | Cleaner UI | ToS violation, app removal, legal fees $5-15K | Never - attribution required by contract |
-| Hard-code 150 req/day quota assumption | Simple rate limiting | Breaks when Spoonacular changes free tier limits, requires code change | MVP only - read quota from API response header |
-| Display nutrition data without "estimate" disclaimer | Looks more authoritative | App Store rejection 1.4.1, potential FDA/FTC scrutiny | Never - legal liability |
-| Schedule launch date before TestFlight submission | Marketing pressure | 30-day review delays force rushed fixes or missed campaign | Never - submit early, market late |
+| Inline AVSpeechSynthesizer in VoicePlaybackReducer instead of `SpeechClient` TCA dependency | Less code (no new client struct) | Cannot mock in tests, cannot cleanly swap implementation, harder to add voice speed/pitch controls | Never — always extract to `@DependencyClient` |
+| Route by subscription status check inline in `selectVoice` | Simple if/else | Subscription status may be `.unknown` at selection time, causing wrong backend selection | Never — check status before offering voice picker, not during narration start |
+| Client-side dietary filtering only (skip backend pass-through) | Faster to implement | Filters only recipes already in cache — misses Spoonacular's full catalog for specific diets | Never for this milestone — pass-through is the explicit requirement |
+| Search without debounce | Instant results feel snappy | Quota exhaustion within days | Never — 500ms debounce is non-negotiable |
+| Reuse `AudioPlayerClient` for AVSpeech (awkward wrapper) | No new dependency to define | Mismatched semantics (AVPlayer streams vs. AVSpeech delegate callbacks), fragile synchronization | Never — two separate clients with a common `PlaybackStatus` model |
+| Skip `FeedMode` enum, just add another `Result` action | Less refactoring | Dual-list confusion (allRecipes + search results) corrupts card stack | Never for this milestone — mode distinction is critical |
+
+---
 
 ## Integration Gotchas
 
@@ -338,16 +278,16 @@ Common mistakes when connecting to external services.
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| Spoonacular API | Assume `GET /recipes/random` doesn't count against quota | Every endpoint costs points (1 + 0.01/result). Use `GET /recipes/{id}` + cache instead of random endpoint. |
-| Spoonacular API | Store image URLs permanently, serve directly | Image URLs may expire or change. Re-fetch URLs daily or host copy (check ToS). |
-| Spoonacular API | Parse `analyzedInstructions` as flat string | It's nested array: `analyzedInstructions[0].steps[].step`. Flatten with `.map(s => s.step).join('\n')` |
-| AVSpeechSynthesizer | Assume `.speak()` returns when audio finishes | It returns immediately. Use `AVSpeechSynthesizerDelegate.didFinish` for completion. |
-| AVSpeechSynthesizer | Create new synthesizer instance per utterance | Causes audio channel conflicts. Reuse single instance, stop previous before starting new. |
-| AVSpeechSynthesizer | Forget to check iOS voice availability | Enhanced voices require 100MB download. Check `AVSpeechSynthesisVoice.speechVoices()` contains desired voice. |
-| ElevenLabs API | Skip 5.1.2(i) consent modal | Guideline added Nov 2025. Must show BEFORE upload with provider name "ElevenLabs AI". |
-| App Store Connect | Upload binary without testing on real iOS 17/18 devices | Simulator hides critical bugs. Test on iPhone 14 Pro (iOS 17.6) and iPhone 16 (iOS 18.2) minimum. |
-| App Store Connect | Assume 24-48 hour review time in March 2026 | Actual delays: 7-30 days. Build 30-day buffer into launch timeline. |
-| GraphQL Schema | Directly expose Spoonacular types in GraphQL schema | Frontend breaks when Spoonacular changes API. Use internal types + adapter mapping. |
+| AVSpeechSynthesizer | Call `speak()` without checking `AVSpeechSynthesisVoice.speechVoices()` for availability | Always verify the target voice exists before constructing `AVSpeechUtterance`. Enhanced voices (100MB) may not be downloaded. Fall back to `AVSpeechSynthesisVoice(language: "en-US")` if not found. |
+| AVSpeechSynthesizer | Assume `didFinish` means audio was heard | `didFinish` fires even on the iOS 17 silent failure bug. Validate against expected duration. |
+| AVSpeechSynthesizer + AVPlayer | Don't re-activate audio session before AVPlayer after AVSpeech session | Call `try? AVAudioSession.sharedInstance().setActive(true)` before each AVPlayer `play()` when AVSpeech ran recently. |
+| Apollo iOS codegen | Edit `.graphql.swift` directly | These are generated — edits are overwritten. Edit the source `.graphql` operation document, then regenerate. |
+| Apollo iOS codegen | Run codegen without backend running | `fetch-schema` needs the backend GraphQL endpoint live. Start backend + Postgres before running CLI. |
+| Spoonacular `diet` param | Send `["vegan", "gluten-free"]` as multi-value diet | Only first value used. Map intolerances (gluten-free, dairy-free) to `intolerances` param, not `diet`. |
+| Spoonacular search + quota | Wire search directly without checking cache first | `RecipesService.searchRecipes` already implements cache-first — verify the cache key normalization covers dietary filter combinations. |
+| `searchRecipes` GraphQL query | Forget to re-generate `SearchRecipesQuery.graphql.swift` in KindredAPI package | Build fails with "cannot find type". Run `npx apollo-ios-cli generate` after writing the `.graphql` operation file. |
+
+---
 
 ## Performance Traps
 
@@ -355,14 +295,12 @@ Patterns that work at small scale but fail as usage grows.
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| No Spoonacular caching | 402 quota errors, empty recipe feed | Implement Redis 1-hour cache + PostgreSQL long-term storage | 10 users × 15 recipes/day = 150 req/day quota exhausted |
-| In-memory recipe cache (no Redis) | Cache invalidated on server restart, quota spikes | Use Redis with TTL 1 hour, PostgreSQL for permanent storage | First server restart after launch |
-| Fetching Spoonacular images on-demand without CDN | Slow load times, bandwidth costs | Proxy through Cloudflare R2 CDN or use Spoonacular URLs directly | >100 concurrent users |
-| Generating AVSpeech narration on main thread | UI freezes during synthesis | Dispatch to background queue: `DispatchQueue.global(qos: .userInitiated).async` | Recipes >500 words |
-| No telemetry for AVSpeech failures | Silent failures, no visibility into iOS 17 bugs | Log synthesis errors to analytics with iOS version + device model | Launch day - user complaints with no diagnostic data |
-| Single GraphQL resolver fetching recipe + Spoonacular data synchronously | Timeout errors, slow feed load | Use DataLoader pattern batching Spoonacular requests, cache aggressively | >50 requests/minute to feed endpoint |
-| No Spoonacular request queuing during quota exhaustion | Cascade failures, user sees errors | Queue requests, retry after quota reset (midnight UTC), serve from cache | First quota exhaustion event |
-| AVSpeechSynthesizer creating utterances >2000 words | Crashes on iOS 17, incomplete playback | Split into 500-word segments with progress tracking | Long-form recipes (>2000 words) |
+| Search on every keystroke | Daily Spoonacular quota (150 pts) exhausted in <10 minutes of usage | 500ms debounce + 3-char minimum + cache-first check | First session where >1 user actively types in the search field |
+| AVSpeech utterance over 500 words | Truncation at ~300 words on iOS 17 (documented bug), incomplete recipe narration | Split recipe steps into per-step utterances, speak sequentially with delegate `didFinish` chaining | Recipes with >15 steps or verbose instructions |
+| Regenerating Apollo types on every build | Xcode build times increase 30-60 seconds each clean build | Apollo already recommends against build-phase codegen. Only run when operations change. | Daily development iteration |
+| Dietary filter changes triggering full `allRecipes` re-fetch from backend | Feed flashes empty then repopulates on every filter toggle | Client-side filter in browse mode, backend filter only for search mode | Every filter toggle in browse mode |
+
+---
 
 ## Security Mistakes
 
@@ -370,14 +308,11 @@ Domain-specific security issues beyond general web security.
 
 | Mistake | Risk | Prevention |
 |---------|------|------------|
-| Expose Spoonacular API key in client-side code | Quota theft, $99/mo unexpected charges | Proxy all Spoonacular requests through backend GraphQL, never send key to client |
-| Store ElevenLabs voice recordings without encryption at rest | GDPR/CCPA violation, voice data breach | Encrypt R2 bucket with AES-256, enable versioning for audit trail |
-| No rate limiting on voice upload endpoint | Free users abuse unlimited uploads to exhaust ElevenLabs quota | Enforce 1 voice/account for free tier in GraphQL mutation, validate server-side |
-| Display user-submitted Spoonacular recipe content without sanitization | XSS if recipe instructions contain `<script>` tags | Sanitize `analyzedInstructions` and `summary` with DOMPurify before GraphQL response |
-| Skip StoreKit 2 transaction verification for Pro unlock | Subscription fraud, revenue loss | Validate JWS with SignedDataVerifier x5c chain (already implemented v4.0) |
-| Log user voice consent without IP address or timestamp | Can't prove consent in legal dispute | Store userId, timestamp, IP, app version in `voice_consent_audit` table (already implemented v4.0) |
-| Spoonacular API responses cached >1 hour | ToS violation, potential API key revocation | Enforce TTL 1 hour max, document in code comments referencing Spoonacular ToS section |
-| Nutrition data displayed to users under 13 without parental consent | COPPA violation, FTC fines | Set minimum age 17+ in App Store Connect, implement age gate if targeting <17 |
+| Expose `diet` filter values constructed from raw user input directly to Spoonacular | Spoonacular returns 400 or ignores invalid values, but malformed values could cause unexpected query behavior | Validate diet/intolerance values against an allowlist on the backend before passing to Spoonacular params |
+| Cache search results that include user-specific dietary preferences without scoping cache key | User A's "vegan" search served to User B who has no dietary filter | `normalizeCacheKey` must include dietary params. Verify the cache key includes `diets` and `intolerances` sorted consistently. |
+| Return `sourceUrl` (third-party recipe blog URL) without validation | Phishing if Spoonacular data is manipulated or contains injected URLs | Validate `sourceUrl` is a well-formed HTTPS URL before returning from GraphQL. Reject non-HTTPS URLs. |
+
+---
 
 ## UX Pitfalls
 
@@ -385,31 +320,29 @@ Common user experience mistakes in this domain.
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| Show paywall immediately after first AVSpeech narration | "App is unusable without paying" perception, 1-star reviews | Let users experience 5-10 narrations before showing Pro upsell |
-| Display "Powered by Spoonacular" badge prominently on every recipe card | Feels cheap, user questions app value | Small footer badge on recipe detail view only, not feed cards |
-| Free-tier narration quality is drastically worse than Pro demo | Creates negative anchor, lowers conversion | NEVER show ElevenLabs demos to free users, position as "different" not "better" |
-| Recipe feed shows "Loading..." for 3+ seconds on first launch (no cache) | User bounces before content loads | Pre-populate DB with 50 popular recipes, show immediately while fetching fresh data |
-| Nutrition disclaimer in tiny 8pt footer text | User misses it, regulatory risk | 12pt text directly under nutrition panel: "Estimates from Spoonacular. Not for medical use." |
-| AVSpeech narration stops mid-recipe without explanation | User thinks app is broken | Detect early stop (didFinish before expected duration), show: "Voice error. Tap to restart or switch to text." |
-| Pro paywall blocks free users from trying enhanced AVSpeech voices | Users never experience quality improvement | Offer one-time free trial: "Download enhanced voice to improve narration quality" |
-| Recipe detail doesn't indicate data source (Spoonacular vs. scraped) | User confused why some recipes have different metadata | Badge: "Community recipe" vs. "Spoonacular recipe" with tooltip |
-| Error message: "API quota exceeded" | Exposes technical implementation, user confused | "Recipe library updating. Try again in a few hours." |
-| Background audio limitation not communicated | User locks phone, audio stops, thinks app is broken | Show tip after first narration: "Keep Kindred open during narration, or upgrade to Pro for background playback." |
+| Free narration UI identical to Pro narration UI | User confused when free narration stops on backgrounding; thinks app is broken | Visually differentiate: show "Built-in voice" label for AVSpeech, "Cloned voice" for ElevenLabs. One word explains the difference. |
+| Search results replace feed without back navigation | User finishes search, has no way to return to popular feed | Implement search as an overlay or modal — main feed card stack persists underneath. Dismiss search to return. |
+| Dietary filter chip bar sends backend query for every chip toggle | Feed flickers on every filter change; feels slow | Client-side filtering in browse mode (instant) vs. backend search (debounced). Filter chip changes in browse mode = instant local filter. |
+| Show "No results" immediately while search is debouncing | Distracting flicker as user types | Show "searching..." skeleton state during debounce window. Only show "No results" after backend responds. |
+| `sourceUrl` displayed as raw URL string | Ugly, untrustworthy | Show recipe source domain only (e.g., "allrecipes.com"), tappable link opens Safari. |
+| AVSpeech voice selection UI identical to ElevenLabs voice picker | Free user sees "Kindred Voice" as only option, wonders where cloned voices went | If user is free tier, show only "Built-in Narration" option. Voice picker for custom clones is Pro-only. |
+
+---
 
 ## "Looks Done But Isn't" Checklist
 
 Things that appear complete but are missing critical pieces.
 
-- [ ] **Spoonacular Integration:** Working in dev, but missing production caching layer → verify 1-hour Redis TTL + PostgreSQL fallback implemented
-- [ ] **AVSpeechSynthesizer:** Works in Simulator, but crashes on iOS 17 real devices → verify tested on iPhone 14 Pro (iOS 17.6) and iPhone 16 (iOS 18.2)
-- [ ] **Voice Consent:** Existing consent screen implemented, but doesn't meet 5.1.2(i) requirements → verify modal shows BEFORE upload with "ElevenLabs AI" provider name
-- [ ] **Nutrition Disclaimers:** Data displays correctly, but missing "estimate" qualifier and FDA disclaimer → verify 12pt text under nutrition panel
-- [ ] **Spoonacular Attribution:** Attribution link in Settings, but ToS requires visible badge on recipe view → verify badge on recipe detail screen
-- [ ] **App Store Binary:** Builds successfully, but uses iOS 25 SDK → verify Xcode 16 + iOS 26 SDK before upload
-- [ ] **GraphQL Schema:** Returns Spoonacular data, but exposes external API types directly → verify adapter layer maps to internal Recipe schema
-- [ ] **Background Audio:** AVAudioSession configured, but AVSpeech still stops when backgrounded → verify tested on real devices, document limitation or implement fallback
-- [ ] **TestFlight Submission:** Binary uploaded, but no test on real devices → verify internal testing with 10+ testers before external beta
-- [ ] **Privacy Labels:** App Privacy section filled out, but missing ElevenLabs in "Third-Party Partners" → verify Data Types → Audio → Shared with ElevenLabs
+- [ ] **AVSpeechSynthesizer narration:** Plays in dev → verify on iOS 17.0 real device (not Simulator). Confirm `didStart` fires within 3 seconds; confirm duration is within 40% of expected.
+- [ ] **Voice tier routing:** Routes correctly in code → verify audio session is torn down and re-activated correctly when switching free→Pro within the same recipe detail session.
+- [ ] **Search wiring:** Returns results → verify debounce is active (type fast, check backend logs show only one Spoonacular call per search, not one per keystroke).
+- [ ] **Dietary filter pass-through:** Filters applied → verify multi-diet scenario. Select "vegan" + "gluten-free" → inspect returned recipes for gluten-containing ingredients.
+- [ ] **Source URL wiring:** `sourceUrl` field in RecipeDetailView → verify field is in the GraphQL operation selection set (not just in `RecipeDetailModels.swift`). Check backend returns non-null value for a known Spoonacular recipe.
+- [ ] **Apollo codegen:** New operations compile → verify generated `.graphql.swift` file was committed to source control (not just regenerated locally without committing).
+- [ ] **Search + browse coexistence:** Both modes work → verify toggling a dietary chip in browse mode does NOT trigger a `searchRecipes` backend call. Check backend logs during chip toggle while search bar is empty.
+- [ ] **AVSpeech background behavior:** Narration plays → verify the screen-awake (`isIdleTimerDisabled`) is restored to `false` after `didFinish` fires. Screen should dim normally after narration completes.
+
+---
 
 ## Recovery Strategies
 
@@ -417,16 +350,14 @@ When pitfalls occur despite prevention, how to recover.
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Spoonacular quota exhausted on launch day | MEDIUM | 1. Enable cache-first mode: serve stale cached recipes. 2. Upgrade to $49/mo tier (1500 req/day) temporarily. 3. Implement request queuing for next day's quota reset. |
-| App rejected for missing AI consent (5.1.2i) | HIGH | 1. Implement consent modal in emergency patch. 2. Request expedited review (critical fix). 3. 3-5 day delay minimum. |
-| AVSpeech fails on iOS 17 devices post-launch | HIGH | 1. Hotfix: Detect iOS 17.0-17.2, disable AVSpeech, show text-only fallback. 2. Add telemetry to measure impact. 3. Consider making ElevenLabs free temporarily. |
-| Review delayed 30 days, misses marketing campaign | VERY HIGH | 1. Reschedule campaign (sunk cost if ads pre-purchased). 2. Pivot to TestFlight-only soft launch. 3. No technical fix - timeline issue. |
-| Spoonacular data model breaks existing queries | MEDIUM | 1. Rollback to custom scraping API temporarily. 2. Implement adapter layer properly. 3. Dual-write migration: support both schemas for 2 weeks. |
-| Users complain AVSpeech quality too poor vs. Pro | MEDIUM | 1. Immediate: Prompt all free users to download enhanced iOS voices. 2. A/B test: Remove Pro voice demos from free tier UI. 3. Long-term: Add voice customization (pitch/rate). |
-| Nutrition data flagged in review (guideline 1.4.1) | MEDIUM | 1. Add disclaimers to all nutrition displays. 2. Update marketing copy (remove "accurate"). 3. Resubmit with reviewer notes explaining data source. |
-| Attribution missing, Spoonacular sends cease & desist | HIGH | 1. Immediate: Add "Powered by Spoonacular" badge via app update. 2. Email Spoonacular compliance with timeline. 3. Request grace period (usually 30 days). |
-| Binary rejected for iOS 25 SDK (need iOS 26) | MEDIUM | 1. Upgrade Xcode 16 immediately. 2. Fix breaking changes. 3. Rebuild and resubmit (1-2 day delay). |
-| Background AVSpeech audio fails post-launch | LOW | 1. Document limitation in FAQ. 2. Suggest: "Keep app open or upgrade to Pro." 3. Consider screen-awake fallback (UIApplication.isIdleTimerDisabled). |
+| AVSpeech silent failure on iOS 17 in production | MEDIUM | 1. Release hotfix detecting iOS 17.0–17.4 builds, auto-fallback to text-only mode. 2. Add user-facing message: "Voice narration unavailable on this iOS version. Update to iOS 17.5+ for best results." 3. Track impact via analytics. |
+| Audio session broken after AVSpeech → AVPlayer switch | HIGH | 1. Hotfix: On `audioPlayer.play()` throw, call `AVAudioSession.sharedInstance().setActive(true)` before retrying once. 2. If retry fails, show error state with "Tap to retry." 3. Long-term: Implement `SpeechClient` TCA dependency that owns the session lifecycle. |
+| Quota exhausted by search on launch day | MEDIUM | 1. Disable live search immediately (feature flag). 2. Search falls back to local `allRecipes` filter only. 3. Increase search debounce to 1500ms and re-enable. |
+| `SearchRecipesQuery` types missing (codegen not run) | LOW | 1. Run `npx apollo-ios-cli generate` with backend running. 2. Commit generated file. 3. Rebuild. Takes 10-15 minutes. |
+| Dietary filter silently dropping second filter value | MEDIUM | 1. Hotfix backend: map dietary tags to correct `diet`/`intolerances` params. 2. Add validation test for multi-filter search. 3. Update iOS UI to enforce single diet selection. |
+| Feed broken after search/browse mode mixing | HIGH | 1. Revert `FeedReducer.dietaryFilterChanged` to client-side-only. 2. Disable search feature flag. 3. Redesign with proper `FeedMode` enum before re-enabling. |
+
+---
 
 ## Pitfall-to-Phase Mapping
 
@@ -434,66 +365,53 @@ How roadmap phases should address these pitfalls.
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Spoonacular quota exhaustion | Phase 1: Spoonacular Integration | Cache hit rate >70% in dev, quota usage <100 points/day with 20 test users |
-| AVSpeech iOS 17 bugs | Phase 2: AVSpeech Integration | Test plan includes iPhone 14 Pro (iOS 17.6) + iPhone 16 (iOS 18.2) real devices, log synthesis errors |
-| Missing AI consent (5.1.2i) | Phase 3: App Store Compliance | Screenshot shows consent modal BEFORE voice upload with "ElevenLabs AI" text |
-| Spoonacular data mismatch | Phase 1: Spoonacular Integration | GraphQL schema uses internal Recipe type, adapter maps Spoonacular → internal schema |
-| Mixed TTS quality perception | Phase 2: AVSpeech Integration | A/B test shows <5% 1-star reviews mentioning "robotic" or "unusable without paying" |
-| Attribution missing | Phase 1: Spoonacular Integration | "Powered by Spoonacular" badge visible on recipe detail screenshot |
-| Nutrition data rejection | Phase 3: App Store Compliance | Disclaimer text: "Estimates from Spoonacular. Not for medical use." visible in screenshot |
-| iOS 26 SDK requirement | Phase 0: Environment Setup | Build settings show iOS 26.0 Base SDK, Xcode 16.0+ in About dialog |
-| 30-day review delay | Phase 4: TestFlight Internal Beta | Submission date is 30 days BEFORE target launch date in timeline |
-| Background audio stops | Phase 2: AVSpeech Integration | Real-device test: Lock phone during narration, audio continues OR fallback message shown |
+| AVSpeech deactivates audio session → breaks AVPlayer | Phase 1: AVSpeechSynthesizer Integration | Test sequence: free narration → switch to Pro voice → AVPlayer plays without re-launching app. On iOS 17 real device. |
+| AVSpeech iOS 17 silent audio unit failure | Phase 1: AVSpeechSynthesizer Integration | Duration validation in `SpeechClient.play()`. Test on iPhone with iOS 17.0 and 17.6. |
+| Orphaned stream observers on backend switch | Phase 1: AVSpeechSynthesizer Integration | State has `currentAudioBackend` field. `selectVoice` cancels all streams before routing. TCA test asserts no post-switch `.timeUpdated` events. |
+| AVSpeech background audio stops | Phase 1: AVSpeechSynthesizer Integration | `isIdleTimerDisabled = true` during narration. Proactive tooltip shown after first narration. |
+| Apollo codegen not re-run | Phase 2: Source URL + Search Wiring | Generated `.graphql.swift` file present in repo. Build succeeds on clean checkout without running codegen. |
+| `sourceUrl` not in selection set | Phase 2: Source URL Wiring | Backend GraphQL playground query includes `sourceUrl`. iOS RecipeDetailView shows tappable source attribution. |
+| Spoonacular single-diet limitation | Phase 3: Dietary Filter Pass-Through | Backend maps iOS tags to correct `diet`/`intolerances` params. Multi-tag integration test asserts correct Spoonacular params. |
+| Search per-keystroke quota exhaustion | Phase 3: Search UI Wiring | Backend logs show single Spoonacular call per completed search. Debounce TCA test asserts cancel-in-flight behavior. |
+| Dual-list confusion (browse vs. search modes) | Phase 3: Search UI Wiring | `FeedMode` enum in `FeedReducer.State`. Dietary chip toggle in browse mode: zero backend calls. TCA test verifies. |
+
+---
 
 ## Sources
 
-### Spoonacular API
-- [Spoonacular API Documentation | API Specifications & Integration Guide](https://www.allthingsdev.co/apimarketplace/documentation/Spoonacular%20API/66750a5670009c3ab417c4ed)
-- [Guide to Spoonacular API: Recipe, Nutrition & Food Data Integration 2025](https://www.devzery.com/post/spoonacular-api-complete-guide-recipe-nutrition-food-integration)
-- [spoonacular recipe and food API](https://spoonacular.com/food-api/docs)
-- [Best APIs for Menu Nutrition Data - Bytes AI](https://trybytes.ai/blogs/best-apis-for-menu-nutrition-data)
-- [Spoonacular API - APILayer](https://apilayer.com/marketplace/spoonacular-api)
+### AVSpeechSynthesizer iOS 17/18 Bugs
+- [AVSpeechSynthesizer Broken on iOS 17 — Apple Developer Forums](https://developer.apple.com/forums/thread/737685)
+- [AVSpeechSynthesizer is broken on iOS 17 in Xcode 15 — Apple Developer Forums](https://developer.apple.com/forums/thread/738048)
+- [AVSpeechSynthesizer & iOS 17 — Apple Developer Forums](https://developer.apple.com/forums/thread/735618)
+- [AVSpeechSynthesizer Leaking Memory — Apple Developer Forums](https://developer.apple.com/forums/thread/730639)
+- [Why has AVSpeechSynthesizer quit speaking — Apple Developer Forums](https://developer.apple.com/forums/thread/746735)
+- [AVSpeechSynthesizer doesn't notify — Apple Developer Forums](https://developer.apple.com/forums/thread/759553)
 
-### AVSpeechSynthesizer
-- [AVSpeechSynthesizer in background | Apple Developer Forums](https://developer.apple.com/forums/thread/27097)
-- [AVSpeechSynthesizer Broken on iOS 17](https://developer.apple.com/forums/thread/737685)
-- [AVSpeechSynthesizer is broken on iOS 17 in Xcode 15](https://developer.apple.com/forums/thread/738048)
-- [AVSpeechSynthesizer | Apple Developer Documentation](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer)
-- [AVSpeechSynthesisVoice | Apple Developer Documentation](https://developer.apple.com/documentation/avfaudio/avspeechsynthesisvoice)
-- [On-Device Text To Speech on Apple Devices with AI SDK](https://www.callstack.com/blog/on-device-text-to-speech-on-apple-devices-with-ai-sdk)
+### AVSpeechSynthesizer Audio Session Coexistence
+- [usesApplicationAudioSession — Apple Developer Documentation](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer/usesapplicationaudiosession)
+- [AVSpeechSynthesizer — Apple Developer Documentation](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer)
+- [AVSpeechSynthesizer tries to deactivate app audio session — Apple Developer Forums](https://developer.apple.com/forums/thread/120956)
+- [Is AVSpeechSynthesizer incompatible with audio playback — Apple Developer Forums](https://developer.apple.com/forums/thread/659975)
+- [Handling audio interruptions — Apple Developer Documentation](https://developer.apple.com/documentation/avfaudio/handling-audio-interruptions)
+- [expo/expo PR #18374 — Add option for using application audio session](https://github.com/expo/expo/pull/18374)
 
-### App Store Guidelines
-- [iOS App Store Review Guidelines 2026: Requirements, Rejections & Submission Guide](https://theapplaunchpad.com/blog/app-store-review-guidelines)
-- [Apple Updates App Store Review Guidelines: Third-Party AI Calls Must Be Disclosed and Approved by the User](https://news.aibase.com/news/22810)
-- [App Store Review Guidelines 2025: Essential AI App Rules](https://openforge.io/app-store-review-guidelines-2025-essential-ai-app-rules/)
-- [Apple's new App Review Guidelines clamp down on apps sharing personal data with 'third-party AI' | TechCrunch](https://techcrunch.com/2025/11/13/apples-new-app-review-guidelines-clamp-down-on-apps-sharing-personal-data-with-third-party-ai/)
-- [Apple Silently Regulated Third-Party AI—Here's What Every Developer Must Do Now](https://dev.to/arshtechpro/apples-guideline-512i-the-ai-data-sharing-rule-that-will-impact-every-ios-developer-1b0p)
+### Apollo iOS Codegen
+- [Codegen configuration — Apollo GraphQL Docs](https://www.apollographql.com/docs/ios/code-generation/codegen-configuration)
+- [Get started with Apollo iOS codegen — Apollo GraphQL Docs](https://www.apollographql.com/docs/ios/tutorial/codegen-getting-started)
 
-### App Store Submission
-- [Live App Store and TestFlight review times | Runway](https://www.runway.team/appreviewtimes)
-- [iOS & iPhone App Distribution Guide 2026: Apple Developer Program Fees, TestFlight & Enterprise](https://foresightmobile.com/blog/ios-app-distribution-guide-2026)
-- [iOS App Review Delays March 2026: Reasons and What to Do](https://www.lowcode.agency/blog/ios-app-review-delays-march-2026)
-- [Everything you need to know about submitting to the App Store (and avoiding rejections) | by Runway](https://www.runway.team/blog/submitting-app-store-avoiding-rejections)
-- [Upload builds - App Store Connect - Apple Developer](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds/)
+### Spoonacular API Constraints
+- [spoonacular recipe and food API — Official Docs](https://spoonacular.com/food-api/docs)
+- Project source: `backend/src/spoonacular/spoonacular.service.ts` line 67–69 (single-diet comment confirmed in codebase)
 
-### Voice Quality & TTS
-- [ElevenLabs Review 2026: YouTube-Tested + Best Voices | Nerdynav](https://nerdynav.com/elevenlabs-review/)
-- [ElevenLabs Review 2026: We Tested Everything (Voice Cloning, 70+ Languages & Real Performance)](https://hackceleration.com/elevenlabs-review/)
-- [Free vs. Premium: Navigating the best text to speech API options - WellSaid Labs](https://www.wellsaid.io/resources/blog/best-text-to-speech-api-offerings)
-- [Best TTS APIs in 2026: ElevenLabs, Google, AWS & 9 More Compared](https://www.speechmatics.com/company/articles-and-news/best-tts-apis-in-2025-top-12-text-to-speech-services-for-developers)
-
-### Caching & Performance
-- [API caching strategies and best practices | TechTarget](https://www.techtarget.com/searchapparchitecture/tip/API-caching-strategies-and-best-practices)
-- [Production best practices | OpenAI API](https://developers.openai.com/api/docs/guides/production-best-practices)
-- [Caching Best Practices in REST API Design | Speakeasy](https://www.speakeasy.com/api-design/caching)
-- [How Developers Can Use Caching to Improve API Performance | Zuplo](https://zuplo.com/learning-center/how-developers-can-use-caching-to-improve-api-performance)
-
-### ASO & Category Selection
-- [App Store Category Selection: ASO Impact & Best Practices](https://passion.io/blog/app-store-category-selection-aso-impact-best-practices)
-- [ASO in 2026: Complete App Store Optimization Guide](https://asomobile.net/en/blog/aso-in-2026-the-complete-guide-to-app-optimization/)
-- [Categories and Discoverability - App Store - Apple Developer](https://developer.apple.com/app-store/categories/)
+### Project Codebase Observations (HIGH confidence — read directly)
+- `Kindred/Packages/VoicePlaybackFeature/Sources/Player/VoicePlaybackReducer.swift` — current stream lifecycle and CancelID design
+- `Kindred/Packages/VoicePlaybackFeature/Sources/AudioPlayer/AudioPlayerManager.swift` — AVPlayer audio session management
+- `Kindred/Packages/FeedFeature/Sources/Feed/FeedReducer.swift` — `allRecipes`, `dietaryFilterChanged`, existing pagination
+- `Kindred/Packages/KindredAPI/Sources/Operations/Queries/RecipeDetailQuery.graphql.swift` — missing `sourceUrl` in selection set confirmed
+- `backend/src/recipes/recipes.resolver.ts` — `searchRecipes` endpoint confirmed live
+- `backend/src/recipes/dto/search-recipes.input.ts` — `SearchRecipesInput` with `diets: [String]` array confirmed
+- `backend/src/spoonacular/spoonacular.service.ts` lines 63–69 — single-diet Spoonacular constraint confirmed in code
 
 ---
-*Pitfalls research for: v5.0 Lean App Store Launch - Spoonacular API, AVSpeechSynthesizer, First App Store Submission*
-*Researched: 2026-04-04*
-*Confidence: HIGH (verified with official documentation, developer forums, and 2026-current sources)*
+*Pitfalls research for: v5.1 Gap Closure — AVSpeechSynthesizer free-tier narration, voice tier routing, source URL wiring, search UI, dietary filter pass-through*
+*Researched: 2026-04-12*
