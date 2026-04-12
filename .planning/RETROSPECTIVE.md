@@ -2,6 +2,50 @@
 
 *A living document updated after each milestone. Lessons feed forward into future planning.*
 
+## Milestone: v5.0 — Lean App Store Launch
+
+**Shipped:** 2026-04-12
+**Phases:** 5 executed (+ 2 deferred) | **Plans:** 17
+
+### What Was Built
+- Spoonacular REST-to-GraphQL backend proxy with PostgreSQL caching (6h TTL, batch pre-warm) at $0/month
+- Feed UI migration from "Viral near you" to "Popular Recipes" with cursor pagination and popularity badges
+- App Store compliance: PrivacyInfo.xcprivacy with 11 data types, privacy policy v2.1, Spoonacular + AdMob disclosures
+- Fastlane release automation with preflight validation, metadata sync, App Store submission
+- Kindred v1.0.0 (build 527) submitted to App Store — Waiting for Review
+
+### What Worked
+- Two-track execution (Feed critical path first, Voice deferred) kept scope tight and achieved the primary goal
+- Decimal phase numbering (27.1) cleanly inserted compliance gap closure without disrupting phase flow
+- Preflight validation lane caught config issues before expensive archive+upload cycles
+- 72-hour TestFlight bake with structured checklist gave high confidence before submission
+- Scraping/image-gen pipeline cleanup (-1,485 lines) reduced backend complexity significantly
+
+### What Was Inefficient
+- Phase 28 took 8 days (longest in v5.0) — fastlane signing issues, pilot bugs, and manual ASC workarounds
+- Fastlane pilot bug #28630 required manual TestFlight distribution for build 509
+- ROADMAP progress table formatting drifted (inconsistent milestone column for v5.0 phases)
+- Phase 28 plan checkboxes in ROADMAP never updated to [x] despite having summaries
+
+### Patterns Established
+- xcconfig URL escaping: `//` must use `$()` in xcconfig files (`http:/$()/192.168.0.162:3000`)
+- `app_store_export_options` as method (not constant) — gym mutates the hash internally
+- Each upload lane needs its own `app_store_connect_api_key` call (lane scope doesn't share auth)
+- Preflight validation lane as fail-fast gate before any build/upload operation
+
+### Key Lessons
+1. Fastlane signing/export is the most time-consuming part of release automation — budget extra time
+2. Deferring non-critical scope (Voice Phases 24-25) was the right call — shipped the primary goal on time
+3. AdMob compliance gap (Phase 27.1) demonstrates why milestone audits are essential before completion
+4. Manual ASC workarounds (Privacy Labels, beta distribution) are unavoidable — document them in Release Process
+5. `TARGETED_DEVICE_FAMILY: "1"` (iPhone-only) avoids ITMS-90474 rejection and reduces .ipa size 11%
+
+### Cost Observations
+- Model mix: ~15% opus (orchestration/milestone), ~80% sonnet (execution), ~5% haiku (quick checks)
+- Notable: Phase 28 dominated session count due to signing iterations and multi-day bake period
+
+---
+
 ## Milestone: v2.0 — iOS App
 
 **Shipped:** 2026-03-11
@@ -182,6 +226,7 @@
 | v2.0 | ~12 | 8 | Gap closure pattern, device verification standard, retroactive verification |
 | v3.0 | ~8 | 6 | Local-first data patterns, AI vision integration, progressive permission pattern |
 | v4.0 | ~6 | 5 | Compliance-first approach, xcconfig environment separation, gap closure as standard |
+| v5.0 | ~10 | 5+2 | Two-track scope management, decimal phase insertion, preflight validation, App Store submission |
 
 ### Cumulative Quality
 
@@ -191,6 +236,7 @@
 | v2.0 | 0 (UI app) | N/A | 3 (JWS SignedDataVerifier, GraphQL mock data, test ad IDs) |
 | v3.0 | 0 (feature app) | N/A | 4 (device tokens, paywall wiring, navigation, manual tests pending) |
 | v4.0 | 10 (ConsentReducer TCA) | Consent state machine | 3 (legal review, in-memory queues, timezone notifications) |
+| v5.0 | 0 | N/A | 6 (test mock, type mismatch, dead code, isViral query, rating config, manual submission) |
 
 ### Velocity Trend
 
@@ -200,6 +246,7 @@
 | v2.0 | 8 | 35 | 9 | 3.9 |
 | v3.0 | 6 | 17 | 7 | 2.4 |
 | v4.0 | 5 | 19 | 4 | 4.8 |
+| v5.0 | 5 | 17 | 9 | 1.9 |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -209,3 +256,5 @@
 4. ROADMAP progress tables drift — automate or update per-plan (all milestones)
 5. Tech debt from one milestone cleanly becomes requirements for the next (v3.0 → v4.0)
 6. xcconfig-based environment separation prevents shipping test credentials (v4.0)
+7. Deferring non-critical scope to keep primary milestone goal achievable (v5.0)
+8. Milestone audits catch compliance gaps that phase-level verification misses (v4.0, v5.0)

@@ -1,5 +1,28 @@
 # Milestones
 
+## v5.0 Lean App Store Launch (Shipped: 2026-04-12)
+
+**Phases completed:** 5 executed phases (+ 2 deferred), 17 plans, 26 tasks
+**Requirements:** 13/18 satisfied (5 VOICE requirements deferred to next milestone)
+**Git range:** feat(23-01) → docs(28-05) (95 commits)
+**LOC:** +17,544 / -2,412 (163 files modified)
+**Timeline:** 9 days (2026-04-04 → 2026-04-12)
+
+**Key accomplishments:**
+- Spoonacular REST-to-GraphQL backend proxy with PostgreSQL caching (6h TTL, batch pre-warm) replacing X API scraping + Imagen 4 at $0/month SaaS costs
+- Feed UI migration from "Viral near you" to "Popular Recipes" with cursor pagination and popularity score badges
+- App Store compliance: PrivacyInfo.xcprivacy with 11 data types, privacy policy v2.1, Spoonacular attribution footer, nutrition disclaimers, refreshed screenshots
+- AdMob compliance gap closure: 4 tracking data types added to privacy manifest, policy updated with Google AdMob disclosure
+- Fastlane release automation with preflight validation lane, metadata sync, and App Store submission — Kindred v1.0.0 (build 527) submitted, Waiting for Review
+
+### Known Gaps (Deferred)
+- VOICE-01-05: AVSpeechSynthesizer free-tier narration (Phases 24-25 not executed — carry to next milestone)
+- RECIPE-06: Per-recipe sourceUrl not wired in iOS RecipeDetailQuery (static Spoonacular link works)
+- RECIPE-01/02: Search UI not wired to backend searchRecipes endpoint
+- Recipe filtering: Dietary chips don't pass parameters to Spoonacular filter queries
+
+---
+
 ## v4.0 App Store Launch Prep (Shipped: 2026-04-03)
 
 **Phases completed:** 5 phases, 19 plans, 16 tasks

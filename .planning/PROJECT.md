@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Kindred is a hyperlocal, AI-humanized culinary assistant mobile app. It discovers viral recipes trending in your neighborhood from Instagram and X, presents them with stunning AI-generated food imagery, and reads the instructions aloud in the cloned voice of someone you love — like your mom or grandma. The iOS app is production-ready with swipeable recipe feed, voice narration from backend R2 CDN, personalization, App Store billing with fraud prevention, smart pantry with AI scanning, ATT consent flow, and complete App Store submission package. Android is planned as a fast-follow.
+Kindred is an AI-humanized culinary assistant mobile app. It discovers popular recipes via Spoonacular API, presents them with high-quality CDN imagery and popularity scores, and reads the instructions aloud in the cloned voice of someone you love — like your mom or grandma. The iOS app is live on the App Store (v1.0.0, submitted 2026-04-12) with swipeable recipe feed, voice narration from backend R2 CDN, personalization, App Store billing with fraud prevention, smart pantry with AI scanning, ATT consent flow, and full privacy compliance. Android is planned as a fast-follow.
 
 ## Core Value
 
@@ -71,21 +71,28 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - ✓ App Store screenshots created for required device sizes — v4.0
 - ✓ App Store metadata with third-party AI disclosure — v4.0
 - ✓ TestFlight beta testing plan with internal and external testing docs — v4.0
+- ✓ Spoonacular REST-to-GraphQL proxy with PostgreSQL caching (6h TTL, batch pre-warm) — v5.0
+- ✓ Recipe search and filtering via Spoonacular API with cursor pagination — v5.0
+- ✓ Spoonacular CDN images replace AI-generated hero images — v5.0
+- ✓ Spoonacular source attribution with clickable link on recipe detail — v5.0
+- ✓ Backend quota tracking (150 req/day) with 80% threshold warning — v5.0
+- ✓ Graceful "daily limit reached" fallback to pre-warmed popular recipes — v5.0
+- ✓ Batch pre-warm scheduler (100 popular recipes at 2 AM UTC) — v5.0
+- ✓ Feed displays "Popular Recipes" with popularity score badges — v5.0
+- ✓ Ingredient match % badge on recipe cards from local IngredientMatcher — v5.0
+- ✓ PrivacyInfo.xcprivacy with 11 data types (Spoonacular + AdMob disclosures) — v5.0
+- ✓ Privacy policy v2.1 with Spoonacular and Google AdMob sections — v5.0
+- ✓ App Store screenshots refreshed for "Popular Recipes" feed — v5.0
+- ✓ Fastlane release lane automates binary upload, metadata sync, and submission — v5.0
+- ✓ TestFlight internal beta bake (72h, zero crashes, 6 core flows pass) — v5.0
 
 ### Active
 
-## Current Milestone: v5.0 Lean App Store Launch
-
-**Goal:** Strip expensive backend dependencies, replace with free alternatives, and ship the iOS app to the App Store with zero monthly SaaS costs.
-
-**Target features:**
-- Replace X API scraping with Spoonacular free recipe API (150 req/day)
-- Use Spoonacular-provided recipe images instead of Imagen 4 AI generation
-- Replace ElevenLabs with Apple AVSpeechSynthesizer for free-tier voice narration
-- Keep ElevenLabs voice cloning behind Pro paywall only
-- Update feed framing from "viral near you" to "popular recipes"
-- Submit iOS app to App Store via fastlane
-- All core features run on $0/month SaaS (free tiers only)
+- [ ] AVSpeechSynthesizer free-tier voice narration (carried from v5.0 Phases 24-25)
+- [ ] Voice tier routing — free users get AVSpeech, Pro users get ElevenLabs
+- [ ] Per-recipe sourceUrl wiring in iOS RecipeDetailQuery
+- [ ] Search UI wiring to backend searchRecipes endpoint
+- [ ] Dietary filter parameter pass-through to Spoonacular queries
 
 ### Future
 
@@ -110,15 +117,17 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 
 ## Context
 
-**Shipped v4.0:** App Store Launch Prep. ~25,632 LOC Swift across 8 SPM packages + ~11,812 LOC TypeScript backend. Added privacy compliance (voice consent, privacy manifest, nutrition labels), production backend hardening (SignedDataVerifier, rate limiting, narration URL resolver), ATT consent with production AdMob IDs, real voice playback from R2 CDN, and complete App Store submission package with fastlane. 5 phases, 19 plans, 4 days.
+**Shipped v5.0:** Lean App Store Launch. Replaced X API scraping + Imagen 4 with Spoonacular free API + CDN images at $0/month SaaS costs. Feed migrated from "Viral near you" to "Popular Recipes" with cursor pagination. Full App Store compliance (PrivacyInfo.xcprivacy 11 data types, privacy policy v2.1, AdMob disclosure). Fastlane release automation with preflight validation. Kindred v1.0.0 (build 527) submitted to App Store. 5 executed phases, 17 plans, 9 days. +17,544/-2,412 lines across 163 files.
 
-**Shipped v3.0:** Smart Pantry milestone. ~23,105 LOC Swift + ~8,113 LOC TypeScript. PantryFeature with local-first SwiftData CRUD, AI fridge/receipt scanning, recipe-ingredient matching, and AI expiry tracking. 6 phases, 17 plans, 7 days.
+**Shipped v4.0:** App Store Launch Prep. Privacy compliance (voice consent, privacy manifest, nutrition labels), production backend hardening (SignedDataVerifier, rate limiting, narration URL resolver), ATT consent with production AdMob IDs, real voice playback from R2 CDN, App Store submission package with fastlane. 5 phases, 19 plans, 4 days.
 
-**Shipped v2.0:** iOS App milestone. 13,319 LOC Swift, 7 SPM packages. Complete iOS experience: swipeable feed, voice narration, personalization, auth, monetization, WCAG AAA accessibility, bilingual localization. 8 phases, 35 plans, 9 days.
+**Shipped v3.0:** Smart Pantry. PantryFeature with local-first SwiftData CRUD, AI fridge/receipt scanning, recipe-ingredient matching, and AI expiry tracking. 6 phases, 17 plans, 7 days.
 
-**Shipped v1.5:** Backend & AI Pipeline. ~6,066 LOC TypeScript. NestJS backend with GraphQL API, recipe scraping, image generation, voice cloning, and narration streaming. 3 phases, 11 plans, 2 days.
+**Shipped v2.0:** iOS App. Complete iOS experience: swipeable feed, voice narration, personalization, auth, monetization, WCAG AAA accessibility, bilingual localization. 8 phases, 35 plans, 9 days.
 
-**Platform strategy:** iOS production-ready (v4.0). Android fast-follow (4-6 weeks). Backend/API/AI pipeline is 100% shared between platforms.
+**Shipped v1.5:** Backend & AI Pipeline. NestJS backend with GraphQL API, recipe scraping, image generation, voice cloning, and narration streaming. 3 phases, 11 plans, 2 days.
+
+**Platform strategy:** iOS submitted to App Store (v1.0.0). Android fast-follow. Backend/API is 100% shared between platforms.
 
 **Tech stack:**
 - Backend: NestJS 11 + GraphQL (Apollo Server 5, code-first) + Prisma 7 + PostgreSQL 15 + PostGIS
@@ -126,8 +135,8 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - Auth: Clerk (Google/Apple OAuth with JWT)
 - Voice: ElevenLabs API (custom REST client, eleven_flash_v2_5 model ~75ms latency)
 - Vision: Gemini 2.0 Flash (recipe parsing ~$0.001/recipe, narration rewriting temp=0.7)
-- Images: Imagen 4 Fast via Vertex AI (~$0.01/image)
-- Scraping: X API v2 + Gemini parser (Instagram placeholder ready)
+- Images: Spoonacular CDN (included with recipe data, $0 cost) — replaced Imagen 4 Fast
+- Recipes: Spoonacular API (free tier, 150 req/day) with PostgreSQL cache (6h TTL) — replaced X API scraping + Imagen 4
 - Geocoding: Mapbox with DB cache (~99% cache hit rate)
 - Push: Firebase Cloud Messaging (iOS APNs + Android FCM)
 - iOS: SwiftUI + TCA 1.x, Apollo iOS 2.0.6, StoreKit 2, AVFoundation, VisionKit, iOS 17.0 min
@@ -245,4 +254,4 @@ Apple review typically completes in 24-48 hours (can extend to 72). When the app
 | Git commit count for build numbers | Reproducible, monotonically increasing, no manual management | ✓ Good — simple versioning (v4.0) |
 
 ---
-*Last updated: 2026-04-04 after v5.0 Lean App Store Launch milestone started*
+*Last updated: 2026-04-12 after v5.0 Lean App Store Launch milestone completed*
