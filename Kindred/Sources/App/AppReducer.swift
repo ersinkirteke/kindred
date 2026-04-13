@@ -502,12 +502,14 @@ struct AppReducer {
                 // Forward listenTapped to voice playback
                 if case .listenTapped = recipeDetailAction,
                    let recipe = state.feedState.recipeDetail?.recipe {
+                    let authDesc = String(describing: state.currentAuthState)
+                    Logger.migration.debug("AppReducer: listenTapped recipe=\(recipe.id) steps=\(recipe.steps.count) auth=\(authDesc)")
                     // Toggle play/pause if playback is active for this recipe
                     if let playback = state.voicePlaybackState.currentPlayback,
                        playback.recipeId == recipe.id {
-                        if playback.status == .playing {
+                        if playback.status == .playing || playback.status == .loading || playback.status == .buffering {
                             return .send(.voicePlayback(.pause))
-                        } else if playback.status == .paused {
+                        } else if playback.status == .paused || playback.status == .stopped {
                             return .send(.voicePlayback(.play))
                         }
                     }

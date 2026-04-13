@@ -115,6 +115,18 @@ struct RootView: View {
         .fullScreenCover(item: $store.scope(state: \.onboarding, action: \.onboarding)) { onboardingStore in
             OnboardingView(store: onboardingStore)
         }
+        .fullScreenCover(isPresented: Binding(
+            get: { store.voicePlaybackState.showPaywall },
+            set: { newValue in
+                if !newValue {
+                    store.send(.voicePlayback(.dismissPaywall))
+                }
+            }
+        )) {
+            PaywallView(store: Store(initialState: SubscriptionReducer.State()) {
+                SubscriptionReducer()
+            })
+        }
         .sheet(isPresented: Binding(
             get: { store.consentState.isShowingPrePrompt },
             set: { _ in } // Reducer controls dismissal

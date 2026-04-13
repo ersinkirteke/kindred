@@ -39,13 +39,16 @@ public struct MiniPlayerView: View {
 
     private func progressBar(playback: CurrentPlayback) -> some View {
         GeometryReader { geometry in
+            let progress: CGFloat = store.isAVSpeechActive
+                ? CGFloat(((playback.currentStepIndex ?? 0) + 1)) / CGFloat(max(store.recipeSteps.count, 1))
+                : CGFloat(playback.currentTime / max(playback.duration, 1))
             Rectangle()
                 .fill(Color.kindredAccent)
                 .frame(
-                    width: geometry.size.width * CGFloat(playback.currentTime / max(playback.duration, 1)),
+                    width: geometry.size.width * min(progress, 1.0),
                     height: 3
                 )
-                .animation(.linear(duration: 0.5), value: playback.currentTime)
+                .animation(.linear(duration: 0.5), value: progress)
         }
         .frame(height: 3)
     }

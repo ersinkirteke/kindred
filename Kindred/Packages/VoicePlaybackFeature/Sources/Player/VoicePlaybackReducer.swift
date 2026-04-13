@@ -252,14 +252,18 @@ public struct VoicePlaybackReducer {
                     return .none
                 }
 
-                state.isLoadingNarration = true
                 state.error = nil
 
                 // Check last used voice for this recipe
                 if let lastVoiceId = state.lastUsedVoicePerRecipe[recipeId] {
+                    // If last used voice was Kindred Voice, start immediately (no network needed)
+                    if lastVoiceId == "kindred-default" {
+                        return .send(.selectVoice("kindred-default"))
+                    }
                     state.selectedVoiceId = lastVoiceId
                     state.showVoicePicker = false
-                    // Auto-start with cached voice
+                    state.isLoadingNarration = true
+                    // Auto-start with cached voice — ensure selectVoice fires even if profiles fail
                     return .run { [lastVoiceId] send in
                         do {
                             let result = try await apolloClient.fetch(query: KindredAPI.VoiceProfilesQuery())
@@ -278,64 +282,61 @@ public struct VoicePlaybackReducer {
                                     )
                                 }
                             await send(.voiceProfilesLoaded(.success(profiles)))
-                            await send(.selectVoice(lastVoiceId))
                         } catch {
                             await send(.voiceProfilesLoaded(.failure(error)))
                         }
+                        // Always send selectVoice regardless of profile fetch success/failure
+                        await send(.selectVoice(lastVoiceId))
                     }
                 } else {
-                    // Fetch subscription status + voice profiles in background
-                    return .run { send in
-                        // Fetch subscription status first
-                        let status = await subscriptionClient.currentEntitlement()
-                        await send(.subscriptionStatusUpdated(status))
+                    state.isLoadingNarration = true
+                    // Fetch subscription + profiles, then route
+                    return .merge(
+                        // Start AVSpeech immediately for responsiveness — will be cancelled if Pro user picks different voice
+                        .send(.selectVoice("kindred-default")),
+                        // Background: fetch subscription status + voice profiles
+                        .run { send in
+                            let status = await subscriptionClient.currentEntitlement()
+                            await send(.subscriptionStatusUpdated(status))
 
-                        // Fetch voice profiles via GraphQL (for picker, even if we auto-play)
-                        do {
-                            let result = try await apolloClient.fetch(query: KindredAPI.VoiceProfilesQuery())
-                            var profiles = (result.data?.myVoiceProfiles ?? [])
-                                .filter { $0.status == .ready }
-                                .map { dto -> VoiceProfile in
-                                    let dateFormatter = ISO8601DateFormatter()
-                                    let createdAt = dateFormatter.date(from: dto.createdAt) ?? Date()
-                                    return VoiceProfile(
-                                        id: dto.id,
-                                        name: dto.speakerName,
-                                        avatarURL: nil,
-                                        sampleAudioURL: nil,
-                                        isOwnVoice: dto.relationship == "Self",
-                                        createdAt: createdAt
-                                    )
-                                }
+                            do {
+                                let result = try await apolloClient.fetch(query: KindredAPI.VoiceProfilesQuery())
+                                var profiles = (result.data?.myVoiceProfiles ?? [])
+                                    .filter { $0.status == .ready }
+                                    .map { dto -> VoiceProfile in
+                                        let dateFormatter = ISO8601DateFormatter()
+                                        let createdAt = dateFormatter.date(from: dto.createdAt) ?? Date()
+                                        return VoiceProfile(
+                                            id: dto.id,
+                                            name: dto.speakerName,
+                                            avatarURL: nil,
+                                            sampleAudioURL: nil,
+                                            isOwnVoice: dto.relationship == "Self",
+                                            createdAt: createdAt
+                                        )
+                                    }
 
-                            // Prepend default "Kindred Voice" for all users
-                            let defaultVoice = VoiceProfile(
-                                id: "kindred-default",
-                                name: "Kindred Voice",
-                                avatarURL: nil,
-                                sampleAudioURL: nil,
-                                isOwnVoice: false,
-                                createdAt: Date()
-                            )
-                            profiles.insert(defaultVoice, at: 0)
+                                let defaultVoice = VoiceProfile(
+                                    id: "kindred-default",
+                                    name: "Kindred Voice",
+                                    avatarURL: nil,
+                                    sampleAudioURL: nil,
+                                    isOwnVoice: false,
+                                    createdAt: Date()
+                                )
+                                profiles.insert(defaultVoice, at: 0)
 
-                            await send(.voiceProfilesLoaded(.success(profiles)))
-                        } catch {
-                            await send(.voiceProfilesLoaded(.failure(error)))
+                                await send(.voiceProfilesLoaded(.success(profiles)))
+                            } catch {
+                                await send(.voiceProfilesLoaded(.failure(error)))
+                            }
+
+                            // If Pro user, show voice picker (they can switch from the already-playing Kindred Voice)
+                            if case .pro = status {
+                                await send(.showVoicePickerForNewPlayback)
+                            }
                         }
-
-                        // Route based on subscription status:
-                        // Free/unknown/guest → auto-play with Kindred Voice (no picker)
-                        // Pro → show voice picker to choose
-                        switch status {
-                        case .pro:
-                            // Pro user: show voice picker
-                            await send(.showVoicePickerForNewPlayback)
-                        default:
-                            // Free/unknown/guest: auto-play with Kindred Voice immediately
-                            await send(.selectVoice("kindred-default"))
-                        }
-                    }
+                    )
                 }
 
             case let .voiceProfilesLoaded(.success(profiles)):
@@ -344,12 +345,18 @@ public struct VoicePlaybackReducer {
                 return .none
 
             case let .voiceProfilesLoaded(.failure(error)):
+                Logger.voicePlayback.error("voiceProfilesLoaded FAILED: \(error.localizedDescription)")
                 state.error = error.localizedDescription
                 state.isLoadingNarration = false
                 return .none
 
             case let .selectVoice(voiceId):
-                guard state.currentPlayback?.recipeId != nil || !state.recipeSteps.isEmpty else {
+                let pendingId = state.pendingRecipeId ?? "nil"
+                let currentId = state.currentPlayback?.recipeId ?? "nil"
+                let stepCount = state.recipeSteps.count
+                Logger.voicePlayback.debug("selectVoice: \(voiceId) pendingRecipeId=\(pendingId) currentPlayback=\(currentId) steps=\(stepCount)")
+                guard state.currentPlayback?.recipeId != nil || state.pendingRecipeId != nil else {
+                    Logger.voicePlayback.error("selectVoice: guard FAILED — no pending or current recipe")
                     return .none
                 }
 
@@ -605,7 +612,7 @@ public struct VoicePlaybackReducer {
 
             case .pause:
                 guard let currentPlayback = state.currentPlayback,
-                      currentPlayback.status == .playing || currentPlayback.status == .buffering else { return .none }
+                      currentPlayback.status == .playing || currentPlayback.status == .buffering || currentPlayback.status == .loading else { return .none }
                 state.currentPlayback = CurrentPlayback(
                     recipeId: currentPlayback.recipeId,
                     recipeName: currentPlayback.recipeName,
@@ -1060,6 +1067,7 @@ public struct VoicePlaybackReducer {
                 return .none
 
             case .upgradeTapped:
+                Logger.voicePlayback.debug("upgradeTapped: setting showPaywall=true")
                 state.showPaywall = true
                 state.showVoicePicker = false
                 return .none

@@ -88,29 +88,58 @@ public struct ExpandedPlayerView: View {
                     .frame(maxHeight: 60)
                 }
 
-                // Seek bar
+                // Seek bar / step progress
                 VStack(spacing: 8) {
-                    Slider(
-                        value: Binding(
-                            get: { playback.currentTime },
-                            set: { store.send(.seekTo($0)) }
-                        ),
-                        in: 0...max(playback.duration, 1)
-                    )
-                    .tint(.kindredAccent)
-                    .accessibilityLabel(String(localized: "Playback position", bundle: .main))
-                    .accessibilityValue(String(localized: "\(formatTime(playback.currentTime)) of \(formatTime(playback.duration))", bundle: .main))
+                    if store.isAVSpeechActive {
+                        // Step-based progress for AVSpeech
+                        let totalSteps = max(store.recipeSteps.count, 1)
+                        let currentStep = playback.currentStepIndex ?? 0
+                        let progress = Double(currentStep + 1) / Double(totalSteps)
 
-                    HStack {
-                        Text(formatTime(playback.currentTime))
-                            .font(.kindredCaptionScaled(size: captionSize))
-                            .foregroundStyle(.kindredTextSecondary)
+                        Slider(
+                            value: .constant(progress),
+                            in: 0...1
+                        )
+                        .tint(.kindredAccent)
+                        .disabled(true)
+                        .accessibilityLabel(String(localized: "Step progress", bundle: .main))
+                        .accessibilityValue(String(localized: "Step \(currentStep + 1) of \(totalSteps)", bundle: .main))
 
-                        Spacer()
+                        HStack {
+                            Text("Step \(currentStep + 1)")
+                                .font(.kindredCaptionScaled(size: captionSize))
+                                .foregroundStyle(.kindredTextSecondary)
 
-                        Text("-\(formatTime(playback.duration - playback.currentTime))")
-                            .font(.kindredCaptionScaled(size: captionSize))
-                            .foregroundStyle(.kindredTextSecondary)
+                            Spacer()
+
+                            Text("\(totalSteps) steps")
+                                .font(.kindredCaptionScaled(size: captionSize))
+                                .foregroundStyle(.kindredTextSecondary)
+                        }
+                    } else {
+                        // Time-based progress for AVPlayer
+                        Slider(
+                            value: Binding(
+                                get: { playback.currentTime },
+                                set: { store.send(.seekTo($0)) }
+                            ),
+                            in: 0...max(playback.duration, 1)
+                        )
+                        .tint(.kindredAccent)
+                        .accessibilityLabel(String(localized: "Playback position", bundle: .main))
+                        .accessibilityValue(String(localized: "\(formatTime(playback.currentTime)) of \(formatTime(playback.duration))", bundle: .main))
+
+                        HStack {
+                            Text(formatTime(playback.currentTime))
+                                .font(.kindredCaptionScaled(size: captionSize))
+                                .foregroundStyle(.kindredTextSecondary)
+
+                            Spacer()
+
+                            Text("-\(formatTime(playback.duration - playback.currentTime))")
+                                .font(.kindredCaptionScaled(size: captionSize))
+                                .foregroundStyle(.kindredTextSecondary)
+                        }
                     }
                 }
                 .padding(.horizontal, 24)
@@ -148,29 +177,29 @@ public struct ExpandedPlayerView: View {
                     .accessibilityLabel(String(localized: "Playback speed \(String(format: "%.2g", playback.speed.rawValue)) times"))
                     .accessibilityHint(String(localized: "accessibility.expanded_player.cycle_speed_hint", bundle: .main))
 
-                    // Voice switch button (if multiple voices available)
-                    if store.voiceProfiles.count > 1 {
-                        Button {
-                            store.send(.showVoiceSwitcher)
-                            HapticFeedback.light()
-                        } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "person.2.fill")
-                                    .font(.system(size: 14))
-                                Text(String(localized: "Voice", bundle: .main))
-                                    .font(.kindredBodyBoldScaled(size: bodySize))
-                            }
-                            .foregroundStyle(.kindredAccent)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(
-                                Capsule()
-                                    .stroke(Color.kindredAccent, lineWidth: 1.5)
-                            )
+                    // Voice switch / upgrade button
+                    Button {
+                        store.send(.showVoiceSwitcher)
+                        HapticFeedback.light()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: store.voiceProfiles.count > 1 ? "person.2.fill" : "crown.fill")
+                                .font(.system(size: 14))
+                            Text(store.voiceProfiles.count > 1
+                                ? String(localized: "Voice", bundle: .main)
+                                : String(localized: "More Voices", bundle: .main))
+                                .font(.kindredBodyBoldScaled(size: bodySize))
                         }
-                        .accessibilityLabel(String(localized: "Switch narrator voice", bundle: .main))
-                        .accessibilityHint(String(localized: "accessibility.expanded_player.switch_voice_hint", bundle: .main))
+                        .foregroundStyle(.kindredAccent)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(
+                            Capsule()
+                                .stroke(Color.kindredAccent, lineWidth: 1.5)
+                        )
                     }
+                    .accessibilityLabel(String(localized: "Switch narrator voice", bundle: .main))
+                    .accessibilityHint(String(localized: "accessibility.expanded_player.switch_voice_hint", bundle: .main))
                 }
 
                 Spacer(minLength: 8)

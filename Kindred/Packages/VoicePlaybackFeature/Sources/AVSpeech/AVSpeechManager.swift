@@ -1,5 +1,6 @@
 @preconcurrency import AVFoundation
 import Foundation
+import NaturalLanguage
 
 // MARK: - AVSpeechManager
 
@@ -18,6 +19,7 @@ final class AVSpeechManager: NSObject {
     private var speed: Float = 1.0
     private var retryCount: Int = 0
     private var timeoutTask: Task<Void, Never>?
+    private var detectedLanguage: String = "en-US"
 
     // MARK: - Streams
 
@@ -38,9 +40,11 @@ final class AVSpeechManager: NSObject {
         self.currentStepIndex = 0
         self.retryCount = 0
 
+        // Detect language from step text
+        detectedLanguage = detectLanguage(from: steps)
+
         // Check for available voices before starting
-        let languageCode = AVSpeechSynthesisVoice.currentLanguageCode()
-        let langPrefix = String(languageCode.prefix(2))
+        let langPrefix = String(detectedLanguage.prefix(2))
         let availableVoices = AVSpeechSynthesisVoice.speechVoices()
             .filter { $0.language.hasPrefix(langPrefix) }
 
@@ -140,13 +144,31 @@ final class AVSpeechManager: NSObject {
     }
 
     private func preferredVoice() -> AVSpeechSynthesisVoice? {
-        let languageCode = AVSpeechSynthesisVoice.currentLanguageCode()
-        let langPrefix = String(languageCode.prefix(2))
+        let langPrefix = String(detectedLanguage.prefix(2))
         let voices = AVSpeechSynthesisVoice.speechVoices()
             .filter { $0.language.hasPrefix(langPrefix) }
         return voices.first(where: { $0.quality == .enhanced })
             ?? voices.first(where: { $0.quality == .default })
-            ?? AVSpeechSynthesisVoice(language: languageCode)
+            ?? AVSpeechSynthesisVoice(language: detectedLanguage)
+    }
+
+    private func detectLanguage(from steps: [String]) -> String {
+        let sampleText = steps.prefix(3).joined(separator: " ")
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(sampleText)
+        if let language = recognizer.dominantLanguage {
+            // Map NLLanguage to BCP 47 language tag
+            // NLLanguage.english → "en", we need a full locale like "en-US"
+            let langCode = language.rawValue
+            // Find best matching voice language code
+            let voices = AVSpeechSynthesisVoice.speechVoices()
+            if let exactMatch = voices.first(where: { $0.language.hasPrefix(langCode) }) {
+                return exactMatch.language
+            }
+            return langCode
+        }
+        // Fallback to device language
+        return AVSpeechSynthesisVoice.currentLanguageCode()
     }
 
     private static func mappedRate(_ appSpeed: Float) -> Float {
