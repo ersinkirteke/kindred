@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v5.1
 milestone_name: Gap Closure
-status: in_progress
-last_updated: "2026-04-13T11:15:00Z"
+status: completed
+last_updated: "2026-04-13T11:32:34.570Z"
 progress:
-  total_phases: 15
+  total_phases: 16
   completed_phases: 14
-  total_plans: 54
-  completed_plans: 53
+  total_plans: 56
+  completed_plans: 54
 ---
 
 # Project State: Kindred
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 30 of 32 (AVSpeechClient + Voice Tier Routing) — Plan 01 complete
-Plan: 01 complete (1/4 plans done for Phase 30)
+Phase: 30 of 32 (AVSpeechClient + Voice Tier Routing) — Plan 02 complete
+Plan: 02 complete (2/4 plans done for Phase 30)
 Status: Phase 30 in progress
-Last activity: 2026-04-13 — Phase 30 Plan 01: AVSpeechClient TCA dependency + TextPreprocessor created
+Last activity: 2026-04-13 — Phase 30 Plan 02: VoicePlaybackReducer AVSpeech tier routing + VoicePickerView sections
 
-Progress: [#########░░░░░░░░░░░░░░░░░░░] ~28%
+Progress: [#########░░░░░░░░░░░░░░░░░░░] ~33%
 
 ---
 
@@ -58,6 +58,7 @@ Progress: [#########░░░░░░░░░░░░░░░░░░░] ~
 **Cumulative:** 27 executed phases, 99 plans, 31 days total execution
 
 ---
+| Phase 30-avspeechclient-voice-tier-routing P02 | 11 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting v5.1:
 - AVSpeech for free tier: Zero cost, offline-capable, no new packages (vs ElevenLabs $0.01-0.03/recipe)
 - sourceUrl first: Independent change, clears Spoonacular ToS compliance risk before any other work
 - Search + filter in same phase: Share one SearchRecipesQuery operation + FeedMode enum; splitting doubles codegen overhead
+- [Phase 30]: Free/unknown/guest users auto-play with kindred-default on first play (no picker shown)
+- [Phase 30]: isAVSpeechActive flag routes play/pause/cycleSpeed/dismiss to correct engine
 
 ### Roadmap Evolution
 
@@ -101,10 +104,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-04-13
-Stopped at: Completed 30-01-PLAN.md — AVSpeechClient + TextPreprocessor created
+Stopped at: Completed 30-02-PLAN.md — VoicePlaybackReducer tier routing + VoicePickerView sections
 Resume file: None
 
-**Next action:** Execute Phase 30 Plan 02 (VoicePlaybackReducer tier routing)
+**Next action:** Execute Phase 30 Plan 03 (MiniPlayerView offline fallback note + step indicator UI)
 
 ---
 

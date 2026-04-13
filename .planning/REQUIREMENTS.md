@@ -10,9 +10,9 @@ Requirements for v5.1 Gap Closure. Each maps to roadmap phases.
 ### Voice Narration
 
 - [x] **VOICE-01**: Free-tier user can listen to recipe instructions narrated via on-device AVSpeechSynthesizer
-- [ ] **VOICE-02**: AVSpeechSynthesizer narration plays step-by-step with current step highlighting
+- [x] **VOICE-02**: AVSpeechSynthesizer narration plays step-by-step with current step highlighting
 - [x] **VOICE-03**: Free-tier narration gracefully handles iOS 17 silent failure with automatic retry/fallback
-- [ ] **VOICE-04**: Voice tier routing selects AVSpeech for free users and ElevenLabs for Pro users automatically
+- [x] **VOICE-04**: Voice tier routing selects AVSpeech for free users and ElevenLabs for Pro users automatically
 - [ ] **VOICE-05**: Audio session handoff between AVSpeech and AVPlayer works cleanly without corruption
 
 ### Search & Filtering
@@ -59,9 +59,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | ATTR-01 | Phase 29 | Complete |
 | VOICE-01 | Phase 30 | Complete |
-| VOICE-02 | Phase 30 | Pending |
+| VOICE-02 | Phase 30 | Complete |
 | VOICE-03 | Phase 30 | Complete |
-| VOICE-04 | Phase 30 | Pending |
+| VOICE-04 | Phase 30 | Complete |
 | VOICE-05 | Phase 30 | Pending |
 | SEARCH-01 | Phase 31 | Pending |
 | SEARCH-02 | Phase 31 | Pending |
