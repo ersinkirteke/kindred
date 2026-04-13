@@ -25,7 +25,7 @@ Requirements for v5.1 Gap Closure. Each maps to roadmap phases.
 
 ### Source Attribution
 
-- [ ] **ATTR-01**: Recipe detail view displays clickable source URL linking to original recipe
+- [x] **ATTR-01**: Recipe detail view displays clickable source URL linking to original recipe
 
 ## Future Requirements
 
@@ -57,7 +57,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ATTR-01 | Phase 29 | Pending |
+| ATTR-01 | Phase 29 | Complete |
 | VOICE-01 | Phase 30 | Pending |
 | VOICE-02 | Phase 30 | Pending |
 | VOICE-03 | Phase 30 | Pending |

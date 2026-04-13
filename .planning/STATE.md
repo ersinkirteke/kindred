@@ -13,8 +13,8 @@ progress:
 
 # Project State: Kindred
 
-**Last Updated:** 2026-04-12
-**Status:** v5.1 Gap Closure — roadmap created, ready to plan Phase 29
+**Last Updated:** 2026-04-13
+**Status:** v5.1 Gap Closure — Phase 29 Plan 01 complete
 
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 29 of 32 (Source Attribution Wiring) — ready to plan
-Plan: — (not started)
-Status: Ready to plan
-Last activity: 2026-04-12 — v5.1 roadmap created (4 phases, 11 requirements mapped)
+Phase: 29 of 32 (Source Attribution Wiring) — Plan 01 complete
+Plan: 01 complete (1/1 plans done for Phase 29)
+Status: Phase 29 complete
+Last activity: 2026-04-13 — Phase 29 Plan 01: source attribution wired end-to-end
 
-Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0%
+Progress: [########░░░░░░░░░░░░░░░░░░░░] ~25%
 
 ---
 
@@ -65,6 +65,11 @@ Progress: [░░░░░░░░░░░░░░░░░░░░░░░
 
 Decisions are logged in PROJECT.md Key Decisions table.
 
+Phase 29 decisions:
+- Used pre-built apollo-ios-cli binary from .build/checkouts tar.gz (avoids ~3min build)
+- SafariView is internal to FeedFeature (not shared package)
+- Spoonacular footer Link migrated to Button+SafariView for consistent in-app UX
+
 Recent decisions affecting v5.1:
 - AVSpeech for free tier: Zero cost, offline-capable, no new packages (vs ElevenLabs $0.01-0.03/recipe)
 - sourceUrl first: Independent change, clears Spoonacular ToS compliance risk before any other work
@@ -89,11 +94,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-12
-Stopped at: v5.1 roadmap created — 4 phases (29-32), 11 requirements mapped
+Last session: 2026-04-13
+Stopped at: Completed 29-01-PLAN.md — source attribution wiring done
 Resume file: None
 
-**Next action:** `/gsd:plan-phase 29`
+**Next action:** `/gsd:plan-phase 30` (Free-Tier TTS)
 
 ---
 
