@@ -183,7 +183,7 @@ Plans:
 | 27.1. AdMob Docs Reconcile | v5.0 | 1/1 | Complete | 2026-04-07 |
 | 28. Fastlane Release | v5.0 | 5/5 | Complete | 2026-04-12 |
 | 29. Source Attribution Wiring | 1/1 | Complete    | 2026-04-13 | - |
-| 30. AVSpeechClient + Voice Tier Routing | v5.1 | 0/TBD | Not started | - |
+| 30. AVSpeechClient + Voice Tier Routing | 1/3 | In Progress|  | - |
 | 31. Search UI + Dietary Filter Pass-Through | v5.1 | 0/TBD | Not started | - |
 | 32. End-to-End Hardware Verification | v5.1 | 0/TBD | Not started | - |
 

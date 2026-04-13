@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v5.1
 milestone_name: Gap Closure
-status: completed
-last_updated: "2026-04-13T06:42:00.810Z"
+status: in_progress
+last_updated: "2026-04-13T11:15:00Z"
 progress:
   total_phases: 15
   completed_phases: 14
-  total_plans: 53
-  completed_plans: 52
+  total_plans: 54
+  completed_plans: 53
 ---
 
 # Project State: Kindred
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 29 of 32 (Source Attribution Wiring) — Plan 01 complete
-Plan: 01 complete (1/1 plans done for Phase 29)
-Status: Phase 29 complete
-Last activity: 2026-04-13 — Phase 29 Plan 01: source attribution wired end-to-end
+Phase: 30 of 32 (AVSpeechClient + Voice Tier Routing) — Plan 01 complete
+Plan: 01 complete (1/4 plans done for Phase 30)
+Status: Phase 30 in progress
+Last activity: 2026-04-13 — Phase 30 Plan 01: AVSpeechClient TCA dependency + TextPreprocessor created
 
-Progress: [########░░░░░░░░░░░░░░░░░░░░] ~25%
+Progress: [#########░░░░░░░░░░░░░░░░░░░] ~28%
 
 ---
 
@@ -64,6 +64,12 @@ Progress: [########░░░░░░░░░░░░░░░░░░░░]
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
+
+Phase 30 Plan 01 decisions:
+- Rate mapping: app 1.0x → AVSpeech 0.50 (linear 0.35-0.65 range)
+- setRate stops and re-enqueues from currentStepIndex (AVSpeech cannot change rate mid-queue)
+- iOS 17 silent failure: 5-sec timeout + 1 auto-retry; tier-aware fallback is reducer's job in Plan 02
+- TextPreprocessor uses (?m) inline multiline flag (anchorsMatchLines not in Swift String.CompareOptions)
 
 Phase 29 decisions:
 - Used pre-built apollo-ios-cli binary from .build/checkouts tar.gz (avoids ~3min build)
@@ -95,10 +101,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-04-13
-Stopped at: Completed 29-01-PLAN.md — source attribution wiring done
+Stopped at: Completed 30-01-PLAN.md — AVSpeechClient + TextPreprocessor created
 Resume file: None
 
-**Next action:** `/gsd:plan-phase 30` (Free-Tier TTS)
+**Next action:** Execute Phase 30 Plan 02 (VoicePlaybackReducer tier routing)
 
 ---
 
