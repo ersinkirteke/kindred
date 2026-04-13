@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import Foundation
 import MonetizationFeature
+import Network
 import SwiftUI
 import UIKit
 import OSLog
@@ -40,6 +41,8 @@ public struct VoicePlaybackReducer {
         public var subscriptionStatus: SubscriptionStatus = .unknown
         public var showPaywall: Bool = false
         public var hasNarration: Bool = true
+        public var isAVSpeechActive: Bool = false
+        public var offlineFallbackNote: String? = nil
 
         public init(
             currentPlayback: CurrentPlayback? = nil,
@@ -58,7 +61,9 @@ public struct VoicePlaybackReducer {
             voiceUpload: VoiceUploadReducer.State? = nil,
             subscriptionStatus: SubscriptionStatus = .unknown,
             showPaywall: Bool = false,
-            hasNarration: Bool = true
+            hasNarration: Bool = true,
+            isAVSpeechActive: Bool = false,
+            offlineFallbackNote: String? = nil
         ) {
             self.currentPlayback = currentPlayback
             self.isExpanded = isExpanded
@@ -77,6 +82,8 @@ public struct VoicePlaybackReducer {
             self.subscriptionStatus = subscriptionStatus
             self.showPaywall = showPaywall
             self.hasNarration = hasNarration
+            self.isAVSpeechActive = isAVSpeechActive
+            self.offlineFallbackNote = offlineFallbackNote
         }
     }
 
@@ -115,6 +122,9 @@ public struct VoicePlaybackReducer {
         case dismissPaywall
         case narrationAvailabilityChecked(Bool)
         case retryNarration
+        case avSpeechStepChanged(Int)
+        case showVoicePickerForNewPlayback
+        case offlineFallbackToKindredVoice
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -168,6 +178,10 @@ public struct VoicePlaybackReducer {
             case let (.narrationAvailabilityChecked(lVal), .narrationAvailabilityChecked(rVal)):
                 return lVal == rVal
             case (.retryNarration, .retryNarration): return true
+            case let (.avSpeechStepChanged(lIdx), .avSpeechStepChanged(rIdx)):
+                return lIdx == rIdx
+            case (.showVoicePickerForNewPlayback, .showVoicePickerForNewPlayback): return true
+            case (.offlineFallbackToKindredVoice, .offlineFallbackToKindredVoice): return true
             default:
                 return false
             }
@@ -181,6 +195,7 @@ public struct VoicePlaybackReducer {
     @Dependency(\.continuousClock) var clock
     @Dependency(\.subscriptionClient) var subscriptionClient
     @Dependency(\.apolloClient) var apolloClient
+    @Dependency(\.avSpeechClient) var avSpeechClient
 
     // MARK: - CancelID
 
@@ -190,6 +205,8 @@ public struct VoicePlaybackReducer {
         case durationObserver
         case autoCache
         case delayedDismiss
+        case avSpeechStepObserver
+        case avSpeechStatusObserver
     }
 
     // MARK: - Initialization
@@ -263,14 +280,13 @@ public struct VoicePlaybackReducer {
                         }
                     }
                 } else {
-                    state.showVoicePicker = true
-                    // Fetch available voice profiles and subscription status
+                    // Fetch subscription status + voice profiles in background
                     return .run { send in
-                        // Fetch subscription status
+                        // Fetch subscription status first
                         let status = await subscriptionClient.currentEntitlement()
                         await send(.subscriptionStatusUpdated(status))
 
-                        // Fetch voice profiles via GraphQL
+                        // Fetch voice profiles via GraphQL (for picker, even if we auto-play)
                         do {
                             let result = try await apolloClient.fetch(query: KindredAPI.VoiceProfilesQuery())
                             var profiles = (result.data?.myVoiceProfiles ?? [])
@@ -303,6 +319,18 @@ public struct VoicePlaybackReducer {
                         } catch {
                             await send(.voiceProfilesLoaded(.failure(error)))
                         }
+
+                        // Route based on subscription status:
+                        // Free/unknown/guest → auto-play with Kindred Voice (no picker)
+                        // Pro → show voice picker to choose
+                        switch status {
+                        case .pro:
+                            // Pro user: show voice picker
+                            await send(.showVoicePickerForNewPlayback)
+                        default:
+                            // Free/unknown/guest: auto-play with Kindred Voice immediately
+                            await send(.selectVoice("kindred-default"))
+                        }
                     }
                 }
 
@@ -323,16 +351,92 @@ public struct VoicePlaybackReducer {
 
                 state.selectedVoiceId = voiceId
                 state.showVoicePicker = false
-                state.isLoadingNarration = true
 
-                // Store in lastUsedVoicePerRecipe (will be persisted via @AppStorage later)
-                if let recipeId = state.currentPlayback?.recipeId {
-                    state.lastUsedVoicePerRecipe[recipeId] = voiceId
+                let recipeId = state.pendingRecipeId ?? state.currentPlayback?.recipeId ?? "unknown"
+
+                // Store in lastUsedVoicePerRecipe
+                state.lastUsedVoicePerRecipe[recipeId] = voiceId
+
+                // --- AVSpeech branch: Kindred Voice (free tier, on-device) ---
+                if voiceId == "kindred-default" {
+                    // Cancel any active ElevenLabs streams
+                    state.isAVSpeechActive = true
+                    state.isLoadingNarration = false
+                    state.offlineFallbackNote = nil
+
+                    let recipeName = state.pendingRecipeName ?? "Recipe"
+                    let artworkURL = state.pendingArtworkURL
+                    let preprocessedSteps = TextPreprocessor.prepareSteps(state.recipeSteps)
+                    let currentSpeed = state.currentPlayback?.speed ?? .normal
+
+                    state.currentPlayback = CurrentPlayback(
+                        recipeId: recipeId,
+                        recipeName: recipeName,
+                        voiceId: "kindred-default",
+                        speakerName: "Kindred Voice",
+                        artworkURL: artworkURL,
+                        duration: 0,
+                        currentTime: 0,
+                        speed: currentSpeed,
+                        status: .loading,
+                        currentStepIndex: 0
+                    )
+
+                    return .concatenate(
+                        // Cancel existing AVPlayer streams
+                        .cancel(id: CancelID.timeObserver),
+                        .cancel(id: CancelID.statusObserver),
+                        .cancel(id: CancelID.durationObserver),
+                        .cancel(id: CancelID.autoCache),
+                        // Cancel any existing AVSpeech streams
+                        .cancel(id: CancelID.avSpeechStatusObserver),
+                        .cancel(id: CancelID.avSpeechStepObserver),
+                        // Cleanup existing AVPlayer
+                        .run { _ in await audioPlayer.cleanup() },
+                        // Start AVSpeech and observe streams
+                        .merge(
+                            .run { [preprocessedSteps, currentSpeed] send in
+                                do {
+                                    try await avSpeechClient.speak(preprocessedSteps, currentSpeed)
+                                } catch {
+                                    await send(.narrationFailed(error.localizedDescription))
+                                }
+                            },
+                            .run { send in
+                                for await status in await avSpeechClient.statusStream() {
+                                    await send(.statusChanged(status))
+                                }
+                            }.cancellable(id: CancelID.avSpeechStatusObserver),
+                            .run { send in
+                                for await index in await avSpeechClient.stepIndexStream() {
+                                    await send(.avSpeechStepChanged(index))
+                                }
+                            }.cancellable(id: CancelID.avSpeechStepObserver)
+                        )
+                    )
                 }
 
-                // Check cache first
-                let recipeId = state.pendingRecipeId ?? state.currentPlayback?.recipeId ?? "unknown"
+                // --- ElevenLabs / AVPlayer branch (Pro voices) ---
+                state.isLoadingNarration = true
+
                 return .run { [voiceId, recipeId] send in
+                    // Check for offline + uncached: fallback to Kindred Voice
+                    let hasCachedAudio = await voiceCache.getCachedAudio(voiceId, recipeId) != nil
+                    if !hasCachedAudio {
+                        let monitor = NWPathMonitor()
+                        let isOnline = await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+                            monitor.pathUpdateHandler = { path in
+                                monitor.cancel()
+                                continuation.resume(returning: path.status == .satisfied)
+                            }
+                            monitor.start(queue: DispatchQueue(label: "network.check"))
+                        }
+                        if !isOnline {
+                            await send(.offlineFallbackToKindredVoice)
+                            return
+                        }
+                    }
+
                     // Cache-first per locked decision
                     if let cachedURL = await voiceCache.getCachedAudio(voiceId, recipeId) {
                         // Load cached metadata (step timestamps stored alongside audio)
@@ -479,11 +583,20 @@ public struct VoicePlaybackReducer {
                     argument: "Now playing: \(currentPlayback.recipeName) by \(currentPlayback.speakerName)"
                 )
 
-                return .run { _ in
-                    if shouldRestart {
-                        await audioPlayer.seek(0)
+                if state.isAVSpeechActive {
+                    return .run { _ in
+                        if shouldRestart {
+                            await avSpeechClient.jumpToStep(0)
+                        }
+                        await avSpeechClient.resume()
                     }
-                    await audioPlayer.resume()
+                } else {
+                    return .run { _ in
+                        if shouldRestart {
+                            await audioPlayer.seek(0)
+                        }
+                        await audioPlayer.resume()
+                    }
                 }
 
             case .pause:
@@ -508,8 +621,14 @@ public struct VoicePlaybackReducer {
                     argument: "Paused"
                 )
 
-                return .run { _ in
-                    await audioPlayer.pause()
+                if state.isAVSpeechActive {
+                    return .run { _ in
+                        await avSpeechClient.pause()
+                    }
+                } else {
+                    return .run { _ in
+                        await audioPlayer.pause()
+                    }
                 }
 
             case let .seekTo(time):
@@ -561,8 +680,14 @@ public struct VoicePlaybackReducer {
                     currentStepIndex: currentPlayback.currentStepIndex
                 )
 
-                return .run { _ in
-                    await audioPlayer.setRate(nextSpeed.rawValue)
+                if state.isAVSpeechActive {
+                    return .run { _ in
+                        await avSpeechClient.setRate(nextSpeed.rawValue)
+                    }
+                } else {
+                    return .run { _ in
+                        await audioPlayer.setRate(nextSpeed.rawValue)
+                    }
                 }
 
             case .toggleExpanded:
@@ -581,15 +706,28 @@ public struct VoicePlaybackReducer {
                 state.isLoadingNarration = false
                 state.currentPlayback = nil
                 state.narrationMetadata = nil
+                let wasAVSpeechActive = state.isAVSpeechActive
+                state.isAVSpeechActive = false
 
-                return .concatenate(
-                    .cancel(id: CancelID.timeObserver),
-                    .cancel(id: CancelID.autoCache),
-                    .cancel(id: CancelID.delayedDismiss),
-                    .run { _ in
-                        await audioPlayer.cleanup()
-                    }
-                )
+                if wasAVSpeechActive {
+                    return .concatenate(
+                        .cancel(id: CancelID.avSpeechStatusObserver),
+                        .cancel(id: CancelID.avSpeechStepObserver),
+                        .cancel(id: CancelID.delayedDismiss),
+                        .run { _ in
+                            await avSpeechClient.cleanup()
+                        }
+                    )
+                } else {
+                    return .concatenate(
+                        .cancel(id: CancelID.timeObserver),
+                        .cancel(id: CancelID.autoCache),
+                        .cancel(id: CancelID.delayedDismiss),
+                        .run { _ in
+                            await audioPlayer.cleanup()
+                        }
+                    )
+                }
 
             case .dismiss:
                 state.isExpanded = false
@@ -597,18 +735,33 @@ public struct VoicePlaybackReducer {
                 state.narrationMetadata = nil
                 state.selectedVoiceId = nil
                 state.error = nil
+                let wasAVSpeechActiveDismiss = state.isAVSpeechActive
+                state.isAVSpeechActive = false
+                state.offlineFallbackNote = nil
 
-                // Cancel all stream observations
-                return .concatenate(
-                    .cancel(id: CancelID.timeObserver),
-                    .cancel(id: CancelID.statusObserver),
-                    .cancel(id: CancelID.durationObserver),
-                    .cancel(id: CancelID.autoCache),
-                    .cancel(id: CancelID.delayedDismiss),
-                    .run { _ in
-                        await audioPlayer.cleanup()
-                    }
-                )
+                if wasAVSpeechActiveDismiss {
+                    // Cancel all AVSpeech observations
+                    return .concatenate(
+                        .cancel(id: CancelID.avSpeechStatusObserver),
+                        .cancel(id: CancelID.avSpeechStepObserver),
+                        .cancel(id: CancelID.delayedDismiss),
+                        .run { _ in
+                            await avSpeechClient.cleanup()
+                        }
+                    )
+                } else {
+                    // Cancel all AVPlayer stream observations
+                    return .concatenate(
+                        .cancel(id: CancelID.timeObserver),
+                        .cancel(id: CancelID.statusObserver),
+                        .cancel(id: CancelID.durationObserver),
+                        .cancel(id: CancelID.autoCache),
+                        .cancel(id: CancelID.delayedDismiss),
+                        .run { _ in
+                            await audioPlayer.cleanup()
+                        }
+                    )
+                }
 
             case let .timeUpdated(time):
                 guard let currentPlayback = state.currentPlayback else { return .none }
@@ -660,8 +813,52 @@ public struct VoicePlaybackReducer {
             case let .statusChanged(status):
                 guard let currentPlayback = state.currentPlayback else { return .none }
 
-                // Don't let stream status override error state
-                if case .error = currentPlayback.status {
+                // Don't let stream status override error state, but allow Pro AVSpeech fallback
+                if case .error(let message) = currentPlayback.status {
+                    // Pro user AVSpeech error: auto-fallback to ElevenLabs
+                    if state.isAVSpeechActive, case .pro = state.subscriptionStatus {
+                        let firstProVoiceId = state.voiceProfiles.first(where: { $0.id != "kindred-default" })?.id
+                        if let proVoiceId = firstProVoiceId {
+                            state.isAVSpeechActive = false
+                            return .concatenate(
+                                .cancel(id: CancelID.avSpeechStepObserver),
+                                .cancel(id: CancelID.avSpeechStatusObserver),
+                                .run { _ in await avSpeechClient.cleanup() },
+                                .send(.selectVoice(proVoiceId))
+                            )
+                        }
+                    }
+                    return .none
+                }
+
+                // Handle .error status from stream (before setting status)
+                if case .error(let errorMessage) = status {
+                    // Pro user AVSpeech error: auto-fallback to ElevenLabs silently
+                    if state.isAVSpeechActive, case .pro = state.subscriptionStatus {
+                        let firstProVoiceId = state.voiceProfiles.first(where: { $0.id != "kindred-default" })?.id
+                        if let proVoiceId = firstProVoiceId {
+                            state.isAVSpeechActive = false
+                            return .concatenate(
+                                .cancel(id: CancelID.avSpeechStepObserver),
+                                .cancel(id: CancelID.avSpeechStatusObserver),
+                                .run { _ in await avSpeechClient.cleanup() },
+                                .send(.selectVoice(proVoiceId))
+                            )
+                        }
+                    }
+                    // Free user or no Pro voice: show error normally
+                    state.currentPlayback = CurrentPlayback(
+                        recipeId: currentPlayback.recipeId,
+                        recipeName: currentPlayback.recipeName,
+                        voiceId: currentPlayback.voiceId,
+                        speakerName: currentPlayback.speakerName,
+                        artworkURL: currentPlayback.artworkURL,
+                        duration: currentPlayback.duration,
+                        currentTime: currentPlayback.currentTime,
+                        speed: currentPlayback.speed,
+                        status: .error(errorMessage),
+                        currentStepIndex: currentPlayback.currentStepIndex
+                    )
                     return .none
                 }
 
@@ -680,21 +877,35 @@ public struct VoicePlaybackReducer {
 
                 // Handle auto-dismiss on stopped
                 if case .stopped = status {
-                    // Cancel streams immediately to prevent further events,
-                    // then schedule delayed dismiss for cleanup
-                    return .concatenate(
-                        .cancel(id: CancelID.timeObserver),
-                        .cancel(id: CancelID.autoCache),
-                        .run { [clock] send in
-                            try await clock.sleep(for: .seconds(2))
-                            await send(.dismiss)
-                        }
-                        .cancellable(id: CancelID.delayedDismiss)
-                    )
+                    if state.isAVSpeechActive {
+                        // Cancel AVSpeech streams and schedule delayed dismiss
+                        return .concatenate(
+                            .cancel(id: CancelID.avSpeechStatusObserver),
+                            .cancel(id: CancelID.avSpeechStepObserver),
+                            .run { [clock] send in
+                                try await clock.sleep(for: .seconds(2))
+                                await send(.dismiss)
+                            }
+                            .cancellable(id: CancelID.delayedDismiss)
+                        )
+                    } else {
+                        // Cancel AVPlayer streams immediately to prevent further events,
+                        // then schedule delayed dismiss for cleanup
+                        return .concatenate(
+                            .cancel(id: CancelID.timeObserver),
+                            .cancel(id: CancelID.autoCache),
+                            .run { [clock] send in
+                                try await clock.sleep(for: .seconds(2))
+                                await send(.dismiss)
+                            }
+                            .cancellable(id: CancelID.delayedDismiss)
+                        )
+                    }
                 }
 
-                // Handle auto-cache on playing (if not already cached)
+                // Handle auto-cache on playing (if not already cached) — only for ElevenLabs
                 if case .playing = status,
+                   !state.isAVSpeechActive,
                    let metadata = state.narrationMetadata,
                    !voiceCache.isCached(metadata.voiceId, metadata.recipeId) {
                     return .run { send in
@@ -732,14 +943,39 @@ public struct VoicePlaybackReducer {
 
             case let .switchVoiceMidPlayback(newVoiceId):
                 guard let currentPlayback = state.currentPlayback else { return .none }
+                let savedStepIndex = currentPlayback.currentStepIndex ?? 0
                 let savedTime = currentPlayback.currentTime
 
                 state.isLoadingNarration = true
                 state.selectedVoiceId = newVoiceId
                 state.lastUsedVoicePerRecipe[currentPlayback.recipeId] = newVoiceId
 
+                // Switching TO Kindred Voice from ElevenLabs
+                if newVoiceId == "kindred-default" {
+                    state.isAVSpeechActive = false // will be set to true in selectVoice
+                    return .concatenate(
+                        .cancel(id: CancelID.timeObserver),
+                        .cancel(id: CancelID.statusObserver),
+                        .cancel(id: CancelID.durationObserver),
+                        .cancel(id: CancelID.autoCache),
+                        .run { _ in await audioPlayer.cleanup() },
+                        .send(.selectVoice("kindred-default"))
+                    )
+                }
+
+                // Switching FROM Kindred Voice to ElevenLabs
+                if state.isAVSpeechActive {
+                    state.isAVSpeechActive = false
+                    return .concatenate(
+                        .cancel(id: CancelID.avSpeechStatusObserver),
+                        .cancel(id: CancelID.avSpeechStepObserver),
+                        .run { _ in await avSpeechClient.cleanup() },
+                        .send(.selectVoice(newVoiceId))
+                    )
+                }
+
                 return .run { [recipeId = currentPlayback.recipeId] send in
-                    // Pause current playback
+                    // Pause current AVPlayer playback
                     await audioPlayer.pause()
 
                     // Fetch new voice narration (cache-first, then GraphQL)
@@ -842,7 +1078,35 @@ public struct VoicePlaybackReducer {
                       let recipeId = state.pendingRecipeId ?? state.currentPlayback?.recipeId else {
                     return .none
                 }
+                if state.isAVSpeechActive || voiceId == "kindred-default" {
+                    return .send(.selectVoice("kindred-default"))
+                }
                 return .send(.selectVoice(voiceId))
+
+            case let .avSpeechStepChanged(stepIndex):
+                guard let currentPlayback = state.currentPlayback else { return .none }
+                state.currentPlayback = CurrentPlayback(
+                    recipeId: currentPlayback.recipeId,
+                    recipeName: currentPlayback.recipeName,
+                    voiceId: currentPlayback.voiceId,
+                    speakerName: currentPlayback.speakerName,
+                    artworkURL: currentPlayback.artworkURL,
+                    duration: currentPlayback.duration,
+                    currentTime: currentPlayback.currentTime,
+                    speed: currentPlayback.speed,
+                    status: currentPlayback.status,
+                    currentStepIndex: stepIndex
+                )
+                return .none
+
+            case .showVoicePickerForNewPlayback:
+                state.showVoicePicker = true
+                state.isLoadingNarration = false
+                return .none
+
+            case .offlineFallbackToKindredVoice:
+                state.offlineFallbackNote = "Using Kindred Voice — no internet connection"
+                return .send(.selectVoice("kindred-default"))
             }
         }
         .onChange(of: \.currentPlayback) { oldValue, newValue in
