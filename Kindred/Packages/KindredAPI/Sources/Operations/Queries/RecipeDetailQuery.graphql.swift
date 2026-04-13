@@ -8,7 +8,7 @@ public struct RecipeDetailQuery: GraphQLQuery {
   public static let operationName: String = "RecipeDetail"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query RecipeDetail($id: ID!) { recipe(id: $id) { __typename id name description prepTime cookTime servings calories protein carbs fat imageUrl imageStatus location isViral engagementLoves engagementBookmarks engagementViews dietaryTags difficulty ingredients { __typename name quantity unit orderIndex } steps { __typename orderIndex text duration techniqueTag } } }"#
+      #"query RecipeDetail($id: ID!) { recipe(id: $id) { __typename id name description prepTime cookTime servings calories protein carbs fat imageUrl imageStatus location isViral engagementLoves engagementBookmarks engagementViews dietaryTags difficulty sourceUrl sourceName ingredients { __typename name quantity unit orderIndex } steps { __typename orderIndex text duration techniqueTag } } }"#
     ))
 
   public var id: ID
@@ -63,6 +63,8 @@ public struct RecipeDetailQuery: GraphQLQuery {
         .field("engagementViews", Int.self),
         .field("dietaryTags", [String].self),
         .field("difficulty", GraphQLEnum<KindredAPI.DifficultyLevel>.self),
+        .field("sourceUrl", String?.self),
+        .field("sourceName", String?.self),
         .field("ingredients", [Ingredient].self),
         .field("steps", [Step].self),
       ] }
@@ -89,6 +91,8 @@ public struct RecipeDetailQuery: GraphQLQuery {
       public var engagementViews: Int { __data["engagementViews"] }
       public var dietaryTags: [String] { __data["dietaryTags"] }
       public var difficulty: GraphQLEnum<KindredAPI.DifficultyLevel> { __data["difficulty"] }
+      public var sourceUrl: String? { __data["sourceUrl"] }
+      public var sourceName: String? { __data["sourceName"] }
       public var ingredients: [Ingredient] { __data["ingredients"] }
       public var steps: [Step] { __data["steps"] }
 

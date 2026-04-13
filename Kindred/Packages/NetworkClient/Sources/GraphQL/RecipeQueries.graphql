@@ -19,6 +19,8 @@ query RecipeDetail($id: ID!) {
     engagementViews
     dietaryTags
     difficulty
+    sourceUrl
+    sourceName
     ingredients {
       name
       quantity

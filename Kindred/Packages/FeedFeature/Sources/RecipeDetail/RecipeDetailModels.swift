@@ -25,6 +25,8 @@ public struct RecipeDetail: Equatable, Identifiable {
     public let engagementLoves: Int
     public let dietaryTags: [String]
     public let difficulty: String?
+    public let sourceUrl: String?
+    public let sourceName: String?
     public let ingredients: [RecipeIngredient]
     public let steps: [RecipeStep]
 
@@ -41,6 +43,8 @@ public struct RecipeDetail: Equatable, Identifiable {
         engagementLoves: Int,
         dietaryTags: [String] = [],
         difficulty: String? = nil,
+        sourceUrl: String? = nil,
+        sourceName: String? = nil,
         ingredients: [RecipeIngredient] = [],
         steps: [RecipeStep] = []
     ) {
@@ -56,6 +60,8 @@ public struct RecipeDetail: Equatable, Identifiable {
         self.engagementLoves = engagementLoves
         self.dietaryTags = dietaryTags
         self.difficulty = difficulty
+        self.sourceUrl = sourceUrl
+        self.sourceName = sourceName
         self.ingredients = ingredients
         self.steps = steps
     }
@@ -93,6 +99,8 @@ public struct RecipeDetail: Equatable, Identifiable {
             engagementLoves: recipe.engagementLoves ?? 0,
             dietaryTags: recipe.dietaryTags ?? [],
             difficulty: recipe.difficulty.rawValue,
+            sourceUrl: recipe.sourceUrl,
+            sourceName: recipe.sourceName,
             ingredients: recipe.ingredients.map { RecipeIngredient.from(graphQL: $0) },
             steps: recipe.steps.map { RecipeStep.from(graphQL: $0) }
         )
