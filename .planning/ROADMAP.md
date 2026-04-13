@@ -93,7 +93,7 @@
 ## Phase Summary
 
 - [x] **Phase 29: Source Attribution Wiring** — Wire sourceUrl + sourceName from GraphQL into RecipeDetailView as a tappable link (completed 2026-04-13)
-- [ ] **Phase 30: AVSpeechClient + Voice Tier Routing** — Build AVSpeechSynthesizer TCA client, enable free-tier narration, route tiers automatically
+- [x] **Phase 30: AVSpeechClient + Voice Tier Routing** — Build AVSpeechSynthesizer TCA client, enable free-tier narration, route tiers automatically (completed 2026-04-13)
 - [ ] **Phase 31: Search UI + Dietary Filter Pass-Through** — Wire search bar to backend searchRecipes, fix dietary filter to pass Spoonacular params
 - [ ] **Phase 32: End-to-End Hardware Verification** — Validate all five gaps closed on real iOS 17 + iOS 18 devices
 
@@ -183,7 +183,7 @@ Plans:
 | 27.1. AdMob Docs Reconcile | v5.0 | 1/1 | Complete | 2026-04-07 |
 | 28. Fastlane Release | v5.0 | 5/5 | Complete | 2026-04-12 |
 | 29. Source Attribution Wiring | 1/1 | Complete    | 2026-04-13 | - |
-| 30. AVSpeechClient + Voice Tier Routing | 2/3 | In Progress|  | - |
+| 30. AVSpeechClient + Voice Tier Routing | 3/3 | Complete   | 2026-04-13 | - |
 | 31. Search UI + Dietary Filter Pass-Through | v5.1 | 0/TBD | Not started | - |
 | 32. End-to-End Hardware Verification | v5.1 | 0/TBD | Not started | - |
 

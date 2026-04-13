@@ -13,7 +13,7 @@ Requirements for v5.1 Gap Closure. Each maps to roadmap phases.
 - [x] **VOICE-02**: AVSpeechSynthesizer narration plays step-by-step with current step highlighting
 - [x] **VOICE-03**: Free-tier narration gracefully handles iOS 17 silent failure with automatic retry/fallback
 - [x] **VOICE-04**: Voice tier routing selects AVSpeech for free users and ElevenLabs for Pro users automatically
-- [ ] **VOICE-05**: Audio session handoff between AVSpeech and AVPlayer works cleanly without corruption
+- [x] **VOICE-05**: Audio session handoff between AVSpeech and AVPlayer works cleanly without corruption
 
 ### Search & Filtering
 
@@ -62,7 +62,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VOICE-02 | Phase 30 | Complete |
 | VOICE-03 | Phase 30 | Complete |
 | VOICE-04 | Phase 30 | Complete |
-| VOICE-05 | Phase 30 | Pending |
+| VOICE-05 | Phase 30 | Complete |
 | SEARCH-01 | Phase 31 | Pending |
 | SEARCH-02 | Phase 31 | Pending |
 | SEARCH-03 | Phase 31 | Pending |

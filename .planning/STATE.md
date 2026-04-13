@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.1
 milestone_name: Gap Closure
 status: completed
-last_updated: "2026-04-13T11:32:34.570Z"
+last_updated: "2026-04-13T11:47:31.035Z"
 progress:
   total_phases: 16
-  completed_phases: 14
+  completed_phases: 15
   total_plans: 56
-  completed_plans: 54
+  completed_plans: 55
 ---
 
 # Project State: Kindred
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 30 of 32 (AVSpeechClient + Voice Tier Routing) — Plan 02 complete
-Plan: 02 complete (2/4 plans done for Phase 30)
-Status: Phase 30 in progress
-Last activity: 2026-04-13 — Phase 30 Plan 02: VoicePlaybackReducer AVSpeech tier routing + VoicePickerView sections
+Phase: 30 of 32 (AVSpeechClient + Voice Tier Routing) — Plan 03 Task 1 complete, paused at checkpoint
+Plan: 03 Task 1 complete — awaiting human-verify checkpoint (Task 2)
+Status: Phase 30 in progress — device verification required before continuing
+Last activity: 2026-04-13 — Phase 30 Plan 03: step highlighting, tap-to-jump, NowPlaying, accessibility
 
 Progress: [#########░░░░░░░░░░░░░░░░░░░] ~33%
 
@@ -59,6 +59,7 @@ Progress: [#########░░░░░░░░░░░░░░░░░░░] ~
 
 ---
 | Phase 30-avspeechclient-voice-tier-routing P02 | 11 | 2 tasks | 2 files |
+| Phase 30-avspeechclient-voice-tier-routing P03 | 9 | 1 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,7 @@ Recent decisions affecting v5.1:
 - Search + filter in same phase: Share one SearchRecipesQuery operation + FeedMode enum; splitting doubles codegen overhead
 - [Phase 30]: Free/unknown/guest users auto-play with kindred-default on first play (no picker shown)
 - [Phase 30]: isAVSpeechActive flag routes play/pause/cycleSpeed/dismiss to correct engine
+- [Phase 30]: NowPlaying metadata updated via onChange(of: currentPlayback) in VoicePlaybackReducer; MPRemoteCommandCenter set up in RootView.onAppear
 
 ### Roadmap Evolution
 
@@ -104,10 +106,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-04-13
-Stopped at: Completed 30-02-PLAN.md — VoicePlaybackReducer tier routing + VoicePickerView sections
+Stopped at: Phase 30 Plan 03 Task 1 complete — paused at Task 2 human-verify checkpoint
 Resume file: None
 
-**Next action:** Execute Phase 30 Plan 03 (MiniPlayerView offline fallback note + step indicator UI)
+**Next action:** After human verification of AVSpeech narration end-to-end on real device, proceed to Phase 30 Plan 04 or mark Phase 30 complete
 
 ---
 
