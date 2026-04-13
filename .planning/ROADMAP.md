@@ -120,7 +120,11 @@
   3. After AVSpeech narration completes, a Pro user can immediately play a different recipe via AVPlayer without audio corruption or session reinit
   4. On iOS 17.0 real device, if AVSpeech silently fails (TTSErrorDomain -4010), an error state surfaces within 5 seconds rather than hanging indefinitely
   5. Switching from a free voice to a Pro cloned voice mid-session cancels all stream observers before the new backend activates
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 30-01-PLAN.md — AVSpeechClient + AVSpeechManager + TextPreprocessor (foundation)
+- [ ] 30-02-PLAN.md — VoicePlaybackReducer tier routing + VoicePickerView sections
+- [ ] 30-03-PLAN.md — Step highlighting, tap-to-jump, NowPlaying, accessibility + human verify
 
 ### Phase 31: Search UI + Dietary Filter Pass-Through
 **Goal**: Users can search recipes by keyword and dietary filters correctly pass Spoonacular API parameters instead of filtering against a 20-card local cache
