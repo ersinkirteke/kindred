@@ -40,6 +40,21 @@ public struct VoicePickerView: View {
         return false
     }
 
+    /// Split profiles into Free section (kindred-default) and Pro section (all others)
+    private var freeProfiles: [VoiceProfile] {
+        voiceProfiles.filter { $0.id == "kindred-default" }
+    }
+
+    private var sortedProProfiles: [VoiceProfile] {
+        voiceProfiles
+            .filter { $0.id != "kindred-default" }
+            .sorted { lhs, rhs in
+                if lhs.isOwnVoice && !rhs.isOwnVoice { return true }
+                if !lhs.isOwnVoice && rhs.isOwnVoice { return false }
+                return lhs.name < rhs.name
+            }
+    }
+
     public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Header
@@ -53,16 +68,35 @@ public struct VoicePickerView: View {
                 // Empty state
                 EmptyStateView(onCreateProfile: onCreateProfile)
             } else {
-                // Voice cards
                 ScrollView {
                     VStack(spacing: 12) {
-                        ForEach(sortedVoiceProfiles) { profile in
+                        // MARK: Free Section
+                        if !freeProfiles.isEmpty {
+                            sectionHeader("Free")
+                            ForEach(freeProfiles) { profile in
+                                VoiceCardView(
+                                    profile: profile,
+                                    isSelected: profile.id == selectedVoiceId,
+                                    subscriptionStatus: subscriptionStatus,
+                                    isKindredVoice: true,
+                                    onSelect: {
+                                        onSelect(profile.id)
+                                    },
+                                    onPreview: { onPreview(profile.id) }
+                                )
+                                .accessibilityAddTraits(AccessibilityTraits())
+                            }
+                        }
+
+                        // MARK: Pro Voices Section
+                        sectionHeader("Pro Voices")
+                        ForEach(sortedProProfiles) { profile in
                             VoiceCardView(
                                 profile: profile,
                                 isSelected: profile.id == selectedVoiceId,
                                 subscriptionStatus: subscriptionStatus,
+                                isKindredVoice: false,
                                 onSelect: {
-                                    // Check if voice is locked
                                     if isVoiceLocked(profile) {
                                         onUpgradeTapped()
                                     } else {
@@ -73,7 +107,7 @@ public struct VoicePickerView: View {
                             )
                         }
 
-                        // Add new voice profile button OR upgrade CTA
+                        // Bottom of Pro section: upgrade CTA or create voice profile button
                         if isAtVoiceLimit {
                             // Upgrade CTA for free users at voice limit
                             Button {
@@ -142,17 +176,16 @@ public struct VoicePickerView: View {
 
     // MARK: - Helpers
 
-    /// Sort voice profiles: user's own voice first, then alphabetically
-    private var sortedVoiceProfiles: [VoiceProfile] {
-        voiceProfiles.sorted { lhs, rhs in
-            if lhs.isOwnVoice && !rhs.isOwnVoice {
-                return true
-            } else if !lhs.isOwnVoice && rhs.isOwnVoice {
-                return false
-            } else {
-                return lhs.name < rhs.name
-            }
-        }
+    /// Renders a section header in caption style
+    @ViewBuilder
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title.uppercased())
+            .font(.kindredCaption())
+            .foregroundStyle(.kindredTextSecondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 4)
+            .padding(.top, 4)
+            .accessibilityAddTraits(.isHeader)
     }
 
     /// Check if voice is locked for current user
@@ -183,8 +216,25 @@ struct VoiceCardView: View {
     let profile: VoiceProfile
     let isSelected: Bool
     let subscriptionStatus: SubscriptionStatus
+    let isKindredVoice: Bool
     let onSelect: () -> Void
     let onPreview: () -> Void
+
+    init(
+        profile: VoiceProfile,
+        isSelected: Bool,
+        subscriptionStatus: SubscriptionStatus,
+        isKindredVoice: Bool = false,
+        onSelect: @escaping () -> Void,
+        onPreview: @escaping () -> Void
+    ) {
+        self.profile = profile
+        self.isSelected = isSelected
+        self.subscriptionStatus = subscriptionStatus
+        self.isKindredVoice = isKindredVoice
+        self.onSelect = onSelect
+        self.onPreview = onPreview
+    }
 
     private var isLocked: Bool {
         // Default "Kindred Voice" always unlocked
@@ -211,8 +261,11 @@ struct VoiceCardView: View {
             onSelect()
         } label: {
             HStack(spacing: 12) {
-                // Avatar
-                if let avatarURL = profile.avatarURL, let url = URL(string: avatarURL) {
+                // Avatar — Kindred Voice gets special treatment
+                if isKindredVoice {
+                    // Try app icon image first, fallback to waveform system icon
+                    kindredVoiceAvatar
+                } else if let avatarURL = profile.avatarURL, let url = URL(string: avatarURL) {
                     KFImage(url)
                         .placeholder {
                             Circle()
@@ -243,7 +296,11 @@ struct VoiceCardView: View {
                         .font(.kindredBodyBold())
                         .foregroundStyle(.kindredTextPrimary)
 
-                    if profile.isOwnVoice {
+                    if isKindredVoice {
+                        Text(String(localized: "On-device narration", bundle: .main))
+                            .font(.kindredCaption())
+                            .foregroundStyle(.kindredTextSecondary)
+                    } else if profile.isOwnVoice {
                         Text(String(localized: "Your Voice", bundle: .main))
                             .font(.kindredCaption())
                             .foregroundStyle(.kindredAccent)
@@ -294,8 +351,45 @@ struct VoiceCardView: View {
                     )
             )
         }
-        .accessibilityLabel(String(localized: "\(profile.name)\(profile.isOwnVoice ? ", Your Voice" : "")"))
+        .accessibilityLabel(kindredVoiceAccessibilityLabel)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    // MARK: - Kindred Voice Avatar
+
+    @ViewBuilder
+    private var kindredVoiceAvatar: some View {
+        // Try to use app icon from assets (named "AppIcon")
+        if UIImage(named: "AppIcon") != nil {
+            Image("AppIcon")
+                .resizable()
+                .frame(width: 44, height: 44)
+                .clipShape(Circle())
+        } else {
+            // Fallback: waveform system icon in accent color
+            Circle()
+                .fill(Color.kindredAccent.opacity(0.15))
+                .frame(width: 44, height: 44)
+                .overlay(
+                    Image(systemName: "waveform.circle.fill")
+                        .foregroundStyle(.kindredAccent)
+                        .font(.system(size: 28))
+                )
+        }
+    }
+
+    // MARK: - Accessibility
+
+    private var kindredVoiceAccessibilityLabel: String {
+        if isKindredVoice {
+            return "\(profile.name), Free voice"
+        } else if isLocked {
+            return "\(profile.name), Pro voice, locked"
+        } else if profile.isOwnVoice {
+            return "\(profile.name), Your Voice"
+        } else {
+            return profile.name
+        }
     }
 }
 
@@ -340,9 +434,17 @@ struct EmptyStateView: View {
 
 // MARK: - Preview
 
-#Preview("Voice Picker") {
+#Preview("Voice Picker - Free User") {
     VoicePickerView(
         voiceProfiles: [
+            VoiceProfile(
+                id: "kindred-default",
+                name: "Kindred Voice",
+                avatarURL: nil,
+                sampleAudioURL: nil,
+                isOwnVoice: false,
+                createdAt: Date()
+            ),
             VoiceProfile(
                 id: "voice-1",
                 name: "My Voice",
@@ -358,6 +460,41 @@ struct EmptyStateView: View {
                 sampleAudioURL: "https://example.com/sample2.m4a",
                 isOwnVoice: false,
                 createdAt: Date()
+            )
+        ],
+        selectedVoiceId: "kindred-default",
+        subscriptionStatus: .free,
+        onSelect: { _ in },
+        onPreview: { _ in }
+    )
+}
+
+#Preview("Voice Picker - Pro User") {
+    VoicePickerView(
+        voiceProfiles: [
+            VoiceProfile(
+                id: "kindred-default",
+                name: "Kindred Voice",
+                avatarURL: nil,
+                sampleAudioURL: nil,
+                isOwnVoice: false,
+                createdAt: Date()
+            ),
+            VoiceProfile(
+                id: "voice-1",
+                name: "My Voice",
+                avatarURL: nil,
+                sampleAudioURL: "https://example.com/sample.m4a",
+                isOwnVoice: true,
+                createdAt: Date()
+            ),
+            VoiceProfile(
+                id: "voice-2",
+                name: "Mom",
+                avatarURL: nil,
+                sampleAudioURL: nil,
+                isOwnVoice: false,
+                createdAt: Date()
             ),
             VoiceProfile(
                 id: "voice-3",
@@ -369,6 +506,7 @@ struct EmptyStateView: View {
             )
         ],
         selectedVoiceId: "voice-1",
+        subscriptionStatus: .pro(expiresDate: Date().addingTimeInterval(86400), isInGracePeriod: false),
         onSelect: { _ in },
         onPreview: { _ in }
     )
