@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v5.1
 milestone_name: Gap Closure
 status: completed
-last_updated: "2026-04-13T11:47:31.035Z"
+last_updated: "2026-04-13T19:07:02.291Z"
 progress:
   total_phases: 16
   completed_phases: 15
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 30 of 32 (AVSpeechClient + Voice Tier Routing) — Plan 03 Task 1 complete, paused at checkpoint
-Plan: 03 Task 1 complete — awaiting human-verify checkpoint (Task 2)
-Status: Phase 30 in progress — device verification required before continuing
-Last activity: 2026-04-13 — Phase 30 Plan 03: step highlighting, tap-to-jump, NowPlaying, accessibility
+Phase: 30 of 32 (AVSpeechClient + Voice Tier Routing) — COMPLETE (all 3 plans done, device-verified)
+Plan: 03 complete — device verification passed, 6 fixes applied
+Status: Phase 30 complete — ready for Phase 31 or Phase 32
+Last activity: 2026-04-13 — Phase 30 Plan 03: device verification + 6 AVSpeech narration fixes committed
 
-Progress: [#########░░░░░░░░░░░░░░░░░░░] ~33%
+Progress: [##########░░░░░░░░░░░░░░░░░░] ~35%
 
 ---
 
@@ -60,6 +60,7 @@ Progress: [#########░░░░░░░░░░░░░░░░░░░] ~
 ---
 | Phase 30-avspeechclient-voice-tier-routing P02 | 11 | 2 tasks | 2 files |
 | Phase 30-avspeechclient-voice-tier-routing P03 | 9 | 1 tasks | 8 files |
+| Phase 30 P03 | 45 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,10 @@ Recent decisions affecting v5.1:
 - [Phase 30]: Free/unknown/guest users auto-play with kindred-default on first play (no picker shown)
 - [Phase 30]: isAVSpeechActive flag routes play/pause/cycleSpeed/dismiss to correct engine
 - [Phase 30]: NowPlaying metadata updated via onChange(of: currentPlayback) in VoicePlaybackReducer; MPRemoteCommandCenter set up in RootView.onAppear
+- [Phase 30]: selectVoice sent synchronously on startPlayback so mini player shows immediately
+- [Phase 30]: AVSpeech progress bar uses step-based progress (step N / total), not time-based duration
+- [Phase 30]: NLLanguageRecognizer auto-detects recipe language so English recipes use English TTS voice on Turkish device
+- [Phase 30]: Paywall uses fullScreenCover not sheet to avoid SwiftUI sheet conflict with voice picker
 
 ### Roadmap Evolution
 
@@ -106,10 +111,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-04-13
-Stopped at: Phase 30 Plan 03 Task 1 complete — paused at Task 2 human-verify checkpoint
+Stopped at: Phase 30 Plan 03 complete — both tasks done, device-verified, 6 fixes committed (bf80286)
 Resume file: None
 
-**Next action:** After human verification of AVSpeech narration end-to-end on real device, proceed to Phase 30 Plan 04 or mark Phase 30 complete
+**Next action:** Phase 31 or Phase 32 (hardware iOS 17 AVSpeech verification)
 
 ---
 

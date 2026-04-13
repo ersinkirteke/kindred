@@ -38,6 +38,8 @@ key-files:
     - Kindred/Packages/FeedFeature/Sources/RecipeDetail/RecipeDetailReducer.swift
     - Kindred/Packages/VoicePlaybackFeature/Sources/Player/VoicePlaybackReducer.swift
     - Kindred/Packages/VoicePlaybackFeature/Sources/Player/ExpandedPlayerView.swift
+    - Kindred/Packages/VoicePlaybackFeature/Sources/Player/MiniPlayerView.swift
+    - Kindred/Packages/VoicePlaybackFeature/Sources/AVSpeech/AVSpeechManager.swift
     - Kindred/Packages/VoicePlaybackFeature/Sources/NowPlaying/NowPlayingManager.swift
     - Kindred/Sources/App/AppReducer.swift
     - Kindred/Sources/App/RootView.swift
@@ -48,6 +50,10 @@ key-decisions:
   - "currentStepIndex synced to RecipeDetailReducer.State via AppReducer for RecipeDetailView access"
   - "ElevenLabs tap-to-jump uses stepTimestamps array index directly (no StepSyncEngine reverse lookup needed)"
   - "AVSpeech artwork intentionally nil in NowPlaying (no recipe image needed for TTS-only playback)"
+  - "startPlayback sends selectVoice synchronously so mini player shows immediately"
+  - "AVSpeech progress bar uses step-based progress (step N / total) not time-based duration"
+  - "NLLanguageRecognizer used to auto-detect recipe language so English recipes use English voice on Turkish device"
+  - "Paywall uses fullScreenCover instead of sheet to avoid SwiftUI sheet conflict with voice picker"
 
 patterns-established:
   - "Child reducer state fields (currentStepIndex, isAVSpeechActive) populated by parent AppReducer sync on every voicePlayback action"
@@ -58,21 +64,21 @@ requirements-completed:
   - VOICE-05
 
 # Metrics
-duration: 9min
+duration: ~45min
 completed: 2026-04-13
 ---
 
 # Phase 30 Plan 03: Step Highlighting + Tap-to-Jump + NowPlaying Summary
 
-**StepTimelineView with tap-to-jump + bold active step, NowPlayingManager wired to lock screen with Kindred Voice metadata, VoiceOver custom actions on expanded player**
+**StepTimelineView with tap-to-jump + bold active step, NowPlayingManager wired to lock screen with Kindred Voice metadata, VoiceOver custom actions, device-verified with 6 AVSpeech narration fixes**
 
 ## Performance
 
-- **Duration:** 9 min
+- **Duration:** ~45 min
 - **Started:** 2026-04-13T11:37:04Z
-- **Completed:** 2026-04-13T11:46:21Z
-- **Tasks:** 1 of 2 (Task 2 is human-verify checkpoint — awaiting device verification)
-- **Files modified:** 8
+- **Completed:** 2026-04-13T12:22:00Z
+- **Tasks:** 2 of 2 (both complete including human-verify checkpoint)
+- **Files modified:** 10
 
 ## Accomplishments
 - StepTimelineView enhanced: bold text on active step, tap-to-jump callback (only active during narration), VoiceOver hint + custom action, step transition UIAccessibility announcements
@@ -81,17 +87,27 @@ completed: 2026-04-13
 - NowPlayingManager made `@unchecked Sendable`, added `shared` singleton, added `DependencyKey` conformance
 - MPRemoteCommandCenter set up once in `RootView.onAppear` with correct TCA action dispatch callbacks
 - ExpandedPlayerView: VoiceOver custom actions for "Change speed", "Skip forward", "Skip backward"
+- Device verification (Task 2) confirmed working on real device with 6 fixes applied:
+  - Mini player visibility: startPlayback sends selectVoice synchronously
+  - AVSpeech progress bar: step-based (step N / total steps), not time-based
+  - Language detection: NLLanguageRecognizer selects English voice on Turkish-locale device
+  - Pause button: handles `.loading` status near bookmark
+  - More Voices button: always visible in expanded player for upgrade path
+  - Paywall: uses fullScreenCover to avoid sheet conflict with voice picker
 
 ## Task Commits
 
 1. **Task 1: Wire step highlighting, tap-to-jump, NowPlaying, accessibility** - `8c3a8c3` (feat)
+2. **Task 2: Device verification fixes for AVSpeech narration** - `bf80286` (fix)
 
 ## Files Created/Modified
 - `StepTimelineView.swift` - onStepTapped callback, bold active step text, VoiceOver hint/action, step announcement
 - `RecipeDetailView.swift` - StepTimelineView call passes currentStepIndex and onStepTapped
 - `RecipeDetailReducer.swift` - currentStepIndex + isAVSpeechActive state; jumpToStep action; Delegate.jumpToStep(Int)
-- `VoicePlaybackReducer.swift` - jumpToStepRequested action; nowPlayingManager dependency; NowPlaying update in onChange
-- `ExpandedPlayerView.swift` - VoiceOver accessibilityAction for speed/skip
+- `VoicePlaybackReducer.swift` - jumpToStepRequested action; nowPlayingManager dependency; NowPlaying update in onChange; synchronous selectVoice on startPlayback; step-based progress; NLLanguageRecognizer for language detection
+- `ExpandedPlayerView.swift` - VoiceOver accessibilityAction for speed/skip; More Voices button always visible; fullScreenCover paywall
+- `MiniPlayerView.swift` - pause button handles .loading status
+- `AVSpeechManager.swift` - step-based progress reporting
 - `NowPlayingManager.swift` - shared singleton, @unchecked Sendable, DependencyKey conformance
 - `AppReducer.swift` - sync currentStepIndex + isAVSpeechActive to RecipeDetailReducer; route Delegate.jumpToStep
 - `RootView.swift` - MPRemoteCommandCenter setup in onAppear
@@ -99,6 +115,10 @@ completed: 2026-04-13
 ## Decisions Made
 - NowPlaying artwork is `nil` for AVSpeech playback — Kindred Voice has no dedicated artwork, and the plan explicitly states no artwork URL needed; recipe image not loaded for TTS
 - Remote commands set up in `RootView.onAppear` rather than reducer — cleanest way to give the command callbacks access to the TCA store reference
+- `selectVoice` sent synchronously inside `startPlayback` effect so mini player renders on next reducer cycle
+- Progress bar for AVSpeech uses step index / step count (0.0-1.0) — no duration available from AVSpeech, step-based progress is more meaningful for recipe narration
+- `NLLanguageRecognizer` auto-detects language from recipe title/steps so English content uses English TTS voice regardless of device locale
+- Paywall presented via `fullScreenCover` not `sheet` — avoids SwiftUI conflict where voice picker (a `.sheet`) would dismiss if paywall also tried to be a `.sheet`
 
 ## Deviations from Plan
 
@@ -122,15 +142,27 @@ completed: 2026-04-13
 
 ---
 
-**Total deviations:** 2 auto-fixed (both Rule 2 - missing critical functionality)
-**Impact on plan:** Both auto-fixes essential for lock screen functionality. No scope creep.
+**Total deviations:** 8 auto-fixed (2 Rule 2 in Task 1 + 6 Rule 1/2 discovered during device verification in Task 2)
+**Impact on plan:** All auto-fixes necessary for correct operation. Device verification uncovered 6 additional functional issues that were resolved before plan completion.
 
 ## Issues Encountered
 - `StepSyncEngine` has no reverse lookup (`timestamp(forStep:)`) — used direct `stepTimestamps[stepIndex]` array index for ElevenLabs tap-to-jump instead
+- Device verification revealed mini player not showing: root cause was `selectVoice` being dispatched async (after state update cycle), fixed by sending synchronously
+- Turkish device locale caused English recipes to use Turkish TTS voice: fixed with `NLLanguageRecognizer`
+- SwiftUI sheet conflict: paywall shown as `.sheet` conflicted with voice picker sheet; fixed with `fullScreenCover`
 
 ## Next Phase Readiness
-- All Phase 30 Plans 01-03 code complete; awaiting human verification on real device (Task 2 checkpoint)
-- Phase 30 Plan 04 (if any) or Phase 32 hardware verification is next
+- Phase 30 Plan 03 fully complete — all tasks done, device-verified
+- Phase 30 complete (Plans 01-03 all done); ready for Phase 31 or Phase 32 (hardware iOS 17 verification)
+- iOS 17.0-17.4 TTSErrorDomain -4010 silent failure still requires real iOS 17 device — deferred to Phase 32
+
+## Self-Check: PASSED
+
+- FOUND: .planning/phases/30-avspeechclient-voice-tier-routing/30-03-SUMMARY.md
+- FOUND: Kindred/Packages/VoicePlaybackFeature/Sources/AVSpeech/AVSpeechManager.swift
+- FOUND: Kindred/Packages/VoicePlaybackFeature/Sources/Player/MiniPlayerView.swift
+- FOUND commit 8c3a8c3 (Task 1)
+- FOUND commit bf80286 (Task 2 verification fixes)
 
 ---
 *Phase: 30-avspeechclient-voice-tier-routing*
