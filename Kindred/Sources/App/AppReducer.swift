@@ -484,6 +484,17 @@ struct AppReducer {
                         }
                     case .pausePlayback:
                         return .send(.voicePlayback(.pause))
+                    case let .jumpToStep(stepIndex):
+                        // Route tap-to-jump to VoicePlaybackReducer
+                        if state.voicePlaybackState.isAVSpeechActive {
+                            return .send(.voicePlayback(.jumpToStepRequested(stepIndex)))
+                        }
+                        // For AVPlayer (ElevenLabs), seek to step's timestamp
+                        if let metadata = state.voicePlaybackState.narrationMetadata,
+                           stepIndex < metadata.stepTimestamps.count {
+                            return .send(.voicePlayback(.seekTo(metadata.stepTimestamps[stepIndex])))
+                        }
+                        return .none
                     }
                     return .none
                 }
@@ -543,25 +554,33 @@ struct AppReducer {
                 }
 
             case .voicePlayback:
-                // Sync playback status and mini player visibility to recipe detail via actions
+                // Sync playback status, mini player visibility, step index, and AVSpeech flag to recipe detail
                 // Always send (no equality guard) — TCA's @ObservableState deduplicates renders
                 if state.feedState.recipeDetail != nil {
                     let isMiniPlayerVisible = state.voicePlaybackState.currentPlayback != nil
+                    let isAVSpeechActive = state.voicePlaybackState.isAVSpeechActive
                     let status: PlaybackStatus
+                    let currentStepIndex: Int?
+
                     if let playback = state.voicePlaybackState.currentPlayback,
                        playback.recipeId == state.feedState.recipeDetail!.recipeId {
                         status = playback.status
+                        currentStepIndex = playback.currentStepIndex
                     } else if state.voicePlaybackState.isLoadingNarration,
                               let pendingId = state.voicePlaybackState.pendingRecipeId,
                               pendingId == state.feedState.recipeDetail!.recipeId {
                         status = .loading
+                        currentStepIndex = nil
                     } else {
                         status = .idle
+                        currentStepIndex = nil
                     }
 
                     return .merge(
                         .send(.feed(.recipeDetail(.presented(.playbackStatusUpdated(status))))),
-                        .send(.feed(.recipeDetail(.presented(.miniPlayerVisibilityChanged(isMiniPlayerVisible)))))
+                        .send(.feed(.recipeDetail(.presented(.miniPlayerVisibilityChanged(isMiniPlayerVisible))))),
+                        .send(.feed(.recipeDetail(.presented(.currentStepIndexUpdated(currentStepIndex))))),
+                        .send(.feed(.recipeDetail(.presented(.isAVSpeechActiveUpdated(isAVSpeechActive)))))
                     )
                 }
                 return .none

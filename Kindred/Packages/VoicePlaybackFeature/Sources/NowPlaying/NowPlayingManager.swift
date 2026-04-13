@@ -1,4 +1,5 @@
 import AVFoundation
+import Dependencies
 import MediaPlayer
 import Kingfisher
 import UIKit
@@ -10,7 +11,9 @@ extension Logger {
 }
 
 /// Manages MPNowPlayingInfoCenter and MPRemoteCommandCenter for lock screen and Control Center integration
-public final class NowPlayingManager {
+public final class NowPlayingManager: @unchecked Sendable {
+    public static let shared = NowPlayingManager()
+
     private let commandCenter = MPRemoteCommandCenter.shared()
     private let infoCenter = MPNowPlayingInfoCenter.default()
 
@@ -147,5 +150,19 @@ public final class NowPlayingManager {
 
         // Clear Now Playing info from lock screen
         infoCenter.nowPlayingInfo = nil
+    }
+}
+
+// MARK: - DependencyKey
+
+extension NowPlayingManager: DependencyKey {
+    public static var liveValue: NowPlayingManager { NowPlayingManager.shared }
+    public static var testValue: NowPlayingManager { NowPlayingManager() }
+}
+
+extension DependencyValues {
+    public var nowPlayingManager: NowPlayingManager {
+        get { self[NowPlayingManager.self] }
+        set { self[NowPlayingManager.self] = newValue }
     }
 }

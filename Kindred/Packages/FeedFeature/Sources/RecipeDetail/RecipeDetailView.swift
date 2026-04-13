@@ -195,7 +195,13 @@ public struct RecipeDetailView: View {
             // Instructions section
             sectionHeader(String(localized: "Instructions", bundle: .main))
 
-            StepTimelineView(steps: recipe.steps)
+            StepTimelineView(
+                steps: recipe.steps,
+                currentStepIndex: store.currentStepIndex,
+                onStepTapped: store.isAVSpeechActive ? { stepIndex in
+                    store.send(.jumpToStep(stepIndex))
+                } : nil
+            )
 
             // Source attribution link (Spoonacular ToS requirement)
             if let urlString = recipe.sourceUrl,

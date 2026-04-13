@@ -125,6 +125,7 @@ public struct VoicePlaybackReducer {
         case avSpeechStepChanged(Int)
         case showVoicePickerForNewPlayback
         case offlineFallbackToKindredVoice
+        case jumpToStepRequested(Int)
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -182,6 +183,8 @@ public struct VoicePlaybackReducer {
                 return lIdx == rIdx
             case (.showVoicePickerForNewPlayback, .showVoicePickerForNewPlayback): return true
             case (.offlineFallbackToKindredVoice, .offlineFallbackToKindredVoice): return true
+            case let (.jumpToStepRequested(lIdx), .jumpToStepRequested(rIdx)):
+                return lIdx == rIdx
             default:
                 return false
             }
@@ -196,6 +199,7 @@ public struct VoicePlaybackReducer {
     @Dependency(\.subscriptionClient) var subscriptionClient
     @Dependency(\.apolloClient) var apolloClient
     @Dependency(\.avSpeechClient) var avSpeechClient
+    @Dependency(\.nowPlayingManager) var nowPlayingManager
 
     // MARK: - CancelID
 
@@ -1107,13 +1111,52 @@ public struct VoicePlaybackReducer {
             case .offlineFallbackToKindredVoice:
                 state.offlineFallbackNote = "Using Kindred Voice — no internet connection"
                 return .send(.selectVoice("kindred-default"))
+
+            case let .jumpToStepRequested(stepIndex):
+                guard state.isAVSpeechActive else { return .none }
+                state.currentPlayback = state.currentPlayback.map { playback in
+                    CurrentPlayback(
+                        recipeId: playback.recipeId,
+                        recipeName: playback.recipeName,
+                        voiceId: playback.voiceId,
+                        speakerName: playback.speakerName,
+                        artworkURL: playback.artworkURL,
+                        duration: playback.duration,
+                        currentTime: playback.currentTime,
+                        speed: playback.speed,
+                        status: playback.status,
+                        currentStepIndex: stepIndex
+                    )
+                }
+                return .run { _ in
+                    await avSpeechClient.jumpToStep(stepIndex)
+                }
             }
         }
         .onChange(of: \.currentPlayback) { oldValue, newValue in
-            Reduce { _, _ in
-                .run { _ in
+            Reduce { state, _ in
+                let isAVSpeechActive = state.isAVSpeechActive
+                return .run { [nowPlayingManager] _ in
                     await MainActor.run {
                         PlaybackObserver.shared.currentPlayback = newValue
+                    }
+                    // Update Now Playing info for lock screen
+                    if let playback = newValue {
+                        let rate: Double
+                        switch playback.status {
+                        case .playing: rate = Double(playback.speed.rawValue)
+                        default: rate = 0.0
+                        }
+                        nowPlayingManager.updateNowPlaying(
+                            title: playback.recipeName,
+                            artist: playback.speakerName,
+                            artworkURL: isAVSpeechActive ? nil : playback.artworkURL,
+                            duration: playback.duration > 0 ? playback.duration : 1,
+                            elapsedTime: playback.currentTime,
+                            rate: rate
+                        )
+                    } else {
+                        nowPlayingManager.cleanup()
                     }
                 }
             }

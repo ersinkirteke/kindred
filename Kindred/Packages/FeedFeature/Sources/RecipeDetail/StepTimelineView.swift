@@ -7,6 +7,7 @@ struct StepTimelineView: View {
 
     let steps: [RecipeStep]
     var currentStepIndex: Int? = nil
+    var onStepTapped: ((Int) -> Void)? = nil
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -15,7 +16,11 @@ struct StepTimelineView: View {
                     StepRow(
                         step: step,
                         isLast: step.id == sortedSteps.last?.id,
-                        isCurrentStep: currentStepIndex == step.orderIndex
+                        isCurrentStep: currentStepIndex == step.orderIndex,
+                        isNarrationActive: currentStepIndex != nil,
+                        onTapped: onStepTapped.map { callback in
+                            { callback(step.orderIndex) }
+                        }
                     )
                     .id(step.orderIndex)
                 }
@@ -25,6 +30,10 @@ struct StepTimelineView: View {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         proxy.scrollTo(newIndex, anchor: .center)
                     }
+                    UIAccessibility.post(
+                        notification: .announcement,
+                        argument: String(localized: "Step \(newIndex)", bundle: .main)
+                    )
                 }
             }
         }
@@ -42,6 +51,8 @@ private struct StepRow: View {
     let step: RecipeStep
     let isLast: Bool
     var isCurrentStep: Bool = false
+    var isNarrationActive: Bool = false
+    var onTapped: (() -> Void)? = nil
 
     var body: some View {
         HStack(alignment: .top, spacing: KindredSpacing.md) {
@@ -71,7 +82,7 @@ private struct StepRow: View {
             // Step content
             VStack(alignment: .leading, spacing: KindredSpacing.sm) {
                 Text(step.text)
-                    .font(.kindredBody())
+                    .font(isCurrentStep ? .kindredBodyBold() : .kindredBody())
                     .foregroundStyle(.kindredTextPrimary)
                     .multilineTextAlignment(.leading)
 
@@ -98,8 +109,20 @@ private struct StepRow: View {
                     .stroke(isCurrentStep ? Color.kindredAccent : Color.clear, lineWidth: 2)
             )
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            if isNarrationActive {
+                onTapped?()
+            }
+        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(stepAccessibilityLabel)
+        .accessibilityHint(isNarrationActive ? String(localized: "Double tap to jump to this step", bundle: .main) : "")
+        .accessibilityAction(named: String(localized: "Jump to this step", bundle: .main)) {
+            if isNarrationActive {
+                onTapped?()
+            }
+        }
     }
 
     private var stepAccessibilityLabel: String {

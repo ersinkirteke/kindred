@@ -28,6 +28,8 @@ public struct RecipeDetailReducer {
         public var isMiniPlayerVisible: Bool = false
         public var subscriptionStatus: SubscriptionStatus = .unknown
         public var shouldShowAds: Bool = false
+        public var currentStepIndex: Int? = nil
+        public var isAVSpeechActive: Bool = false
 
         // Ingredient match state
         public var ingredientMatchStatuses: [String: IngredientMatchStatus] = [:]
@@ -60,11 +62,15 @@ public struct RecipeDetailReducer {
         case ingredientMatchComputed([String: IngredientMatchStatus], Int, Int, Int)
         case showShoppingList
         case shoppingList(PresentationAction<ShoppingListReducer.Action>)
+        case currentStepIndexUpdated(Int?)
+        case isAVSpeechActiveUpdated(Bool)
+        case jumpToStep(Int)
         case delegate(Delegate)
 
     public enum Delegate: Equatable {
         case authGateRequested(actionType: String)
         case pausePlayback
+        case jumpToStep(Int)
     }
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
@@ -103,6 +109,12 @@ public struct RecipeDetailReducer {
                       .ingredientMatchComputed(rhsStatuses, rhsMatched, rhsEligible, rhsPct)):
                 return lhsStatuses == rhsStatuses && lhsMatched == rhsMatched && lhsEligible == rhsEligible && lhsPct == rhsPct
             case let (.shoppingList(lhs), .shoppingList(rhs)):
+                return lhs == rhs
+            case let (.currentStepIndexUpdated(lhs), .currentStepIndexUpdated(rhs)):
+                return lhs == rhs
+            case let (.isAVSpeechActiveUpdated(lhs), .isAVSpeechActiveUpdated(rhs)):
+                return lhs == rhs
+            case let (.jumpToStep(lhs), .jumpToStep(rhs)):
                 return lhs == rhs
             case let (.delegate(lhs), .delegate(rhs)):
                 return lhs == rhs
@@ -336,6 +348,18 @@ public struct RecipeDetailReducer {
             case .shoppingList:
                 // Presentation actions handled by TCA
                 return .none
+
+            case let .currentStepIndexUpdated(index):
+                state.currentStepIndex = index
+                return .none
+
+            case let .isAVSpeechActiveUpdated(active):
+                state.isAVSpeechActive = active
+                return .none
+
+            case let .jumpToStep(stepIndex):
+                // Delegate to AppReducer which routes to VoicePlaybackReducer
+                return .send(.delegate(.jumpToStep(stepIndex)))
 
             case .delegate:
                 // Delegate actions handled by parent reducer

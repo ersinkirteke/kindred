@@ -177,6 +177,15 @@ public struct ExpandedPlayerView: View {
             }
             .padding(.horizontal, 16)
             .background(Color.kindredBackground)
+            .accessibilityAction(named: String(localized: "Change speed", bundle: .main)) {
+                store.send(.cycleSpeed)
+            }
+            .accessibilityAction(named: String(localized: "Skip forward", bundle: .main)) {
+                store.send(.skipForward)
+            }
+            .accessibilityAction(named: String(localized: "Skip backward", bundle: .main)) {
+                store.send(.skipBackward)
+            }
         }
     }
 

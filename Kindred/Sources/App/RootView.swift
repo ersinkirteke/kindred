@@ -126,6 +126,14 @@ struct RootView: View {
         .onAppear {
             store.send(.observeAuth)
             store.send(.startConnectivityMonitor)
+            // Set up NowPlaying remote commands — MPRemoteCommandCenter is a singleton, safe to call once
+            NowPlayingManager.shared.setupRemoteCommands(
+                onPlay: { store.send(.voicePlayback(.play)) },
+                onPause: { store.send(.voicePlayback(.pause)) },
+                onSkipForward: { _ in store.send(.voicePlayback(.skipForward)) },
+                onSkipBackward: { _ in store.send(.voicePlayback(.skipBackward)) },
+                onSeek: { time in store.send(.voicePlayback(.seekTo(time))) }
+            )
         }
     }
 }
