@@ -19,6 +19,9 @@ public struct RecipeDetailView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) var reduceMotion
 
+    @State private var showSourceSafari = false
+    @State private var resolvedSourceURL: URL?
+
     /// Whether banner ad should be shown (hidden during active narration)
     private var shouldShowBannerAd: Bool {
         let isNarrationActive = [.playing, .loading, .buffering].contains(store.playbackStatus)
@@ -76,6 +79,11 @@ public struct RecipeDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             store.send(.onAppear)
+        }
+        .sheet(isPresented: $showSourceSafari) {
+            if let url = resolvedSourceURL {
+                SafariView(url: url)
+            }
         }
         .sheet(item: $store.scope(state: \.shoppingList, action: \.shoppingList)) { shoppingStore in
             ShoppingListView(store: shoppingStore)
@@ -189,6 +197,34 @@ public struct RecipeDetailView: View {
 
             StepTimelineView(steps: recipe.steps)
 
+            // Source attribution link (Spoonacular ToS requirement)
+            if let urlString = recipe.sourceUrl,
+               !urlString.isEmpty,
+               let url = URL(string: urlString) {
+                Button {
+                    resolvedSourceURL = url
+                    showSourceSafari = true
+                } label: {
+                    HStack(spacing: 4) {
+                        if let sourceName = recipe.sourceName, !sourceName.isEmpty {
+                            Text("\(String(localized: "recipe_detail.source_attribution.view_original_at", bundle: .main)) \(sourceName)")
+                        } else {
+                            Text(String(localized: "recipe_detail.source_attribution.view_original_generic", bundle: .main))
+                        }
+                        Image(systemName: "arrow.up.right")
+                    }
+                    .font(.kindredCaptionScaled(size: captionSize))
+                    .foregroundStyle(.kindredTextSecondary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                }
+                .accessibilityLabel(
+                    recipe.sourceName.flatMap { !$0.isEmpty ? String(localized: "Opens original recipe at \($0) in browser", bundle: .main) : nil }
+                    ?? String(localized: "Opens original recipe in browser", bundle: .main)
+                )
+                .accessibilityAddTraits(.isLink)
+            }
+
             // Compliance footer: nutrition disclaimer + Spoonacular attribution (Phase 27 STORE-03)
             // Uses kindredTextSecondary because kindredTextTertiary does not exist in DesignSystem.
             VStack(alignment: .leading, spacing: KindredSpacing.xs) {
@@ -196,7 +232,10 @@ public struct RecipeDetailView: View {
                     .font(.kindredCaptionScaled(size: captionSize))
                     .foregroundStyle(.kindredTextSecondary)
 
-                Link(destination: URL(string: "https://spoonacular.com/food-api")!) {
+                Button {
+                    resolvedSourceURL = URL(string: "https://spoonacular.com/food-api")
+                    showSourceSafari = true
+                } label: {
                     HStack(spacing: 4) {
                         Text(String(localized: "Powered by Spoonacular", bundle: .main))
                         Image(systemName: "arrow.up.right")
@@ -207,7 +246,7 @@ public struct RecipeDetailView: View {
                 .accessibilityLabel(String(localized: "Opens Spoonacular website in browser", bundle: .main))
                 .accessibilityAddTraits(.isLink)
             }
-            .padding(.top, KindredSpacing.lg)
+            .padding(.top, KindredSpacing.sm)
             .padding(.bottom, KindredSpacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
         }

@@ -5546,6 +5546,74 @@
           }
         }
       }
+    },
+    "recipe_detail.source_attribution.view_original_at": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View original at"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orijinal tarifi g\u00F6r\u00FCnt\u00FCle:"
+          }
+        }
+      }
+    },
+    "recipe_detail.source_attribution.view_original_generic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View original recipe"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orijinal tarifi g\u00F6r\u00FCnt\u00FCle"
+          }
+        }
+      }
+    },
+    "Opens original recipe at %@ in browser": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens original recipe at %@ in browser"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sitesinde orijinal tarifi a\u00E7ar"
+          }
+        }
+      }
+    },
+    "Opens original recipe in browser": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens original recipe in browser"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orijinal tarifi taray\u0131c\u0131da a\u00E7ar"
+          }
+        }
+      }
     }
   },
   "version": "1.1"
