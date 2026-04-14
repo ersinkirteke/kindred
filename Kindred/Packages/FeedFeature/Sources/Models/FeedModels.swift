@@ -72,6 +72,25 @@ public struct RecipeCard: Equatable, Identifiable {
         return "\(engagementLoves)"
     }
 
+    // Map from GraphQL SearchRecipesQuery result
+    public static func from(searchRecipe node: KindredAPI.SearchRecipesQuery.Data.SearchRecipes.Edge.Node) -> RecipeCard {
+        return RecipeCard(
+            id: node.id,
+            name: node.name,
+            description: node.description,
+            prepTime: node.prepTime,
+            cookTime: node.cookTime,
+            calories: node.calories,
+            imageUrl: node.imageUrl,
+            popularityScore: node.popularityScore,
+            engagementLoves: node.engagementLoves ?? 0,
+            dietaryTags: node.dietaryTags ?? [],
+            difficulty: node.difficulty?.rawValue,
+            cuisineType: node.cuisineType.rawValue,
+            ingredientNames: (node.ingredients ?? []).map { $0.name }
+        )
+    }
+
     // Map from GraphQL PopularRecipesQuery result
     public static func from(popularRecipe node: KindredAPI.PopularRecipesQuery.Data.PopularRecipes.Edge.Node) -> RecipeCard {
         return RecipeCard(
@@ -110,6 +129,36 @@ public struct RecipeCard: Equatable, Identifiable {
             matchPercentage: pct
         )
     }
+}
+
+// MARK: - Chip to Spoonacular Parameter Mapping
+
+// Diet chips map to Spoonacular `diets` param
+private let chipToSpoonacularDiet: [String: String] = [
+    "Vegan": "vegan",
+    "Vegetarian": "vegetarian",
+    "Keto": "ketogenic",
+    "Pescatarian": "pescetarian",
+    "Low-Carb": "paleo",
+    "Halal": "halal",
+    "Kosher": "kosher"
+]
+
+// Intolerance chips map to Spoonacular `intolerances` param
+private let chipToSpoonacularIntolerance: [String: String] = [
+    "Gluten-Free": "gluten",
+    "Dairy-Free": "dairy",
+    "Nut-Free": "tree nut"
+]
+
+public func mapChipsToSearchParams(_ chips: Set<String>) -> (diets: [String], intolerances: [String]) {
+    var diets: [String] = []
+    var intolerances: [String] = []
+    for chip in chips {
+        if let diet = chipToSpoonacularDiet[chip] { diets.append(diet) }
+        else if let intolerance = chipToSpoonacularIntolerance[chip] { intolerances.append(intolerance) }
+    }
+    return (diets, intolerances)
 }
 
 public struct SwipedRecipe: Equatable {

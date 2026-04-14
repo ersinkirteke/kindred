@@ -16,6 +16,12 @@ private let feedLogger = Logger(subsystem: "com.ersinkirteke.kindred", category:
 
 @Reducer
 public struct FeedReducer {
+
+    public enum FeedMode: Equatable {
+        case browse
+        case search
+    }
+
     @ObservableState
     public struct State: Equatable {
         public var cardStack: [RecipeCard] = []
@@ -54,6 +60,16 @@ public struct FeedReducer {
         // Subscription and ad state
         public var subscriptionStatus: SubscriptionStatus = .unknown
         public var shouldShowAds: Bool = false
+
+        // Search state
+        public var feedMode: FeedMode = .browse
+        public var searchQuery: String = ""
+        public var searchResults: [RecipeCard] = []
+        public var isSearching: Bool = false
+        public var searchEndCursor: String? = nil
+        public var searchHasNextPage: Bool = true
+        public var isQuotaExhausted: Bool = false
+        public var searchTotalCount: Int = 0
 
         public init() {}
     }
@@ -102,6 +118,13 @@ public struct FeedReducer {
         // Match percentage actions
         case computeMatchPercentages
         case matchPercentagesComputed([String: Int])
+
+        // Search actions
+        case searchQueryChanged(String)
+        case executeSearch(query: String, filters: Set<String>, cursor: String?)
+        case searchResultsLoaded(Result<([RecipeCard], String?, Bool, Int), Error>)
+        case loadMoreSearchResults
+        case clearSearch
 
     public enum Delegate: Equatable {
         case authGateRequested(recipeId: String, recipeName: String, imageUrl: String?, cuisineType: String?, actionType: String)
@@ -175,6 +198,30 @@ public struct FeedReducer {
                 return true
             case let (.paywall(p1), .paywall(p2)):
                 return p1 == p2
+            case let (.searchQueryChanged(q1), .searchQueryChanged(q2)):
+                return q1 == q2
+            case let (.executeSearch(q1, f1, c1), .executeSearch(q2, f2, c2)):
+                return q1 == q2 && f1 == f2 && c1 == c2
+            case let (.searchResultsLoaded(r1), .searchResultsLoaded(r2)):
+                return areSearchResultsEqual(r1, r2)
+            case (.loadMoreSearchResults, .loadMoreSearchResults):
+                return true
+            case (.clearSearch, .clearSearch):
+                return true
+            default:
+                return false
+            }
+        }
+
+        private static func areSearchResultsEqual(
+            _ r1: Result<([RecipeCard], String?, Bool, Int), Error>,
+            _ r2: Result<([RecipeCard], String?, Bool, Int), Error>
+        ) -> Bool {
+            switch (r1, r2) {
+            case let (.success(c1, cur1, h1, t1), .success(c2, cur2, h2, t2)):
+                return c1 == c2 && cur1 == cur2 && h1 == h2 && t1 == t2
+            case let (.failure(e1), .failure(e2)):
+                return e1.localizedDescription == e2.localizedDescription
             default:
                 return false
             }
@@ -193,6 +240,10 @@ public struct FeedReducer {
     }
 
     public init() {}
+
+    private enum SearchDebounceID: Hashable {
+        case debounce
+    }
 
     @Dependency(\.apolloClient) var apolloClient
     @Dependency(\.guestSessionClient) var guestSession
@@ -665,11 +716,113 @@ public struct FeedReducer {
                 }
                 UIAccessibility.post(notification: .announcement, argument: announcement)
 
-                // Client-side filtering — no server round-trip needed
+                // Search mode: re-trigger server-side search with new filters
+                if state.feedMode == .search && state.searchQuery.count >= 3 {
+                    return .send(.executeSearch(query: state.searchQuery, filters: newFilters, cursor: nil))
+                }
+
+                // Browse mode: client-side filtering — no server round-trip needed
                 // Exclude already-swiped cards to prevent reappearance
                 let unswiped = state.allRecipes.filter { !state.swipedRecipeIDs.contains($0.id) }
                 state.cardStack = applyDietaryFilter(recipes: unswiped, filters: newFilters)
                 return .none
+
+            case let .searchQueryChanged(query):
+                state.searchQuery = query
+                if query.isEmpty {
+                    state.feedMode = .browse
+                    state.searchResults = []
+                    return .cancel(id: SearchDebounceID.debounce)
+                }
+                state.feedMode = .search
+                if query.count < 3 {
+                    state.searchResults = []
+                    return .cancel(id: SearchDebounceID.debounce)
+                }
+                state.isSearching = true
+                state.searchResults = []
+                return .run { [filters = state.activeDietaryFilters] send in
+                    try await Task.sleep(nanoseconds: 300_000_000)
+                    await send(.executeSearch(query: query, filters: filters, cursor: nil))
+                }
+                .cancellable(id: SearchDebounceID.debounce, cancelInFlight: true)
+
+            case let .executeSearch(query, filters, cursor):
+                let (diets, intolerances) = mapChipsToSearchParams(filters)
+                return .run { send in
+                    do {
+                        let input = KindredAPI.SearchRecipesInput(
+                            after: cursor.map { .some($0) } ?? .null,
+                            diets: diets.isEmpty ? .null : .some(diets),
+                            first: .some(20),
+                            intolerances: intolerances.isEmpty ? .null : .some(intolerances),
+                            query: query.isEmpty ? .null : .some(query)
+                        )
+                        let result = try await apolloClient.fetch(
+                            query: KindredAPI.SearchRecipesQuery(input: input),
+                            cachePolicy: .networkOnly
+                        )
+                        if let connection = result.data?.searchRecipes {
+                            let cards = connection.edges.map { RecipeCard.from(searchRecipe: $0.node) }
+                            let endCursor = connection.pageInfo.endCursor
+                            let hasNextPage = connection.pageInfo.hasNextPage
+                            let totalCount = connection.totalCount
+                            await send(.searchResultsLoaded(.success((cards, endCursor, hasNextPage, totalCount))))
+                        } else if let errors = result.errors, !errors.isEmpty {
+                            await send(.searchResultsLoaded(.failure(FeedError.graphQL(errors.first!.localizedDescription))))
+                        } else {
+                            await send(.searchResultsLoaded(.success(([], nil, false, 0))))
+                        }
+                    } catch {
+                        await send(.searchResultsLoaded(.failure(error)))
+                    }
+                }
+
+            case let .searchResultsLoaded(.success((cards, cursor, hasMore, total))):
+                state.isSearching = false
+                if cursor != nil {
+                    // Pagination: append
+                    state.searchResults.append(contentsOf: cards)
+                } else {
+                    // Fresh search: replace
+                    state.searchResults = cards
+                }
+                state.searchEndCursor = cursor
+                state.searchHasNextPage = hasMore
+                state.searchTotalCount = total
+                return .none
+
+            case let .searchResultsLoaded(.failure(error)):
+                state.isSearching = false
+                let message = error.localizedDescription.lowercased()
+                if message.contains("quota") {
+                    state.isQuotaExhausted = true
+                } else {
+                    state.error = error.localizedDescription
+                }
+                return .none
+
+            case .loadMoreSearchResults:
+                guard state.searchHasNextPage && !state.isSearching else {
+                    return .none
+                }
+                state.isSearching = true
+                return .send(.executeSearch(
+                    query: state.searchQuery,
+                    filters: state.activeDietaryFilters,
+                    cursor: state.searchEndCursor
+                ))
+
+            case .clearSearch:
+                state.feedMode = .browse
+                state.searchQuery = ""
+                state.searchResults = []
+                state.isSearching = false
+                state.searchEndCursor = nil
+                state.searchHasNextPage = true
+                state.searchTotalCount = 0
+                state.isQuotaExhausted = false
+                return .cancel(id: SearchDebounceID.debounce)
 
             case let .filteredRecipesLoaded(.success(cards)):
                 state.isLoading = false
