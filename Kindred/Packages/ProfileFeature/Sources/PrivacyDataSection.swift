@@ -33,7 +33,7 @@ struct PrivacyDataSection: View {
                 onTrackingSettingsTapped()
             } label: {
                 HStack {
-                    Text("Tracking Permission")
+                    Text(String(localized: "profile.privacy_data.tracking_permission", bundle: .main))
                         .font(.kindredBodyScaled(size: bodySize))
                         .foregroundStyle(.kindredTextPrimary)
 
@@ -46,8 +46,8 @@ struct PrivacyDataSection: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Tracking Permission")
-            .accessibilityHint("Opens iOS Settings to manage ad tracking permission")
+            .accessibilityLabel(String(localized: "profile.privacy_data.tracking_permission", bundle: .main))
+            .accessibilityHint(String(localized: "accessibility.profile.tracking_hint", bundle: .main))
 
             // Privacy Policy link
             Button {

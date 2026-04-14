@@ -32,7 +32,7 @@ struct VoiceProfileCardView: View {
                     .font(.kindredCaptionScaled(size: captionSize))
                     .foregroundStyle(.kindredTextSecondary)
 
-                Text("Created \(formattedDate)")
+                Text(String(localized: "profile.voice_profile.created \(formattedDate)", bundle: .main))
                     .font(.kindredCaptionScaled(size: captionSize))
                     .foregroundStyle(.kindredTextSecondary)
 

@@ -201,7 +201,7 @@ public struct ProfileView: View {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
 
-        return Text("Version \(version) (\(build))")
+        return Text(String(localized: "profile.version \(version) \(build)", bundle: .main))
             .font(.kindredCaptionScaled(size: captionSize))
             .foregroundStyle(.kindredTextSecondary)
             #if DEBUG
