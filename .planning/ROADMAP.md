@@ -94,7 +94,7 @@
 
 - [x] **Phase 29: Source Attribution Wiring** — Wire sourceUrl + sourceName from GraphQL into RecipeDetailView as a tappable link (completed 2026-04-13)
 - [x] **Phase 30: AVSpeechClient + Voice Tier Routing** — Build AVSpeechSynthesizer TCA client, enable free-tier narration, route tiers automatically (completed 2026-04-13)
-- [ ] **Phase 31: Search UI + Dietary Filter Pass-Through** — Wire search bar to backend searchRecipes, fix dietary filter to pass Spoonacular params
+- [ ] **Phase 31: Search UI + Dietary Filter Pass-Through** — Wire search bar to backend searchRecipes, fix dietary filter to pass Spoonacular params (2 plans)
 - [ ] **Phase 32: End-to-End Hardware Verification** — Validate all five gaps closed on real iOS 17 + iOS 18 devices
 
 ## Phase Details
@@ -136,7 +136,10 @@ Plans:
   3. Selecting "Vegan" dietary chip and searching returns genuinely vegan results (not just client-side filtered popular cards)
   4. "Gluten-Free" and other intolerance-type tags correctly map to the Spoonacular intolerances param, not the diet param
   5. Returning from search mode to browse mode restores the popular feed with existing dietary chips and already-swiped cards intact
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 31-01-PLAN.md — GraphQL codegen + FeedReducer search state/debounce + chip-to-Spoonacular mapping
+- [ ] 31-02-PLAN.md — Search UI (search bar, results list, card component, empty/error states) + human verify
 
 ### Phase 32: End-to-End Hardware Verification
 **Goal**: All five v5.1 gaps are confirmed closed on real iOS 17.0 and iOS 18.x hardware; build is ready for App Store submission
@@ -184,7 +187,7 @@ Plans:
 | 28. Fastlane Release | v5.0 | 5/5 | Complete | 2026-04-12 |
 | 29. Source Attribution Wiring | 1/1 | Complete    | 2026-04-13 | - |
 | 30. AVSpeechClient + Voice Tier Routing | 3/3 | Complete   | 2026-04-13 | - |
-| 31. Search UI + Dietary Filter Pass-Through | v5.1 | 0/TBD | Not started | - |
+| 31. Search UI + Dietary Filter Pass-Through | v5.1 | 0/2 | Not started | - |
 | 32. End-to-End Hardware Verification | v5.1 | 0/TBD | Not started | - |
 
 ---
