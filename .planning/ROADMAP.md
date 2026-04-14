@@ -150,7 +150,10 @@ Plans:
   2. A 10-query search session produces a single-digit number of Spoonacular API calls (backend logs confirm debounce + cache active)
   3. Free-tier narration, voice tier routing, source attribution, search, and dietary filter pass-through each demonstrate correct behavior end-to-end without Simulator
   4. AVSpeech enhanced voice is present on a fresh TestFlight install; if absent, compact fallback renders without error
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 32-01-PLAN.md — TestFlight build + test matrix document + SSH confirmation checkpoint
+- [ ] 32-02-PLAN.md — User executes test matrix + verification report + sign-off
 
 ## Progress
 
