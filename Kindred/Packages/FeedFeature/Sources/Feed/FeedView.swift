@@ -121,23 +121,48 @@ public struct FeedView: View {
                 .transition(.scale.combined(with: .opacity))
             }
 
-            // Card count indicator
-            CardCountIndicator(
-                current: 1,
-                total: store.cardStack.count
-            )
+            // Card count indicator (browse mode only)
+            if store.feedMode == .browse {
+                CardCountIndicator(
+                    current: 1,
+                    total: store.cardStack.count
+                )
+            }
 
-            // Dietary chip bar
+            // Search bar
+            searchBar
+                .padding(.horizontal, KindredSpacing.md)
+
+            // Dietary chip bar (always visible)
             DietaryChipBar(
                 activeFilters: store.activeDietaryFilters,
                 onFilterChanged: { filters in
                     store.send(.dietaryFilterChanged(filters))
-                }
+                },
+                resultCountOverride: store.feedMode == .search ? searchResultCountText : nil
             )
             .contentShape(Rectangle())
             .zIndex(1)
             .padding(.bottom, KindredSpacing.sm)
 
+            // Content area switches based on feedMode
+            searchContentView
+                .animation(.easeInOut(duration: 0.2), value: store.feedMode)
+        }
+    }
+
+    @ViewBuilder
+    private var searchContentView: some View {
+        switch store.feedMode {
+        case .browse:
+            browseContentView
+        case .search:
+            searchModeContentView
+        }
+    }
+
+    private var browseContentView: some View {
+        VStack(spacing: KindredSpacing.lg) {
             // Popular Recipes heading
             Text(String(localized: "Popular Recipes", bundle: .main))
                 .font(.kindredHeading1())
@@ -165,6 +190,135 @@ public struct FeedView: View {
             actionButtons
 
             Spacer()
+        }
+    }
+
+    @ViewBuilder
+    private var searchModeContentView: some View {
+        if store.isOffline {
+            // Offline state
+            VStack(spacing: KindredSpacing.lg) {
+                Spacer()
+                EmptyStateView(
+                    title: String(localized: "search.offline_title", bundle: .main),
+                    message: String(localized: "search.offline_message", bundle: .main),
+                    icon: "wifi.slash"
+                )
+                Spacer()
+            }
+        } else if store.isQuotaExhausted {
+            // Quota exhausted state
+            VStack(spacing: KindredSpacing.lg) {
+                Spacer()
+                VStack(spacing: KindredSpacing.md) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 48))
+                        .foregroundStyle(.kindredTextSecondary)
+                    Text(String(localized: "search.quota_exhausted_message", bundle: .main))
+                        .font(.kindredBody())
+                        .foregroundStyle(.kindredTextSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, KindredSpacing.xl)
+                    Button(String(localized: "search.browse_instead", bundle: .main)) {
+                        store.send(.clearSearch)
+                    }
+                    .font(.kindredBody())
+                    .foregroundStyle(.kindredAccent)
+                }
+                Spacer()
+            }
+        } else if store.isSearching && store.searchResults.isEmpty {
+            // Initial search loading
+            VStack {
+                Spacer()
+                ProgressView()
+                    .scaleEffect(1.2)
+                Spacer()
+            }
+        } else if store.searchResults.isEmpty && !store.isSearching && store.searchQuery.count >= 3 {
+            // Empty results state
+            VStack(spacing: KindredSpacing.lg) {
+                Spacer()
+                EmptyStateView(
+                    title: String(localized: "search.no_results_title", bundle: .main),
+                    message: String(localized: "search.no_results_message \(store.searchQuery)", bundle: .main),
+                    icon: "magnifyingglass"
+                )
+                if !store.activeDietaryFilters.isEmpty {
+                    Button(String(localized: "feed.clear_filters", bundle: .main)) {
+                        store.send(.dietaryFilterChanged([]))
+                    }
+                    .font(.kindredBody())
+                    .foregroundStyle(.kindredAccent)
+                }
+                Spacer()
+            }
+        } else if store.searchQuery.count > 0 && store.searchQuery.count < 3 {
+            // Query too short — show nothing (browse feed underneath conceptually)
+            Color.clear
+        } else {
+            // Results available
+            SearchResultsView(store: store, heroNamespace: heroNamespace)
+        }
+    }
+
+    private var searchBar: some View {
+        HStack(spacing: KindredSpacing.sm) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(store.isQuotaExhausted ? .kindredTextSecondary.opacity(0.5) : .kindredTextSecondary)
+                .font(.system(size: 16))
+
+            TextField(
+                String(localized: "search.placeholder", bundle: .main),
+                text: Binding(
+                    get: { store.searchQuery },
+                    set: { newValue in store.send(.searchQueryChanged(newValue)) }
+                )
+            )
+            .disabled(store.isQuotaExhausted)
+            .foregroundStyle(store.isQuotaExhausted ? .kindredTextSecondary.opacity(0.5) : .kindredTextPrimary)
+            .font(.kindredBody())
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
+            .submitLabel(.search)
+
+            if !store.searchQuery.isEmpty {
+                Button {
+                    store.send(.clearSearch)
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.kindredTextSecondary)
+                        .font(.system(size: 16))
+                }
+                .accessibilityLabel(String(localized: "search.clear_button_label", bundle: .main))
+            } else if store.isSearching {
+                ProgressView()
+                    .scaleEffect(0.8)
+            }
+        }
+        .padding(.horizontal, KindredSpacing.sm)
+        .padding(.vertical, KindredSpacing.sm)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.kindredCardSurface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.kindredTextSecondary.opacity(0.2), lineWidth: 1)
+                )
+        )
+        .opacity(store.isQuotaExhausted ? 0.6 : 1.0)
+        .accessibilityLabel(String(localized: "search.bar_label", bundle: .main))
+    }
+
+    private var searchResultCountText: String? {
+        guard store.feedMode == .search, !store.searchResults.isEmpty else { return nil }
+        let count = store.searchTotalCount > 0 ? store.searchTotalCount : store.searchResults.count
+        let activeFilterNames = store.activeDietaryFilters.sorted().map { localizedTagName(for: $0).lowercased() }
+        if activeFilterNames.isEmpty {
+            return String(localized: "search.result_count \(count)", bundle: .main)
+        } else {
+            let filterDesc = activeFilterNames.joined(separator: ", ")
+            return String(localized: "search.result_count_filtered \(count) \(filterDesc)", bundle: .main)
         }
     }
 

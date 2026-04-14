@@ -4,6 +4,7 @@ import SwiftUI
 struct DietaryChipBar: View {
     let activeFilters: Set<String>
     let onFilterChanged: (Set<String>) -> Void
+    var resultCountOverride: String? = nil
     @Environment(\.dynamicTypeSize) var dynamicTypeSize
 
     private let dietaryTags = ["Vegan", "Vegetarian", "Gluten-Free", "Dairy-Free", "Keto", "Halal", "Nut-Free", "Kosher", "Low-Carb", "Pescatarian"]
@@ -85,8 +86,15 @@ struct DietaryChipBar: View {
                 }
             }
 
-            // Filter count text below chips (when filters active)
-            if !activeFilters.isEmpty {
+            // Result count / filter count text below chips
+            if let override = resultCountOverride {
+                // Search mode: show server-side result count
+                Text(override)
+                    .font(.kindredCaption())
+                    .foregroundStyle(.kindredTextSecondary)
+                    .padding(.horizontal, 16)
+            } else if !activeFilters.isEmpty {
+                // Browse mode: show active filter description
                 Text(String(localized: "feed.showing_filtered_recipes \(chipDescription)", bundle: .main))
                     .font(.kindredCaption())
                     .foregroundStyle(.kindredTextSecondary)
