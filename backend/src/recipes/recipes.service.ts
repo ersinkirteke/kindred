@@ -21,13 +21,16 @@ export class RecipesService {
    * Search recipes with cache-first pattern and stale-while-revalidate
    */
   async searchRecipes(input: SearchRecipesInput): Promise<RecipeConnection> {
-    const { query = '', cuisines = [], diets = [], intolerances = [], first = 20, after } = input;
+    const { query = '', cuisines, diets, intolerances, first = 20, after } = input;
+    const safeCuisines = cuisines ?? [];
+    const safeDiets = diets ?? [];
+    const safeIntolerances = intolerances ?? [];
 
     // Build normalized cache key
     const cacheFilters = {
-      ...(cuisines.length > 0 && { cuisines: cuisines.join(',') }),
-      ...(diets.length > 0 && { diets: diets.join(',') }),
-      ...(intolerances.length > 0 && { intolerances: intolerances.join(',') }),
+      ...(safeCuisines.length > 0 && { cuisines: safeCuisines.join(',') }),
+      ...(safeDiets.length > 0 && { diets: safeDiets.join(',') }),
+      ...(safeIntolerances.length > 0 && { intolerances: safeIntolerances.join(',') }),
     };
     const normalizedKey = this.cacheService.normalizeCacheKey(query, cacheFilters);
 
@@ -40,7 +43,7 @@ export class RecipesService {
       // If stale, trigger background refresh but return stale data immediately
       if (isStale) {
         this.logger.log(`Serving stale cache for ${normalizedKey}, triggering background refresh`);
-        this.refreshCacheInBackground(normalizedKey, query, { cuisines, diets, intolerances }, first, 0).catch((err) => {
+        this.refreshCacheInBackground(normalizedKey, query, { cuisines: safeCuisines, diets: safeDiets, intolerances: safeIntolerances }, first, 0).catch((err) => {
           this.logger.error(`Background refresh failed: ${err.message}`);
         });
       }
@@ -61,7 +64,7 @@ export class RecipesService {
       const offset = after ? this.decodeCursor(after) : 0;
       const searchResults = await this.spoonacularService.search(
         query,
-        { cuisines, diets, intolerances },
+        { cuisines: safeCuisines, diets: safeDiets, intolerances: safeIntolerances },
         first,
         offset,
       );
