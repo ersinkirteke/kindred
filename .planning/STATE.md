@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v5.1
 milestone_name: Gap Closure
 status: completed
-last_updated: "2026-04-14T18:47:36.428Z"
+last_updated: "2026-04-14T21:41:18.745Z"
 progress:
-  total_phases: 17
+  total_phases: 18
   completed_phases: 16
-  total_plans: 58
-  completed_plans: 57
+  total_plans: 60
+  completed_plans: 58
 ---
 
 # Project State: Kindred
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 31 of 32 (Search UI + Dietary Filter Pass-through) — IN PROGRESS (plan 01 of 2 done)
-Plan: 01 complete — Apollo codegen + FeedReducer search data layer
-Status: Phase 31 plan 01 complete — search actions, debounce, pagination, chip mapping wired
-Last activity: 2026-04-14 — Phase 31 Plan 01: SearchRecipes operation + FeedReducer search logic committed
+Phase: 32 of 32 (End-to-End Hardware Verification) — IN PROGRESS (plan 01 of 2 checkpoint)
+Plan: 01 at checkpoint — TestFlight build 568 uploaded, test matrix created, awaiting human confirmation
+Status: Phase 32 plan 01 checkpoint — awaiting human: confirm build 568 in TestFlight + add to Internal Testers group in ASC
+Last activity: 2026-04-14 — Phase 32 Plan 01: Build 568 + test-matrix-v5.1.md
 
-Progress: [##########░░░░░░░░░░░░░░░░░░] ~35%
+Progress: [####################░░░░░░░░] ~72%
 
 ---
 
@@ -62,6 +62,7 @@ Progress: [##########░░░░░░░░░░░░░░░░░░] ~35
 | Phase 30-avspeechclient-voice-tier-routing P03 | 9 | 1 tasks | 8 files |
 | Phase 30 P03 | 45 | 2 tasks | 10 files |
 | Phase 31 P01 | 18 | 2 tasks | 5 files |
+| Phase 32 P01 | 13 | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,8 @@ Recent decisions affecting v5.1:
 - [Phase 30]: Paywall uses fullScreenCover not sheet to avoid SwiftUI sheet conflict with voice picker
 - [Phase 31]: SearchDebounceID uses enum case (.debounce) not type for TCA .cancel(id:) — empty enum cannot conform to Hashable
 - [Phase 31]: Search uses .networkOnly Apollo cache policy; chip filter in search mode re-triggers server executeSearch
+- [Phase 32]: Pilot bug #28630: Beta App Description error fires after upload completes — binary IS uploaded, add to Internal Testers group manually in ASC
+- [Phase 32]: AI agent config dirs added to .gitignore to keep git clean for ensure_git_status_clean
 
 ### Roadmap Evolution
 
@@ -114,10 +117,10 @@ None.
 ## Session Continuity
 
 Last session: 2026-04-14
-Stopped at: Phase 31 Plan 01 complete — Apollo codegen + FeedReducer search logic committed (af2e31c)
+Stopped at: Phase 32 Plan 01 checkpoint — TestFlight build 568 uploaded (pilot bug #28630 — add to Internal Testers in ASC manually), test matrix at Kindred/docs/test-matrix-v5.1.md created
 Resume file: None
 
-**Next action:** Phase 31 Plan 02 — Search UI (SearchBar + results list) and dietary filter wire-up
+**Next action:** Confirm build 568 is available in TestFlight → execute test matrix on device → continue with Phase 32 Plan 02 (record results)
 
 ---
 
