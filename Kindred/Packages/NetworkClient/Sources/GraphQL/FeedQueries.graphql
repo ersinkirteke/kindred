@@ -32,6 +32,40 @@ query PopularRecipes($first: Int, $after: String) {
   }
 }
 
+query SearchRecipes($input: SearchRecipesInput!) {
+  searchRecipes(input: $input) {
+    edges {
+      node {
+        id
+        name
+        description
+        prepTime
+        cookTime
+        calories
+        imageUrl
+        imageStatus
+        popularityScore
+        engagementLoves
+        dietaryTags
+        difficulty
+        cuisineType
+        ingredients {
+          name
+          quantity
+          unit
+          orderIndex
+        }
+      }
+      cursor
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    totalCount
+  }
+}
+
 query FeedFiltered($latitude: Float!, $longitude: Float!, $first: Int, $after: String, $filters: FeedFiltersInput, $lastFetchedAt: String) {
   feed(latitude: $latitude, longitude: $longitude, first: $first, after: $after, filters: $filters, lastFetchedAt: $lastFetchedAt) {
     edges {
