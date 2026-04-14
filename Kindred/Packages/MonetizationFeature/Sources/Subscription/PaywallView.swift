@@ -20,11 +20,26 @@ public struct PaywallView: View {
 
     public var body: some View {
         VStack(spacing: KindredSpacing.lg) {
-            // Drag indicator
-            Capsule()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 36, height: 5)
-                .padding(.top, KindredSpacing.sm)
+            // Top bar with drag indicator and close button
+            ZStack {
+                Capsule()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 36, height: 5)
+
+                HStack {
+                    Spacer()
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.gray.opacity(0.6))
+                    }
+                    .accessibilityLabel(String(localized: "accessibility.close", bundle: .main))
+                }
+            }
+            .padding(.top, KindredSpacing.sm)
+            .padding(.horizontal, KindredSpacing.md)
 
             VStack(spacing: KindredSpacing.xl) {
                 // Heading

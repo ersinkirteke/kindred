@@ -873,6 +873,12 @@ public struct VoicePlaybackReducer {
                     return .none
                 }
 
+                // Don't let stream's .playing override a user-initiated .paused
+                // (AVSpeech pauseSpeaking can race with the next utterance's didStart)
+                if case .playing = status, currentPlayback.status == .paused {
+                    return .none
+                }
+
                 state.currentPlayback = CurrentPlayback(
                     recipeId: currentPlayback.recipeId,
                     recipeName: currentPlayback.recipeName,

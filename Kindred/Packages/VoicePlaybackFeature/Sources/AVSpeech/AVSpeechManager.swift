@@ -59,7 +59,7 @@ final class AVSpeechManager: NSObject {
     }
 
     func pause() {
-        synthesizer?.pauseSpeaking(at: .word)
+        synthesizer?.pauseSpeaking(at: .immediate)
     }
 
     func resume() {
