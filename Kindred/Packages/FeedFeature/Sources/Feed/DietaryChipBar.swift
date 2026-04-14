@@ -26,7 +26,7 @@ struct DietaryChipBar: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: KindredSpacing.xs) {
+        VStack(alignment: .leading, spacing: KindredSpacing.sm) {
             // At AX sizes: wrapping layout; otherwise: horizontal scroll
             if dynamicTypeSize.isAccessibilitySize {
                 // Wrapping vertical flow layout for accessibility sizes

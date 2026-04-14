@@ -8,5 +8,5 @@ ADMOB_DETAIL_BANNER_ID = ca-app-pub-3940256099942544/2435281174
 // Clerk authentication
 CLERK_PUBLISHABLE_KEY = pk_test_ZHJpdmluZy1wb3NzdW0tNjUuY2xlcmsuYWNjb3VudHMuZGV2JA
 
-// Backend API (development: Mac LAN IP, reachable by device on same Wi-Fi)
-API_BASE_URL = http:/$()/192.168.0.162:3000
+// Backend API (production)
+API_BASE_URL = https:/$()/api.kindredcook.app

@@ -109,29 +109,21 @@ public struct FeedView: View {
     }
 
     private var mainFeedView: some View {
-        VStack(spacing: KindredSpacing.lg) {
-            Spacer()
-                .frame(height: KindredSpacing.md)
-
+        VStack(spacing: 0) {
             // DNA Activation Card (appears once when crossing 50 interactions)
             if store.showDNAActivationCard {
                 DNAActivationCard {
                     store.send(.dismissDNAActivationCard)
                 }
                 .transition(.scale.combined(with: .opacity))
-            }
-
-            // Card count indicator (browse mode only)
-            if store.feedMode == .browse {
-                CardCountIndicator(
-                    current: 1,
-                    total: store.cardStack.count
-                )
+                .padding(.top, KindredSpacing.sm)
             }
 
             // Search bar
             searchBar
                 .padding(.horizontal, KindredSpacing.md)
+                .padding(.top, KindredSpacing.sm)
+                .padding(.bottom, KindredSpacing.md)
 
             // Dietary chip bar (always visible)
             DietaryChipBar(
@@ -145,10 +137,11 @@ public struct FeedView: View {
             .zIndex(1)
             .padding(.bottom, KindredSpacing.sm)
 
-            // Content area switches based on feedMode
+            // Content area
             searchContentView
                 .animation(.easeInOut(duration: 0.2), value: store.feedMode)
         }
+        .frame(maxHeight: .infinity, alignment: .top)
     }
 
     @ViewBuilder
@@ -162,12 +155,22 @@ public struct FeedView: View {
     }
 
     private var browseContentView: some View {
-        VStack(spacing: KindredSpacing.lg) {
-            // Popular Recipes heading
-            Text(String(localized: "Popular Recipes", bundle: .main))
-                .font(.kindredHeading1())
-                .foregroundStyle(.kindredTextPrimary)
-                .padding(.horizontal, KindredSpacing.lg)
+        VStack(spacing: KindredSpacing.sm) {
+            // Popular Recipes heading with card count
+            HStack {
+                Text(String(localized: "Popular Recipes", bundle: .main))
+                    .font(.kindredHeading2())
+                    .foregroundStyle(.kindredTextPrimary)
+
+                Spacer()
+
+                CardCountIndicator(
+                    current: 1,
+                    total: store.cardStack.count
+                )
+            }
+            .padding(.horizontal, KindredSpacing.lg)
+            .padding(.top, KindredSpacing.xs)
 
             // Card stack
             SwipeCardStack(
@@ -188,8 +191,7 @@ public struct FeedView: View {
 
             // Action buttons
             actionButtons
-
-            Spacer()
+                .padding(.bottom, KindredSpacing.lg)
         }
     }
 
@@ -225,6 +227,22 @@ public struct FeedView: View {
                     .font(.kindredBody())
                     .foregroundStyle(.kindredAccent)
                 }
+                Spacer()
+            }
+        } else if let searchError = store.searchError {
+            // Search error state
+            VStack(spacing: KindredSpacing.lg) {
+                Spacer()
+                EmptyStateView(
+                    title: String(localized: "search.error_title", bundle: .main),
+                    message: searchError,
+                    icon: "exclamationmark.triangle"
+                )
+                Button(String(localized: "search.browse_instead", bundle: .main)) {
+                    store.send(.clearSearch)
+                }
+                .font(.kindredBody())
+                .foregroundStyle(.kindredAccent)
                 Spacer()
             }
         } else if store.isSearching && store.searchResults.isEmpty {
@@ -280,7 +298,7 @@ public struct FeedView: View {
             .font(.kindredBody())
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
-            .submitLabel(.search)
+            .submitLabel(.done)
 
             if !store.searchQuery.isEmpty {
                 Button {

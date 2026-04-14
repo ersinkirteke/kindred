@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import DesignSystem
 import SwiftUI
 
 struct SearchResultsView: View {
@@ -7,7 +8,7 @@ struct SearchResultsView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
+            VStack(spacing: KindredSpacing.md) {
                 ForEach(store.searchResults) { recipe in
                     SearchResultCardView(
                         recipe: recipe,
@@ -25,12 +26,22 @@ struct SearchResultsView: View {
                 // Bottom loading spinner for pagination
                 if store.isSearching && !store.searchResults.isEmpty {
                     ProgressView()
-                        .padding()
+                        .padding(KindredSpacing.lg)
+                }
+
+                // End of results
+                if !store.searchHasNextPage && !store.searchResults.isEmpty && !store.isSearching {
+                    Text(String(localized: "search.end_of_results", bundle: .main))
+                        .font(.kindredCaption())
+                        .foregroundStyle(.kindredTextSecondary)
+                        .padding(.vertical, KindredSpacing.sm)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+            .padding(.horizontal, KindredSpacing.md)
+            .padding(.bottom, KindredSpacing.md)
         }
         .scrollDismissesKeyboard(.interactively)
+        .scrollBounceBehavior(.basedOnSize)
+        .background(Color.kindredBackground)
     }
 }

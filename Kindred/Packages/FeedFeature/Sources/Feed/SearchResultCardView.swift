@@ -8,17 +8,20 @@ struct SearchResultCardView: View {
     let onTap: (String) -> Void
 
     @Environment(\.accessibilityReduceMotion) var reduceMotion
+    @State private var imageLoadFailed = false
 
     var body: some View {
-        Button {
-            onTap(recipe.id)
-        } label: {
-            cardContent
+        if !imageLoadFailed {
+            Button {
+                onTap(recipe.id)
+            } label: {
+                cardContent
+            }
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(accessibilityLabelText)
+            .accessibilityAddTraits(.isButton)
         }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityLabelText)
-        .accessibilityAddTraits(.isButton)
     }
 
     private var cardContent: some View {
@@ -84,7 +87,7 @@ struct SearchResultCardView: View {
 
     @ViewBuilder
     private var heroImageView: some View {
-        if let imageUrl = recipe.imageUrl, let url = URL(string: imageUrl) {
+        if let imageUrl = recipe.imageUrl, let url = URL(string: imageUrl), !imageLoadFailed {
             KFImage(url)
                 .placeholder {
                     Rectangle()
@@ -94,20 +97,25 @@ struct SearchResultCardView: View {
                                 .tint(.kindredTextSecondary)
                         )
                 }
+                .onFailure { _ in imageLoadFailed = true }
                 .fade(duration: 0.25)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .accessibilityLabel(String(localized: "Photo of \(recipe.name)", bundle: .main))
         } else {
-            Rectangle()
-                .fill(Color.kindredDivider)
-                .overlay(
-                    Image(systemName: "fork.knife")
-                        .font(.system(size: 40))
-                        .foregroundStyle(.kindredTextSecondary)
-                )
-                .accessibilityLabel(String(localized: "Photo of \(recipe.name)", bundle: .main))
+            noImagePlaceholder
         }
+    }
+
+    private var noImagePlaceholder: some View {
+        Rectangle()
+            .fill(Color.kindredDivider)
+            .overlay(
+                Image(systemName: "fork.knife")
+                    .font(.system(size: 40))
+                    .foregroundStyle(.kindredTextSecondary)
+            )
+            .accessibilityLabel(String(localized: "Photo of \(recipe.name)", bundle: .main))
     }
 
     private var metadataRow: some View {

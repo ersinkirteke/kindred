@@ -70,6 +70,7 @@ public struct FeedReducer {
         public var searchHasNextPage: Bool = true
         public var isQuotaExhausted: Bool = false
         public var searchTotalCount: Int = 0
+        public var searchError: String? = nil
 
         public init() {}
     }
@@ -728,6 +729,10 @@ public struct FeedReducer {
                 return .none
 
             case let .searchQueryChanged(query):
+                // Skip if query hasn't changed and we already have results or are searching
+                if query == state.searchQuery && (!state.searchResults.isEmpty || state.isSearching) {
+                    return .none
+                }
                 state.searchQuery = query
                 if query.isEmpty {
                     state.feedMode = .browse
@@ -741,6 +746,10 @@ public struct FeedReducer {
                 }
                 state.isSearching = true
                 state.searchResults = []
+                state.searchError = nil
+                state.searchEndCursor = nil
+                state.searchHasNextPage = true
+                state.searchTotalCount = 0
                 return .run { [filters = state.activeDietaryFilters] send in
                     try await Task.sleep(nanoseconds: 300_000_000)
                     await send(.executeSearch(query: query, filters: filters, cursor: nil))
@@ -764,6 +773,7 @@ public struct FeedReducer {
                         )
                         if let connection = result.data?.searchRecipes {
                             let cards = connection.edges.map { RecipeCard.from(searchRecipe: $0.node) }
+                                .filter { $0.imageUrl != nil && !$0.imageUrl!.isEmpty }
                             let endCursor = connection.pageInfo.endCursor
                             let hasNextPage = connection.pageInfo.hasNextPage
                             let totalCount = connection.totalCount
@@ -774,17 +784,18 @@ public struct FeedReducer {
                             await send(.searchResultsLoaded(.success(([], nil, false, 0))))
                         }
                     } catch {
+                        feedLogger.error("Search failed: \(error.localizedDescription, privacy: .public) — \(String(describing: error), privacy: .public)")
                         await send(.searchResultsLoaded(.failure(error)))
                     }
                 }
 
             case let .searchResultsLoaded(.success((cards, cursor, hasMore, total))):
                 state.isSearching = false
-                if cursor != nil {
-                    // Pagination: append
+                if state.searchEndCursor != nil {
+                    // We had a previous cursor → this is a pagination response, append
                     state.searchResults.append(contentsOf: cards)
                 } else {
-                    // Fresh search: replace
+                    // No previous cursor → fresh search, replace
                     state.searchResults = cards
                 }
                 state.searchEndCursor = cursor
@@ -795,10 +806,11 @@ public struct FeedReducer {
             case let .searchResultsLoaded(.failure(error)):
                 state.isSearching = false
                 let message = error.localizedDescription.lowercased()
+                feedLogger.error("Search error received: \(error.localizedDescription, privacy: .public)")
                 if message.contains("quota") {
                     state.isQuotaExhausted = true
                 } else {
-                    state.error = error.localizedDescription
+                    state.searchError = error.localizedDescription
                 }
                 return .none
 
@@ -822,6 +834,7 @@ public struct FeedReducer {
                 state.searchHasNextPage = true
                 state.searchTotalCount = 0
                 state.isQuotaExhausted = false
+                state.searchError = nil
                 return .cancel(id: SearchDebounceID.debounce)
 
             case let .filteredRecipesLoaded(.success(cards)):
