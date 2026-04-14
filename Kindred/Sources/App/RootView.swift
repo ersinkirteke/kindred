@@ -123,9 +123,18 @@ struct RootView: View {
                 }
             }
         )) {
-            PaywallView(store: Store(initialState: SubscriptionReducer.State()) {
-                SubscriptionReducer()
-            })
+            PaywallView(
+                store: Store(initialState: SubscriptionReducer.State()) {
+                    SubscriptionReducer()
+                },
+                onPurchaseCompleted: {
+                    store.send(.profile(.simulatedPurchaseCompleted))
+                    store.send(.feed(.subscriptionStatusUpdated(.pro(
+                        expiresDate: Calendar.current.date(byAdding: .month, value: 1, to: Date()) ?? Date(),
+                        isInGracePeriod: false
+                    ))))
+                }
+            )
         }
         .sheet(isPresented: Binding(
             get: { store.consentState.isShowingPrePrompt },

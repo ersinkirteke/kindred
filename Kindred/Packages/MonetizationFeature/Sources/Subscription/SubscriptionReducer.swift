@@ -1,6 +1,9 @@
 import Foundation
 import StoreKit
 import ComposableArchitecture
+import OSLog
+
+private let logger = Logger(subsystem: "com.kindred", category: "Subscription")
 
 @Reducer
 public struct SubscriptionReducer {
@@ -51,10 +54,21 @@ public struct SubscriptionReducer {
             switch action {
             case .onAppear:
                 return .merge(
-                    // Load products
+                    // Load products with timeout (StoreKit hangs without sandbox)
                     .run { send in
                         do {
-                            let products = try await subscriptionClient.loadProducts()
+                            let products = try await withThrowingTaskGroup(of: [Product].self) { group in
+                                group.addTask {
+                                    try await subscriptionClient.loadProducts()
+                                }
+                                group.addTask {
+                                    try await Task.sleep(for: .seconds(5))
+                                    throw CancellationError()
+                                }
+                                let result = try await group.next() ?? []
+                                group.cancelAll()
+                                return result
+                            }
                             await send(.productsLoaded(products))
                         } catch {
                             await send(.productsLoaded([]))
@@ -77,23 +91,29 @@ public struct SubscriptionReducer {
                 )
 
             case .productsLoaded(let products):
+                logger.info("Products loaded: \(products.count) products")
                 state.products = products
                 state.isLoadingProducts = false
                 // Extract display price from first product
                 if let product = products.first {
                     state.displayPrice = product.displayPrice
+                    logger.info("Product: \(product.id), price: \(product.displayPrice)")
                 }
                 return .none
 
             case .entitlementChecked(let status):
+                logger.info("Entitlement checked: \(String(describing: status))")
                 state.subscriptionStatus = status
                 return .none
 
             case .subscribeTapped:
+                let productCount = state.products.count
+                logger.info("Subscribe tapped! products.count=\(productCount)")
                 state.isPurchasing = true
                 state.error = nil
 
                 if let product = state.products.first {
+                    logger.info("Attempting real StoreKit purchase for \(product.id)")
                     // Real StoreKit purchase
                     return .run { send in
                         do {
@@ -101,6 +121,7 @@ public struct SubscriptionReducer {
                             let status = await subscriptionClient.currentEntitlement()
                             await send(.purchaseCompleted(status, transaction))
                         } catch let error as SubscriptionError {
+                            logger.error("Purchase SubscriptionError: \(error.localizedDescription)")
                             switch error {
                             case .purchaseCancelled:
                                 await send(.purchaseFailed(""))
@@ -108,10 +129,12 @@ public struct SubscriptionReducer {
                                 await send(.purchaseFailed(error.localizedDescription))
                             }
                         } catch {
+                            logger.error("Purchase error: \(error.localizedDescription)")
                             await send(.purchaseFailed(error.localizedDescription))
                         }
                     }
                 } else {
+                    logger.info("No products — using simulated purchase path")
                     #if DEBUG
                     // Simulated purchase when StoreKit Testing is not available (CLI install)
                     return .run { send in

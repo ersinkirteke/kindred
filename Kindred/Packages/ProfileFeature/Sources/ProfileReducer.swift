@@ -174,20 +174,33 @@ public struct ProfileReducer {
                 return .none
 
             case .loadSubscriptionStatus:
-                return .run { send in
-                    // Load products and check entitlement in parallel
-                    async let products = try subscriptionClient.loadProducts()
-                    async let status = subscriptionClient.currentEntitlement()
-
-                    let loadedProducts = try await products
-                    await send(.subscriptionProductsLoaded(loadedProducts))
-
-                    let loadedStatus = await status
-                    await send(.subscriptionStatusLoaded(loadedStatus))
-                } catch: { error, send in
-                    // If loading fails, default to free tier
-                    await send(.subscriptionStatusLoaded(.free))
-                }
+                return .merge(
+                    // Load products with timeout (StoreKit hangs without sandbox)
+                    .run { send in
+                        do {
+                            let products = try await withThrowingTaskGroup(of: [Product].self) { group in
+                                group.addTask {
+                                    try await subscriptionClient.loadProducts()
+                                }
+                                group.addTask {
+                                    try await Task.sleep(for: .seconds(5))
+                                    throw CancellationError()
+                                }
+                                let result = try await group.next() ?? []
+                                group.cancelAll()
+                                return result
+                            }
+                            await send(.subscriptionProductsLoaded(products))
+                        } catch {
+                            await send(.subscriptionProductsLoaded([]))
+                        }
+                    },
+                    // Check entitlement independently
+                    .run { send in
+                        let status = await subscriptionClient.currentEntitlement()
+                        await send(.subscriptionStatusLoaded(status))
+                    }
+                )
 
             case let .subscriptionStatusLoaded(status):
                 state.subscriptionStatus = status

@@ -5,14 +5,17 @@ import DesignSystem
 
 public struct PaywallView: View {
     let store: StoreOf<SubscriptionReducer>
+    var onPurchaseCompleted: (() -> Void)?
+    @Environment(\.dismiss) private var dismiss
 
     // @ScaledMetric for Dynamic Type support
     @ScaledMetric(relativeTo: .largeTitle) private var heading1Size: CGFloat = 34
     @ScaledMetric(relativeTo: .headline) private var bodySize: CGFloat = 18
     @ScaledMetric(relativeTo: .caption) private var captionSize: CGFloat = 14
 
-    public init(store: StoreOf<SubscriptionReducer>) {
+    public init(store: StoreOf<SubscriptionReducer>, onPurchaseCompleted: (() -> Void)? = nil) {
         self.store = store
+        self.onPurchaseCompleted = onPurchaseCompleted
     }
 
     public var body: some View {
@@ -115,6 +118,14 @@ public struct PaywallView: View {
                         .padding(.horizontal, KindredSpacing.md)
                         .accessibilityLabel("Error: \(error)")
                 }
+
+                #if DEBUG
+                // Debug state (temporary)
+                Text("loading=\(store.isLoadingProducts) purchasing=\(store.isPurchasing) products=\(store.products.count) status=\(String(describing: store.subscriptionStatus))")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(.gray)
+                    .multilineTextAlignment(.center)
+                #endif
             }
             .padding(KindredSpacing.lg)
         }
@@ -124,6 +135,12 @@ public struct PaywallView: View {
         .accessibilityLabel(String(localized: "accessibility.paywall.label", bundle: .main))
         .onAppear {
             store.send(.onAppear)
+        }
+        .onChange(of: store.subscriptionStatus) { _, newValue in
+            if case .pro = newValue {
+                onPurchaseCompleted?()
+                dismiss()
+            }
         }
     }
 }
