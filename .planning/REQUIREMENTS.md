@@ -17,11 +17,11 @@ Requirements for v5.1 Gap Closure. Each maps to roadmap phases.
 
 ### Search & Filtering
 
-- [ ] **SEARCH-01**: User can search recipes by keyword via search bar in feed
+- [x] **SEARCH-01**: User can search recipes by keyword via search bar in feed
 - [ ] **SEARCH-02**: Search results display with same card layout as popular recipes feed
-- [ ] **SEARCH-03**: Search includes debounce (300ms+) to respect Spoonacular quota (150 req/day)
-- [ ] **FILTER-01**: Dietary filter chips pass parameters through GraphQL to Spoonacular API
-- [ ] **FILTER-02**: Diet vs intolerance tags are correctly classified for Spoonacular API mapping
+- [x] **SEARCH-03**: Search includes debounce (300ms+) to respect Spoonacular quota (150 req/day)
+- [x] **FILTER-01**: Dietary filter chips pass parameters through GraphQL to Spoonacular API
+- [x] **FILTER-02**: Diet vs intolerance tags are correctly classified for Spoonacular API mapping
 
 ### Source Attribution
 
@@ -63,11 +63,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VOICE-03 | Phase 30 | Complete |
 | VOICE-04 | Phase 30 | Complete |
 | VOICE-05 | Phase 30 | Complete |
-| SEARCH-01 | Phase 31 | Pending |
+| SEARCH-01 | Phase 31 | Complete |
 | SEARCH-02 | Phase 31 | Pending |
-| SEARCH-03 | Phase 31 | Pending |
-| FILTER-01 | Phase 31 | Pending |
-| FILTER-02 | Phase 31 | Pending |
+| SEARCH-03 | Phase 31 | Complete |
+| FILTER-01 | Phase 31 | Complete |
+| FILTER-02 | Phase 31 | Complete |
 
 **Coverage:**
 - v5.1 requirements: 11 total

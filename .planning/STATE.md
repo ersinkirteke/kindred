@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v5.1
 milestone_name: Gap Closure
 status: completed
-last_updated: "2026-04-13T19:07:02.291Z"
+last_updated: "2026-04-14T14:46:20.362Z"
 progress:
-  total_phases: 16
+  total_phases: 17
   completed_phases: 15
-  total_plans: 56
-  completed_plans: 55
+  total_plans: 58
+  completed_plans: 56
 ---
 
 # Project State: Kindred
 
-**Last Updated:** 2026-04-13
-**Status:** Milestone complete
+**Last Updated:** 2026-04-14
+**Status:** In progress — Phase 31
 
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 30 of 32 (AVSpeechClient + Voice Tier Routing) — COMPLETE (all 3 plans done, device-verified)
-Plan: 03 complete — device verification passed, 6 fixes applied
-Status: Phase 30 complete — ready for Phase 31 or Phase 32
-Last activity: 2026-04-13 — Phase 30 Plan 03: device verification + 6 AVSpeech narration fixes committed
+Phase: 31 of 32 (Search UI + Dietary Filter Pass-through) — IN PROGRESS (plan 01 of 2 done)
+Plan: 01 complete — Apollo codegen + FeedReducer search data layer
+Status: Phase 31 plan 01 complete — search actions, debounce, pagination, chip mapping wired
+Last activity: 2026-04-14 — Phase 31 Plan 01: SearchRecipes operation + FeedReducer search logic committed
 
 Progress: [##########░░░░░░░░░░░░░░░░░░] ~35%
 
@@ -61,6 +61,7 @@ Progress: [##########░░░░░░░░░░░░░░░░░░] ~35
 | Phase 30-avspeechclient-voice-tier-routing P02 | 11 | 2 tasks | 2 files |
 | Phase 30-avspeechclient-voice-tier-routing P03 | 9 | 1 tasks | 8 files |
 | Phase 30 P03 | 45 | 2 tasks | 10 files |
+| Phase 31 P01 | 18 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,8 @@ Recent decisions affecting v5.1:
 - [Phase 30]: AVSpeech progress bar uses step-based progress (step N / total), not time-based duration
 - [Phase 30]: NLLanguageRecognizer auto-detects recipe language so English recipes use English TTS voice on Turkish device
 - [Phase 30]: Paywall uses fullScreenCover not sheet to avoid SwiftUI sheet conflict with voice picker
+- [Phase 31]: SearchDebounceID uses enum case (.debounce) not type for TCA .cancel(id:) — empty enum cannot conform to Hashable
+- [Phase 31]: Search uses .networkOnly Apollo cache policy; chip filter in search mode re-triggers server executeSearch
 
 ### Roadmap Evolution
 
@@ -110,11 +113,11 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-13
-Stopped at: Phase 30 Plan 03 complete — both tasks done, device-verified, 6 fixes committed (bf80286)
+Last session: 2026-04-14
+Stopped at: Phase 31 Plan 01 complete — Apollo codegen + FeedReducer search logic committed (af2e31c)
 Resume file: None
 
-**Next action:** Phase 31 or Phase 32 (hardware iOS 17 AVSpeech verification)
+**Next action:** Phase 31 Plan 02 — Search UI (SearchBar + results list) and dietary filter wire-up
 
 ---
 
