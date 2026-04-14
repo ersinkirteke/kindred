@@ -30,8 +30,53 @@ Pods/
 # Claude Code
 .agents/
 
+# AI agent config directories (various coding assistants)
+Kindred/.adal/
+Kindred/.augment/
+Kindred/.claude/
+Kindred/.codebuddy/
+Kindred/.commandcode/
+Kindred/.continue/
+Kindred/.crush/
+Kindred/.factory/
+Kindred/.goose/
+Kindred/.iflow/
+Kindred/.junie/
+Kindred/.kilocode/
+Kindred/.kiro/
+Kindred/.kode/
+Kindred/.mcpjam/
+Kindred/.mux/
+Kindred/.neovate/
+Kindred/.openhands/
+Kindred/.pi/
+Kindred/.pochi/
+Kindred/.qoder/
+Kindred/.qwen/
+Kindred/.roo/
+Kindred/.trae/
+Kindred/.vibe/
+Kindred/.windsurf/
+Kindred/.zencoder/
+Kindred/skills/
+Kindred/skills-lock.json
+
+# Misc untracked build artifacts
+Kindred/apollo-ios-cli
+Kindred/appicon.png
+Kindred/Sources/Resources/Assets.xcassets/
+
+# Planning docs in progress
+.planning/phases/29-source-attribution-wiring/
+
+# Fastlane generated files
+Kindred/fastlane/Gemfile.lock
+Kindred/fastlane/README.md
+Kindred/fastlane/rating_config.json
+
 # Fastlane
 fastlane/report.xml
+Kindred/fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
