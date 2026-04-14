@@ -555,6 +555,16 @@ struct AppReducer {
                     return .send(.authGateRequested(gatedAction))
                 }
 
+            case .voicePlayback(.upgradeTapped), .voicePlayback(.showPaywall):
+                // Auth gate: guest users must sign in before seeing the paywall
+                if case .guest = state.currentAuthState {
+                    state.voicePlaybackState.showPaywall = false
+                    state.authGate = SignInGateReducer.State()
+                    return .none
+                }
+                // Authenticated user: let VoicePlaybackReducer handle it normally
+                return .none
+
             case .voicePlayback:
                 // Sync playback status, mini player visibility, step index, and AVSpeech flag to recipe detail
                 // Always send (no equality guard) — TCA's @ObservableState deduplicates renders

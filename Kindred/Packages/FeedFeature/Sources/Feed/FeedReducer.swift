@@ -719,6 +719,12 @@ public struct FeedReducer {
 
                 // Search mode: re-trigger server-side search with new filters
                 if state.feedMode == .search && state.searchQuery.count >= 3 {
+                    state.isSearching = true
+                    state.searchResults = []
+                    state.searchEndCursor = nil
+                    state.searchHasNextPage = true
+                    state.searchTotalCount = 0
+                    state.searchError = nil
                     return .send(.executeSearch(query: state.searchQuery, filters: newFilters, cursor: nil))
                 }
 
@@ -928,6 +934,16 @@ public struct FeedReducer {
                 return .none
 
             case .showPaywall:
+                // Guest users need to sign in first — delegate to AppReducer auth gate
+                guard case .authenticated = state.currentAuthState else {
+                    return .send(.delegate(.authGateRequested(
+                        recipeId: "",
+                        recipeName: "",
+                        imageUrl: nil,
+                        cuisineType: nil,
+                        actionType: "subscribe"
+                    )))
+                }
                 state.paywall = SubscriptionReducer.State()
                 return .none
 
