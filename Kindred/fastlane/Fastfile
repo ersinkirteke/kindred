@@ -133,14 +133,16 @@ platform :ios do
       xcodebuild_formatter: '' # Disable xcpretty due to bundler 4 incompatibility
     )
 
-    # Upload to TestFlight
+    # Upload to TestFlight — skip distribution to avoid pilot bug #28630
+    # ("Beta App Description is missing"). The binary uploads fine; distribution
+    # to Internal Testers is done automatically by ASC for internal groups.
     upload_to_testflight(
       skip_waiting_for_build_processing: false,
       distribute_external: false,
-      groups: ["Internal Testers"]
+      skip_submission: true
     )
 
-    UI.success("Internal beta build uploaded successfully!")
+    UI.success("Internal beta build uploaded successfully! Add to Internal Testers in ASC if needed.")
   end
 
   desc "Build and distribute external TestFlight beta"
