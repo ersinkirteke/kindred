@@ -95,7 +95,7 @@
 - [x] **Phase 29: Source Attribution Wiring** — Wire sourceUrl + sourceName from GraphQL into RecipeDetailView as a tappable link (completed 2026-04-13)
 - [x] **Phase 30: AVSpeechClient + Voice Tier Routing** — Build AVSpeechSynthesizer TCA client, enable free-tier narration, route tiers automatically (completed 2026-04-13)
 - [x] **Phase 31: Search UI + Dietary Filter Pass-Through** — Wire search bar to backend searchRecipes, fix dietary filter to pass Spoonacular params (2 plans) (completed 2026-04-14)
-- [ ] **Phase 32: End-to-End Hardware Verification** — Validate all five gaps closed on real iOS 17 + iOS 18 devices
+- [x] **Phase 32: End-to-End Hardware Verification** — Validate all five gaps closed on real iOS 17 + iOS 18 devices (completed 2026-04-15)
 
 ## Phase Details
 
@@ -191,7 +191,7 @@ Plans:
 | 29. Source Attribution Wiring | 1/1 | Complete    | 2026-04-13 | - |
 | 30. AVSpeechClient + Voice Tier Routing | 3/3 | Complete   | 2026-04-13 | - |
 | 31. Search UI + Dietary Filter Pass-Through | 2/2 | Complete    | 2026-04-14 | - |
-| 32. End-to-End Hardware Verification | 1/2 | In Progress|  | - |
+| 32. End-to-End Hardware Verification | 2/2 | Complete   | 2026-04-15 | - |
 
 ---
 

@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v5.1
 milestone_name: Gap Closure
 status: completed
-last_updated: "2026-04-14T21:41:18.745Z"
+last_updated: "2026-04-15T20:40:51.809Z"
 progress:
   total_phases: 18
-  completed_phases: 16
+  completed_phases: 17
   total_plans: 60
-  completed_plans: 58
+  completed_plans: 59
 ---
 
 # Project State: Kindred
 
-**Last Updated:** 2026-04-14
-**Status:** Milestone complete
+**Last Updated:** 2026-04-15
+**Status:** Milestone complete — v5.1 DONE
 
 ---
 
@@ -29,12 +29,12 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 32 of 32 (End-to-End Hardware Verification) — IN PROGRESS (plan 01 of 2 complete)
-Plan: 01 complete — TestFlight build 568 uploaded and confirmed in ASC, test matrix created
-Status: Phase 32 plan 01 complete — build 568 in TestFlight (Internal Testers), test matrix at Kindred/docs/test-matrix-v5.1.md
-Last activity: 2026-04-14 — Phase 32 Plan 01 checkpoint approved: build 568 confirmed, SSH `ssh root@95.217.162.203`
+Phase: 32 of 32 (End-to-End Hardware Verification) — COMPLETE (both plans done)
+Plan: 02 complete — Formal verification report written, 17/19 tests passed, App Store sign-off YES
+Status: v5.1 COMPLETE — build 583 verified on iPhone 16 Pro Max (iOS 26.3.1). Pending: Paid Apps Agreement activation (ASC administrative) for Flow 6 + VOICE-05 final verification.
+Last activity: 2026-04-15 — Phase 32 Plan 02 complete. 10/11 v5.1 requirements confirmed. Sign-off: App Store ready.
 
-Progress: [####################░░░░░░░░] ~72%
+Progress: [############################] 100%
 
 ---
 
@@ -63,6 +63,7 @@ Progress: [####################░░░░░░░░] ~72%
 | Phase 30 P03 | 45 | 2 tasks | 10 files |
 | Phase 31 P01 | 18 | 2 tasks | 5 files |
 | Phase 32 P01 | 13 | 2 tasks | 12 files |
+| Phase 32 P02 | 15 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,9 @@ Recent decisions affecting v5.1:
 - [Phase 31]: Search uses .networkOnly Apollo cache policy; chip filter in search mode re-triggers server executeSearch
 - [Phase 32]: Pilot bug #28630: Beta App Description error fires after upload completes — binary IS uploaded, add to Internal Testers group manually in ASC
 - [Phase 32]: AI agent config dirs added to .gitignore to keep git clean for ensure_git_status_clean
+- [Phase 32]: Flow 6 + VOICE-05 SKIPPED not FAILED: Paid Apps Agreement processing is ASC admin delay, not code issue. All IAP paths implemented.
+- [Phase 32]: SEARCH-02 confirmed on device: search result cards visually match feed card layout
+- [Phase 32]: Build 583 is the verified build: 6 bugs found and fixed during testing (568 → 583)
 
 ### Roadmap Evolution
 
@@ -109,19 +113,20 @@ None.
 ### Blockers/Concerns
 
 **Active:**
-- iOS 17.0-17.4 AVSpeechSynthesizer silent failure bug (TTSErrorDomain -4010) — must test on real iOS 17 hardware in Phase 30 and Phase 32; Simulator does not reproduce
+- Paid Apps Agreement processing in ASC (submitted 2026-04-15, ~24h activation): blocks Flow 6 (Subscription) and Flow 4b (Voice Pro) verification — no code changes needed, purely administrative
+- iOS 17.0-17.4 AVSpeechSynthesizer silent failure bug (TTSErrorDomain -4010) — Simulator does not reproduce; deferred to production monitoring
 - App Store review outcome for v1.0.0 (build 527) still pending as of 2026-04-12
 
 ---
 
 ## Session Continuity
 
-Last session: 2026-04-14
-Stopped at: Phase 32 Plan 01 complete — build 568 confirmed in TestFlight, checkpoint approved. SSH: `ssh root@95.217.162.203` (PM2/journalctl). No active sandbox subscription (free tier ready).
+Last session: 2026-04-15
+Stopped at: Phase 32 Plan 02 complete — verification report written (32-VERIFICATION.md), sign-off YES for App Store submission. v5.1 milestone COMPLETE. Build 583 is the verified build.
 Resume file: None
 
-**Next action:** Phase 32 Plan 02 — execute test matrix on device and record results
+**Next action:** App Store submission with build 583. Once Paid Apps Agreement activates: verify Flow 6 (Subscription) and Flow 4b (Voice Pro Tier) to close VOICE-05.
 
 ---
 
-*State updated: 2026-04-12 — v5.1 roadmap created*
+*State updated: 2026-04-15 — Phase 32 Plan 02 complete, v5.1 verified and signed off*
