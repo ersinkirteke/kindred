@@ -70,6 +70,7 @@ public struct RecipeDetailReducer {
     public enum Delegate: Equatable {
         case authGateRequested(actionType: String)
         case pausePlayback
+        case resumePlayback
         case jumpToStep(Int)
     }
 
@@ -236,15 +237,22 @@ public struct RecipeDetailReducer {
                 return .none
 
             case .listenTapped:
-                // Play/pause toggle is handled by AppReducer which checks actual voicePlayback state
-
                 // CHECK AUTH STATE - gate listen for guests
                 if case .guest = state.currentAuthState {
                     return .send(.delegate(.authGateRequested(actionType: "listen")))
                 }
 
-                // Authenticated user - action handled by parent AppReducer
-                return .none
+                // Handle play/pause toggle based on synced playback status
+                // This avoids the AppReducer's currentPlayback ID check which can race
+                switch state.playbackStatus {
+                case .playing, .buffering, .loading:
+                    return .send(.delegate(.pausePlayback))
+                case .paused, .stopped:
+                    return .send(.delegate(.resumePlayback))
+                default:
+                    // .idle — AppReducer will handle startPlayback
+                    return .none
+                }
 
             case .dismissBookmarkNudge:
                 state.showBookmarkNudge = false

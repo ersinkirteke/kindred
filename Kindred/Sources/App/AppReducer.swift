@@ -484,6 +484,8 @@ struct AppReducer {
                         }
                     case .pausePlayback:
                         return .send(.voicePlayback(.pause))
+                    case .resumePlayback:
+                        return .send(.voicePlayback(.play))
                     case let .jumpToStep(stepIndex):
                         // Route tap-to-jump to VoicePlaybackReducer
                         if state.voicePlaybackState.isAVSpeechActive {
