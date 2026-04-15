@@ -501,19 +501,17 @@ struct AppReducer {
                     return .none
                 }
 
-                // Forward listenTapped to voice playback
+                // Forward listenTapped to voice playback — only for NEW playback.
+                // Pause/resume is handled by .delegate(.pausePlayback/.resumePlayback)
+                // which RecipeDetailReducer sends as a separate effect. We must NOT
+                // also act on the original .listenTapped when playback is active,
+                // otherwise both .startPlayback AND .pause fire simultaneously.
                 if case .listenTapped = recipeDetailAction,
                    let recipe = state.feedState.recipeDetail?.recipe {
-                    let authDesc = String(describing: state.currentAuthState)
-                    Logger.migration.debug("AppReducer: listenTapped recipe=\(recipe.id) steps=\(recipe.steps.count) auth=\(authDesc)")
-                    // Toggle play/pause if playback is active for this recipe
-                    if let playback = state.voicePlaybackState.currentPlayback,
-                       playback.recipeId == recipe.id {
-                        if playback.status == .playing || playback.status == .loading || playback.status == .buffering {
-                            return .send(.voicePlayback(.pause))
-                        } else if playback.status == .paused || playback.status == .stopped {
-                            return .send(.voicePlayback(.play))
-                        }
+                    // If playback is already active or loading, skip — delegate handles toggle
+                    if state.voicePlaybackState.currentPlayback != nil ||
+                       state.voicePlaybackState.isLoadingNarration {
+                        return .none
                     }
 
                     // Check auth state
@@ -528,7 +526,7 @@ struct AppReducer {
                         return .send(.authGateRequested(gatedAction))
                     }
 
-                    // Authenticated user - proceed with playback
+                    // Authenticated user - start NEW playback
                     return .send(.voicePlayback(.startPlayback(
                         recipeId: recipe.id,
                         recipeName: recipe.name,
