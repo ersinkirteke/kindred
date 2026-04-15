@@ -52,6 +52,8 @@ public struct RecipeDetailReducer {
         case bookmarkStatusLoaded(Bool)
         case toggleIngredient(String)
         case listenTapped
+        case pauseTapped
+        case resumeTapped
         case dismissBookmarkNudge
         case authStateUpdated(AuthState)
         case playbackStatusUpdated(PlaybackStatus)
@@ -79,6 +81,8 @@ public struct RecipeDetailReducer {
             case (.onAppear, .onAppear),
                  (.toggleBookmark, .toggleBookmark),
                  (.listenTapped, .listenTapped),
+                 (.pauseTapped, .pauseTapped),
+                 (.resumeTapped, .resumeTapped),
                  (.dismissBookmarkNudge, .dismissBookmarkNudge),
                  (.computeIngredientMatch, .computeIngredientMatch),
                  (.showShoppingList, .showShoppingList):
@@ -237,22 +241,19 @@ public struct RecipeDetailReducer {
                 return .none
 
             case .listenTapped:
-                // CHECK AUTH STATE - gate listen for guests
+                // Only fires for NEW playback (idle state) — view sends
+                // .pauseTapped/.resumeTapped for active playback instead
                 if case .guest = state.currentAuthState {
                     return .send(.delegate(.authGateRequested(actionType: "listen")))
                 }
+                // AppReducer handles startPlayback
+                return .none
 
-                // Handle play/pause toggle based on synced playback status
-                // This avoids the AppReducer's currentPlayback ID check which can race
-                switch state.playbackStatus {
-                case .playing, .buffering, .loading:
-                    return .send(.delegate(.pausePlayback))
-                case .paused, .stopped:
-                    return .send(.delegate(.resumePlayback))
-                default:
-                    // .idle — AppReducer will handle startPlayback
-                    return .none
-                }
+            case .pauseTapped:
+                return .send(.delegate(.pausePlayback))
+
+            case .resumeTapped:
+                return .send(.delegate(.resumePlayback))
 
             case .dismissBookmarkNudge:
                 state.showBookmarkNudge = false

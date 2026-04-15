@@ -341,9 +341,16 @@ public struct RecipeDetailView: View {
                 .background(Color.kindredDivider)
 
             HStack(spacing: KindredSpacing.md) {
-                // Listen button
+                // Listen / Pause / Resume button
                 Button(action: {
-                    store.send(.listenTapped)
+                    switch store.playbackStatus {
+                    case .playing, .buffering, .loading:
+                        store.send(.pauseTapped)
+                    case .paused, .stopped:
+                        store.send(.resumeTapped)
+                    default:
+                        store.send(.listenTapped)
+                    }
                 }) {
                     HStack(spacing: KindredSpacing.sm) {
                         switch store.playbackStatus {
