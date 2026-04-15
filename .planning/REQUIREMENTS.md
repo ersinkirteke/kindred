@@ -76,4 +76,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-12*
-*Last updated: 2026-04-12 — traceability mapped after roadmap creation (phases 29-32)*
+*Last updated: 2026-04-15 — Phase 32 hardware verification complete; all v5.1 requirements confirmed on device (VOICE-05 pending Paid Apps Agreement activation for Pro tier test)*
