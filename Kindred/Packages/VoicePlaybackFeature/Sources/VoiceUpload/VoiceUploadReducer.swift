@@ -146,6 +146,14 @@ public struct VoiceUploadReducer {
                 // Upload to backend
                 return .run { [voiceName = state.voiceName] send in
                     do {
+                        // Security-scoped URL from file picker — must request access
+                        let didStartAccessing = fileURL.startAccessingSecurityScopedResource()
+                        defer {
+                            if didStartAccessing {
+                                fileURL.stopAccessingSecurityScopedResource()
+                            }
+                        }
+
                         // Read file data
                         let data = try Data(contentsOf: fileURL)
 
@@ -242,6 +250,14 @@ public struct VoiceUploadReducer {
     // MARK: - Private Helpers
 
     private func loadAudioDuration(from url: URL) async -> TimeInterval {
+        // File picker returns security-scoped URLs — must request access before reading
+        let didStartAccessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if didStartAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
         let asset = AVAsset(url: url)
         do {
             let duration = try await asset.load(.duration)
