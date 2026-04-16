@@ -55,20 +55,29 @@ export class VoiceService {
       throw new BadRequestException('Voice consent is required');
     }
 
+    // Resolve Clerk ID to internal User ID (auto-create if user doesn't exist yet)
+    let user = await this.prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+    if (!user) {
+      this.logger.log(`User not found for clerkId ${userId}, creating...`);
+      user = await this.prisma.user.create({
+        data: { clerkId: userId, email: `${userId}@pending.kindred` },
+      });
+    }
+    const internalUserId = user.id;
+
     // Check tier limits
     const activeProfiles = await this.prisma.voiceProfile.findMany({
       where: {
-        userId,
+        userId: internalUserId,
         status: {
           notIn: [VoiceStatus.DELETED, VoiceStatus.FAILED],
         },
       },
     });
 
-    // Default to FREE tier if no tier field exists yet
-    // TODO: When tier field is added to User model, query user.tier
     const tier = 'FREE';
-
     if (tier === 'FREE' && activeProfiles.length >= 1) {
       throw new ForbiddenException({
         code: 'VOICE_SLOT_LIMIT',
@@ -87,7 +96,7 @@ export class VoiceService {
     // Create VoiceProfile record
     const voiceProfile = await this.prisma.voiceProfile.create({
       data: {
-        userId,
+        userId: internalUserId,
         status: VoiceStatus.PENDING,
         audioSampleUrl,
         speakerName: input.speakerName,
