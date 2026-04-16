@@ -180,6 +180,7 @@ struct AppReducer {
                         .send(.feed(.authStateUpdated(authState))),
                         .send(.pantry(.authStateUpdated(pantryUserId))),
                         .send(.profile(.authStateUpdated(profileAuthState))),
+                        .send(.voicePlayback(.checkSubscriptionStatus)),
                         .send(.checkPendingMigration),
                         .send(.checkConsentStatus)
                     )
@@ -556,13 +557,18 @@ struct AppReducer {
                 }
 
             case .voicePlayback(.upgradeTapped), .voicePlayback(.showPaywall):
+                // Pro subscribers never see auth gate or paywall — they're already subscribed
+                if case .pro = state.voicePlaybackState.subscriptionStatus {
+                    state.voicePlaybackState.showPaywall = false
+                    return .none
+                }
                 // Auth gate: guest users must sign in before seeing the paywall
                 if case .guest = state.currentAuthState {
                     state.voicePlaybackState.showPaywall = false
                     state.authGate = SignInGateReducer.State()
                     return .none
                 }
-                // Authenticated user: let VoicePlaybackReducer handle it normally
+                // Authenticated non-Pro user: let VoicePlaybackReducer handle it normally
                 return .none
 
             case .voicePlayback:
