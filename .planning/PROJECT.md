@@ -85,19 +85,19 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - ✓ App Store screenshots refreshed for "Popular Recipes" feed — v5.0
 - ✓ Fastlane release lane automates binary upload, metadata sync, and submission — v5.0
 - ✓ TestFlight internal beta bake (72h, zero crashes, 6 core flows pass) — v5.0
+- ✓ AVSpeechSynthesizer free-tier voice narration with TextPreprocessor and iOS 17 silent failure retry — v5.1
+- ✓ Voice tier routing: free/guest auto-play AVSpeech, Pro auto-play ElevenLabs — v5.1
+- ✓ Per-recipe sourceUrl/sourceName wired from GraphQL into RecipeDetailView with in-app Safari — v5.1
+- ✓ Search UI with debounce, cursor pagination, and backend-powered search results — v5.1
+- ✓ Dietary filter chips pass parameters through GraphQL to Spoonacular API (7 diets, 3 intolerances) — v5.1
+- ✓ Step highlighting with tap-to-jump, NowPlaying lock screen controls, VoiceOver accessibility — v5.1
+- ✓ VoicePickerView with Free/Pro sections and Kindred Voice on-device branding — v5.1
+- ✓ NLLanguageRecognizer auto-detects recipe language for correct TTS voice selection — v5.1
+- ✓ End-to-end hardware verification on iPhone 16 Pro Max (build 583, 17/19 tests passed) — v5.1
 
 ### Active
 
-## Current Milestone: v5.1 Gap Closure
-
-**Goal:** Close all deferred v5.0 gaps — free-tier voice narration, search, filters, and source attribution.
-
-**Target features:**
-- AVSpeechSynthesizer free-tier voice narration
-- Voice tier routing — free users get AVSpeech, Pro users get ElevenLabs
-- Per-recipe sourceUrl wiring in iOS RecipeDetailQuery
-- Search UI wiring to backend searchRecipes endpoint
-- Dietary filter parameter pass-through to Spoonacular queries
+(No active milestone)
 
 ### Future
 
@@ -121,6 +121,8 @@ Hearing a loved one's voice guide you through a trending local recipe — that e
 - Force ATT Accept — Apple views as "nagging", causes rejection under guideline 5.1.1(iv)
 
 ## Context
+
+**Shipped v5.1:** Gap Closure. Closed all deferred v5.0 gaps: AVSpeech free-tier voice narration (zero API cost, offline-capable), voice tier routing (free AVSpeech / Pro ElevenLabs), source attribution (Spoonacular ToS compliance), search UI with debounce + backend caching, dietary filter pass-through to Spoonacular API. Hardware verified on iPhone 16 Pro Max (build 583, 17/19 tests passed). 4 phases, 8 plans, 3 days.
 
 **Shipped v5.0:** Lean App Store Launch. Replaced X API scraping + Imagen 4 with Spoonacular free API + CDN images at $0/month SaaS costs. Feed migrated from "Viral near you" to "Popular Recipes" with cursor pagination. Full App Store compliance (PrivacyInfo.xcprivacy 11 data types, privacy policy v2.1, AdMob disclosure). Fastlane release automation with preflight validation. Kindred v1.0.0 (build 527) submitted to App Store. 5 executed phases, 17 plans, 9 days. +17,544/-2,412 lines across 163 files.
 
@@ -257,6 +259,14 @@ Apple review typically completes in 24-48 hours (can extend to 72). When the app
 | Named ModelConfiguration for SwiftData | PantryStore/GuestStore separation prevents data bleed | ✓ Good — clean container isolation (v4.0) |
 | Fastlane 3-lane distribution | beta_internal, beta_external, release for granular control | ✓ Good — flexible pipeline (v4.0) |
 | Git commit count for build numbers | Reproducible, monotonically increasing, no manual management | ✓ Good — simple versioning (v4.0) |
+| AVSpeechSynthesizer for free-tier voice | Zero cost, offline-capable, no new packages vs ElevenLabs $0.01-0.03/recipe | ✓ Good — verified on device (v5.1) |
+| isAVSpeechActive engine routing flag | Single boolean routes all playback actions to correct engine | ✓ Good — clean separation (v5.1) |
+| NLLanguageRecognizer for TTS voice selection | Auto-detects recipe language so English content uses English voice on Turkish device | ✓ Good — correct voice selection (v5.1) |
+| Step-based AVSpeech progress (not time-based) | No duration available from AVSpeech; step N/total is more meaningful for recipes | ✓ Good — clear progress (v5.1) |
+| fullScreenCover for paywall (not sheet) | Avoids SwiftUI sheet conflict with voice picker sheet | ✓ Good — prevents dismissal bug (v5.1) |
+| SearchDebounceID enum case pattern | Empty enum type cannot conform to Hashable in TCA cancel context | ✓ Good — compiler-safe (v5.1) |
+| networkOnly Apollo cache for search | Search results must always be fresh; browse uses returnCacheDataAndFetch | ✓ Good — correct freshness (v5.1) |
+| SFSafariViewController for source links | In-app browser keeps all external links consistent; avoids leaving the app | ✓ Good — consistent UX (v5.1) |
 
 ---
-*Last updated: 2026-04-12 after v5.1 Gap Closure milestone started*
+*Last updated: 2026-04-16 after v5.1 Gap Closure milestone completed*

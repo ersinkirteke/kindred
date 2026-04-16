@@ -1,5 +1,27 @@
 # Milestones
 
+## v5.1 Gap Closure (Shipped: 2026-04-16)
+
+**Phases completed:** 4 phases, 8 plans, 14 tasks
+**Requirements:** 11/11 satisfied (10 confirmed on device, VOICE-05 pending Paid Apps Agreement activation)
+**Git range:** feat(29-01) → docs(phase-32) (~79 commits)
+**Timeline:** 3 days (2026-04-13 → 2026-04-16)
+**Verified build:** 583 on iPhone 16 Pro Max (iOS 26.3.1)
+
+**Key accomplishments:**
+- Source attribution wiring: sourceUrl/sourceName from Spoonacular GraphQL through Apollo codegen into RecipeDetailView as SFSafariViewController-backed in-app link (Spoonacular ToS compliance)
+- AVSpeechSynthesizer free-tier voice narration with TextPreprocessor cooking abbreviation/fraction expansion, language-aware voice selection via NLLanguageRecognizer, and iOS 17 silent failure retry
+- Voice tier routing: free/guest users auto-play via AVSpeech (zero API cost), Pro users route to ElevenLabs; isAVSpeechActive flag in VoicePlaybackReducer branches all playback actions
+- VoicePickerView with Free/Pro sections, Kindred Voice on-device branding, step highlighting with tap-to-jump, NowPlaying lock screen controls, VoiceOver accessibility
+- Search UI with SearchRecipes GraphQL operation, 300ms debounce, cursor pagination, dietary chip-to-Spoonacular parameter mapping (7 diets, 3 intolerances), search/browse mode switching
+- End-to-end hardware verification: 17/19 tests passed, 6 bugs found and fixed during testing cycle, TestFlight build 583 signed off for App Store
+
+### Known Gaps
+- VOICE-05 (AVSpeech/AVPlayer handoff): Code implemented, pending Paid Apps Agreement activation for Pro tier device verification
+- iOS 17.0-17.4 AVSpeechSynthesizer silent failure (TTSErrorDomain -4010): Handled with 5-sec timeout + retry, deferred to production monitoring
+
+---
+
 ## v5.0 Lean App Store Launch (Shipped: 2026-04-12)
 
 **Phases completed:** 5 executed phases (+ 2 deferred), 17 plans, 26 tasks

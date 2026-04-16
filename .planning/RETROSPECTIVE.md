@@ -2,6 +2,46 @@
 
 *A living document updated after each milestone. Lessons feed forward into future planning.*
 
+## Milestone: v5.1 — Gap Closure
+
+**Shipped:** 2026-04-16
+**Phases:** 4 | **Plans:** 8
+
+### What Was Built
+- Source attribution: sourceUrl/sourceName wired from Spoonacular GraphQL through Apollo codegen into RecipeDetailView as SFSafariViewController-backed in-app link
+- AVSpeechClient TCA dependency with TextPreprocessor (HTML/markdown strip, fraction expansion, cooking abbreviation expansion), language-aware voice selection via NLLanguageRecognizer, and iOS 17 silent failure retry
+- Voice tier routing in VoicePlaybackReducer: free/guest users auto-play AVSpeech, Pro users route to ElevenLabs, with isAVSpeechActive flag branching all playback actions
+- VoicePickerView with Free/Pro sections, Kindred Voice on-device branding, step highlighting with tap-to-jump, NowPlaying lock screen controls, VoiceOver accessibility
+- Search UI: SearchRecipes GraphQL operation, FeedReducer search state with 300ms debounce, cursor pagination, dietary chip-to-Spoonacular parameter mapping (7 diets, 3 intolerances), search/browse mode switching
+- End-to-end hardware verification: build 583, 17/19 tests passed on iPhone 16 Pro Max (iOS 26.3.1), 6 bugs found and fixed during testing cycle
+
+### What Worked
+- iOS-only scope (no backend work) kept velocity high: 4 phases in 3 days
+- Device verification during Phase 30 and Phase 32 caught 12+ bugs that Simulator builds missed (language detection, sheet conflicts, pause race conditions, missing translations)
+- NLLanguageRecognizer solved the Turkish-device-English-content voice mismatch elegantly with zero config
+- TextPreprocessor pipeline (6 stages) significantly improved TTS readability for cooking recipes
+- Search and filter in same phase was correct: shared SearchRecipesQuery + FeedMode enum avoided double codegen overhead
+
+### What Was Inefficient
+- Phase 32 testing cycle went through 15 build numbers (568 to 583) due to incremental bug fixes discovered on device
+- Fastlane pilot bug #28630 still requires manual TestFlight group assignment in ASC (known since v5.0, still not upstream-fixed)
+- Paid Apps Agreement activation delay blocked VOICE-05 full device verification (administrative, not technical)
+- ROADMAP progress table for phases 29-32 had formatting drift (missing milestone column)
+
+### Key Lessons
+1. AVSpeech on iOS requires NLLanguageRecognizer for correct voice selection on non-English-locale devices -- device locale does not determine content language
+2. SwiftUI sheet conflicts are real: fullScreenCover is the correct pattern when another sheet (voice picker) is already in use
+3. Step-based progress is more meaningful than time-based for recipe narration (AVSpeech has no duration API)
+4. 300ms debounce + 3-char minimum is the right balance for search UX vs API quota conservation
+5. Hardware verification remains the single most effective quality gate -- every milestone confirms this
+
+### Cost Observations
+- Fastest milestone yet: 3 days, 8 plans, all iOS-only work
+- AVSpeech free-tier voice narration adds $0/recipe ongoing cost vs ElevenLabs $0.01-0.03/recipe
+- No new backend deployments required -- all backend endpoints were already operational from v5.0
+
+---
+
 ## Milestone: v5.0 — Lean App Store Launch
 
 **Shipped:** 2026-04-12
@@ -227,6 +267,7 @@
 | v3.0 | ~8 | 6 | Local-first data patterns, AI vision integration, progressive permission pattern |
 | v4.0 | ~6 | 5 | Compliance-first approach, xcconfig environment separation, gap closure as standard |
 | v5.0 | ~10 | 5+2 | Two-track scope management, decimal phase insertion, preflight validation, App Store submission |
+| v5.1 | ~4 | 4 | iOS-only gap closure, device verification as quality gate, zero backend work |
 
 ### Cumulative Quality
 
@@ -237,6 +278,7 @@
 | v3.0 | 0 (feature app) | N/A | 4 (device tokens, paywall wiring, navigation, manual tests pending) |
 | v4.0 | 10 (ConsentReducer TCA) | Consent state machine | 3 (legal review, in-memory queues, timezone notifications) |
 | v5.0 | 0 | N/A | 6 (test mock, type mismatch, dead code, isViral query, rating config, manual submission) |
+| v5.1 | 0 | N/A | 2 (VOICE-05 pending Paid Apps Agreement, iOS 17 TTSErrorDomain -4010 production monitoring) |
 
 ### Velocity Trend
 
@@ -247,6 +289,7 @@
 | v3.0 | 6 | 17 | 7 | 2.4 |
 | v4.0 | 5 | 19 | 4 | 4.8 |
 | v5.0 | 5 | 17 | 9 | 1.9 |
+| v5.1 | 4 | 8 | 3 | 2.7 |
 
 ### Top Lessons (Verified Across Milestones)
 
