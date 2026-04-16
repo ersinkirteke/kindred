@@ -191,7 +191,7 @@ Plans:
 | 29. Source Attribution Wiring | 1/1 | Complete    | 2026-04-13 | - |
 | 30. AVSpeechClient + Voice Tier Routing | 3/3 | Complete   | 2026-04-13 | - |
 | 31. Search UI + Dietary Filter Pass-Through | 2/2 | Complete    | 2026-04-14 | - |
-| 32. End-to-End Hardware Verification | 2/2 | Complete   | 2026-04-15 | - |
+| 32. End-to-End Hardware Verification | 2/2 | Complete    | 2026-04-16 | - |
 
 ---
 
