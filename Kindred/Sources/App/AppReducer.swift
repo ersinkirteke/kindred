@@ -630,6 +630,23 @@ struct AppReducer {
                     await send(.authStateChanged(.guest))
                 }
 
+            case .profile(.confirmDeleteAccount):
+                return .run { send in
+                    do {
+                        try await signInClient.deleteAccount()
+                        // Clear all local data
+                        UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+                        UserDefaults.standard.removeObject(forKey: "onboardingCurrentStep")
+                        UserDefaults.standard.removeObject(forKey: "guestMigrated")
+                        UserDefaults.standard.removeObject(forKey: "pendingMigration")
+                        UserDefaults.standard.removeObject(forKey: "kindredFirstLaunchComplete")
+                        await send(.profile(.accountDeleted))
+                        await send(.authStateChanged(.guest))
+                    } catch {
+                        await send(.profile(.accountDeletionFailed(error.localizedDescription)))
+                    }
+                }
+
             case .pantry:
                 return .none
 

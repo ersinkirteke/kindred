@@ -69,6 +69,10 @@ public struct ProfileReducer {
         public var showDeleteSuccessToast: Bool = false
         public var showPrivacyPolicy: Bool = false
 
+        // Account deletion
+        public var showDeleteAccountConfirmation: Bool = false
+        public var isDeletingAccount: Bool = false
+
         public init() {}
     }
 
@@ -104,6 +108,11 @@ public struct ProfileReducer {
         case privacyPolicyTapped
         case dismissPrivacyPolicy
         case trackingSettingsTapped
+        case deleteAccountTapped
+        case confirmDeleteAccount
+        case cancelDeleteAccount
+        case accountDeleted
+        case accountDeletionFailed(String)
     }
 
     @Dependency(\.guestSessionClient) var guestSession
@@ -449,6 +458,28 @@ public struct ProfileReducer {
                     UIApplication.shared.open(url)
                     #endif
                 }
+                return .none
+
+            case .deleteAccountTapped:
+                state.showDeleteAccountConfirmation = true
+                return .none
+
+            case .confirmDeleteAccount:
+                state.showDeleteAccountConfirmation = false
+                state.isDeletingAccount = true
+                // Actual deletion handled by AppReducer which has access to SignInClient
+                return .none
+
+            case .cancelDeleteAccount:
+                state.showDeleteAccountConfirmation = false
+                return .none
+
+            case .accountDeleted:
+                state.isDeletingAccount = false
+                return .none
+
+            case .accountDeletionFailed:
+                state.isDeletingAccount = false
                 return .none
             }
         }

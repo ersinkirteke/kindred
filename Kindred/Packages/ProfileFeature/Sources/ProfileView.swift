@@ -69,6 +69,26 @@ public struct ProfileView: View {
                         onTrackingSettingsTapped: { store.send(.trackingSettingsTapped) }
                     )
                     .padding(.horizontal, KindredSpacing.md)
+
+                    // Delete Account button (required by App Store 5.1.1(v))
+                    Button(role: .destructive) {
+                        store.send(.deleteAccountTapped)
+                    } label: {
+                        if store.isDeletingAccount {
+                            HStack(spacing: KindredSpacing.xs) {
+                                ProgressView()
+                                    .controlSize(.small)
+                                Text(String(localized: "profile.delete_account.deleting", bundle: .main))
+                                    .font(.kindredBodyScaled(size: bodySize))
+                            }
+                        } else {
+                            Text(String(localized: "profile.delete_account", bundle: .main))
+                                .font(.kindredBodyScaled(size: bodySize))
+                        }
+                    }
+                    .disabled(store.isDeletingAccount)
+                    .padding(.horizontal, KindredSpacing.md)
+                    .padding(.top, KindredSpacing.md)
                 }
 
                 // App version label at bottom
@@ -98,11 +118,28 @@ public struct ProfileView: View {
         } message: {
             Text(String(localized: "profile.privacy_data.delete_confirmation_message", bundle: .main))
         }
+        .confirmationDialog(
+            String(localized: "profile.delete_account.title", bundle: .main),
+            isPresented: Binding(
+                get: { store.showDeleteAccountConfirmation },
+                set: { _ in store.send(.cancelDeleteAccount) }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "profile.delete_account.confirm", bundle: .main), role: .destructive) {
+                store.send(.confirmDeleteAccount)
+            }
+            Button(String(localized: "profile.delete_account.cancel", bundle: .main), role: .cancel) {
+                store.send(.cancelDeleteAccount)
+            }
+        } message: {
+            Text(String(localized: "profile.delete_account.message", bundle: .main))
+        }
         .sheet(isPresented: Binding(
             get: { store.showPrivacyPolicy },
             set: { _ in store.send(.dismissPrivacyPolicy) }
         )) {
-            SafariView(url: URL(string: "https://api.kindredcook.app/privacy")!)
+            SafariView(url: URL(string: "https://kindredcook.app/privacy")!)
         }
         #if DEBUG
         .sheet(isPresented: $showDebugMenu) {

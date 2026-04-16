@@ -124,6 +124,17 @@ public struct PaywallView: View {
                     .accessibilityHint(String(localized: "accessibility.paywall.restore_hint", bundle: .main))
                 }
 
+                // Terms of Use & Privacy Policy links (required by App Store 3.1.2(c))
+                HStack(spacing: KindredSpacing.sm) {
+                    Link(String(localized: "paywall.terms_of_use", bundle: .main),
+                         destination: URL(string: "https://kindredcook.app/terms")!)
+                    Text("·").foregroundStyle(.kindredTextSecondary)
+                    Link(String(localized: "paywall.privacy_policy", bundle: .main),
+                         destination: URL(string: "https://kindredcook.app/privacy")!)
+                }
+                .font(.kindredCaptionScaled(size: captionSize))
+                .foregroundStyle(.kindredAccent)
+
                 // Error message
                 if let error = store.error, !error.isEmpty {
                     Text(error)

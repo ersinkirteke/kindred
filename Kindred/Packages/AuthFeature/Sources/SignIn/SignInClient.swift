@@ -10,6 +10,7 @@ public struct SignInClient: Sendable {
     public var signInWithApple: @Sendable () async throws -> ClerkUser
     public var signInWithGoogle: @Sendable () async throws -> ClerkUser
     public var signOut: @Sendable () async throws -> Void
+    public var deleteAccount: @Sendable () async throws -> Void
     public var observeAuthState: @Sendable () async -> AsyncStream<AuthState> = { AsyncStream { $0.finish() } }
 }
 
@@ -110,6 +111,15 @@ extension SignInClient: DependencyKey {
                     throw SignInError.clerkError("Sign-out is not available. Clerk is not configured.")
                 }
                 try await Clerk.shared.auth.signOut()
+            },
+            deleteAccount: {
+                guard await ClerkConfigurationState.isConfigured else {
+                    throw SignInError.clerkError("Account deletion is not available. Clerk is not configured.")
+                }
+                guard let user = await Clerk.shared.user else {
+                    throw SignInError.clerkError("No authenticated user to delete.")
+                }
+                _ = try await user.delete()
             },
             observeAuthState: {
                 // Poll for Clerk user resolution (keychain load is async)
