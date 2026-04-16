@@ -128,11 +128,13 @@ struct RootView: View {
                     SubscriptionReducer()
                 },
                 onPurchaseCompleted: {
-                    store.send(.profile(.simulatedPurchaseCompleted))
-                    store.send(.feed(.subscriptionStatusUpdated(.pro(
+                    let proStatus = SubscriptionStatus.pro(
                         expiresDate: Calendar.current.date(byAdding: .month, value: 1, to: Date()) ?? Date(),
                         isInGracePeriod: false
-                    ))))
+                    )
+                    store.send(.profile(.simulatedPurchaseCompleted))
+                    store.send(.feed(.subscriptionStatusUpdated(proStatus)))
+                    store.send(.voicePlayback(.subscriptionStatusUpdated(proStatus)))
                 }
             )
         }
