@@ -23,8 +23,15 @@ export class ClerkAuthGuard implements CanActivate {
   constructor(private authService: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const ctx = GqlExecutionContext.create(context);
-    const request = ctx.getContext().req;
+    // Support both REST (http) and GraphQL contexts
+    let request: any;
+    const contextType = context.getType<string>();
+    if (contextType === 'http') {
+      request = context.switchToHttp().getRequest();
+    } else {
+      const ctx = GqlExecutionContext.create(context);
+      request = ctx.getContext().req;
+    }
 
     // Extract token from Authorization header
     const authHeader = request.headers.authorization;
