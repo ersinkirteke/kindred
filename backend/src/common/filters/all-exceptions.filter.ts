@@ -14,11 +14,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
 
   catch(exception: unknown, host: ArgumentsHost) {
-    const gqlHost = GqlArgumentsHost.create(host);
-    const ctx = gqlHost.getContext();
-
     const timestamp = new Date().toISOString();
-    const path = ctx?.req?.url || 'graphql';
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
@@ -32,7 +28,37 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = 'Internal server error';
     }
 
-    // Log the error with structured format
+    // Determine if this is a REST or GraphQL request
+    const hostType = host.getType<string>();
+
+    if (hostType === 'http') {
+      // REST request — return JSON response directly
+      const ctx = host.switchToHttp();
+      const response = ctx.getResponse();
+      const request = ctx.getRequest();
+      const path = request?.url || '/';
+
+      this.logger.error({
+        timestamp,
+        path,
+        statusCode: status,
+        message,
+        stack: exception instanceof Error ? exception.stack : undefined,
+      });
+
+      response.status(status).json({
+        statusCode: status,
+        message,
+        timestamp,
+      });
+      return;
+    }
+
+    // GraphQL request
+    const gqlHost = GqlArgumentsHost.create(host);
+    const ctx = gqlHost.getContext();
+    const path = ctx?.req?.url || 'graphql';
+
     this.logger.error({
       timestamp,
       path,
@@ -41,7 +67,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       stack: exception instanceof Error ? exception.stack : undefined,
     });
 
-    // Return GraphQL-friendly error
     throw new GraphQLError(message, {
       extensions: {
         code: this.getErrorCode(status),

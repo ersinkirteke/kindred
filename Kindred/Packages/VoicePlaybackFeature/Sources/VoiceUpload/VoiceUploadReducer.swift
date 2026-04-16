@@ -1,4 +1,5 @@
 import AVFoundation
+import AuthClient
 import ComposableArchitecture
 import Dependencies
 import Foundation
@@ -144,8 +145,15 @@ public struct VoiceUploadReducer {
                 state.error = nil
 
                 // Upload to backend
-                return .run { [voiceName = state.voiceName] send in
+                return .run { [voiceName = state.voiceName, consentGiven = state.consentGiven] send in
                     do {
+                        // Get auth token
+                        let authClient = await ClerkAuthClient()
+                        guard let token = await authClient.getToken() else {
+                            await send(.uploadFailed("Please sign in to upload a voice clip"))
+                            return
+                        }
+
                         // Security-scoped URL from file picker — must request access
                         let didStartAccessing = fileURL.startAccessingSecurityScopedResource()
                         defer {
@@ -161,27 +169,37 @@ public struct VoiceUploadReducer {
                         let boundary = UUID().uuidString
                         var body = Data()
 
-                        // Add voice name field
+                        // speakerName field (backend expects "speakerName")
                         body.append("--\(boundary)\r\n".data(using: .utf8)!)
-                        body.append("Content-Disposition: form-data; name=\"name\"\r\n\r\n".data(using: .utf8)!)
+                        body.append("Content-Disposition: form-data; name=\"speakerName\"\r\n\r\n".data(using: .utf8)!)
                         body.append("\(voiceName)\r\n".data(using: .utf8)!)
 
-                        // Add app version field for consent audit trail (PRIV-05)
+                        // relationship field (required by backend)
+                        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+                        body.append("Content-Disposition: form-data; name=\"relationship\"\r\n\r\n".data(using: .utf8)!)
+                        body.append("Family\r\n".data(using: .utf8)!)
+
+                        // consentGiven field (required by backend)
+                        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+                        body.append("Content-Disposition: form-data; name=\"consentGiven\"\r\n\r\n".data(using: .utf8)!)
+                        body.append("\(consentGiven)\r\n".data(using: .utf8)!)
+
+                        // appVersion field for consent audit trail (PRIV-05)
                         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
                         body.append("--\(boundary)\r\n".data(using: .utf8)!)
                         body.append("Content-Disposition: form-data; name=\"appVersion\"\r\n\r\n".data(using: .utf8)!)
                         body.append("\(appVersion)\r\n".data(using: .utf8)!)
 
-                        // Add audio file field
+                        // Audio file field (backend expects field name "audio")
                         body.append("--\(boundary)\r\n".data(using: .utf8)!)
-                        body.append("Content-Disposition: form-data; name=\"audioFile\"; filename=\"\(fileURL.lastPathComponent)\"\r\n".data(using: .utf8)!)
+                        body.append("Content-Disposition: form-data; name=\"audio\"; filename=\"\(fileURL.lastPathComponent)\"\r\n".data(using: .utf8)!)
                         body.append("Content-Type: audio/mpeg\r\n\r\n".data(using: .utf8)!)
                         body.append(data)
                         body.append("\r\n".data(using: .utf8)!)
                         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
 
-                        // Create request
-                        guard let url = URL(string: "\(APIEnvironment.baseURL)/api/voice-profiles/upload") else {
+                        // Create request — backend route is POST /voice/upload
+                        guard let url = URL(string: "\(APIEnvironment.baseURL)/voice/upload") else {
                             await send(.uploadFailed("Invalid API URL"))
                             return
                         }
@@ -189,6 +207,7 @@ public struct VoiceUploadReducer {
                         var request = URLRequest(url: url)
                         request.httpMethod = "POST"
                         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+                        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
                         request.httpBody = body
 
                         // Perform upload
@@ -213,10 +232,10 @@ public struct VoiceUploadReducer {
                         // Create VoiceProfile from response
                         let profile = VoiceProfile(
                             id: uploadResponse.id,
-                            name: uploadResponse.name,
-                            avatarURL: uploadResponse.avatarURL,
-                            sampleAudioURL: uploadResponse.sampleAudioURL,
-                            isOwnVoice: uploadResponse.isOwnVoice,
+                            name: uploadResponse.speakerName,
+                            avatarURL: nil,
+                            sampleAudioURL: uploadResponse.audioSampleUrl,
+                            isOwnVoice: true,
                             createdAt: uploadResponse.createdAt
                         )
 
@@ -272,9 +291,8 @@ public struct VoiceUploadReducer {
 
 private struct VoiceProfileUploadResponse: Decodable {
     let id: String
-    let name: String
-    let avatarURL: String?
-    let sampleAudioURL: String?
-    let isOwnVoice: Bool
+    let speakerName: String
+    let audioSampleUrl: String?
+    let status: String
     let createdAt: Date
 }

@@ -694,8 +694,12 @@ public struct FeedReducer {
                 return .send(.changeLocation(fallback.name))
 
             case let .openRecipeDetail(recipeId):
-                // Create RecipeDetailReducer.State and present it
-                state.recipeDetail = RecipeDetailReducer.State(recipeId: recipeId)
+                // Create RecipeDetailReducer.State with current auth + subscription state
+                // so listen/bookmark auth gates work correctly from the start
+                var detailState = RecipeDetailReducer.State(recipeId: recipeId)
+                detailState.currentAuthState = state.currentAuthState
+                detailState.subscriptionStatus = state.subscriptionStatus
+                state.recipeDetail = detailState
                 return .none
 
             case let .dietaryFilterChanged(newFilters):
