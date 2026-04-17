@@ -174,7 +174,7 @@ export class VoiceResolver {
     }
 
     // Load voice profile for metadata (verifies ownership)
-    const profile = await this.voiceService.getVoiceProfile(profileId, dbUser.id);
+    const profile = await this.voiceService.getVoiceProfile(profileId, user.clerkId);
 
     // Load recipe
     const recipe = await this.prisma.recipe.findUnique({

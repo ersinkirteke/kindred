@@ -108,7 +108,7 @@ public struct VoicePickerView: View {
                                 },
                                 onPreview: { onPreview(profile.id) }
                             )
-                            .swipeActions(edge: .trailing) {
+                            .contextMenu {
                                 Button(role: .destructive) {
                                     onDelete(profile.id)
                                 } label: {
