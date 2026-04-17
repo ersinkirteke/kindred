@@ -275,7 +275,10 @@ public struct VoicePlaybackReducer {
                     // Auto-start with cached voice — ensure selectVoice fires even if profiles fail
                     return .run { [lastVoiceId] send in
                         do {
-                            let result = try await apolloClient.fetch(query: KindredAPI.VoiceProfilesQuery())
+                            let result = try await apolloClient.fetch(
+                                query: KindredAPI.VoiceProfilesQuery(),
+                                cachePolicy: .networkFirst
+                            )
                             let profiles = (result.data?.myVoiceProfiles ?? [])
                                 .filter { $0.status != .deleted }
                                 .map { dto -> VoiceProfile in
@@ -328,7 +331,10 @@ public struct VoicePlaybackReducer {
                             await send(.subscriptionStatusUpdated(status))
 
                             do {
-                                let result = try await apolloClient.fetch(query: KindredAPI.VoiceProfilesQuery())
+                                let result = try await apolloClient.fetch(
+                                    query: KindredAPI.VoiceProfilesQuery(),
+                                    cachePolicy: .networkFirst
+                                )
                                 var profiles = (result.data?.myVoiceProfiles ?? [])
                                     .filter { $0.status != .deleted }
                                     .map { dto -> VoiceProfile in
