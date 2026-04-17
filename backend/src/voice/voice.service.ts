@@ -67,23 +67,25 @@ export class VoiceService {
     }
     const internalUserId = user.id;
 
-    // Check tier limits
-    const activeProfiles = await this.prisma.voiceProfile.findMany({
-      where: {
-        userId: internalUserId,
-        status: {
-          notIn: [VoiceStatus.DELETED, VoiceStatus.FAILED],
-        },
-      },
+    // Check tier limits using actual subscription status
+    const subscription = await this.prisma.subscription.findUnique({
+      where: { userId: internalUserId },
     });
+    const isPro = subscription?.isActive ?? false;
 
-    const tier = 'FREE';
-    if (tier === 'FREE' && activeProfiles.length >= 1) {
-      throw new ForbiddenException({
-        code: 'VOICE_SLOT_LIMIT',
-        message: 'Free tier allows 1 voice. Upgrade to Pro for unlimited voices.',
-        currentVoiceId: activeProfiles[0].id,
+    if (!isPro) {
+      const activeCount = await this.prisma.voiceProfile.count({
+        where: {
+          userId: internalUserId,
+          status: { notIn: [VoiceStatus.DELETED, VoiceStatus.FAILED] },
+        },
       });
+      if (activeCount >= 1) {
+        throw new ForbiddenException({
+          code: 'VOICE_SLOT_LIMIT',
+          message: 'Free tier allows 1 voice. Upgrade to Pro for unlimited voices.',
+        });
+      }
     }
 
     // Upload audio to R2
