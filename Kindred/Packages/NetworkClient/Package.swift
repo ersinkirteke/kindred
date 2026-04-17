@@ -14,6 +14,7 @@ let package = Package(
         .package(url: "https://github.com/apollographql/apollo-ios", from: "2.0.6"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
         .package(path: "../KindredAPI"),
+        .package(path: "../AuthClient"),
     ],
     targets: [
         .target(
@@ -23,6 +24,7 @@ let package = Package(
                 .product(name: "ApolloSQLite", package: "apollo-ios"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
                 .product(name: "KindredAPI", package: "KindredAPI"),
+                "AuthClient",
             ],
             exclude: ["Schema/Package.swift"]
         ),

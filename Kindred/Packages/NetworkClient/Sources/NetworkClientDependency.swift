@@ -1,4 +1,5 @@
 import Apollo
+import AuthClient
 import Dependencies
 import Foundation
 
@@ -15,9 +16,9 @@ extension DependencyValues {
 
 private enum ApolloClientKey: DependencyKey {
     static let liveValue: ApolloClient = {
-        // In production, token provider should be injected from AuthClient
-        // For now, create a basic client without auth
-        ApolloClientFactory.create { nil }
+        ApolloClientFactory.create {
+            await ClerkAuthClient().getToken()
+        }
     }()
 
     static let testValue: ApolloClient = {
