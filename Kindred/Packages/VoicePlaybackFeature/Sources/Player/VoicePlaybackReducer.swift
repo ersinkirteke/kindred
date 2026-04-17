@@ -497,7 +497,8 @@ public struct VoicePlaybackReducer {
                             )
                             guard let narrationData = result.data?.narrationUrl,
                                   let audioUrl = narrationData.url else {
-                                await send(.narrationFailed("Narration not available"))
+                                // No cached narration for this voice — fall back to Kindred Voice (AVSpeech)
+                                await send(.offlineFallbackToKindredVoice)
                                 return
                             }
 
@@ -1048,7 +1049,8 @@ public struct VoicePlaybackReducer {
                             )
                             guard let narrationData = result.data?.narrationUrl,
                                   let audioUrl = narrationData.url else {
-                                await send(.narrationFailed("Narration not available"))
+                                // No cached narration for this voice — fall back to Kindred Voice (AVSpeech)
+                                await send(.offlineFallbackToKindredVoice)
                                 return
                             }
 
