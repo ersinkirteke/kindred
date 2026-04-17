@@ -17,31 +17,40 @@ public struct DeleteVoiceProfileMutation: GraphQLMutation {
     self.id = id
   }
 
-  public var __variables: Variables? { ["id": id] }
+  @_spi(Unsafe) public var __variables: Variables? { ["id": id] }
 
   public struct Data: KindredAPI.SelectionSet {
-    public let __data: DataDict
-    public init(_dataDict: DataDict) { __data = _dataDict }
+    @_spi(Unsafe) public let __data: DataDict
+    @_spi(Unsafe) public init(_dataDict: DataDict) { __data = _dataDict }
 
-    public static var __parentType: any ApolloAPI.ParentType { KindredAPI.Objects.VoiceProfile }
-    public static var __selections: [ApolloAPI.Selection] { [
+    @_spi(Execution) public static var __parentType: any ApolloAPI.ParentType { KindredAPI.Objects.Mutation }
+    @_spi(Execution) public static var __selections: [ApolloAPI.Selection] { [
       .field("deleteVoiceProfile", DeleteVoiceProfile.self, arguments: ["id": .variable("id")]),
+    ] }
+    @_spi(Execution) public static var __fulfilledFragments: [any ApolloAPI.SelectionSet.Type] { [
+      DeleteVoiceProfileMutation.Data.self
     ] }
 
     public var deleteVoiceProfile: DeleteVoiceProfile { __data["deleteVoiceProfile"] }
 
+    /// DeleteVoiceProfile
+    ///
+    /// Parent Type: `VoiceProfile`
     public struct DeleteVoiceProfile: KindredAPI.SelectionSet {
-      public let __data: DataDict
-      public init(_dataDict: DataDict) { __data = _dataDict }
+      @_spi(Unsafe) public let __data: DataDict
+      @_spi(Unsafe) public init(_dataDict: DataDict) { __data = _dataDict }
 
-      public static var __parentType: any ApolloAPI.ParentType { KindredAPI.Objects.VoiceProfile }
-      public static var __selections: [ApolloAPI.Selection] { [
+      @_spi(Execution) public static var __parentType: any ApolloAPI.ParentType { KindredAPI.Objects.VoiceProfile }
+      @_spi(Execution) public static var __selections: [ApolloAPI.Selection] { [
         .field("__typename", String.self),
-        .field("id", String.self),
+        .field("id", KindredAPI.ID.self),
         .field("status", GraphQLEnum<KindredAPI.VoiceStatus>.self),
       ] }
+      @_spi(Execution) public static var __fulfilledFragments: [any ApolloAPI.SelectionSet.Type] { [
+        DeleteVoiceProfileMutation.Data.DeleteVoiceProfile.self
+      ] }
 
-      public var id: String { __data["id"] }
+      public var id: KindredAPI.ID { __data["id"] }
       public var status: GraphQLEnum<KindredAPI.VoiceStatus> { __data["status"] }
     }
   }
