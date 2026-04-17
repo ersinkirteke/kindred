@@ -188,10 +188,37 @@ export class VoiceResolver {
       });
     }
 
-    // Check for cached narration audio (includes durationMs from Plan 01 schema)
-    const cached = await this.prisma.narrationAudio.findUnique({
+    // Check for cached narration audio
+    let cached = await this.prisma.narrationAudio.findUnique({
       where: { recipeId_voiceProfileId: { recipeId, voiceProfileId: profileId } },
     });
+
+    // If not cached and voice is READY, generate on-demand
+    if (!cached && profile.status === 'READY' && profile.elevenLabsVoiceId) {
+      try {
+        const generated = await this.narrationService.generateAndCacheNarration(
+          recipeId,
+          profileId,
+          dbUser.id,
+        );
+        return {
+          url: generated.url,
+          speakerName: profile.speakerName,
+          relationship: profile.relationship,
+          recipeName: recipe.name,
+          durationMs: generated.durationMs,
+        };
+      } catch (error) {
+        // Generation failed — return null URL, client will fallback to AVSpeech
+        return {
+          url: null,
+          speakerName: profile.speakerName,
+          relationship: profile.relationship,
+          recipeName: recipe.name,
+          durationMs: null,
+        };
+      }
+    }
 
     return {
       url: cached?.r2Url ?? null,

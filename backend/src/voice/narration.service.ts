@@ -293,6 +293,78 @@ Output only the narration script, no explanations.`;
   }
 
   /**
+   * Generate narration audio on-demand (non-streaming), cache in R2, and return the URL.
+   * Called when narrationUrl query finds no cached audio.
+   */
+  async generateAndCacheNarration(
+    recipeId: string,
+    voiceProfileId: string,
+    userId: string,
+  ): Promise<{ url: string; durationMs: number | null }> {
+    // Verify voice profile ownership and status
+    const voiceProfile = await this.prisma.voiceProfile.findFirst({
+      where: { id: voiceProfileId, userId },
+    });
+
+    if (!voiceProfile || voiceProfile.status !== 'READY' || !voiceProfile.elevenLabsVoiceId) {
+      throw new Error(`Voice profile ${voiceProfileId} is not ready for TTS`);
+    }
+
+    // Load recipe
+    const recipe = await this.prisma.recipe.findUnique({
+      where: { id: recipeId },
+      include: { steps: true, ingredients: true },
+    });
+
+    if (!recipe) {
+      throw new Error(`Recipe ${recipeId} not found`);
+    }
+
+    // Generate conversational narration text via Gemini
+    const narrationText = await this.rewriteToConversational(recipe);
+    const ttsText = narrationText.replace(/\[PAUSE\]/g, '...');
+
+    this.logger.log(
+      `Generating on-demand narration for recipe ${recipeId} with voice ${voiceProfile.speakerName}`,
+    );
+
+    // Generate full audio via ElevenLabs TTS
+    const audioStream = await this.elevenLabsService.generateSpeechStream(
+      voiceProfile.elevenLabsVoiceId,
+      ttsText,
+    );
+
+    const reader = audioStream.getReader();
+    const chunks: Buffer[] = [];
+    let done = false;
+    while (!done) {
+      const { value, done: streamDone } = await reader.read();
+      done = streamDone;
+      if (value) {
+        chunks.push(Buffer.from(value));
+      }
+    }
+
+    const fullBuffer = Buffer.concat(chunks);
+    this.logger.log(
+      `Generated ${fullBuffer.length} bytes of narration audio for recipe ${recipeId}`,
+    );
+
+    // Cache in R2 and save to DB
+    await this.cacheNarrationAudio(recipeId, voiceProfileId, fullBuffer);
+
+    // Retrieve the cached record for the URL and duration
+    const cached = await this.prisma.narrationAudio.findUnique({
+      where: { recipeId_voiceProfileId: { recipeId, voiceProfileId } },
+    });
+
+    return {
+      url: cached!.r2Url,
+      durationMs: cached?.durationMs ?? null,
+    };
+  }
+
+  /**
    * Upload narration audio to R2 and save cache record with duration metadata
    */
   async cacheNarrationAudio(
