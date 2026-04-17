@@ -77,7 +77,7 @@ export class VoiceService {
       const activeCount = await this.prisma.voiceProfile.count({
         where: {
           userId: internalUserId,
-          status: { notIn: [VoiceStatus.DELETED, VoiceStatus.FAILED] },
+          status: { in: [VoiceStatus.READY, VoiceStatus.PROCESSING] },
         },
       });
       if (activeCount >= 1) {
