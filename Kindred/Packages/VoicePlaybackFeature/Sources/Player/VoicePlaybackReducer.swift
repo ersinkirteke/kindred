@@ -281,9 +281,28 @@ public struct VoicePlaybackReducer {
                                         createdAt: createdAt
                                     )
                                 }
-                            await send(.voiceProfilesLoaded(.success(profiles)))
+                            let defaultVoice = VoiceProfile(
+                                id: "kindred-default",
+                                name: "Kindred Voice",
+                                avatarURL: nil,
+                                sampleAudioURL: nil,
+                                isOwnVoice: false,
+                                createdAt: Date()
+                            )
+                            var allProfiles = profiles
+                            allProfiles.insert(defaultVoice, at: 0)
+                            await send(.voiceProfilesLoaded(.success(allProfiles)))
                         } catch {
-                            await send(.voiceProfilesLoaded(.failure(error)))
+                            // Network failed — still provide Kindred Voice
+                            let defaultVoice = VoiceProfile(
+                                id: "kindred-default",
+                                name: "Kindred Voice",
+                                avatarURL: nil,
+                                sampleAudioURL: nil,
+                                isOwnVoice: false,
+                                createdAt: Date()
+                            )
+                            await send(.voiceProfilesLoaded(.success([defaultVoice])))
                         }
                         // Always send selectVoice regardless of profile fetch success/failure
                         await send(.selectVoice(lastVoiceId))
@@ -328,7 +347,16 @@ public struct VoicePlaybackReducer {
 
                                 await send(.voiceProfilesLoaded(.success(profiles)))
                             } catch {
-                                await send(.voiceProfilesLoaded(.failure(error)))
+                                // Network failed — still provide Kindred Voice so picker isn't empty
+                                let defaultVoice = VoiceProfile(
+                                    id: "kindred-default",
+                                    name: "Kindred Voice",
+                                    avatarURL: nil,
+                                    sampleAudioURL: nil,
+                                    isOwnVoice: false,
+                                    createdAt: Date()
+                                )
+                                await send(.voiceProfilesLoaded(.success([defaultVoice])))
                             }
 
                             // If Pro user, show voice picker (they can switch from the already-playing Kindred Voice)
