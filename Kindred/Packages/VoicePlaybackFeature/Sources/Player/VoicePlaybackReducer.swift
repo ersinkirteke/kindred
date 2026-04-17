@@ -268,7 +268,7 @@ public struct VoicePlaybackReducer {
                         do {
                             let result = try await apolloClient.fetch(query: KindredAPI.VoiceProfilesQuery())
                             let profiles = (result.data?.myVoiceProfiles ?? [])
-                                .filter { $0.status == .ready }
+                                .filter { $0.status != .deleted }
                                 .map { dto -> VoiceProfile in
                                     let dateFormatter = ISO8601DateFormatter()
                                     let createdAt = dateFormatter.date(from: dto.createdAt) ?? Date()
@@ -321,7 +321,7 @@ public struct VoicePlaybackReducer {
                             do {
                                 let result = try await apolloClient.fetch(query: KindredAPI.VoiceProfilesQuery())
                                 var profiles = (result.data?.myVoiceProfiles ?? [])
-                                    .filter { $0.status == .ready }
+                                    .filter { $0.status != .deleted }
                                     .map { dto -> VoiceProfile in
                                         let dateFormatter = ISO8601DateFormatter()
                                         let createdAt = dateFormatter.date(from: dto.createdAt) ?? Date()

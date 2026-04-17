@@ -125,10 +125,18 @@ export class VoiceService {
    * Get all non-DELETED voice profiles for a user
    * Ordered by creation date (newest first)
    */
-  async getVoiceProfiles(userId: string): Promise<VoiceProfile[]> {
+  async getVoiceProfiles(clerkId: string): Promise<VoiceProfile[]> {
+    // Resolve Clerk ID to internal User ID
+    const user = await this.prisma.user.findUnique({
+      where: { clerkId },
+    });
+    if (!user) {
+      return [];
+    }
+
     return this.prisma.voiceProfile.findMany({
       where: {
-        userId,
+        userId: user.id,
         status: { not: VoiceStatus.DELETED },
       },
       orderBy: { createdAt: 'desc' },
