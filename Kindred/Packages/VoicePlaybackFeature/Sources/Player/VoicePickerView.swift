@@ -13,6 +13,7 @@ public struct VoicePickerView: View {
     let onPreview: (String) -> Void
     let onCreateProfile: () -> Void
     let onUpgradeTapped: () -> Void
+    let onDelete: (String) -> Void
 
     public init(
         voiceProfiles: [VoiceProfile],
@@ -21,7 +22,8 @@ public struct VoicePickerView: View {
         onSelect: @escaping (String) -> Void,
         onPreview: @escaping (String) -> Void,
         onCreateProfile: @escaping () -> Void = {},
-        onUpgradeTapped: @escaping () -> Void = {}
+        onUpgradeTapped: @escaping () -> Void = {},
+        onDelete: @escaping (String) -> Void = { _ in }
     ) {
         self.voiceProfiles = voiceProfiles
         self.selectedVoiceId = selectedVoiceId
@@ -30,6 +32,7 @@ public struct VoicePickerView: View {
         self.onPreview = onPreview
         self.onCreateProfile = onCreateProfile
         self.onUpgradeTapped = onUpgradeTapped
+        self.onDelete = onDelete
     }
 
     /// Whether free user has hit voice profile limit
@@ -105,6 +108,13 @@ public struct VoicePickerView: View {
                                 },
                                 onPreview: { onPreview(profile.id) }
                             )
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    onDelete(profile.id)
+                                } label: {
+                                    Label(String(localized: "Delete", bundle: .main), systemImage: "trash")
+                                }
+                            }
                         }
 
                         // Bottom of Pro section: upgrade CTA or create voice profile button

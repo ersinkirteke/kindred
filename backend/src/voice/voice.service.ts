@@ -80,10 +80,10 @@ export class VoiceService {
           status: { in: [VoiceStatus.READY, VoiceStatus.PROCESSING] },
         },
       });
-      if (activeCount >= 1) {
+      if (activeCount >= 5) {
         throw new ForbiddenException({
           code: 'VOICE_SLOT_LIMIT',
-          message: 'Free tier allows 1 voice. Upgrade to Pro for unlimited voices.',
+          message: 'Free tier allows up to 5 voices. Delete unused profiles to make room.',
         });
       }
     }
@@ -151,9 +151,15 @@ export class VoiceService {
    *
    * @throws NotFoundException if profile not found or doesn't belong to user
    */
-  async getVoiceProfile(id: string, userId: string): Promise<VoiceProfile> {
+  async getVoiceProfile(id: string, clerkId: string): Promise<VoiceProfile> {
+    // Resolve Clerk ID to internal User ID
+    const user = await this.prisma.user.findUnique({ where: { clerkId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     const profile = await this.prisma.voiceProfile.findFirst({
-      where: { id, userId },
+      where: { id, userId: user.id },
     });
 
     if (!profile) {

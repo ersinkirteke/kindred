@@ -126,6 +126,9 @@ public struct VoicePlaybackReducer {
         case showVoicePickerForNewPlayback
         case offlineFallbackToKindredVoice
         case jumpToStepRequested(Int)
+        case deleteVoiceProfile(String)
+        case voiceProfileDeleted(String)
+        case voiceProfileDeleteFailed(String)
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
             switch (lhs, rhs) {
@@ -185,6 +188,12 @@ public struct VoicePlaybackReducer {
             case (.offlineFallbackToKindredVoice, .offlineFallbackToKindredVoice): return true
             case let (.jumpToStepRequested(lIdx), .jumpToStepRequested(rIdx)):
                 return lIdx == rIdx
+            case let (.deleteVoiceProfile(l), .deleteVoiceProfile(r)):
+                return l == r
+            case let (.voiceProfileDeleted(l), .voiceProfileDeleted(r)):
+                return l == r
+            case let (.voiceProfileDeleteFailed(l), .voiceProfileDeleteFailed(r)):
+                return l == r
             default:
                 return false
             }
@@ -1181,6 +1190,28 @@ public struct VoicePlaybackReducer {
                 return .run { _ in
                     await avSpeechClient.jumpToStep(stepIndex)
                 }
+
+            case let .deleteVoiceProfile(profileId):
+                guard profileId != "kindred-default" else { return .none }
+                return .run { send in
+                    do {
+                        _ = try await apolloClient.perform(mutation: KindredAPI.DeleteVoiceProfileMutation(id: profileId))
+                        await send(.voiceProfileDeleted(profileId))
+                    } catch {
+                        await send(.voiceProfileDeleteFailed(error.localizedDescription))
+                    }
+                }
+
+            case let .voiceProfileDeleted(profileId):
+                state.voiceProfiles.removeAll { $0.id == profileId }
+                if state.selectedVoiceId == profileId {
+                    state.selectedVoiceId = "kindred-default"
+                }
+                return .none
+
+            case let .voiceProfileDeleteFailed(error):
+                state.error = error
+                return .none
             }
         }
         .onChange(of: \.currentPlayback) { oldValue, newValue in

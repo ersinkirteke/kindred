@@ -89,6 +89,9 @@ struct RootView: View {
                 },
                 onUpgradeTapped: {
                     store.send(.voicePlayback(.upgradeTapped))
+                },
+                onDelete: { voiceId in
+                    store.send(.voicePlayback(.deleteVoiceProfile(voiceId)))
                 }
             )
             .presentationDetents([.medium, .large])
