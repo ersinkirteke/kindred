@@ -40,7 +40,7 @@ export class NarrationService {
       this.genAI = new GoogleGenerativeAI(apiKey);
       // Use Gemini 2.0 Flash for conversational rewriting
       this.model = this.genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-2.0-flash',
         generationConfig: {
           temperature: 0.7, // Higher temperature for warm, natural conversation
         },
