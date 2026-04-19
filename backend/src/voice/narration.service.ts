@@ -65,11 +65,7 @@ export class NarrationService {
     steps: Array<{ text: string; orderIndex: number }>;
     ingredients: Array<{ name: string; quantity: string; unit: string }>;
   }): Promise<string> {
-    if (!this.model) {
-      throw new Error('GOOGLE_AI_API_KEY not configured');
-    }
-
-    // Check cache first
+    // Check cache first (works regardless of Gemini availability)
     const cached = await this.prisma.narrationScript.findUnique({
       where: { recipeId: recipe.id },
     });
@@ -77,6 +73,14 @@ export class NarrationService {
     if (cached) {
       this.logger.log(`Using cached narration for recipe: ${recipe.id}`);
       return cached.conversationalText;
+    }
+
+    // Gemini not configured — use plain readout so ElevenLabs still speaks the recipe in the user's cloned voice
+    if (!this.model) {
+      this.logger.warn(
+        `GOOGLE_AI_API_KEY not configured — using plain narration for recipe ${recipe.id}`,
+      );
+      return this.buildPlainNarration(recipe);
     }
 
     this.logger.log(`Generating conversational narration for: ${recipe.name}`);
@@ -138,13 +142,50 @@ Output only the narration script, no explanations.`;
       return conversationalText;
     } catch (error) {
       this.logger.error(
-        `Failed to generate narration for recipe ${recipe.id}`,
+        `Failed to generate narration for recipe ${recipe.id}; falling back to plain readout`,
         error,
       );
-      throw new Error(
-        `Narration generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
+      return this.buildPlainNarration(recipe);
     }
+  }
+
+  /**
+   * Build a plain, TTS-safe readout of the recipe without Gemini rewriting.
+   *
+   * Used as a fallback when Gemini is unavailable (no API key, quota exceeded,
+   * network error). ElevenLabs still synthesizes this in the user's cloned
+   * voice — the only thing missing is the conversational polish.
+   *
+   * Not persisted to narrationScript table so that a later successful Gemini
+   * call can replace it for the same recipe.
+   */
+  private buildPlainNarration(recipe: {
+    name: string;
+    description: string | null;
+    steps: Array<{ text: string; orderIndex: number }>;
+    ingredients: Array<{ name: string; quantity: string; unit: string }>;
+  }): string {
+    const sortedSteps = [...recipe.steps].sort(
+      (a, b) => a.orderIndex - b.orderIndex,
+    );
+
+    const parts: string[] = [`${recipe.name}.`];
+    if (recipe.description) {
+      parts.push(recipe.description, '[PAUSE]');
+    }
+
+    if (recipe.ingredients.length > 0) {
+      const ingredientsText = recipe.ingredients
+        .map((i) => `${i.quantity} ${i.unit} ${i.name}`.trim().replace(/\s+/g, ' '))
+        .join(', ');
+      parts.push(`Ingredients: ${ingredientsText}.`, '[PAUSE]');
+    }
+
+    sortedSteps.forEach((s, i) => {
+      parts.push(`Step ${i + 1}. ${s.text}`, '[PAUSE]');
+    });
+
+    return parts.join(' ');
   }
 
   /**
