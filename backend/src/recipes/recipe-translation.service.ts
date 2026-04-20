@@ -145,10 +145,15 @@ export class RecipeTranslationService {
       steps: sortedSteps.map((s) => ({ orderIndex: s.orderIndex, text: s.text })),
     };
 
-    const prompt = `Translate the following recipe into ${language} (locale ${locale}).
-Preserve numeric quantities, measurement units (e.g. "2", "cup", "tbsp"), and brand names (Oreo, Coca-Cola) untouched.
-Translate the name, description, ingredient names, and step text into natural ${language}.
-Return STRICT JSON matching this exact schema, no commentary, no markdown:
+    const prompt = `Translate the following recipe into natural, native-level ${language} (locale ${locale}).
+
+STRICT rules:
+- Translate EVERY English word into ${language} — including measurement units (cup → ${language} equivalent like "su bardağı" for tr, tablespoon → "yemek kaşığı", teaspoon → "çay kaşığı", ounce → "ons", pound → "libre", package → "paket", can → "kutu", slice → "dilim", pinch → "tutam", to taste → "tadımlık"), time units (minutes → "dakika", hours → "saat", seconds → "saniye"), dimensions (inch → "inç" or size in cm, foot/feet → "adım"), number-words (one/two/three → "bir"/"iki"/"üç" — or better, replace with digits), food words (icing, baking, semi, chocolate, flour), and common nouns (serving → "porsiyon" for tr).
+- Keep numeric quantities as digits ("3", "1/2", "2.5"). Do NOT translate numbers.
+- Keep brand names and proper nouns untouched (Oreo, Coca-Cola, Heinz, KitchenAid). These are recognizable by being capitalized product names.
+- No half-English words, no transliterations of English, no leftover English terms. If a term has no direct ${language} equivalent, use the standard ${language} culinary term.
+
+Return STRICT JSON only — no commentary, no markdown, no explanations:
 {
   "name": string,
   "description": string,
