@@ -204,7 +204,7 @@ public struct RecipeDetailReducer {
                                             recipeId: recipeId,
                                             locale: locale
                                         ),
-                                        cachePolicy: .cacheFirst
+                                        cachePolicy: .networkFirst
                                     )
                                     guard let translation = result.data?.recipeTranslation else { return }
                                     let ingredients = translation.ingredients.enumerated().map { idx, i in
