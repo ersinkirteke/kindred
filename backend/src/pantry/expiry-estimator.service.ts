@@ -35,7 +35,7 @@ export class ExpiryEstimatorService {
       this.genAI = new GoogleGenerativeAI(apiKey);
       // Use Gemini 2.0 Flash for fast, cost-effective text inference
       this.model = this.genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-2.5-flash',
         generationConfig: {
           temperature: 0.1, // Low temperature for consistent estimates
           responseMimeType: 'application/json',

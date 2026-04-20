@@ -31,7 +31,7 @@ export class ScanAnalyzerService {
       this.genAI = new GoogleGenerativeAI(apiKey);
       // Use Gemini 2.0 Flash for fast, cost-effective vision analysis
       this.model = this.genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-2.5-flash',
         generationConfig: {
           temperature: 0.1, // Low temperature for precise detection
           responseMimeType: 'application/json',
