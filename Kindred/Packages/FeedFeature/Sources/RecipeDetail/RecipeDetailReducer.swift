@@ -155,30 +155,89 @@ public struct RecipeDetailReducer {
                 // Load recipe detail from Apollo cache (should be pre-fetched from feed)
                 return .run { [recipeId = state.recipeId] send in
                     await withTaskGroup(of: Void.self) { group in
-                        // Task 1: Load recipe
+                        // Task 1: Load recipe AND translation together so the detail
+                        // view renders in the user's locale on the very first frame —
+                        // the single-Gemini-call wait is comparable to a normal
+                        // network roundtrip and the existing loading spinner covers
+                        // it. If translation fails, fall back to original English.
                         group.addTask {
-                            do {
-                                // Use returnCacheDataAndFetch policy for offline-first UX
-                                let query = KindredAPI.RecipeDetailQuery(id: recipeId)
-                                let result = try await apolloClient.fetch(
-                                    query: query,
-                                    cachePolicy: .cacheFirst
-                                )
+                            let locale = Locale.current.language.languageCode?.identifier ?? "en"
 
-                                guard let recipeData = result.data?.recipe else {
-                                    await send(.recipeLoaded(.failure(RecipeDetailError.notFound)))
-                                    return
+                            async let recipeTask: RecipeDetail? = {
+                                do {
+                                    let query = KindredAPI.RecipeDetailQuery(id: recipeId)
+                                    let result = try await apolloClient.fetch(
+                                        query: query,
+                                        cachePolicy: .cacheFirst
+                                    )
+                                    guard let recipeData = result.data?.recipe else { return nil }
+                                    return RecipeDetail.from(graphQL: recipeData)
+                                } catch {
+                                    return nil
                                 }
+                            }()
 
-                                let recipe = RecipeDetail.from(graphQL: recipeData)
-                                await send(.recipeLoaded(.success(recipe)))
+                            async let translationTask: (name: String, description: String?, ingredients: [RecipeIngredient], steps: [RecipeStep])? = {
+                                guard locale != "en" else { return nil }
+                                do {
+                                    let result = try await apolloClient.fetch(
+                                        query: KindredAPI.RecipeTranslationQuery(
+                                            recipeId: recipeId,
+                                            locale: locale
+                                        ),
+                                        cachePolicy: .networkFirst
+                                    )
+                                    guard let translation = result.data?.recipeTranslation else { return nil }
+                                    let ingredients = translation.ingredients.enumerated().map { idx, i in
+                                        RecipeIngredient(
+                                            name: i.name,
+                                            quantity: i.quantity.isEmpty ? nil : i.quantity,
+                                            unit: i.unit.isEmpty ? nil : i.unit,
+                                            orderIndex: idx
+                                        )
+                                    }
+                                    let steps = translation.steps.map { s in
+                                        RecipeStep(orderIndex: s.orderIndex, text: s.text)
+                                    }
+                                    return (translation.name, translation.description, ingredients, steps)
+                                } catch {
+                                    return nil
+                                }
+                            }()
 
-                                // Check bookmark status
-                                let isBookmarked = await guestSession.isBookmarked(recipeId)
-                                await send(.bookmarkStatusLoaded(isBookmarked))
-                            } catch {
-                                await send(.recipeLoaded(.failure(error)))
+                            guard let recipe = await recipeTask else {
+                                await send(.recipeLoaded(.failure(RecipeDetailError.notFound)))
+                                return
                             }
+
+                            let finalRecipe: RecipeDetail
+                            if let t = await translationTask {
+                                finalRecipe = RecipeDetail(
+                                    id: recipe.id,
+                                    name: t.name,
+                                    description: t.description ?? recipe.description,
+                                    prepTime: recipe.prepTime,
+                                    cookTime: recipe.cookTime,
+                                    servings: recipe.servings,
+                                    calories: recipe.calories,
+                                    imageUrl: recipe.imageUrl,
+                                    popularityScore: recipe.popularityScore,
+                                    engagementLoves: recipe.engagementLoves,
+                                    dietaryTags: recipe.dietaryTags,
+                                    difficulty: recipe.difficulty,
+                                    sourceUrl: recipe.sourceUrl,
+                                    sourceName: recipe.sourceName,
+                                    ingredients: t.ingredients,
+                                    steps: t.steps
+                                )
+                            } else {
+                                finalRecipe = recipe
+                            }
+
+                            await send(.recipeLoaded(.success(finalRecipe)))
+
+                            let isBookmarked = await guestSession.isBookmarked(recipeId)
+                            await send(.bookmarkStatusLoaded(isBookmarked))
                         }
 
                         // Task 2: Check subscription status
@@ -193,42 +252,6 @@ public struct RecipeDetailReducer {
                             await send(.adVisibilityDetermined(shouldShow))
                         }
 
-                        // Task 4: Localize recipe text if the device isn't already English.
-                        // Backend returns null for 'en' so we skip the call entirely there.
-                        let locale = Locale.current.language.languageCode?.identifier ?? "en"
-                        if locale != "en" {
-                            group.addTask {
-                                do {
-                                    let result = try await apolloClient.fetch(
-                                        query: KindredAPI.RecipeTranslationQuery(
-                                            recipeId: recipeId,
-                                            locale: locale
-                                        ),
-                                        cachePolicy: .networkFirst
-                                    )
-                                    guard let translation = result.data?.recipeTranslation else { return }
-                                    let ingredients = translation.ingredients.enumerated().map { idx, i in
-                                        RecipeIngredient(
-                                            name: i.name,
-                                            quantity: i.quantity.isEmpty ? nil : i.quantity,
-                                            unit: i.unit.isEmpty ? nil : i.unit,
-                                            orderIndex: idx
-                                        )
-                                    }
-                                    let steps = translation.steps.map { s in
-                                        RecipeStep(orderIndex: s.orderIndex, text: s.text)
-                                    }
-                                    await send(.recipeTranslationApplied(
-                                        name: translation.name,
-                                        description: translation.description,
-                                        ingredients: ingredients,
-                                        steps: steps
-                                    ))
-                                } catch {
-                                    // Translation is best-effort; swallow errors and keep original text
-                                }
-                            }
-                        }
                     }
                 }
 
