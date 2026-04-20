@@ -478,6 +478,25 @@ public struct VoicePlaybackReducer {
                 let wasAVSpeechActive = state.isAVSpeechActive
                 state.isAVSpeechActive = false
 
+                // Immediately replace currentPlayback with a .loading placeholder
+                // for the new recipe so the mini-player and Listen button both
+                // show a spinner while the 10-20s Gemini+ElevenLabs generation
+                // runs. Without this the UI would keep showing the previous
+                // recipe's .playing state (stale pause icon) during the wait.
+                let speakerName = state.voiceProfiles.first(where: { $0.id == voiceId })?.name ?? ""
+                state.currentPlayback = CurrentPlayback(
+                    recipeId: recipeId,
+                    recipeName: state.pendingRecipeName ?? "",
+                    voiceId: voiceId,
+                    speakerName: speakerName,
+                    artworkURL: state.pendingArtworkURL,
+                    duration: 0,
+                    currentTime: 0,
+                    speed: .normal,
+                    status: .loading,
+                    currentStepIndex: nil
+                )
+
                 return .concatenate(
                     // Cancel any in-flight AVSpeech (Kindred Voice) observers so they don't
                     // race with the incoming AVPlayer status stream and leave the UI stuck
@@ -492,6 +511,10 @@ public struct VoicePlaybackReducer {
                         if wasAVSpeechActive {
                             await avSpeechClient.cleanup()
                         }
+                        // Stop any previously-playing AVPlayer audio so the
+                        // user hears silence during the wait rather than the
+                        // previous recipe's narration continuing.
+                        await audioPlayer.cleanup()
                     },
                     .run { [voiceId, recipeId] send in
                     // Locale is part of the cache key so a Turkish user and an
