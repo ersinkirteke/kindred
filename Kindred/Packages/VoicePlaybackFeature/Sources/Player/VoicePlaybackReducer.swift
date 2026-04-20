@@ -952,6 +952,21 @@ public struct VoicePlaybackReducer {
                     }
                 }
 
+                // Don't regress from .playing back to .buffering/.loading: AVPlayer's
+                // statusStream emits an initial yield right after we set up KVO, and
+                // that yield is .buffering while the player is still transitioning out
+                // of .waitingToPlayAtSpecifiedRate. The explicit .playing dispatched
+                // from narrationReady already reflects reality; ignore the stale dip so
+                // the UI doesn't bounce back to a spinner.
+                if currentPlayback.status == .playing {
+                    switch status {
+                    case .buffering, .loading:
+                        return .none
+                    default:
+                        break
+                    }
+                }
+
                 state.currentPlayback = CurrentPlayback(
                     recipeId: currentPlayback.recipeId,
                     recipeName: currentPlayback.recipeName,
