@@ -6805,6 +6805,108 @@
         }
       }
     },
+    "Pro Voices": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro Voices"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro Sesler"
+          }
+        }
+      }
+    },
+    "Upload a 30-60 second voice clip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload a 30-60 second voice clip"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30-60 saniyelik bir ses kaydı yükleyin"
+          }
+        }
+      }
+    },
+    "Voice profile name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice profile name"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ses profili adı"
+          }
+        }
+      }
+    },
+    "Upload voice clip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload voice clip"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ses kaydını yükle"
+          }
+        }
+      }
+    },
+    "Perfect length for voice cloning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfect length for voice cloning"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ses klonlama için ideal süre"
+          }
+        }
+      }
+    },
+    "Must be 30-60 seconds": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Must be 30-60 seconds"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30-60 saniye olmalı"
+          }
+        }
+      }
+    },
     "Kindred Voice": {
       "extractionState": "manual",
       "localizations": {

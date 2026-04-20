@@ -92,7 +92,7 @@ public struct VoicePickerView: View {
                                 .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                             }
                         } header: {
-                            sectionHeader("Free")
+                            sectionHeader(String(localized: "Free", bundle: .main))
                                 .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
                         }
                     }
@@ -126,7 +126,7 @@ public struct VoicePickerView: View {
                             }
                         }
                     } header: {
-                        sectionHeader("Pro Voices")
+                        sectionHeader(String(localized: "Pro Voices", bundle: .main))
                             .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
                     }
 

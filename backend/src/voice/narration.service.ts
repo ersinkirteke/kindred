@@ -87,7 +87,7 @@ export class NarrationService {
       this.logger.warn(
         `GOOGLE_AI_API_KEY not configured — using plain narration for recipe ${recipe.id}`,
       );
-      return this.buildPlainNarration(recipe);
+      return this.buildPlainNarration(recipe, normalizedLocale);
     }
 
     const languageName = this.languageNameForLocale(normalizedLocale);
@@ -161,7 +161,7 @@ Output only the narration script, no explanations, no markdown, no translation n
         `Failed to generate narration for recipe ${recipe.id}; falling back to plain readout`,
         error,
       );
-      return this.buildPlainNarration(recipe);
+      return this.buildPlainNarration(recipe, normalizedLocale);
     }
   }
 
@@ -217,12 +217,16 @@ Output only the narration script, no explanations, no markdown, no translation n
    * Not persisted to narrationScript table so that a later successful Gemini
    * call can replace it for the same recipe.
    */
-  private buildPlainNarration(recipe: {
-    name: string;
-    description: string | null;
-    steps: Array<{ text: string; orderIndex: number }>;
-    ingredients: Array<{ name: string; quantity: string; unit: string }>;
-  }): string {
+  private buildPlainNarration(
+    recipe: {
+      name: string;
+      description: string | null;
+      steps: Array<{ text: string; orderIndex: number }>;
+      ingredients: Array<{ name: string; quantity: string; unit: string }>;
+    },
+    locale: string = 'en',
+  ): string {
+    const labels = this.plainReadoutLabels(locale);
     const sortedSteps = [...recipe.steps].sort(
       (a, b) => a.orderIndex - b.orderIndex,
     );
@@ -236,14 +240,45 @@ Output only the narration script, no explanations, no markdown, no translation n
       const ingredientsText = recipe.ingredients
         .map((i) => `${i.quantity} ${i.unit} ${i.name}`.trim().replace(/\s+/g, ' '))
         .join(', ');
-      parts.push(`Ingredients: ${ingredientsText}.`, '[PAUSE]');
+      parts.push(`${labels.ingredients}: ${ingredientsText}.`, '[PAUSE]');
     }
 
     sortedSteps.forEach((s, i) => {
-      parts.push(`Step ${i + 1}. ${s.text}`, '[PAUSE]');
+      parts.push(`${labels.step} ${i + 1}. ${s.text}`, '[PAUSE]');
     });
 
     return parts.join(' ');
+  }
+
+  /**
+   * Localized wrapper labels for the plain-readout fallback ("Ingredients",
+   * "Step"). Recipe body stays in the source language because translating
+   * without Gemini isn't an option here — but at least the scaffolding
+   * matches the user's language so it's not jarringly half-English.
+   */
+  private plainReadoutLabels(locale: string): { ingredients: string; step: string } {
+    const map: Record<string, { ingredients: string; step: string }> = {
+      ar: { ingredients: 'المكونات', step: 'الخطوة' },
+      de: { ingredients: 'Zutaten', step: 'Schritt' },
+      en: { ingredients: 'Ingredients', step: 'Step' },
+      es: { ingredients: 'Ingredientes', step: 'Paso' },
+      fr: { ingredients: 'Ingrédients', step: 'Étape' },
+      hi: { ingredients: 'सामग्री', step: 'चरण' },
+      id: { ingredients: 'Bahan', step: 'Langkah' },
+      it: { ingredients: 'Ingredienti', step: 'Passo' },
+      ja: { ingredients: '材料', step: '手順' },
+      ko: { ingredients: '재료', step: '단계' },
+      nl: { ingredients: 'Ingrediënten', step: 'Stap' },
+      pl: { ingredients: 'Składniki', step: 'Krok' },
+      pt: { ingredients: 'Ingredientes', step: 'Passo' },
+      ru: { ingredients: 'Ингредиенты', step: 'Шаг' },
+      sv: { ingredients: 'Ingredienser', step: 'Steg' },
+      tr: { ingredients: 'Malzemeler', step: 'Adım' },
+      uk: { ingredients: 'Інгредієнти', step: 'Крок' },
+      vi: { ingredients: 'Nguyên liệu', step: 'Bước' },
+      zh: { ingredients: '食材', step: '步骤' },
+    };
+    return map[locale] ?? map.en;
   }
 
   /**
