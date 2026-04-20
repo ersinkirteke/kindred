@@ -472,8 +472,25 @@ public struct VoicePlaybackReducer {
 
                 // --- ElevenLabs / AVPlayer branch (Pro voices) ---
                 state.isLoadingNarration = true
+                let wasAVSpeechActive = state.isAVSpeechActive
+                state.isAVSpeechActive = false
 
-                return .run { [voiceId, recipeId] send in
+                return .concatenate(
+                    // Cancel any in-flight AVSpeech (Kindred Voice) observers so they don't
+                    // race with the incoming AVPlayer status stream and leave the UI stuck
+                    .cancel(id: CancelID.avSpeechStatusObserver),
+                    .cancel(id: CancelID.avSpeechStepObserver),
+                    // Tear down any previous AVPlayer observers before starting a fresh one
+                    .cancel(id: CancelID.timeObserver),
+                    .cancel(id: CancelID.statusObserver),
+                    .cancel(id: CancelID.durationObserver),
+                    .cancel(id: CancelID.autoCache),
+                    .run { _ in
+                        if wasAVSpeechActive {
+                            await avSpeechClient.cleanup()
+                        }
+                    },
+                    .run { [voiceId, recipeId] send in
                     // Check for offline + uncached: fallback to Kindred Voice
                     let hasCachedAudio = await voiceCache.getCachedAudio(voiceId, recipeId) != nil
                     if !hasCachedAudio {
@@ -532,6 +549,7 @@ public struct VoicePlaybackReducer {
                         }
                     }
                 }
+                )
 
             case let .narrationReady(metadata):
                 state.narrationMetadata = metadata
