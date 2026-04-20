@@ -76,6 +76,6 @@ export class RecipesResolver {
     @Args('recipeIds', { type: () => [String] }) recipeIds: string[],
     @Args('locale') locale: string,
   ): Promise<RecipeTranslationDto[]> {
-    return this.recipeTranslationService.getCachedBatchAndBackfill(recipeIds, locale);
+    return this.recipeTranslationService.getBatch(recipeIds, locale);
   }
 }

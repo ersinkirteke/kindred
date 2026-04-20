@@ -222,12 +222,13 @@ ${JSON.stringify(input)}`;
   }
 
   /**
-   * Return whatever cached translations exist for the given recipe IDs.
-   * For any missing ones, kick off background generation so the *next*
-   * call can serve them from cache — keeps feed-card translation cheap
-   * by never blocking on Gemini synchronously.
+   * Batch translate: returns cached translations for the given recipe IDs,
+   * generating any that are missing in parallel and awaiting them so the
+   * caller can render all cards in the user's language at once (no English
+   * flicker). First call for a locale is slow (one Gemini request per
+   * missing recipe, fanned out); subsequent calls are served from cache.
    */
-  async getCachedBatchAndBackfill(
+  async getBatch(
     recipeIds: string[],
     locale: string,
   ): Promise<RecipeTranslationDto[]> {
@@ -238,28 +239,52 @@ ${JSON.stringify(input)}`;
       where: { locale: normalized, recipeId: { in: recipeIds } },
     });
 
-    const cachedIds = new Set(cached.map((t) => t.recipeId));
-    const missing = recipeIds.filter((id) => !cachedIds.has(id));
+    const cachedMap = new Map(cached.map((t) => [t.recipeId, t]));
+    const missing = recipeIds.filter((id) => !cachedMap.has(id));
 
-    // Fire-and-forget background generation for missing ones. Do not await —
-    // we want the caller (feed) to return immediately with whatever is
-    // already cached.
-    for (const id of missing) {
-      this.getOrGenerate(id, normalized).catch((err) => {
-        this.logger.warn(
-          `Background translation for ${id}/${normalized} failed: ${err instanceof Error ? err.message : err}`,
-        );
+    if (missing.length > 0) {
+      this.logger.log(
+        `Batch translating ${missing.length} missing recipes to ${normalized}`,
+      );
+      // Fan out Gemini calls in parallel; settle all so one failure doesn't
+      // take down the rest of the feed.
+      const generated = await Promise.allSettled(
+        missing.map((id) => this.getOrGenerate(id, normalized)),
+      );
+      generated.forEach((result, i) => {
+        if (result.status === 'fulfilled' && result.value) {
+          // getOrGenerate already upserted the DB row, so just merge into map
+          cachedMap.set(missing[i], {
+            recipeId: missing[i],
+            locale: normalized,
+            name: result.value.name,
+            description: result.value.description ?? null,
+            ingredients: result.value.ingredients as any,
+            steps: result.value.steps as any,
+            generatedAt: new Date(),
+            id: '',
+          } as any);
+        } else if (result.status === 'rejected') {
+          this.logger.warn(
+            `Batch translation failed for recipe ${missing[i]}: ${result.reason?.message ?? result.reason}`,
+          );
+        }
       });
     }
 
-    return cached.map((t) =>
-      this.toDto(t.recipeId, normalized, {
-        name: t.name,
-        description: t.description,
-        ingredients: t.ingredients as any,
-        steps: t.steps as any,
-      }),
-    );
+    // Return in the order the caller requested, skipping ids we couldn't
+    // translate (caller falls back to English for those).
+    return recipeIds
+      .map((id) => cachedMap.get(id))
+      .filter((t): t is NonNullable<typeof t> => t != null)
+      .map((t) =>
+        this.toDto(t.recipeId, normalized, {
+          name: t.name,
+          description: t.description,
+          ingredients: t.ingredients as any,
+          steps: t.steps as any,
+        }),
+      );
   }
 
   private normalizeLocale(locale: string): string {
