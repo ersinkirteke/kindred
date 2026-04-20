@@ -491,8 +491,14 @@ public struct VoicePlaybackReducer {
                         }
                     },
                     .run { [voiceId, recipeId] send in
+                    // Locale is part of the cache key so a Turkish user and an
+                    // English user playing the same recipe in the same voice each
+                    // cache their own audio rather than stomping each other.
+                    let locale = Locale.current.language.languageCode?.identifier ?? "en"
+                    let cacheVoiceKey = "\(voiceId)_\(locale)"
+
                     // Check for offline + uncached: fallback to Kindred Voice
-                    let hasCachedAudio = await voiceCache.getCachedAudio(voiceId, recipeId) != nil
+                    let hasCachedAudio = await voiceCache.getCachedAudio(cacheVoiceKey, recipeId) != nil
                     if !hasCachedAudio {
                         let monitor = NWPathMonitor()
                         let isOnline = await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
@@ -509,9 +515,9 @@ public struct VoicePlaybackReducer {
                     }
 
                     // Cache-first per locked decision
-                    if let cachedURL = await voiceCache.getCachedAudio(voiceId, recipeId) {
+                    if let cachedURL = await voiceCache.getCachedAudio(cacheVoiceKey, recipeId) {
                         // Load cached metadata (step timestamps stored alongside audio)
-                        let cachedMetadata = await voiceCache.getCachedMetadata(voiceId, recipeId)
+                        let cachedMetadata = await voiceCache.getCachedMetadata(cacheVoiceKey, recipeId)
                         let metadata = NarrationMetadata(
                             recipeId: recipeId,
                             voiceId: voiceId,
@@ -525,7 +531,11 @@ public struct VoicePlaybackReducer {
                         // Fetch from backend via GraphQL
                         do {
                             let result = try await apolloClient.fetch(
-                                query: KindredAPI.NarrationUrlQuery(recipeId: recipeId, voiceProfileId: .some(voiceId)),
+                                query: KindredAPI.NarrationUrlQuery(
+                                    recipeId: recipeId,
+                                    voiceProfileId: .some(voiceId),
+                                    locale: .some(locale)
+                                ),
                                 cachePolicy: .networkFirst
                             )
                             guard let narrationData = result.data?.narrationUrl,
@@ -1009,10 +1019,15 @@ public struct VoicePlaybackReducer {
                 }
 
                 // Handle auto-cache on playing (if not already cached) — only for ElevenLabs
+                let autoCacheLocale = Locale.current.language.languageCode?.identifier ?? "en"
+                let autoCacheVoiceKey: String = {
+                    guard let metadata = state.narrationMetadata else { return "" }
+                    return "\(metadata.voiceId)_\(autoCacheLocale)"
+                }()
                 if case .playing = status,
                    !state.isAVSpeechActive,
                    let metadata = state.narrationMetadata,
-                   !voiceCache.isCached(metadata.voiceId, metadata.recipeId) {
+                   !voiceCache.isCached(autoCacheVoiceKey, metadata.recipeId) {
                     return .run { send in
                         // Download audio data and cache it
                         guard let url = URL(string: metadata.audioURL) else { return }
@@ -1020,14 +1035,14 @@ public struct VoicePlaybackReducer {
                         do {
                             let (data, _) = try await URLSession.shared.data(from: url)
                             let cachedURL = try await voiceCache.cacheAudio(
-                                metadata.voiceId,
+                                autoCacheVoiceKey,
                                 metadata.recipeId,
                                 data
                             )
 
                             // Cache metadata alongside audio
                             try await voiceCache.cacheMetadata(
-                                metadata.voiceId,
+                                autoCacheVoiceKey,
                                 metadata.recipeId,
                                 NarrationCacheMetadata(
                                     duration: metadata.duration,
@@ -1083,9 +1098,12 @@ public struct VoicePlaybackReducer {
                     // Pause current AVPlayer playback
                     await audioPlayer.pause()
 
+                    let locale = Locale.current.language.languageCode?.identifier ?? "en"
+                    let cacheVoiceKey = "\(newVoiceId)_\(locale)"
+
                     // Fetch new voice narration (cache-first, then GraphQL)
-                    if let cachedURL = await voiceCache.getCachedAudio(newVoiceId, recipeId) {
-                        let cachedMetadata = await voiceCache.getCachedMetadata(newVoiceId, recipeId)
+                    if let cachedURL = await voiceCache.getCachedAudio(cacheVoiceKey, recipeId) {
+                        let cachedMetadata = await voiceCache.getCachedMetadata(cacheVoiceKey, recipeId)
                         let metadata = NarrationMetadata(
                             recipeId: recipeId,
                             voiceId: newVoiceId,
@@ -1098,7 +1116,11 @@ public struct VoicePlaybackReducer {
                     } else {
                         do {
                             let result = try await apolloClient.fetch(
-                                query: KindredAPI.NarrationUrlQuery(recipeId: recipeId, voiceProfileId: .some(newVoiceId)),
+                                query: KindredAPI.NarrationUrlQuery(
+                                    recipeId: recipeId,
+                                    voiceProfileId: .some(newVoiceId),
+                                    locale: .some(locale)
+                                ),
                                 cachePolicy: .networkFirst
                             )
                             guard let narrationData = result.data?.narrationUrl,

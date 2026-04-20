@@ -8,23 +8,27 @@ public struct NarrationUrlQuery: GraphQLQuery {
   public static let operationName: String = "NarrationUrl"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query NarrationUrl($recipeId: String!, $voiceProfileId: String) { narrationUrl(recipeId: $recipeId, voiceProfileId: $voiceProfileId) { __typename url speakerName relationship recipeName durationMs } }"#
+      #"query NarrationUrl($recipeId: String!, $voiceProfileId: String, $locale: String) { narrationUrl( recipeId: $recipeId voiceProfileId: $voiceProfileId locale: $locale ) { __typename url speakerName relationship recipeName durationMs } }"#
     ))
 
   public var recipeId: String
   public var voiceProfileId: GraphQLNullable<String>
+  public var locale: GraphQLNullable<String>
 
   public init(
     recipeId: String,
-    voiceProfileId: GraphQLNullable<String>
+    voiceProfileId: GraphQLNullable<String>,
+    locale: GraphQLNullable<String>
   ) {
     self.recipeId = recipeId
     self.voiceProfileId = voiceProfileId
+    self.locale = locale
   }
 
   @_spi(Unsafe) public var __variables: Variables? { [
     "recipeId": recipeId,
-    "voiceProfileId": voiceProfileId
+    "voiceProfileId": voiceProfileId,
+    "locale": locale
   ] }
 
   public struct Data: KindredAPI.SelectionSet {
@@ -35,7 +39,8 @@ public struct NarrationUrlQuery: GraphQLQuery {
     @_spi(Execution) public static var __selections: [ApolloAPI.Selection] { [
       .field("narrationUrl", NarrationUrl.self, arguments: [
         "recipeId": .variable("recipeId"),
-        "voiceProfileId": .variable("voiceProfileId")
+        "voiceProfileId": .variable("voiceProfileId"),
+        "locale": .variable("locale")
       ]),
     ] }
     @_spi(Execution) public static var __fulfilledFragments: [any ApolloAPI.SelectionSet.Type] { [
