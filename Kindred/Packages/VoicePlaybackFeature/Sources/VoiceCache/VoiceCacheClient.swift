@@ -43,7 +43,12 @@ extension VoiceCacheClient: DependencyKey {
         }
 
         func audioURL(voiceId: String, recipeId: String) -> URL {
-            cacheDir.appendingPathComponent("\(voiceId)_\(recipeId).m4a")
+            // ElevenLabs returns MP3 (audio/mpeg). Previous builds saved as .m4a,
+            // which AVPlayer couldn't decode from the local cache — the HTTP play
+            // succeeded but every cached replay errored. Old .m4a orphans in the
+            // cache dir are simply ignored by fileExists since the extension no
+            // longer matches; they get evicted by the system's cache management.
+            cacheDir.appendingPathComponent("\(voiceId)_\(recipeId).mp3")
         }
 
         return VoiceCacheClient(
