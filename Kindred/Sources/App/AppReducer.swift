@@ -509,9 +509,18 @@ struct AppReducer {
                 // otherwise both .startPlayback AND .pause fire simultaneously.
                 if case .listenTapped = recipeDetailAction,
                    let recipe = state.feedState.recipeDetail?.recipe {
-                    // If playback is already active or loading, skip — delegate handles toggle
-                    if state.voicePlaybackState.currentPlayback != nil ||
-                       state.voicePlaybackState.isLoadingNarration {
+                    // Only short-circuit when the SAME recipe is already playing —
+                    // RecipeDetailView sends pauseTapped/resumeTapped via delegate
+                    // for toggles on the current recipe. A different recipe means
+                    // the user tapped Listen after swiping to a new detail view, so
+                    // we must actually start new playback (which replaces the
+                    // current mini-player content).
+                    if let currentPlayback = state.voicePlaybackState.currentPlayback,
+                       currentPlayback.recipeId == recipe.id {
+                        return .none
+                    }
+                    if state.voicePlaybackState.isLoadingNarration,
+                       state.voicePlaybackState.pendingRecipeId == recipe.id {
                         return .none
                     }
 
