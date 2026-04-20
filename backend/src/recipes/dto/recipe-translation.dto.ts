@@ -32,7 +32,7 @@ export class RecipeTranslationDto {
   @Field()
   name!: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   description?: string | null;
 
   @Field(() => [TranslatedIngredientDto])
