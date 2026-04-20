@@ -58,20 +58,27 @@ export class NarrationService {
    * @param recipe - Recipe data with name, description, steps, ingredients
    * @returns Conversational narration text with [PAUSE] markers
    */
-  async rewriteToConversational(recipe: {
-    id: string;
-    name: string;
-    description: string | null;
-    steps: Array<{ text: string; orderIndex: number }>;
-    ingredients: Array<{ name: string; quantity: string; unit: string }>;
-  }): Promise<string> {
+  async rewriteToConversational(
+    recipe: {
+      id: string;
+      name: string;
+      description: string | null;
+      steps: Array<{ text: string; orderIndex: number }>;
+      ingredients: Array<{ name: string; quantity: string; unit: string }>;
+    },
+    locale: string = 'en',
+  ): Promise<string> {
+    const normalizedLocale = this.normalizeLocale(locale);
+
     // Check cache first (works regardless of Gemini availability)
     const cached = await this.prisma.narrationScript.findUnique({
-      where: { recipeId: recipe.id },
+      where: { recipeId_locale: { recipeId: recipe.id, locale: normalizedLocale } },
     });
 
     if (cached) {
-      this.logger.log(`Using cached narration for recipe: ${recipe.id}`);
+      this.logger.log(
+        `Using cached narration for recipe ${recipe.id} (${normalizedLocale})`,
+      );
       return cached.conversationalText;
     }
 
@@ -83,7 +90,10 @@ export class NarrationService {
       return this.buildPlainNarration(recipe);
     }
 
-    this.logger.log(`Generating conversational narration for: ${recipe.name}`);
+    const languageName = this.languageNameForLocale(normalizedLocale);
+    this.logger.log(
+      `Generating conversational narration for ${recipe.name} in ${languageName} (${normalizedLocale})`,
+    );
 
     // Sort steps by order
     const sortedSteps = [...recipe.steps].sort(
@@ -99,7 +109,7 @@ export class NarrationService {
       .map((s, i) => `${i + 1}. ${s.text}`)
       .join('\n');
 
-    const prompt = `Rewrite this recipe into warm, conversational narration as if a loved one is guiding you through cooking.
+    const prompt = `Rewrite this recipe into warm, conversational narration in ${languageName} as if a loved one is guiding you through cooking. Translate all recipe content (name, ingredients, steps) into ${languageName}; keep brand names (Oreo, Coca-Cola, etc.) untouched.
 
 Recipe: ${recipe.name}
 Description: ${recipe.description || 'A delicious recipe'}
@@ -111,34 +121,40 @@ Steps:
 ${stepsList}
 
 Guidelines:
-- Start with warm intro: "Today we're making ${recipe.name}"
-- List ingredients overview: "You'll need ${recipe.ingredients.length} ingredients..."
-- Rewrite each step conversationally: "Chop onions" → "Now, let's chop up those onions"
-- Add natural pauses between steps (insert "[PAUSE]" markers for 2-second gaps)
-- Keep it warm and encouraging, like a loved one talking you through it
-- Total length: suitable for 2-5 minutes when spoken aloud
-- Use phrases like "Now", "Next", "While that's cooking", "Don't forget to"
-- Add little tips and encouragement: "This is the best part", "Almost there", "Smells amazing, right?"
+- Write everything in natural, native-level ${languageName} (not a literal word-for-word translation).
+- Start with a warm intro greeting the listener in ${languageName}, introducing the dish.
+- Give a brief ingredients overview ("You'll need X ingredients…" in ${languageName}).
+- Rewrite each step conversationally in ${languageName}, as if a loved one is talking the cook through it.
+- Insert "[PAUSE]" markers between steps for 2-second gaps.
+- Use natural connectors in ${languageName} ("now", "next", "while that's cooking").
+- Add small tips and encouragement throughout.
+- Total length: suitable for 2–5 minutes when spoken aloud.
 
-Output only the narration script, no explanations.`;
+Output only the narration script, no explanations, no markdown, no translation notes.`;
 
     try {
       const result = await this.model.generateContent(prompt);
       const response = result.response;
       const conversationalText = response.text();
 
-      // Cache the result
+      // Cache the result keyed by locale so other users on the same language
+      // skip the Gemini call and go straight to ElevenLabs synthesis.
       await this.prisma.narrationScript.upsert({
-        where: { recipeId: recipe.id },
+        where: {
+          recipeId_locale: { recipeId: recipe.id, locale: normalizedLocale },
+        },
         update: { conversationalText, generatedAt: new Date() },
         create: {
           recipeId: recipe.id,
+          locale: normalizedLocale,
           conversationalText,
           generatedAt: new Date(),
         },
       });
 
-      this.logger.log(`Cached narration for recipe: ${recipe.id}`);
+      this.logger.log(
+        `Cached narration for recipe ${recipe.id} (${normalizedLocale})`,
+      );
       return conversationalText;
     } catch (error) {
       this.logger.error(
@@ -147,6 +163,48 @@ Output only the narration script, no explanations.`;
       );
       return this.buildPlainNarration(recipe);
     }
+  }
+
+  /**
+   * Normalize a locale identifier down to its language subtag.
+   * We cache per language (not per region) because recipe narration is
+   * effectively region-independent — Mexican vs. Spain Spanish makes no
+   * meaningful difference for warm cooking prose and halving the cache key
+   * space halves Gemini spend.
+   */
+  private normalizeLocale(locale: string): string {
+    const lang = (locale || 'en').split(/[-_]/)[0].toLowerCase();
+    return lang.length >= 2 ? lang : 'en';
+  }
+
+  /**
+   * Best-effort human-readable language name for the Gemini prompt. Falls
+   * back to the BCP-47 code itself when we don't have a friendly name — Gemini
+   * handles arbitrary language codes fine, the map is just for prompt clarity.
+   */
+  private languageNameForLocale(locale: string): string {
+    const names: Record<string, string> = {
+      ar: 'Arabic',
+      de: 'German',
+      en: 'English',
+      es: 'Spanish',
+      fr: 'French',
+      hi: 'Hindi',
+      id: 'Indonesian',
+      it: 'Italian',
+      ja: 'Japanese',
+      ko: 'Korean',
+      nl: 'Dutch',
+      pl: 'Polish',
+      pt: 'Portuguese',
+      ru: 'Russian',
+      sv: 'Swedish',
+      tr: 'Turkish',
+      uk: 'Ukrainian',
+      vi: 'Vietnamese',
+      zh: 'Chinese',
+    };
+    return names[locale] ?? locale;
   }
 
   /**
@@ -196,10 +254,16 @@ Output only the narration script, no explanations.`;
   async getCachedNarrationUrl(
     recipeId: string,
     voiceProfileId: string,
+    locale: string = 'en',
   ): Promise<string | null> {
+    const normalizedLocale = this.normalizeLocale(locale);
     const cached = await this.prisma.narrationAudio.findUnique({
       where: {
-        recipeId_voiceProfileId: { recipeId, voiceProfileId },
+        recipeId_voiceProfileId_locale: {
+          recipeId,
+          voiceProfileId,
+          locale: normalizedLocale,
+        },
       },
     });
     return cached?.r2Url ?? null;
@@ -222,7 +286,9 @@ Output only the narration script, no explanations.`;
     voiceProfileId: string,
     userId: string,
     response: Response,
+    locale: string = 'en',
   ): Promise<void> {
+    const normalizedLocale = this.normalizeLocale(locale);
     // Verify voice profile ownership and status
     const voiceProfile = await this.prisma.voiceProfile.findFirst({
       where: {
@@ -262,8 +328,8 @@ Output only the narration script, no explanations.`;
       throw new NotFoundException(`Recipe ${recipeId} not found`);
     }
 
-    // Get conversational narration text
-    const narrationText = await this.rewriteToConversational(recipe);
+    // Get conversational narration text (Gemini translates + rewrites in one call)
+    const narrationText = await this.rewriteToConversational(recipe, normalizedLocale);
 
     // Replace [PAUSE] markers with natural pause (ellipsis for TTS)
     const ttsText = narrationText.replace(/\[PAUSE\]/g, '...');
@@ -309,7 +375,7 @@ Output only the narration script, no explanations.`;
 
       // Upload to R2 cache in background (non-blocking, failure won't break playback)
       const fullBuffer = Buffer.concat(chunks);
-      this.cacheNarrationAudio(recipeId, voiceProfileId, fullBuffer).catch(
+      this.cacheNarrationAudio(recipeId, voiceProfileId, fullBuffer, normalizedLocale).catch(
         (err) =>
           this.logger.warn(
             `Failed to cache narration audio for recipe ${recipeId}: ${err.message}`,
@@ -341,7 +407,10 @@ Output only the narration script, no explanations.`;
     recipeId: string,
     voiceProfileId: string,
     userId: string,
+    locale: string = 'en',
   ): Promise<{ url: string; durationMs: number | null }> {
+    const normalizedLocale = this.normalizeLocale(locale);
+
     // Verify voice profile ownership and status
     const voiceProfile = await this.prisma.voiceProfile.findFirst({
       where: { id: voiceProfileId, userId },
@@ -361,12 +430,12 @@ Output only the narration script, no explanations.`;
       throw new Error(`Recipe ${recipeId} not found`);
     }
 
-    // Generate conversational narration text via Gemini
-    const narrationText = await this.rewriteToConversational(recipe);
+    // Generate conversational narration text via Gemini (translates + rewrites in one call)
+    const narrationText = await this.rewriteToConversational(recipe, normalizedLocale);
     const ttsText = narrationText.replace(/\[PAUSE\]/g, '...');
 
     this.logger.log(
-      `Generating on-demand narration for recipe ${recipeId} with voice ${voiceProfile.speakerName}`,
+      `Generating on-demand narration for recipe ${recipeId} with voice ${voiceProfile.speakerName} (${normalizedLocale})`,
     );
 
     // Generate full audio via ElevenLabs TTS
@@ -388,15 +457,21 @@ Output only the narration script, no explanations.`;
 
     const fullBuffer = Buffer.concat(chunks);
     this.logger.log(
-      `Generated ${fullBuffer.length} bytes of narration audio for recipe ${recipeId}`,
+      `Generated ${fullBuffer.length} bytes of narration audio for recipe ${recipeId} (${normalizedLocale})`,
     );
 
     // Cache in R2 and save to DB
-    await this.cacheNarrationAudio(recipeId, voiceProfileId, fullBuffer);
+    await this.cacheNarrationAudio(recipeId, voiceProfileId, fullBuffer, normalizedLocale);
 
     // Retrieve the cached record for the URL and duration
     const cached = await this.prisma.narrationAudio.findUnique({
-      where: { recipeId_voiceProfileId: { recipeId, voiceProfileId } },
+      where: {
+        recipeId_voiceProfileId_locale: {
+          recipeId,
+          voiceProfileId,
+          locale: normalizedLocale,
+        },
+      },
     });
 
     return {
@@ -412,13 +487,16 @@ Output only the narration script, no explanations.`;
     recipeId: string,
     voiceProfileId: string,
     audioBuffer: Buffer,
+    locale: string = 'en',
   ): Promise<void> {
     const crypto = require('crypto');
     const getMp3Duration = require('get-mp3-duration');
 
+    const normalizedLocale = this.normalizeLocale(locale);
+
     // Generate hash from audio content for cache busting
     const hash = crypto.createHash('md5').update(audioBuffer).digest('hex').substring(0, 8);
-    const key = `narration/${recipeId}/${voiceProfileId}-${hash}.mp3`;
+    const key = `narration/${recipeId}/${voiceProfileId}-${normalizedLocale}-${hash}.mp3`;
 
     // Calculate duration from MP3 buffer
     let durationMs: number | null = null;
@@ -437,12 +515,17 @@ Output only the narration script, no explanations.`;
 
     await this.prisma.narrationAudio.upsert({
       where: {
-        recipeId_voiceProfileId: { recipeId, voiceProfileId },
+        recipeId_voiceProfileId_locale: {
+          recipeId,
+          voiceProfileId,
+          locale: normalizedLocale,
+        },
       },
       update: { r2Url, sizeBytes: audioBuffer.length, durationMs },
       create: {
         recipeId,
         voiceProfileId,
+        locale: normalizedLocale,
         r2Url,
         sizeBytes: audioBuffer.length,
         durationMs,
@@ -450,7 +533,7 @@ Output only the narration script, no explanations.`;
     });
 
     this.logger.log(
-      `Cached narration audio for recipe ${recipeId}, voice ${voiceProfileId} (${audioBuffer.length} bytes, ${durationMs}ms, key: ${key})`,
+      `Cached narration audio for recipe ${recipeId}, voice ${voiceProfileId}, locale ${normalizedLocale} (${audioBuffer.length} bytes, ${durationMs}ms, key: ${key})`,
     );
   }
 

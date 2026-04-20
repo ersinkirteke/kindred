@@ -269,12 +269,17 @@ model VoiceProfile {
 }
 
 // NarrationScript model - cache for Gemini conversational rewriting
+// One cached narration per (recipe, locale). Gemini rewrites recipe text into
+// warm conversational narration in the user's language; locale lets us fold
+// translation into the same Gemini call and cache the result per language.
 model NarrationScript {
   id                 String   @id @default(cuid())
-  recipeId           String   @unique // one cached narration per recipe (voice-independent)
-  conversationalText String   // Gemini-rewritten narration text
+  recipeId           String
+  locale             String   @default("en")
+  conversationalText String   // Gemini-rewritten narration text in `locale`
   generatedAt        DateTime @default(now())
 
+  @@unique([recipeId, locale])
   @@index([recipeId])
 }
 
@@ -359,16 +364,21 @@ model ScanJob {
 }
 
 // NarrationAudio model - cached TTS audio in R2 to avoid redundant ElevenLabs calls
+// Keyed on (recipeId, voiceProfileId, locale) — the same cloned voice speaking
+// the same recipe in a different language is a different MP3, so it gets its
+// own cache row. ElevenLabs multilingual model produces the audio; cache spares
+// us re-synthesizing on every replay.
 model NarrationAudio {
   id             String   @id @default(cuid())
   recipeId       String
   voiceProfileId String
+  locale         String   @default("en")
   r2Url          String
   sizeBytes      Int
   durationMs     Int?     // MP3 duration in milliseconds, computed at upload time
   createdAt      DateTime @default(now())
 
-  @@unique([recipeId, voiceProfileId])
+  @@unique([recipeId, voiceProfileId, locale])
   @@index([recipeId])
 }
 

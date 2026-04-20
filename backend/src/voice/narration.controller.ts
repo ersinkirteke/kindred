@@ -45,6 +45,7 @@ export class NarrationController {
   async streamNarration(
     @Param('recipeId') recipeId: string,
     @Query('voiceProfileId') voiceProfileId: string,
+    @Query('locale') locale: string | undefined,
     @CurrentUser() user: { userId: string },
     @Res({ passthrough: false }) response: Response,
   ): Promise<void> {
@@ -52,11 +53,14 @@ export class NarrationController {
       throw new NotFoundException('voiceProfileId query parameter is required');
     }
 
+    const effectiveLocale = locale ?? 'en';
+
     try {
       // Check for cached narration audio → redirect to CDN
       const cachedUrl = await this.narrationService.getCachedNarrationUrl(
         recipeId,
         voiceProfileId,
+        effectiveLocale,
       );
       if (cachedUrl) {
         response.redirect(302, cachedUrl);
@@ -69,6 +73,7 @@ export class NarrationController {
         voiceProfileId,
         user.userId,
         response,
+        effectiveLocale,
       );
     } catch (error) {
       // Error handling for various failure cases

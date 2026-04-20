@@ -144,8 +144,10 @@ export class VoiceResolver {
   async narrationUrl(
     @Args('recipeId') recipeId: string,
     @Args('voiceProfileId', { nullable: true, type: () => String }) voiceProfileId: string | null,
+    @Args('locale', { nullable: true, type: () => String }) locale: string | null,
     @CurrentUser() user: CurrentUserContext,
   ): Promise<NarrationUrlDto> {
+    const effectiveLocale = locale ?? 'en';
     // Find database user from Clerk ID
     const dbUser = await this.prisma.user.findUnique({
       where: { clerkId: user.clerkId },
@@ -188,9 +190,19 @@ export class VoiceResolver {
       });
     }
 
-    // Check for cached narration audio
+    // Normalize locale the same way the service does so the cache lookup keys
+    // line up (we cache per language, not per region).
+    const normalizedLocale = effectiveLocale.split(/[-_]/)[0].toLowerCase() || 'en';
+
+    // Check for cached narration audio (per recipe+voice+locale)
     let cached = await this.prisma.narrationAudio.findUnique({
-      where: { recipeId_voiceProfileId: { recipeId, voiceProfileId: profileId } },
+      where: {
+        recipeId_voiceProfileId_locale: {
+          recipeId,
+          voiceProfileId: profileId,
+          locale: normalizedLocale,
+        },
+      },
     });
 
     // If not cached and voice is READY, generate on-demand
@@ -200,6 +212,7 @@ export class VoiceResolver {
           recipeId,
           profileId,
           dbUser.id,
+          normalizedLocale,
         );
         return {
           url: generated.url,
