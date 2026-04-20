@@ -71,11 +71,10 @@ public struct VoicePickerView: View {
                 // Empty state
                 EmptyStateView(onCreateProfile: onCreateProfile)
             } else {
-                ScrollView {
-                    VStack(spacing: 12) {
-                        // MARK: Free Section
-                        if !freeProfiles.isEmpty {
-                            sectionHeader("Free")
+                List {
+                    // MARK: Free Section
+                    if !freeProfiles.isEmpty {
+                        Section {
                             ForEach(freeProfiles) { profile in
                                 VoiceCardView(
                                     profile: profile,
@@ -88,11 +87,18 @@ public struct VoicePickerView: View {
                                     onPreview: { onPreview(profile.id) }
                                 )
                                 .accessibilityAddTraits(AccessibilityTraits())
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                             }
+                        } header: {
+                            sectionHeader("Free")
+                                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
                         }
+                    }
 
-                        // MARK: Pro Voices Section
-                        sectionHeader("Pro Voices")
+                    // MARK: Pro Voices Section
+                    Section {
                         ForEach(sortedProProfiles) { profile in
                             VoiceCardView(
                                 profile: profile,
@@ -108,7 +114,10 @@ public struct VoicePickerView: View {
                                 },
                                 onPreview: { onPreview(profile.id) }
                             )
-                            .contextMenu {
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     onDelete(profile.id)
                                 } label: {
@@ -116,8 +125,13 @@ public struct VoicePickerView: View {
                                 }
                             }
                         }
+                    } header: {
+                        sectionHeader("Pro Voices")
+                            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                    }
 
-                        // Bottom of Pro section: upgrade CTA or create voice profile button
+                    // Bottom of Pro section: upgrade CTA or create voice profile button
+                    Section {
                         if isAtVoiceLimit {
                             // Upgrade CTA for free users at voice limit
                             Button {
@@ -176,9 +190,13 @@ public struct VoicePickerView: View {
                             .accessibilityLabel(String(localized: "accessibility.voice_picker.create_profile_label", bundle: .main))
                         }
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 16, trailing: 16))
                 }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .background(Color.kindredBackground)
             }
         }
         .background(Color.kindredBackground)
