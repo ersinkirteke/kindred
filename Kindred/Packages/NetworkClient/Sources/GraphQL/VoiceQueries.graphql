@@ -25,3 +25,7 @@ mutation DeleteVoiceProfile($id: String!) {
     status
   }
 }
+
+mutation PrewarmNarration($recipeId: String!, $voiceProfileId: String!, $locale: String) {
+  prewarmNarration(recipeId: $recipeId, voiceProfileId: $voiceProfileId, locale: $locale)
+}
