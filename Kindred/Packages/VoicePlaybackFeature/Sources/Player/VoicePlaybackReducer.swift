@@ -583,6 +583,10 @@ public struct VoicePlaybackReducer {
                         }
                         do {
                             try await audioPlayer.play(url)
+                            // Kick the status to .playing immediately so the UI drops
+                            // its loading spinner even if the KVO status stream takes
+                            // a moment to emit its first event.
+                            await send(.statusChanged(.playing))
                         } catch {
                             await send(.narrationFailed("\(url.absoluteString) — \(error.localizedDescription)"))
                         }

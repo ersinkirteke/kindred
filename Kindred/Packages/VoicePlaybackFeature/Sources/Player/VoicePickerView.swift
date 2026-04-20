@@ -379,6 +379,7 @@ struct VoiceCardView: View {
                     )
             )
         }
+        .buttonStyle(.plain)
         .accessibilityLabel(kindredVoiceAccessibilityLabel)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
