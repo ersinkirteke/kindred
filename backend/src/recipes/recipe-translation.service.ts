@@ -221,6 +221,47 @@ ${JSON.stringify(input)}`;
     };
   }
 
+  /**
+   * Return whatever cached translations exist for the given recipe IDs.
+   * For any missing ones, kick off background generation so the *next*
+   * call can serve them from cache — keeps feed-card translation cheap
+   * by never blocking on Gemini synchronously.
+   */
+  async getCachedBatchAndBackfill(
+    recipeIds: string[],
+    locale: string,
+  ): Promise<RecipeTranslationDto[]> {
+    const normalized = this.normalizeLocale(locale);
+    if (normalized === 'en' || recipeIds.length === 0) return [];
+
+    const cached = await this.prisma.recipeTranslation.findMany({
+      where: { locale: normalized, recipeId: { in: recipeIds } },
+    });
+
+    const cachedIds = new Set(cached.map((t) => t.recipeId));
+    const missing = recipeIds.filter((id) => !cachedIds.has(id));
+
+    // Fire-and-forget background generation for missing ones. Do not await —
+    // we want the caller (feed) to return immediately with whatever is
+    // already cached.
+    for (const id of missing) {
+      this.getOrGenerate(id, normalized).catch((err) => {
+        this.logger.warn(
+          `Background translation for ${id}/${normalized} failed: ${err instanceof Error ? err.message : err}`,
+        );
+      });
+    }
+
+    return cached.map((t) =>
+      this.toDto(t.recipeId, normalized, {
+        name: t.name,
+        description: t.description,
+        ingredients: t.ingredients as any,
+        steps: t.steps as any,
+      }),
+    );
+  }
+
   private normalizeLocale(locale: string): string {
     const lang = (locale || 'en').split(/[-_]/)[0].toLowerCase();
     return lang.length >= 2 ? lang : 'en';

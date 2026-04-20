@@ -67,4 +67,15 @@ export class RecipesResolver {
   ): Promise<RecipeTranslationDto | null> {
     return this.recipeTranslationService.getOrGenerate(recipeId, locale);
   }
+
+  @Query(() => [RecipeTranslationDto], {
+    description:
+      'Batch: cached translations only for a list of recipes. Triggers background generation for uncached ones so subsequent calls return them. Returns only the subset currently cached — callers should fall back to the original (English) name/description for missing ids.',
+  })
+  async recipeTranslations(
+    @Args('recipeIds', { type: () => [String] }) recipeIds: string[],
+    @Args('locale') locale: string,
+  ): Promise<RecipeTranslationDto[]> {
+    return this.recipeTranslationService.getCachedBatchAndBackfill(recipeIds, locale);
+  }
 }
