@@ -62,6 +62,26 @@ public struct RecipeCard: Equatable, Identifiable {
         return prepTime ?? cookTime
     }
 
+    /// Return a copy with the name/description swapped for localized strings.
+    public func localized(name: String, description: String?) -> RecipeCard {
+        RecipeCard(
+            id: id,
+            name: name,
+            description: description ?? self.description,
+            prepTime: prepTime,
+            cookTime: cookTime,
+            calories: calories,
+            imageUrl: imageUrl,
+            popularityScore: popularityScore,
+            engagementLoves: engagementLoves,
+            dietaryTags: dietaryTags,
+            difficulty: difficulty,
+            cuisineType: cuisineType,
+            ingredientNames: ingredientNames,
+            matchPercentage: matchPercentage
+        )
+    }
+
     public var formattedLoves: String {
         // Abbreviated: 2300 → "2.3k", 15000 → "15k"
         if engagementLoves >= 1000 {

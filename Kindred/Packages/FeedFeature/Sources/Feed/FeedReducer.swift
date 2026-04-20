@@ -301,7 +301,38 @@ public struct FeedReducer {
 
                                 if let connection = result.data?.popularRecipes {
                                     let cards = connection.edges.map { RecipeCard.from(popularRecipe: $0.node) }
-                                    await send(.recipesLoaded(.success(cards)))
+                                    // Translate card titles/descriptions in the user's locale
+                                    // BEFORE dispatching so the feed renders in the right
+                                    // language on the first frame — no English flicker.
+                                    let locale = Locale.current.language.languageCode?.identifier ?? "en"
+                                    let localized: [RecipeCard]
+                                    if locale == "en" || cards.isEmpty {
+                                        localized = cards
+                                    } else {
+                                        do {
+                                            let translationResult = try await apolloClient.fetch(
+                                                query: KindredAPI.RecipeTranslationsBatchQuery(
+                                                    recipeIds: cards.map(\.id),
+                                                    locale: locale
+                                                ),
+                                                cachePolicy: .networkFirst
+                                            )
+                                            var translationByRecipeId: [String: (name: String, description: String?)] = [:]
+                                            for t in translationResult.data?.recipeTranslations ?? [] {
+                                                translationByRecipeId[t.recipeId] = (t.name, t.description)
+                                            }
+                                            localized = cards.map { card in
+                                                if let t = translationByRecipeId[card.id] {
+                                                    return card.localized(name: t.name, description: t.description)
+                                                }
+                                                return card
+                                            }
+                                        } catch {
+                                            // On failure, fall back to original cards — feed still loads
+                                            localized = cards
+                                        }
+                                    }
+                                    await send(.recipesLoaded(.success(localized)))
                                     await send(.updatePaginationCursor(
                                         endCursor: connection.pageInfo.endCursor,
                                         hasNextPage: connection.pageInfo.hasNextPage

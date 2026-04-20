@@ -16,6 +16,14 @@ query RecipeTranslation($recipeId: String!, $locale: String!) {
   }
 }
 
+query RecipeTranslationsBatch($recipeIds: [String!]!, $locale: String!) {
+  recipeTranslations(recipeIds: $recipeIds, locale: $locale) {
+    recipeId
+    name
+    description
+  }
+}
+
 query RecipeDetail($id: ID!) {
   recipe(id: $id) {
     id
