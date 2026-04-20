@@ -82,6 +82,30 @@ export class VoiceResolver {
   }
 
   /**
+   * Fire-and-forget pre-warm: queues narration generation for a recipe/voice/locale
+   * so the next tap on that recipe plays from cache. Returns immediately; the
+   * actual Gemini + ElevenLabs work happens in the background. Safe to call
+   * repeatedly — getOrGenerate is idempotent and cache-first.
+   */
+  @Mutation(() => Boolean)
+  @UseGuards(ClerkAuthGuard)
+  async prewarmNarration(
+    @Args('recipeId') recipeId: string,
+    @Args('voiceProfileId') voiceProfileId: string,
+    @Args('locale', { nullable: true, type: () => String }) locale: string | null,
+    @CurrentUser() user: CurrentUserContext,
+  ): Promise<boolean> {
+    const dbUser = await this.prisma.user.findUnique({ where: { clerkId: user.clerkId } });
+    if (!dbUser) return false;
+    const effectiveLocale = (locale ?? 'en').split(/[-_]/)[0].toLowerCase();
+    // Kick off in background — don't await. Feed can keep moving.
+    this.narrationService
+      .generateAndCacheNarration(recipeId, voiceProfileId, dbUser.id, effectiveLocale)
+      .catch(() => { /* swallow — best-effort pre-warm */ });
+    return true;
+  }
+
+  /**
    * Mutation: updateVoiceProfileName
    *
    * Update speakerName and relationship on an existing voice profile.
