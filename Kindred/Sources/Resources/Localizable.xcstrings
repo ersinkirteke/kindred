@@ -6907,6 +6907,74 @@
         }
       }
     },
+    "Select Audio File": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select Audio File"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ses Dosyası Seç"
+          }
+        }
+      }
+    },
+    "Upload Voice Clip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload Voice Clip"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ses Kaydını Yükle"
+          }
+        }
+      }
+    },
+    "e.g., My Voice, Mom, Dad": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g., My Voice, Mom, Dad"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "örn., Sesim, Anne, Baba"
+          }
+        }
+      }
+    },
+    "Tap to change file": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to change file"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dosyayı değiştirmek için dokunun"
+          }
+        }
+      }
+    },
     "Kindred Voice": {
       "extractionState": "manual",
       "localizations": {
