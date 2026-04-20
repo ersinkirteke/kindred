@@ -268,6 +268,23 @@ model VoiceProfile {
   @@index([userId, status])
 }
 
+// RecipeTranslation model - cache Gemini-translated recipe text per locale
+// so the UI can show the recipe in the user's language without re-spending
+// Gemini tokens on every view. Shared across all users on the same language.
+model RecipeTranslation {
+  id          String   @id @default(cuid())
+  recipeId    String
+  locale      String   // 'tr', 'es', etc. (primary language subtag)
+  name        String
+  description String?
+  ingredients Json     // [{ name, quantity, unit }]
+  steps       Json     // [{ text, orderIndex }]
+  generatedAt DateTime @default(now())
+
+  @@unique([recipeId, locale])
+  @@index([recipeId])
+}
+
 // NarrationScript model - cache for Gemini conversational rewriting
 // One cached narration per (recipe, locale). Gemini rewrites recipe text into
 // warm conversational narration in the user's language; locale lets us fold

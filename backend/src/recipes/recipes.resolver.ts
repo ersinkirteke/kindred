@@ -1,12 +1,17 @@
 import { Resolver, Query, Args, ID, Int } from '@nestjs/graphql';
 import { RecipesService } from './recipes.service';
+import { RecipeTranslationService } from './recipe-translation.service';
 import { Recipe } from '../graphql/models/recipe.model';
 import { SearchRecipesInput } from './dto/search-recipes.input';
 import { RecipeConnection } from '../feed/dto/feed-connection.type';
+import { RecipeTranslationDto } from './dto/recipe-translation.dto';
 
 @Resolver(() => Recipe)
 export class RecipesResolver {
-  constructor(private recipesService: RecipesService) {}
+  constructor(
+    private recipesService: RecipesService,
+    private recipeTranslationService: RecipeTranslationService,
+  ) {}
 
   @Query(() => RecipeConnection, {
     description: 'Search recipes with filters and pagination (cache-first with stale-while-revalidate)',
@@ -49,5 +54,17 @@ export class RecipesResolver {
     @Args('id', { type: () => ID }) id: string,
   ): Promise<Recipe | null> {
     return this.recipesService.findById(id) as any;
+  }
+
+  @Query(() => RecipeTranslationDto, {
+    nullable: true,
+    description:
+      'Gemini-translated recipe content in the given locale. Returns null for English or when translation is unavailable.',
+  })
+  async recipeTranslation(
+    @Args('recipeId') recipeId: string,
+    @Args('locale') locale: string,
+  ): Promise<RecipeTranslationDto | null> {
+    return this.recipeTranslationService.getOrGenerate(recipeId, locale);
   }
 }
