@@ -465,21 +465,10 @@ struct AppReducer {
                 // Pre-warm narration cache as soon as the detail view loads its
                 // recipe, so by the time the user taps Dinle the Gemini + ElevenLabs
                 // work is already underway (often finished) and the mini-player
-                // doesn't stall. Fires only for Pro voices the user already selected;
-                // AVSpeech (kindred-default) needs no pre-warming.
-                if case .recipeLoaded(.success(let recipe)) = recipeDetailAction,
-                   let voiceId = state.voicePlaybackState.selectedVoiceId,
-                   voiceId != "kindred-default" {
-                    let locale = Locale.current.language.languageCode?.identifier ?? "en"
-                    return .run { _ in
-                        _ = try? await apolloClient.perform(
-                            mutation: KindredAPI.PrewarmNarrationMutation(
-                                recipeId: recipe.id,
-                                voiceProfileId: voiceId,
-                                locale: .some(locale)
-                            )
-                        )
-                    }
+                // doesn't stall. Delegated to VoicePlaybackReducer which has the
+                // apolloClient dependency + knows the selected voice.
+                if case .recipeLoaded(.success(let recipe)) = recipeDetailAction {
+                    return .send(.voicePlayback(.prewarmNarration(recipeId: recipe.id)))
                 }
 
                 // Handle recipe detail delegate actions

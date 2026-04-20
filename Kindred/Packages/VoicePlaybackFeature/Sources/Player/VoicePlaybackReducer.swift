@@ -128,6 +128,7 @@ public struct VoicePlaybackReducer {
         case jumpToStepRequested(Int)
         case deleteVoiceProfile(String)
         case voiceProfileDeleted(String)
+        case prewarmNarration(recipeId: String)
         case voiceProfileDeleteFailed(String)
 
         public static func == (lhs: Action, rhs: Action) -> Bool {
@@ -193,6 +194,8 @@ public struct VoicePlaybackReducer {
             case let (.voiceProfileDeleted(l), .voiceProfileDeleted(r)):
                 return l == r
             case let (.voiceProfileDeleteFailed(l), .voiceProfileDeleteFailed(r)):
+                return l == r
+            case let (.prewarmNarration(l), .prewarmNarration(r)):
                 return l == r
             default:
                 return false
@@ -1279,6 +1282,25 @@ public struct VoicePlaybackReducer {
             case let .voiceProfileDeleteFailed(error):
                 state.error = error
                 return .none
+
+            case let .prewarmNarration(recipeId):
+                // Fire-and-forget: kick backend generation for current selected
+                // voice so next tap on Dinle plays from cache. No-op for the
+                // default Kindred voice (AVSpeech, no generation needed).
+                guard let voiceId = state.selectedVoiceId,
+                      voiceId != "kindred-default" else {
+                    return .none
+                }
+                let locale = Locale.current.language.languageCode?.identifier ?? "en"
+                return .run { _ in
+                    _ = try? await apolloClient.perform(
+                        mutation: KindredAPI.PrewarmNarrationMutation(
+                            recipeId: recipeId,
+                            voiceProfileId: voiceId,
+                            locale: .some(locale)
+                        )
+                    )
+                }
             }
         }
         .onChange(of: \.currentPlayback) { oldValue, newValue in
