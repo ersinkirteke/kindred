@@ -155,7 +155,7 @@ public struct RecipeDetailView: View {
             // Match summary
             if let matchPct = store.matchPercentage, store.eligibleCount > 0 {
                 VStack(alignment: .leading, spacing: KindredSpacing.sm) {
-                    Text("You have \(store.matchedCount) of \(store.eligibleCount) ingredients (\(matchPct)%)")
+                    Text(String(localized: "You have \(store.matchedCount) of \(store.eligibleCount) ingredients (\(matchPct)%)", bundle: .main))
                         .font(.kindredBodyScaled(size: bodySize))
                         .foregroundStyle(.kindredTextSecondary)
 

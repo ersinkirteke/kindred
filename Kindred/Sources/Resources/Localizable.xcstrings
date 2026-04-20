@@ -7060,6 +7060,23 @@
         }
       }
     },
+    "You have %lld of %lld ingredients (%lld%%)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have %lld of %lld ingredients (%lld%%)"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld / %lld malzemeye sahipsiniz (%%%lld)"
+          }
+        }
+      }
+    },
     "Kindred Voice": {
       "extractionState": "manual",
       "localizations": {

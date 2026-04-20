@@ -818,7 +818,36 @@ public struct FeedReducer {
                             let endCursor = connection.pageInfo.endCursor
                             let hasNextPage = connection.pageInfo.hasNextPage
                             let totalCount = connection.totalCount
-                            await send(.searchResultsLoaded(.success((cards, endCursor, hasNextPage, totalCount))))
+
+                            // Same batch-translation treatment as the popularRecipes
+                            // feed so search cards render in the user's language.
+                            let locale = Locale.current.language.languageCode?.identifier ?? "en"
+                            let localized: [RecipeCard]
+                            if locale == "en" || cards.isEmpty {
+                                localized = cards
+                            } else {
+                                do {
+                                    let tResult = try await apolloClient.fetch(
+                                        query: KindredAPI.RecipeTranslationsBatchQuery(
+                                            recipeIds: cards.map(\.id),
+                                            locale: locale
+                                        ),
+                                        cachePolicy: .networkFirst
+                                    )
+                                    var byId: [String: (name: String, description: String?)] = [:]
+                                    for t in tResult.data?.recipeTranslations ?? [] {
+                                        byId[t.recipeId] = (t.name, t.description)
+                                    }
+                                    localized = cards.map { c in
+                                        if let t = byId[c.id] { return c.localized(name: t.name, description: t.description) }
+                                        return c
+                                    }
+                                } catch {
+                                    localized = cards
+                                }
+                            }
+
+                            await send(.searchResultsLoaded(.success((localized, endCursor, hasNextPage, totalCount))))
                         } else if let errors = result.errors, !errors.isEmpty {
                             await send(.searchResultsLoaded(.failure(FeedError.graphQL(errors.first!.localizedDescription))))
                         } else {
