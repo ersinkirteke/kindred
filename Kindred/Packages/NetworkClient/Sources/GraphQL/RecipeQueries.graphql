@@ -1,3 +1,21 @@
+query RecipeTranslation($recipeId: String!, $locale: String!) {
+  recipeTranslation(recipeId: $recipeId, locale: $locale) {
+    recipeId
+    locale
+    name
+    description
+    ingredients {
+      name
+      quantity
+      unit
+    }
+    steps {
+      orderIndex
+      text
+    }
+  }
+}
+
 query RecipeDetail($id: ID!) {
   recipe(id: $id) {
     id

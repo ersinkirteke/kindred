@@ -67,6 +67,12 @@ public struct RecipeDetailReducer {
         case currentStepIndexUpdated(Int?)
         case isAVSpeechActiveUpdated(Bool)
         case jumpToStep(Int)
+        case recipeTranslationApplied(
+            name: String,
+            description: String?,
+            ingredients: [RecipeIngredient],
+            steps: [RecipeStep]
+        )
         case delegate(Delegate)
 
     public enum Delegate: Equatable {
@@ -121,6 +127,9 @@ public struct RecipeDetailReducer {
                 return lhs == rhs
             case let (.jumpToStep(lhs), .jumpToStep(rhs)):
                 return lhs == rhs
+            case let (.recipeTranslationApplied(lName, lDesc, lIng, lSteps),
+                      .recipeTranslationApplied(rName, rDesc, rIng, rSteps)):
+                return lName == rName && lDesc == rDesc && lIng == rIng && lSteps == rSteps
             case let (.delegate(lhs), .delegate(rhs)):
                 return lhs == rhs
             default:
@@ -183,6 +192,43 @@ public struct RecipeDetailReducer {
                             let shouldShow = await adClient.shouldShowAds()
                             await send(.adVisibilityDetermined(shouldShow))
                         }
+
+                        // Task 4: Localize recipe text if the device isn't already English.
+                        // Backend returns null for 'en' so we skip the call entirely there.
+                        let locale = Locale.current.language.languageCode?.identifier ?? "en"
+                        if locale != "en" {
+                            group.addTask {
+                                do {
+                                    let result = try await apolloClient.fetch(
+                                        query: KindredAPI.RecipeTranslationQuery(
+                                            recipeId: recipeId,
+                                            locale: locale
+                                        ),
+                                        cachePolicy: .cacheFirst
+                                    )
+                                    guard let translation = result.data?.recipeTranslation else { return }
+                                    let ingredients = translation.ingredients.enumerated().map { idx, i in
+                                        RecipeIngredient(
+                                            name: i.name,
+                                            quantity: i.quantity.isEmpty ? nil : i.quantity,
+                                            unit: i.unit.isEmpty ? nil : i.unit,
+                                            orderIndex: idx
+                                        )
+                                    }
+                                    let steps = translation.steps.map { s in
+                                        RecipeStep(orderIndex: s.orderIndex, text: s.text)
+                                    }
+                                    await send(.recipeTranslationApplied(
+                                        name: translation.name,
+                                        description: translation.description,
+                                        ingredients: ingredients,
+                                        steps: steps
+                                    ))
+                                } catch {
+                                    // Translation is best-effort; swallow errors and keep original text
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -196,6 +242,32 @@ public struct RecipeDetailReducer {
                 state.isLoading = false
                 state.error = error.localizedDescription
                 return .none
+
+            case let .recipeTranslationApplied(name, description, ingredients, steps):
+                // Merge translated strings into the loaded recipe, preserving everything
+                // else (times, calories, tags, etc.). If recipe hasn't arrived yet the
+                // effect no-ops and the translation would naturally be re-fetched on
+                // next onAppear (it'll come out of Apollo cache next time).
+                guard let recipe = state.recipe else { return .none }
+                state.recipe = RecipeDetail(
+                    id: recipe.id,
+                    name: name,
+                    description: description ?? recipe.description,
+                    prepTime: recipe.prepTime,
+                    cookTime: recipe.cookTime,
+                    servings: recipe.servings,
+                    calories: recipe.calories,
+                    imageUrl: recipe.imageUrl,
+                    popularityScore: recipe.popularityScore,
+                    engagementLoves: recipe.engagementLoves,
+                    dietaryTags: recipe.dietaryTags,
+                    difficulty: recipe.difficulty,
+                    sourceUrl: recipe.sourceUrl,
+                    sourceName: recipe.sourceName,
+                    ingredients: ingredients,
+                    steps: steps
+                )
+                return .send(.computeIngredientMatch)
 
             case let .bookmarkStatusLoaded(isBookmarked):
                 state.isBookmarked = isBookmarked

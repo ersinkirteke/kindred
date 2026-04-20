@@ -33,8 +33,11 @@ public enum SchemaMetadata: ApolloAPI.SchemaMetadata {
     case "RecipeCardEdge": return KindredAPI.Objects.RecipeCardEdge
     case "RecipeConnection": return KindredAPI.Objects.RecipeConnection
     case "RecipeStep": return KindredAPI.Objects.RecipeStep
+    case "RecipeTranslation": return KindredAPI.Objects.RecipeTranslation
     case "ScanJobResponse": return KindredAPI.Objects.ScanJobResponse
     case "ScanResultResponse": return KindredAPI.Objects.ScanResultResponse
+    case "TranslatedIngredient": return KindredAPI.Objects.TranslatedIngredient
+    case "TranslatedStep": return KindredAPI.Objects.TranslatedStep
     case "VoiceProfile": return KindredAPI.Objects.VoiceProfile
     default: return nil
     }
