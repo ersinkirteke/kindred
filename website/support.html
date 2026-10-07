@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Support — Kindred</title>
+  <meta name="description" content="Help with Kindred: voice profiles, account and data deletion, subscriptions and location. Contact the Kindred team." />
+  <link rel="canonical" href="https://kindredcook.app/support" />
+  <meta name="theme-color" content="#FFF8F0" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#1C1410" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23C0553A'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='36' font-weight='700' text-anchor='middle' fill='%23FFF8F0'%3EK%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/site.css" />
+</head>
+<body>
+  <header class="nav wrap">
+    <a href="/" class="brand" aria-label="Kindred"><span class="brand-mark">K</span>Kindred</a>
+    <nav class="nav-links">
+      <a href="/privacy" data-i18n="nav.privacy">Privacy</a>
+      <button type="button" class="lang" data-lang-toggle aria-label="Language">TR</button>
+    </nav>
+  </header>
+
+  <main class="wrap page">
+    <p class="eyebrow" data-i18n="s.eyebrow">Support</p>
+    <h1 data-i18n="s.title">How can we help?</h1>
+    <p class="lead" data-i18n="s.lead">Answers to the most common questions about Kindred. If you can't find what you need, write to us and we'll get back to you.</p>
+
+    <div class="contact-box">
+      <div>
+        <p class="contact-label" data-i18n="s.contact">Contact</p>
+        <a class="contact-mail" href="mailto:ersin.kirteke@kindredcook.app">ersin.kirteke@kindredcook.app</a>
+      </div>
+      <button type="button" class="btn btn-ghost" data-copy="ersin.kirteke@kindredcook.app" data-i18n="s.copy">Copy address</button>
+    </div>
+
+    <section class="faq">
+      <details open>
+        <summary data-i18n="q1">How does voice narration work?</summary>
+        <p data-i18n="a1">You upload a 30–90 second recording of a loved one's voice, with their explicit consent. Kindred sends it to our voice partner ElevenLabs to create a cloned voice, which is then used only to read your recipes aloud. Cloned voices are never shared with other users.</p>
+      </details>
+      <details>
+        <summary data-i18n="q2">How do I delete a voice profile?</summary>
+        <p data-i18n="a2">Open the app and go to Settings → Privacy &amp; Data → Delete Voice Profile. This removes the cloned voice and the stored audio sample.</p>
+      </details>
+      <details>
+        <summary data-i18n="q3">How do I delete my account?</summary>
+        <p data-i18n="a3">Email us with the subject "Delete My Account" from the address linked to your account. We delete your voice profile and audio sample and anonymise your account data within 30 days.</p>
+      </details>
+      <details>
+        <summary data-i18n="q4">Can I get a copy of my data?</summary>
+        <p data-i18n="a4">Yes. Email us with the subject "Data Export Request" and we'll send your personal data in a machine-readable format (JSON), within 30 days as required by GDPR.</p>
+      </details>
+      <details>
+        <summary data-i18n="q5">How do I manage or cancel my Pro subscription?</summary>
+        <p data-i18n="a5">Subscriptions are billed by Apple. On your iPhone, open Settings → your name → Subscriptions → Kindred to change or cancel. For refunds, use reportaproblem.apple.com.</p>
+      </details>
+      <details>
+        <summary data-i18n="q6">Why does Kindred ask for my location?</summary>
+        <p data-i18n="a6">To show recipes trending in your city. Kindred only uses your city, not your precise location, and you can turn this off any time in iOS Settings → Kindred → Location.</p>
+      </details>
+    </section>
+
+    <p class="muted" data-i18n="s.privacy">For details on how we handle your data, read our <a href="/privacy">Privacy Policy</a>.</p>
+  </main>
+
+  <footer class="footer wrap">
+    <p>© <span data-year>2026</span> Kindred</p>
+    <nav>
+      <a href="/" data-i18n="footer.home">Home</a>
+      <a href="/privacy" data-i18n="footer.privacy">Privacy Policy</a>
+    </nav>
+  </footer>
+
+  <script>
+    const T = {
+      en: {
+        'nav.privacy': 'Privacy',
+        's.eyebrow': 'Support', 's.title': 'How can we help?',
+        's.lead': "Answers to the most common questions about Kindred. If you can't find what you need, write to us and we'll get back to you.",
+        's.contact': 'Contact', 's.copy': 'Copy address', 's.copied': 'Copied',
+        'q1': 'How does voice narration work?',
+        'a1': "You upload a 30–90 second recording of a loved one's voice, with their explicit consent. Kindred sends it to our voice partner ElevenLabs to create a cloned voice, which is then used only to read your recipes aloud. Cloned voices are never shared with other users.",
+        'q2': 'How do I delete a voice profile?',
+        'a2': 'Open the app and go to Settings → Privacy & Data → Delete Voice Profile. This removes the cloned voice and the stored audio sample.',
+        'q3': 'How do I delete my account?',
+        'a3': 'Email us with the subject "Delete My Account" from the address linked to your account. We delete your voice profile and audio sample and anonymise your account data within 30 days.',
+        'q4': 'Can I get a copy of my data?',
+        'a4': 'Yes. Email us with the subject "Data Export Request" and we\'ll send your personal data in a machine-readable format (JSON), within 30 days as required by GDPR.',
+        'q5': 'How do I manage or cancel my Pro subscription?',
+        'a5': 'Subscriptions are billed by Apple. On your iPhone, open Settings → your name → Subscriptions → Kindred to change or cancel. For refunds, use reportaproblem.apple.com.',
+        'q6': 'Why does Kindred ask for my location?',
+        'a6': 'To show recipes trending in your city. Kindred only uses your city, not your precise location, and you can turn this off any time in iOS Settings → Kindred → Location.',
+        's.privacy': 'For details on how we handle your data, read our <a href="/privacy">Privacy Policy</a>.',
+        'footer.home': 'Home', 'footer.privacy': 'Privacy Policy',
+      },
+      tr: {
+        'nav.privacy': 'Gizlilik',
+        's.eyebrow': 'Destek', 's.title': 'Size nasıl yardımcı olabiliriz?',
+        's.lead': 'Kindred hakkında en sık sorulan soruların cevapları. Aradığınızı bulamazsanız bize yazın, size dönüş yapalım.',
+        's.contact': 'İletişim', 's.copy': 'Adresi kopyala', 's.copied': 'Kopyalandı',
+        'q1': 'Sesli anlatım nasıl çalışıyor?',
+        'a1': 'Sevdiğiniz birinin açık onayıyla 30–90 saniyelik bir ses kaydını yüklersiniz. Kindred kaydı ses iş ortağımız ElevenLabs’e göndererek klonlanmış bir ses oluşturur; bu ses yalnızca tariflerinizi sesli okumak için kullanılır. Klonlanan sesler diğer kullanıcılarla asla paylaşılmaz.',
+        'q2': 'Ses profilimi nasıl silerim?',
+        'a2': 'Uygulamada Ayarlar → Gizlilik ve Veriler → Ses Profilini Sil adımlarını izleyin. Bu işlem klonlanan sesi ve saklanan ses kaydını kaldırır.',
+        'q3': 'Hesabımı nasıl silerim?',
+        'a3': 'Hesabınıza bağlı e-posta adresinden, konu satırına "Delete My Account" yazarak bize e-posta gönderin. Ses profilinizi ve ses kaydınızı siler, hesap verilerinizi 30 gün içinde anonim hale getiririz.',
+        'q4': 'Verilerimin bir kopyasını alabilir miyim?',
+        'a4': 'Evet. Konu satırına "Data Export Request" yazarak bize e-posta gönderin; kişisel verilerinizi GDPR’ın öngördüğü şekilde 30 gün içinde makine tarafından okunabilir bir formatta (JSON) gönderelim.',
+        'q5': 'Pro aboneliğimi nasıl yönetir veya iptal ederim?',
+        'a5': 'Abonelikler Apple tarafından faturalandırılır. iPhone’unuzda Ayarlar → adınız → Abonelikler → Kindred yolunu izleyerek değiştirebilir veya iptal edebilirsiniz. İade talepleri için reportaproblem.apple.com adresini kullanın.',
+        'q6': 'Kindred neden konumumu istiyor?',
+        'a6': 'Şehrinizde popüler olan tarifleri göstermek için. Kindred yalnızca şehrinizi kullanır, tam konumunuzu değil. Bunu istediğiniz zaman iOS Ayarlar → Kindred → Konum bölümünden kapatabilirsiniz.',
+        's.privacy': 'Verilerinizi nasıl işlediğimizle ilgili ayrıntılar için <a href="/privacy">Gizlilik Politikamızı</a> okuyun (İngilizce).',
+        'footer.home': 'Ana sayfa', 'footer.privacy': 'Gizlilik Politikası',
+      },
+    };
+  </script>
+  <script src="/site.js"></script>
+</body>
+</html>
