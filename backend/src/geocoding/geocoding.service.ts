@@ -2,8 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { CityCoordinates, CitySuggestion } from './dto/location.dto';
-// @ts-ignore - Mapbox SDK has incomplete TypeScript declarations
-import mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
+// The Mapbox SDK is CommonJS (module.exports = factory) and this project compiles without
+// esModuleInterop, so a default import becomes `geocoding_1.default(...)`, which is undefined
+// at runtime and crashes the app on startup whenever MAPBOX_ACCESS_TOKEN is set.
+const mbxGeocoding =
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('@mapbox/mapbox-sdk/services/geocoding') as (config: {
+    accessToken: string;
+  }) => unknown;
 
 @Injectable()
 export class GeocodingService {
