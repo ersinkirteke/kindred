@@ -64,7 +64,6 @@ Kindred/skills-lock.json
 # Misc untracked build artifacts
 Kindred/apollo-ios-cli
 Kindred/appicon.png
-Kindred/Sources/Resources/Assets.xcassets/
 
 # Planning docs in progress
 .planning/phases/29-source-attribution-wiring/
