@@ -24,8 +24,11 @@ public struct AdCardView: View {
             if let ad = nativeAd, loadState == .loaded {
                 // Ad loaded - show native ad content
                 loadedAdContent(ad: ad)
+            } else if isShowingProPromo {
+                // No ad to show (e.g. no fill) - promote Pro instead of an empty card
+                proPromoContent
             } else {
-                // Loading or failed - show placeholder
+                // Loading - show placeholder
                 loadingPlaceholder
             }
         }
@@ -44,7 +47,65 @@ public struct AdCardView: View {
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(String(localized: "accessibility.ads.sponsored_content", bundle: .main))
+        .accessibilityLabel(isShowingProPromo
+            ? String(localized: "accessibility.paywall.label", bundle: .main)
+            : String(localized: "accessibility.ads.sponsored_content", bundle: .main))
+    }
+
+    private var isShowingProPromo: Bool {
+        if case .failed = loadState { return true }
+        return false
+    }
+
+    private var proPromoContent: some View {
+        VStack(alignment: .leading, spacing: KindredSpacing.md) {
+            Image(systemName: "crown.fill")
+                .font(.system(size: 28))
+                .foregroundStyle(.kindredAccent)
+                .frame(width: 56, height: 56)
+                .background(Color.kindredAccent.opacity(0.12))
+                .clipShape(Circle())
+                .accessibilityHidden(true)
+
+            Text(String(localized: "paywall.title", bundle: .main))
+                .font(.kindredHeading1())
+                .foregroundStyle(.kindredTextPrimary)
+
+            proBenefitRow(
+                icon: "nosign",
+                title: String(localized: "paywall.benefit_adfree_title", bundle: .main),
+                detail: String(localized: "paywall.benefit_adfree_description", bundle: .main)
+            )
+            proBenefitRow(
+                icon: "waveform",
+                title: String(localized: "paywall.benefit_voice_title", bundle: .main),
+                detail: String(localized: "paywall.benefit_voice_description", bundle: .main)
+            )
+
+            Spacer(minLength: 0)
+
+            KindredButton(String(localized: "ads.remove_ads_pro", bundle: .main), action: onUpgradeTapped)
+        }
+        .padding(KindredSpacing.lg)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private func proBenefitRow(icon: String, title: String, detail: String) -> some View {
+        HStack(alignment: .top, spacing: KindredSpacing.sm) {
+            Image(systemName: icon)
+                .font(.kindredBody())
+                .foregroundStyle(.kindredAccent)
+                .frame(width: 24)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.kindredBodyBold())
+                    .foregroundStyle(.kindredTextPrimary)
+                Text(detail)
+                    .font(.kindredCaption())
+                    .foregroundStyle(.kindredTextSecondary)
+            }
+        }
     }
 
     @ViewBuilder
