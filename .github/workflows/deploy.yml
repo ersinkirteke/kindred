@@ -9,6 +9,10 @@ on:
       - '.github/workflows/ci.yml'
   workflow_dispatch:
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 jobs:
   ci:
     uses: ./.github/workflows/ci.yml
@@ -18,40 +22,31 @@ jobs:
     needs: ci
 
     steps:
+      # The server pins this key to /usr/local/bin/deploy-kindred-api (authorized_keys
+      # `restrict,command=...`), so no remote command is sent: connecting IS the deploy.
+      # deploy-kindred-api pulls main, backs up the database, rebuilds the app image,
+      # runs `prisma migrate deploy`, restarts the app and fails unless { health } is "ok".
       - name: Deploy to server
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script_stop: true
-          script: |
-            echo "==> Pulling latest code..."
-            cd /opt/kindred/repo
-            git pull origin main
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ServerAliveInterval=30 \
+            "$SSH_USER@$SSH_HOST"
 
-            echo "==> Building app container..."
-            cd /opt/kindred
-            docker compose build --no-cache app
-
-            echo "==> Running database migrations..."
-            docker compose run --rm app npx prisma migrate deploy
-
-            echo "==> Restarting app..."
-            docker compose up -d app
-
-            echo "==> Waiting for app to start..."
-            sleep 15
-
-            echo "==> Health check..."
-            RESPONSE=$(curl -sf -X POST http://localhost:3000/v1/graphql \
-              -H 'Content-Type: application/json' \
-              -d '{"query":"{ health }"}' || true)
-
-            if echo "$RESPONSE" | grep -q '"health":"ok"'; then
-              echo "Health check passed!"
-            else
-              echo "Health check failed. Response: $RESPONSE"
-              docker compose logs app --tail=50
-              exit 1
-            fi
+      - name: Public health check
+        run: |
+          RESPONSE=$(curl -sf -X POST https://api.kindredcook.app/v1/graphql \
+            -H 'Content-Type: application/json' \
+            -d '{"query":"{ health }"}' || true)
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q '"health":"ok"'
