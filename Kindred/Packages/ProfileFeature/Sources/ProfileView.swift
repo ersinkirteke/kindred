@@ -70,6 +70,14 @@ public struct ProfileView: View {
                     )
                     .padding(.horizontal, KindredSpacing.md)
 
+                    // Sign Out button (handled by AppReducer)
+                    KindredButton(String(localized: "profile.sign_out", bundle: .main), style: .secondary) {
+                        store.send(.signOutTapped)
+                    }
+                    .disabled(store.isDeletingAccount)
+                    .padding(.horizontal, KindredSpacing.md)
+                    .padding(.top, KindredSpacing.md)
+
                     // Delete Account button (required by App Store 5.1.1(v))
                     Button(role: .destructive) {
                         store.send(.deleteAccountTapped)

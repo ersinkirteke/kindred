@@ -7345,6 +7345,22 @@
           }
         }
       }
+    },
+    "profile.sign_out": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign Out"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çıkış Yap"
+          }
+        }
+      }
     }
   },
   "version": "1.1"
