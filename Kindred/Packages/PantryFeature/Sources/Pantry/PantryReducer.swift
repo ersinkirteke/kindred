@@ -470,7 +470,7 @@ public struct PantryReducer {
 
             case let .priceLoaded(price):
                 state.isLoadingPrice = false
-                state.subscribeButtonTitle = "Subscribe for \(price)/month"
+                state.subscribeButtonTitle = String(localized: "paywall.subscribe_button \(price)", bundle: .main)
                 return .none
 
             case .priceLoadFailed:

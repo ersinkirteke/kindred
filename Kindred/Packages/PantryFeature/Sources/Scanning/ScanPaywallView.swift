@@ -297,6 +297,20 @@ public struct ScanPaywallView: View {
             .disabled(!canSubscribe)
             .accessibilityLabel(isLoadingPrice ? "Loading subscription price" : subscribeButtonTitle)
 
+            // Subscription title, length and auto-renewal terms (required by App Store 3.1.2(c))
+            VStack(spacing: 4) {
+                Text(String(localized: "paywall.plan_name_fallback", bundle: .main))
+                    .font(.footnote)
+                    .fontWeight(.semibold)
+                Text(String(localized: "paywall.auto_renew_disclosure", bundle: .main))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(.horizontal)
+            .accessibilityElement(children: .combine)
+
             Button {
                 onRestore()
             } label: {
@@ -304,6 +318,16 @@ public struct ScanPaywallView: View {
                     .font(.body)
                     .foregroundStyle(.secondary)
             }
+
+            // Terms of Use & Privacy Policy links (required by App Store 3.1.2(c))
+            HStack(spacing: 8) {
+                Link(String(localized: "paywall.terms_of_use", bundle: .main),
+                     destination: URL(string: "https://kindredcook.app/terms")!)
+                Text("·").foregroundStyle(.secondary)
+                Link(String(localized: "paywall.privacy_policy", bundle: .main),
+                     destination: URL(string: "https://kindredcook.app/privacy")!)
+            }
+            .font(.caption)
         }
         .padding()
         .background(Color(.systemBackground))

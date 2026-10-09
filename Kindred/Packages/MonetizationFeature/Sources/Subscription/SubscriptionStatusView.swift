@@ -72,11 +72,38 @@ private struct FreeStateView: View {
                 BenefitItem(text: String(localized: "subscription.benefit_voice", bundle: .main))
             }
 
+            // Subscription title, length and price (required by App Store 3.1.2(c))
+            VStack(alignment: .leading, spacing: KindredSpacing.xs) {
+                Text(String(localized: "paywall.plan_name_fallback", bundle: .main))
+                    .font(.kindredBodyBold())
+                    .foregroundStyle(.kindredTextPrimary)
+                Text(String(localized: "paywall.plan_period \(displayPrice)", bundle: .main))
+                    .font(.kindredBody())
+                    .foregroundStyle(.kindredTextPrimary)
+                Text(String(localized: "paywall.auto_renew_disclosure", bundle: .main))
+                    .font(.kindredCaption())
+                    .foregroundStyle(.kindredTextSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .accessibilityElement(children: .combine)
+
             KindredButton(String(localized: "subscription.subscribe_button \(displayPrice)", bundle: .main), style: .primary) {
                 onSubscribe()
             }
             .accessibilityLabel(String(localized: "accessibility.subscription.subscribe \(displayPrice)", bundle: .main))
             .accessibilityHint(String(localized: "accessibility.subscription.subscribe_hint", bundle: .main))
+
+            // Terms of Use & Privacy Policy links (required by App Store 3.1.2(c))
+            HStack(spacing: KindredSpacing.sm) {
+                Link(String(localized: "paywall.terms_of_use", bundle: .main),
+                     destination: URL(string: "https://kindredcook.app/terms")!)
+                Text("·").foregroundStyle(.kindredTextSecondary)
+                Link(String(localized: "paywall.privacy_policy", bundle: .main),
+                     destination: URL(string: "https://kindredcook.app/privacy")!)
+            }
+            .font(.kindredCaption())
+            .foregroundStyle(.kindredAccent)
+            .frame(maxWidth: .infinity)
         }
         .padding(KindredSpacing.lg)
     }
