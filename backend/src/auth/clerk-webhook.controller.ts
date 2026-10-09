@@ -10,9 +10,13 @@ import {
   Req,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ModuleRef } from '@nestjs/core';
 import { Webhook } from 'svix';
 import { ClerkWebhookPayload } from './dto/clerk-webhook.dto';
 import { UsersService } from '../users/users.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { R2StorageService } from '../images/r2-storage.service';
+import { VoiceService } from '../voice/voice.service';
 import { Request } from 'express';
 
 /**
@@ -30,6 +34,9 @@ export class ClerkWebhookController {
   constructor(
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
+    private readonly prisma: PrismaService,
+    private readonly r2Storage: R2StorageService,
+    private readonly moduleRef: ModuleRef,
   ) {
     this.webhookSecret = this.configService.get<string>('CLERK_WEBHOOK_SECRET');
     if (!this.webhookSecret) {
@@ -124,16 +131,46 @@ export class ClerkWebhookController {
   }
 
   /**
-   * Handle user.deleted events.
-   * Marks user as inactive (soft delete).
+   * Handle user.deleted events (account deletion, App Store guideline 5.1.1(v)).
+   * Deletes voice clones (ElevenLabs + R2), scan photos and all database records.
    */
   private async handleUserDelete(payload: ClerkWebhookPayload) {
     const { id: clerkId } = payload.data;
 
-    this.logger.log(`Soft deleting user ${clerkId}`);
+    const user = await this.usersService.findByClerkId(clerkId);
+    if (!user) {
+      this.logger.log(`user.deleted for unknown user ${clerkId}, nothing to delete`);
+      return;
+    }
 
-    // For now, we'll just log this. Implement soft delete in UsersService if needed.
-    // await this.usersService.softDelete(clerkId);
-    this.logger.warn(`User deletion not fully implemented yet for ${clerkId}`);
+    this.logger.log(`Deleting account data for user ${clerkId}`);
+
+    // Voice profiles: VoiceService removes the ElevenLabs voice, the R2 sample and
+    // narration audio. Resolved at runtime: importing VoiceModule here would
+    // create a module cycle (VoiceModule -> SubscriptionModule -> AuthModule).
+    const voiceService = this.moduleRef.get(VoiceService, { strict: false });
+    const voiceProfiles = await voiceService.getVoiceProfiles(clerkId);
+    for (const profile of voiceProfiles) {
+      try {
+        await voiceService.deleteVoiceProfile(profile.id, clerkId);
+      } catch (error) {
+        this.logger.warn(`Failed to delete voice profile ${profile.id}: ${error.message}`);
+      }
+    }
+
+    // Fridge scan photos stored in R2
+    const scans = await this.prisma.scanJob.findMany({
+      where: { userId: user.id, photoUrl: { not: null } },
+      select: { photoUrl: true },
+    });
+    for (const scan of scans) {
+      await this.r2Storage.deleteUserFile(scan.photoUrl!);
+    }
+
+    const result = await this.usersService.deleteAccountData(user.id);
+    this.logger.log(
+      `Deleted account ${clerkId}: ${voiceProfiles.length} voice profiles, ${scans.length} scan photos, ` +
+        `${result.notificationLogs} notification logs, ${result.detachedTransactions} transactions detached`,
+    );
   }
 }

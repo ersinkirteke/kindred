@@ -65,4 +65,28 @@ export class UsersService {
       },
     });
   }
+
+  /**
+   * Permanently delete a user's account data (account deletion).
+   * Bookmarks, device tokens, voice profiles, subscription, pantry items and
+   * scan jobs are removed by the User relation's onDelete: Cascade. Tables
+   * without a User relation are cleared here; purchase history is kept for
+   * accounting but detached from the user.
+   */
+  async deleteAccountData(userId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const notificationLogs = await tx.notificationLog.deleteMany({ where: { userId } });
+      const notificationPreferences = await tx.notificationPreferences.deleteMany({ where: { userId } });
+      const transactions = await tx.transactionHistory.updateMany({
+        where: { userId },
+        data: { userId: null },
+      });
+      await tx.user.delete({ where: { id: userId } });
+      return {
+        notificationLogs: notificationLogs.count,
+        notificationPreferences: notificationPreferences.count,
+        detachedTransactions: transactions.count,
+      };
+    });
+  }
 }

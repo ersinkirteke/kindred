@@ -213,4 +213,27 @@ export class R2StorageService {
       this.logger.warn(`Failed to delete narration audio (may already be deleted): ${url}`, error);
     }
   }
+
+  /**
+   * Delete a user-uploaded file (e.g. a fridge scan photo) by its public URL.
+   *
+   * Used when a user deletes their account. URLs outside this bucket are ignored.
+   *
+   * @param url - Public URL of the file
+   */
+  async deleteUserFile(url: string): Promise<void> {
+    if (!url.startsWith(`${this.publicUrl}/`)) {
+      return;
+    }
+    try {
+      const key = url.replace(`${this.publicUrl}/`, '');
+      await this.s3Client.send(new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      }));
+      this.logger.log(`User file deleted: ${key}`);
+    } catch (error) {
+      this.logger.warn(`Failed to delete user file (may already be deleted): ${url}`, error);
+    }
+  }
 }

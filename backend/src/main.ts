@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
@@ -8,7 +9,7 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
   // Enable rawBody for webhook signature verification (Clerk webhooks use svix)
-  const app = await NestFactory.create(AppModule, { rawBody: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
   const configService = app.get(ConfigService);
 
   // Enable CORS for mobile clients
@@ -20,9 +21,10 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Set body parser limit for future voice upload proxy
-  app.use(require('express').json({ limit: '10mb' }));
-  app.use(require('express').urlencoded({ limit: '10mb', extended: true }));
+  // Set body parser limit for future voice upload proxy. Use Nest's parsers
+  // (not app.use(express.json())) so req.rawBody is kept for webhook signatures.
+  app.useBodyParser('json', { limit: '10mb' });
+  app.useBodyParser('urlencoded', { limit: '10mb', extended: true });
 
   // Global validation pipe
   app.useGlobalPipes(

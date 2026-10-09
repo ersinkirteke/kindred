@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '../config/config.module';
 import { UsersModule } from '../users/users.module';
+import { ImagesModule } from '../images/images.module';
 import { AuthService } from './auth.service';
 import { ClerkAuthGuard } from './auth.guard';
 import { ClerkWebhookController } from './clerk-webhook.controller';
@@ -17,7 +18,7 @@ import { ClerkWebhookController } from './clerk-webhook.controller';
  */
 @Global()
 @Module({
-  imports: [ConfigModule, UsersModule],
+  imports: [ConfigModule, UsersModule, ImagesModule],
   controllers: [ClerkWebhookController],
   providers: [AuthService, ClerkAuthGuard],
   exports: [AuthService, ClerkAuthGuard],
