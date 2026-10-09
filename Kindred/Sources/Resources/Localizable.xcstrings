@@ -7297,6 +7297,54 @@
           }
         }
       }
+    },
+    "paywall.plan_name_fallback": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kindred Pro Monthly"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kindred Pro Aylık"
+          }
+        }
+      }
+    },
+    "paywall.plan_period %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 month · %@/month"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 ay · %@/ay"
+          }
+        }
+      }
+    },
+    "paywall.auto_renew_disclosure": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renews automatically every month until cancelled. Cancel anytime in Settings at least 24 hours before the end of the current period."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İptal edilene kadar her ay otomatik olarak yenilenir. Mevcut dönemin bitiminden en az 24 saat önce Ayarlar'dan istediğiniz zaman iptal edebilirsiniz."
+          }
+        }
+      }
     }
   },
   "version": "1.1"

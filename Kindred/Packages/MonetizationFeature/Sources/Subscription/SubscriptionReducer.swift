@@ -19,6 +19,8 @@ public struct SubscriptionReducer {
         public var showPaywall: Bool = false
         public var error: String?
         public var displayPrice: String = "$9.99"
+        /// Localized App Store name of the subscription (nil until products load)
+        public var productName: String?
 
         public init() {}
     }
@@ -97,6 +99,7 @@ public struct SubscriptionReducer {
                 // Extract display price from first product
                 if let product = products.first {
                     state.displayPrice = product.displayPrice
+                    state.productName = product.displayName.isEmpty ? nil : product.displayName
                     logger.info("Product: \(product.id), price: \(product.displayPrice)")
                 }
                 return .none

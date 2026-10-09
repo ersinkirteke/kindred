@@ -41,121 +41,141 @@ public struct PaywallView: View {
             .padding(.top, KindredSpacing.sm)
             .padding(.horizontal, KindredSpacing.md)
 
-            VStack(spacing: KindredSpacing.xl) {
-                // Heading
-                Text(String(localized: "paywall.title", bundle: .main))
-                    .font(.kindredHeading1Scaled(size: heading1Size))
-                    .foregroundStyle(.kindredTextPrimary)
-                    .accessibilityAddTraits(.isHeader)
+            ScrollView {
+                VStack(spacing: KindredSpacing.xl) {
+                    // Heading
+                    Text(String(localized: "paywall.title", bundle: .main))
+                        .font(.kindredHeading1Scaled(size: heading1Size))
+                        .foregroundStyle(.kindredTextPrimary)
+                        .accessibilityAddTraits(.isHeader)
 
-                // Benefits
-                VStack(spacing: KindredSpacing.md) {
-                    BenefitRow(
-                        icon: "checkmark.seal.fill",
-                        title: String(localized: "paywall.benefit_adfree_title", bundle: .main),
-                        description: String(localized: "paywall.benefit_adfree_description", bundle: .main),
-                        bodySize: bodySize
-                    )
+                    // Benefits
+                    VStack(spacing: KindredSpacing.md) {
+                        BenefitRow(
+                            icon: "checkmark.seal.fill",
+                            title: String(localized: "paywall.benefit_adfree_title", bundle: .main),
+                            description: String(localized: "paywall.benefit_adfree_description", bundle: .main),
+                            bodySize: bodySize
+                        )
 
-                    BenefitRow(
-                        icon: "mic.badge.plus",
-                        title: String(localized: "paywall.benefit_voice_title", bundle: .main),
-                        description: String(localized: "paywall.benefit_voice_description", bundle: .main),
-                        bodySize: bodySize
-                    )
-                }
-
-                // Subscribe button area
-                VStack(spacing: KindredSpacing.md) {
-                    if store.isLoadingProducts {
-                        HStack {
-                            ProgressView()
-                                .tint(.white)
-                            Text(String(localized: "paywall.loading", bundle: .main))
-                                .font(.kindredBodyScaled(size: bodySize))
-                                .foregroundStyle(.white)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color.kindredAccent.opacity(0.5))
-                        .clipShape(.rect(cornerRadius: 16))
-                    } else if store.isPurchasing {
-                        HStack {
-                            ProgressView()
-                                .tint(.white)
-                            Text(String(localized: "paywall.processing", bundle: .main))
-                                .font(.kindredBodyScaled(size: bodySize))
-                                .foregroundStyle(.white)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color.kindredAccent)
-                        .clipShape(.rect(cornerRadius: 16))
-                    } else {
-                        KindredButton(
-                            String(localized: "paywall.subscribe_button \(store.displayPrice)", bundle: .main),
-                            style: .primary
-                        ) {
-                            store.send(.subscribeTapped)
-                        }
-                        .accessibilityLabel(String(localized: "accessibility.paywall.subscribe \(store.displayPrice)", bundle: .main))
-                        .accessibilityHint(String(localized: "accessibility.paywall.subscribe_hint", bundle: .main))
+                        BenefitRow(
+                            icon: "mic.badge.plus",
+                            title: String(localized: "paywall.benefit_voice_title", bundle: .main),
+                            description: String(localized: "paywall.benefit_voice_description", bundle: .main),
+                            bodySize: bodySize
+                        )
                     }
 
-                    // Restore purchases link
-                    Button {
-                        store.send(.restoreTapped)
-                    } label: {
-                        if store.isRestoring {
-                            HStack(spacing: KindredSpacing.xs) {
+                    // Subscription title, length and price (required by App Store 3.1.2(c))
+                    VStack(spacing: KindredSpacing.xs) {
+                        Text(store.productName ?? String(localized: "paywall.plan_name_fallback", bundle: .main))
+                            .font(.kindredBodyBoldScaled(size: bodySize))
+                            .foregroundStyle(.kindredTextPrimary)
+                        Text(String(localized: "paywall.plan_period \(store.displayPrice)", bundle: .main))
+                            .font(.kindredBodyScaled(size: bodySize))
+                            .foregroundStyle(.kindredTextPrimary)
+                        Text(String(localized: "paywall.auto_renew_disclosure", bundle: .main))
+                            .font(.kindredCaptionScaled(size: captionSize))
+                            .foregroundStyle(.kindredTextSecondary)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .accessibilityElement(children: .combine)
+
+                    // Subscribe button area
+                    VStack(spacing: KindredSpacing.md) {
+                        if store.isLoadingProducts {
+                            HStack {
                                 ProgressView()
-                                    .controlSize(.small)
-                                Text(String(localized: "paywall.restoring", bundle: .main))
+                                    .tint(.white)
+                                Text(String(localized: "paywall.loading", bundle: .main))
+                                    .font(.kindredBodyScaled(size: bodySize))
+                                    .foregroundStyle(.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(Color.kindredAccent.opacity(0.5))
+                            .clipShape(.rect(cornerRadius: 16))
+                        } else if store.isPurchasing {
+                            HStack {
+                                ProgressView()
+                                    .tint(.white)
+                                Text(String(localized: "paywall.processing", bundle: .main))
+                                    .font(.kindredBodyScaled(size: bodySize))
+                                    .foregroundStyle(.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(Color.kindredAccent)
+                            .clipShape(.rect(cornerRadius: 16))
+                        } else {
+                            KindredButton(
+                                String(localized: "paywall.subscribe_button \(store.displayPrice)", bundle: .main),
+                                style: .primary
+                            ) {
+                                store.send(.subscribeTapped)
+                            }
+                            .accessibilityLabel(String(localized: "accessibility.paywall.subscribe \(store.displayPrice)", bundle: .main))
+                            .accessibilityHint(String(localized: "accessibility.paywall.subscribe_hint", bundle: .main))
+                        }
+
+                        // Restore purchases link
+                        Button {
+                            store.send(.restoreTapped)
+                        } label: {
+                            if store.isRestoring {
+                                HStack(spacing: KindredSpacing.xs) {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                    Text(String(localized: "paywall.restoring", bundle: .main))
+                                        .font(.kindredCaptionScaled(size: captionSize))
+                                        .foregroundStyle(.kindredAccent)
+                                }
+                            } else {
+                                Text(String(localized: "paywall.restore_purchases", bundle: .main))
                                     .font(.kindredCaptionScaled(size: captionSize))
                                     .foregroundStyle(.kindredAccent)
                             }
-                        } else {
-                            Text(String(localized: "paywall.restore_purchases", bundle: .main))
-                                .font(.kindredCaptionScaled(size: captionSize))
-                                .foregroundStyle(.kindredAccent)
                         }
+                        .accessibilityLabel(String(localized: "accessibility.paywall.restore", bundle: .main))
+                        .accessibilityHint(String(localized: "accessibility.paywall.restore_hint", bundle: .main))
                     }
-                    .accessibilityLabel(String(localized: "accessibility.paywall.restore", bundle: .main))
-                    .accessibilityHint(String(localized: "accessibility.paywall.restore_hint", bundle: .main))
-                }
 
-                // Terms of Use & Privacy Policy links (required by App Store 3.1.2(c))
-                HStack(spacing: KindredSpacing.sm) {
-                    Link(String(localized: "paywall.terms_of_use", bundle: .main),
-                         destination: URL(string: "https://kindredcook.app/terms")!)
-                    Text("·").foregroundStyle(.kindredTextSecondary)
-                    Link(String(localized: "paywall.privacy_policy", bundle: .main),
-                         destination: URL(string: "https://kindredcook.app/privacy")!)
-                }
-                .font(.kindredCaptionScaled(size: captionSize))
-                .foregroundStyle(.kindredAccent)
+                    // Terms of Use & Privacy Policy links (required by App Store 3.1.2(c))
+                    HStack(spacing: KindredSpacing.sm) {
+                        Link(String(localized: "paywall.terms_of_use", bundle: .main),
+                             destination: URL(string: "https://kindredcook.app/terms")!)
+                        Text("·").foregroundStyle(.kindredTextSecondary)
+                        Link(String(localized: "paywall.privacy_policy", bundle: .main),
+                             destination: URL(string: "https://kindredcook.app/privacy")!)
+                    }
+                    .font(.kindredCaptionScaled(size: captionSize))
+                    .foregroundStyle(.kindredAccent)
 
-                // Error message
-                if let error = store.error, !error.isEmpty {
-                    Text(error)
-                        .font(.kindredCaptionScaled(size: captionSize))
-                        .foregroundStyle(.red)
+                    // Error message
+                    if let error = store.error, !error.isEmpty {
+                        Text(error)
+                            .font(.kindredCaptionScaled(size: captionSize))
+                            .foregroundStyle(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, KindredSpacing.md)
+                            .accessibilityLabel("Error: \(error)")
+                    }
+
+                    #if DEBUG
+                    // Debug state (temporary)
+                    Text("loading=\(store.isLoadingProducts) purchasing=\(store.isPurchasing) products=\(store.products.count) status=\(String(describing: store.subscriptionStatus))")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(.gray)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, KindredSpacing.md)
-                        .accessibilityLabel("Error: \(error)")
+                    #endif
                 }
-
-                #if DEBUG
-                // Debug state (temporary)
-                Text("loading=\(store.isLoadingProducts) purchasing=\(store.isPurchasing) products=\(store.products.count) status=\(String(describing: store.subscriptionStatus))")
-                    .font(.system(size: 10, design: .monospaced))
-                    .foregroundStyle(.gray)
-                    .multilineTextAlignment(.center)
-                #endif
+                .padding(KindredSpacing.lg)
             }
-            .padding(KindredSpacing.lg)
         }
-        .presentationDetents([.medium])
+        // Full height so the plan details and legal links are visible without dragging
+        .presentationDetents([.large])
         .presentationDragIndicator(.hidden)
         .accessibilityElement(children: .contain)
         .accessibilityLabel(String(localized: "accessibility.paywall.label", bundle: .main))
